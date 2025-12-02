@@ -168,6 +168,7 @@ section.py-24 {
     min-height: auto !important;
     max-height: none !important;
     aspect-ratio: 1920/887;
+    margin: 0 auto !important;
 }
 
 /* Custom Scrollbar */
