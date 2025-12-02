@@ -162,11 +162,12 @@ section.py-24 {
     overflow: hidden;
 }
 
-/* Main page hero section - full height */
+/* Main page hero section - aspect ratio based */
 #home.hero-section {
-    height: 100vh !important;
-    min-height: 100vh !important;
-    max-height: 100vh !important;
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    aspect-ratio: 1920/887;
 }
 
 /* Custom Scrollbar */
