@@ -362,15 +362,14 @@ function loadNavigation() {
             let ticking = false;
             
             function updateFloatingButtons() {
-                const navBottom = navigationElement.getBoundingClientRect().bottom;
-                const isNavVisible = navBottom > 0;
+                const scrollY = window.scrollY || window.pageYOffset;
                 
-                if (isNavVisible) {
-                    // 네비게이션이 보이면 플로팅 버튼 숨김
+                if (scrollY < 200) {
+                    // 스크롤이 200px 미만이면 플로팅 버튼 숨김
                     floatingButtonsElement.style.opacity = '0';
                     floatingButtonsElement.style.pointerEvents = 'none';
                 } else {
-                    // 네비게이션이 안보이면 플로팅 버튼 표시
+                    // 스크롤이 200px 이상이면 플로팅 버튼 표시
                     floatingButtonsElement.style.opacity = '1';
                     floatingButtonsElement.style.pointerEvents = 'auto';
                 }
