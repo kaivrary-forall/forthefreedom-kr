@@ -13,11 +13,11 @@ function loadNavigation() {
     const navigationHTML = `
         <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm shadow-sm">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center py-4">
+                <div class="flex justify-between items-center py-2">
                     <!-- 로고 -->
                     <div class="flex items-center">
                         <a href="${pathPrefix}index.html" class="flex items-center">
-                            <img src="${pathPrefix}images/logo.png" alt="자유와혁신 로고" class="h-16 w-auto logo-transparent">
+                            <img src="${pathPrefix}images/logo.png" alt="자유와혁신 로고" class="h-8 w-auto logo-transparent">
                         </a>
                     </div>
                     
