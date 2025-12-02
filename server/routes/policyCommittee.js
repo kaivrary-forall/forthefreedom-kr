@@ -1,53 +1,13 @@
 const express = require('express');
-const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const router = express.Router();
 const { PolicyCommittee } = require('../models');
 const { getAll, getById, deleteById } = require('../controllers/baseController');
 
-// 업로드 디렉토리 생성
-const uploadDir = '/app/uploads';
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// Multer 설정
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = path.extname(file.originalname);
-        const safeName = file.originalname
-            .replace(/[^\w\s.-]/g, '')
-            .replace(/\s+/g, '-')
-            .replace(/^[-]+|[-]+$/g, '')
-            .toLowerCase();
-        const baseName = path.basename(safeName, ext) || 'uploaded-file';
-        cb(null, `${baseName}-${uniqueSuffix}${ext}`);
-    }
-});
-
-const upload = multer({
-    storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 },
-    fileFilter: function (req, file, cb) {
-        const allowedMimes = [
-            'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
-            'application/pdf', 'application/msword', 
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'application/vnd.hancom.hwp', 'text/plain'
-        ];
-        
-        if (allowedMimes.includes(file.mimetype)) {
-            cb(null, true);
-        } else {
-            cb(new Error('지원하지 않는 파일 형식입니다.'), false);
-        }
-    }
-});
+// 공통 업로드 유틸리티 (한글 파일명 지원)
+const { uploads, createAttachmentsInfo, uploadDir } = require('../utils/upload');
+const upload = uploads.policyCommittee;
 
 // 정책위원회 활동 목록 조회
 router.get('/', getAll(PolicyCommittee));
@@ -112,15 +72,9 @@ router.post('/', upload.array('attachments'), async (req, res) => {
             isConfidential: req.body.isConfidential === 'true'
         };
 
-        // 첨부파일 처리
+        // 첨부파일 처리 (한글 파일명 자동 복원)
         if (req.files && req.files.length > 0) {
-            policyCommitteeData.attachments = req.files.map(file => ({
-                filename: file.filename,
-                originalName: file.originalname,
-                path: file.path,
-                size: file.size,
-                mimeType: file.mimetype
-            }));
+            policyCommitteeData.attachments = createAttachmentsInfo(req.files);
         }
 
         const policyCommittee = new PolicyCommittee(policyCommitteeData);
@@ -172,15 +126,9 @@ router.put('/:id', upload.array('attachments'), async (req, res) => {
             }
         });
 
-        // 새 첨부파일이 있으면 추가
+        // 새 첨부파일이 있으면 추가 (한글 파일명 자동 복원)
         if (req.files && req.files.length > 0) {
-            const newAttachments = req.files.map(file => ({
-                filename: file.filename,
-                originalName: file.originalname,
-                path: file.path,
-                size: file.size,
-                mimeType: file.mimetype
-            }));
+            const newAttachments = createAttachmentsInfo(req.files);
 
             if (req.body.replaceAttachments === 'true') {
                 updateData.attachments = newAttachments;

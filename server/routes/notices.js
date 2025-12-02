@@ -1,5 +1,4 @@
 const express = require('express');
-const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const router = express.Router();
@@ -7,72 +6,9 @@ const router = express.Router();
 const { Notice } = require('../models');
 const { getAll, getById, deleteById } = require('../controllers/baseController');
 
-// 업로드 디렉토리 생성 - Railway Volume 직접 사용
-const uploadDir = '/app/uploads';
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// Multer 설정
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        // 파일명 중복 방지를 위해 타임스탬프 추가
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = path.extname(file.originalname);
-        
-        // 한글 파일명을 안전하게 처리 (한글 보존)
-        const safeName = file.originalname
-            .replace(/[<>:"/\\|?*]/g, '') // 파일시스템에서 금지된 문자만 제거
-            .replace(/\s+/g, '_')          // 공백을 언더스코어로
-            .replace(/^[._-]+|[._-]+$/g, ''); // 앞뒤 특수문자 제거
-            
-        const baseName = path.basename(safeName, ext) || 'uploaded-file';
-        
-        // 파일명이 너무 길면 잘라내기 (최대 100자)
-        const maxLength = 100 - uniqueSuffix.toString().length - ext.length - 1;
-        const truncatedBaseName = baseName.length > maxLength ? 
-            baseName.substring(0, maxLength) : baseName;
-            
-        cb(null, `${truncatedBaseName}-${uniqueSuffix}${ext}`);
-    }
-});
-
-const upload = multer({
-    storage: storage,
-    limits: {
-        fileSize: 10 * 1024 * 1024 // 10MB 제한
-    },
-    fileFilter: function (req, file, cb) {
-        // 허용할 파일 형식
-        const allowedMimes = [
-            'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
-            'application/pdf', 'application/msword', 
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            // HWP 파일의 다양한 MIME 타입들
-            'application/vnd.hancom.hwp',
-            'application/x-hwp',
-            'application/haansofthwp',
-            'application/hwp',
-            'text/plain'
-        ];
-        
-        // 파일 확장자로도 HWP 파일 확인
-        const isHwpFile = file.originalname.toLowerCase().endsWith('.hwp');
-        
-        // 디버깅을 위한 로그
-        console.log(`[공지사항] 파일 업로드 시도: ${file.originalname}, MIME타입: ${file.mimetype}`);
-        
-        if (allowedMimes.includes(file.mimetype) || isHwpFile) {
-            cb(null, true);
-        } else {
-            console.log(`[공지사항] 거부된 파일: ${file.originalname}, MIME타입: ${file.mimetype}`);
-            cb(new Error('지원하지 않는 파일 형식입니다.'), false);
-        }
-    }
-});
+// 공통 업로드 유틸리티 (한글 파일명 지원)
+const { uploads, createAttachmentsInfo, uploadDir } = require('../utils/upload');
+const upload = uploads.notice;
 
 // 공지사항 목록 조회
 router.get('/', getAll(Notice));
@@ -125,14 +61,8 @@ router.post('/', upload.array('attachments'), async (req, res) => {
     try {
         const { title, content, category, author, excerpt, tags, isImportant } = req.body;
 
-        // 첨부파일 정보 처리
-        const attachments = req.files ? req.files.map(file => ({
-            filename: file.filename,
-            originalName: file.originalname,
-            size: file.size,
-            mimeType: file.mimetype,
-            uploadDate: new Date()
-        })) : [];
+        // 첨부파일 정보 처리 (한글 파일명 자동 복원)
+        const attachments = createAttachmentsInfo(req.files);
 
         const noticeData = {
             title,
@@ -181,15 +111,9 @@ router.put('/:id', upload.array('attachments'), async (req, res) => {
             updatedAt: new Date()
         };
 
-        // 새로운 첨부파일이 있는 경우 추가
+        // 새로운 첨부파일이 있는 경우 추가 (한글 파일명 자동 복원)
         if (req.files && req.files.length > 0) {
-            const newAttachments = req.files.map(file => ({
-                filename: file.filename,
-                originalName: file.originalname,
-                size: file.size,
-                mimeType: file.mimetype,
-                uploadDate: new Date()
-            }));
+            const newAttachments = createAttachmentsInfo(req.files);
             
             // 기존 첨부파일에 새 파일 추가
             const existingNotice = await Notice.findById(req.params.id);
