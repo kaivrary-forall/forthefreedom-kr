@@ -11,7 +11,7 @@ function loadNavigation() {
     const pathPrefix = isInSubFolder ? '../' : '';
     
     const navigationHTML = `
-        <nav class="absolute top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm shadow-sm">
+        <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm shadow-sm">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center py-4">
                     <!-- 로고 -->
