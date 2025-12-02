@@ -251,6 +251,9 @@ app.use('/api/events', require('./routes/events'));
 app.use('/api/card-news', require('./routes/cardNews'));
 app.use('/api/gallery', require('./routes/gallery'));
 
+// 유틸리티 라우트 (한글 파일명 복원)
+app.use('/api/fix-filenames', require('./routes/fixFilenames'));
+
 // 404 에러 핸들링
 app.use('*', (req, res) => {
   res.status(404).json({
