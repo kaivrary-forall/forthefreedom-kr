@@ -98,7 +98,7 @@ router.post('/', upload.array('attachments'), async (req, res) => {
 // 공지사항 수정
 router.put('/:id', upload.array('attachments'), async (req, res) => {
     try {
-        const { title, content, category, author, excerpt, tags, isImportant } = req.body;
+        const { title, content, category, author, excerpt, tags, isImportant, existingAttachments } = req.body;
 
         const updateData = {
             title,
@@ -111,30 +111,51 @@ router.put('/:id', upload.array('attachments'), async (req, res) => {
             updatedAt: new Date()
         };
 
-        // 새로운 첨부파일이 있는 경우 추가 (한글 파일명 자동 복원)
+        // 기존 공지사항 조회
+        const existingNotice = await Notice.findById(req.params.id);
+        if (!existingNotice) {
+            return res.status(404).json({
+                success: false,
+                message: '공지사항을 찾을 수 없습니다'
+            });
+        }
+
+        // 첨부파일 처리
+        let finalAttachments = [];
+
+        // 1. 유지할 기존 첨부파일 처리
+        if (existingAttachments) {
+            try {
+                // JSON 문자열로 전달된 경우 파싱
+                const keepAttachments = typeof existingAttachments === 'string' 
+                    ? JSON.parse(existingAttachments) 
+                    : existingAttachments;
+                
+                if (Array.isArray(keepAttachments)) {
+                    finalAttachments = keepAttachments;
+                }
+            } catch (e) {
+                console.log('기존 첨부파일 파싱 오류, 기존 파일 유지:', e.message);
+                finalAttachments = existingNotice.attachments || [];
+            }
+        } else {
+            // existingAttachments가 없으면 기존 첨부파일 유지 (새 파일만 추가하는 경우)
+            finalAttachments = existingNotice.attachments || [];
+        }
+
+        // 2. 새로 업로드된 첨부파일 추가
         if (req.files && req.files.length > 0) {
             const newAttachments = createAttachmentsInfo(req.files);
-            
-            // 기존 첨부파일에 새 파일 추가
-            const existingNotice = await Notice.findById(req.params.id);
-            updateData.attachments = [
-                ...(existingNotice.attachments || []),
-                ...newAttachments
-            ];
+            finalAttachments = [...finalAttachments, ...newAttachments];
         }
+
+        updateData.attachments = finalAttachments;
 
         const notice = await Notice.findByIdAndUpdate(
             req.params.id,
             updateData,
             { new: true, runValidators: true }
         );
-
-        if (!notice) {
-            return res.status(404).json({
-                success: false,
-                message: '공지사항을 찾을 수 없습니다'
-            });
-        }
 
         res.json({
             success: true,
