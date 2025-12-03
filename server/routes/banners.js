@@ -1,10 +1,69 @@
 const express = require('express');
 const router = express.Router();
 const Banner = require('../models/Banner');
+const BannerSettings = require('../models/BannerSettings');
 
 // 공통 업로드 유틸리티
 const { uploads, createAttachmentsInfo, uploadDir } = require('../utils/upload');
 const upload = uploads.notice; // notice 업로더 재사용
+
+// 배너 설정 조회
+router.get('/settings', async (req, res) => {
+    try {
+        let settings = await BannerSettings.findOne();
+        
+        // 설정이 없으면 기본값 생성
+        if (!settings) {
+            settings = await BannerSettings.create({
+                randomOrder: false,
+                autoPlayInterval: 5000
+            });
+        }
+        
+        res.json({
+            success: true,
+            data: settings
+        });
+    } catch (error) {
+        console.error('배너 설정 조회 오류:', error);
+        res.status(500).json({
+            success: false,
+            message: '배너 설정 조회 중 오류가 발생했습니다',
+            error: error.message
+        });
+    }
+});
+
+// 배너 설정 업데이트
+router.put('/settings', async (req, res) => {
+    try {
+        const { randomOrder, autoPlayInterval } = req.body;
+        
+        let settings = await BannerSettings.findOne();
+        
+        if (!settings) {
+            settings = new BannerSettings();
+        }
+        
+        if (randomOrder !== undefined) settings.randomOrder = randomOrder;
+        if (autoPlayInterval !== undefined) settings.autoPlayInterval = autoPlayInterval;
+        
+        await settings.save();
+        
+        res.json({
+            success: true,
+            data: settings,
+            message: '배너 설정이 업데이트되었습니다'
+        });
+    } catch (error) {
+        console.error('배너 설정 업데이트 오류:', error);
+        res.status(500).json({
+            success: false,
+            message: '배너 설정 업데이트 중 오류가 발생했습니다',
+            error: error.message
+        });
+    }
+});
 
 // 배너 목록 조회 (활성화된 것만, 순서대로)
 router.get('/', async (req, res) => {
