@@ -279,10 +279,11 @@ nav a::after {
         min-height: 60vh;
     }
     
-    /* Hero Section - Main page only */
+    /* Hero Section - Main page only - aspect-ratio 유지 */
     #home.hero-section {
-        height: 100vh !important;
-        min-height: 600px !important;
+        height: auto !important;
+        min-height: auto !important;
+        aspect-ratio: 21/9 !important;
     }
     
     .hero-section h1 {
@@ -357,9 +358,10 @@ nav a::after {
 
 /* Ultra-wide screen styles */
 @media (min-width: 1920px) {
-    /* Main page hero on ultra-wide */
+    /* Main page hero on ultra-wide - aspect-ratio 유지 */
     #home.hero-section {
-        height: 90vh !important;
+        height: auto !important;
+        aspect-ratio: 21/9 !important;
     }
     
     /* Menu pages stay 60vh on ultra-wide */
