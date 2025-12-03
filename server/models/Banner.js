@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const bannerSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true,
-    trim: true
+    trim: true,
+    default: ''
   },
   subtitle: {
     type: String,
