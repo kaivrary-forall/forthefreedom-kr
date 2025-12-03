@@ -151,9 +151,6 @@ section.py-24 {
 
 /* Default hero section for all pages */
 .hero-section {
-    height: 60vh;
-    min-height: 60vh;
-    max-height: 60vh;
     display: flex;
     align-items: center;
     margin: 0;
@@ -162,12 +159,19 @@ section.py-24 {
     overflow: hidden;
 }
 
-/* Main page hero section - 피그마 디자인 */
+/* Sub pages hero section */
+.hero-section:not(#home) {
+    height: 60vh;
+    min-height: 60vh;
+    max-height: 60vh;
+}
+
+/* Main page hero section - 피그마 디자인 (21:9 비율 고정) */
 #home.hero-section {
     height: auto !important;
     min-height: auto !important;
     max-height: none !important;
-    aspect-ratio: 21/9;
+    aspect-ratio: 21/9 !important;
     margin: 0 !important;
     border-radius: 16px;
 }
