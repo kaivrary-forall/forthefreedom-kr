@@ -128,7 +128,7 @@ router.post('/', upload.single('image'), async (req, res) => {
             });
         }
         
-        const { title, subtitle, linkUrl, linkText, order, isActive } = req.body;
+        const { title, subtitle, linkUrl, linkText, source, order, isActive } = req.body;
         
         // 이미지 URL 생성 (Railway 환경 대응)
         const baseUrl = process.env.NODE_ENV === 'production' 
@@ -143,6 +143,7 @@ router.post('/', upload.single('image'), async (req, res) => {
             originalName: req.file.originalname,
             linkUrl: linkUrl || '',
             linkText: linkText || '자세히 보기',
+            source: source || '',
             order: parseInt(order) || 0,
             isActive: isActive !== 'false'
         };
@@ -170,7 +171,7 @@ router.post('/', upload.single('image'), async (req, res) => {
 // 배너 수정
 router.put('/:id', upload.single('image'), async (req, res) => {
     try {
-        const { title, subtitle, linkUrl, linkText, order, isActive } = req.body;
+        const { title, subtitle, linkUrl, linkText, source, order, isActive } = req.body;
         
         const existingBanner = await Banner.findById(req.params.id);
         if (!existingBanner) {
@@ -185,6 +186,7 @@ router.put('/:id', upload.single('image'), async (req, res) => {
             subtitle: subtitle !== undefined ? subtitle : existingBanner.subtitle,
             linkUrl: linkUrl !== undefined ? linkUrl : existingBanner.linkUrl,
             linkText: linkText || existingBanner.linkText,
+            source: source !== undefined ? source : existingBanner.source,
             order: order !== undefined ? parseInt(order) : existingBanner.order,
             isActive: isActive !== undefined ? isActive !== 'false' : existingBanner.isActive
         };
