@@ -338,14 +338,37 @@
         let isPaused = false;
         const SLIDE_DURATION = 5000; // 5초
         
+        // 배열 랜덤 섞기 함수
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+        
         // 배너 데이터 로드
         async function loadBanners() {
             try {
-                const response = await fetch(window.API_BASE + '/banners');
-                const result = await response.json();
+                // 설정과 배너 동시에 로드
+                const [settingsRes, bannersRes] = await Promise.all([
+                    fetch(window.API_BASE + '/banners/settings'),
+                    fetch(window.API_BASE + '/banners')
+                ]);
+                
+                const settings = await settingsRes.json();
+                const result = await bannersRes.json();
                 
                 if (result.success && result.data.length > 0) {
-                    renderBanners(result.data);
+                    let bannerData = result.data;
+                    
+                    // 랜덤 순서 설정이 켜져 있으면 섞기
+                    if (settings.success && settings.data.randomOrder) {
+                        bannerData = shuffleArray(bannerData);
+                    }
+                    
+                    renderBanners(bannerData);
                 }
             } catch (error) {
                 console.log('배너 로드 실패, 기본 배너 사용:', error);
