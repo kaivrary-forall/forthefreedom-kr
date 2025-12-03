@@ -162,13 +162,14 @@ section.py-24 {
     overflow: hidden;
 }
 
-/* Main page hero section - aspect ratio based */
+/* Main page hero section - 피그마 디자인 */
 #home.hero-section {
     height: auto !important;
     min-height: auto !important;
     max-height: none !important;
-    aspect-ratio: 1920/887;
-    margin: 80px auto 0 auto !important;
+    aspect-ratio: 16/7;
+    margin: 0 !important;
+    border-radius: 16px;
 }
 
 /* Custom Scrollbar */
