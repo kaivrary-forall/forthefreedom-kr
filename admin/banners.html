@@ -542,6 +542,7 @@
     <script>
         let banners = [];
         let editingId = null;
+        let selectedFile = null; // 선택한 파일 저장
 
         // 페이지 로드 시
         document.addEventListener('DOMContentLoaded', function() {
@@ -621,6 +622,7 @@
         // 모달 열기 (추가)
         function openCreateModal() {
             editingId = null;
+            selectedFile = null; // 파일 초기화
             document.getElementById('modalTitle').textContent = '새 배너 추가';
             document.getElementById('bannerForm').reset();
             document.getElementById('bannerLinkText').value = '자세히 보기';
@@ -645,6 +647,7 @@
             if (!banner) return;
 
             editingId = id;
+            selectedFile = null; // 파일 초기화
             document.getElementById('modalTitle').textContent = '배너 수정';
             document.getElementById('bannerId').value = id;
             document.getElementById('bannerTitle').value = banner.title || '';
@@ -669,11 +672,13 @@
         function closeModal() {
             document.getElementById('bannerModal').classList.remove('active');
             editingId = null;
+            selectedFile = null; // 파일 초기화
         }
 
         // 이미지 미리보기
         function previewImage(input) {
             if (input.files && input.files[0]) {
+                selectedFile = input.files[0]; // 파일 저장
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const imageUpload = document.getElementById('imageUpload');
@@ -690,7 +695,6 @@
 
         // 배너 저장
         async function saveBanner() {
-            const imageInput = document.getElementById('imageInput');
             const title = document.getElementById('bannerTitle').value;
             const subtitle = document.getElementById('bannerSubtitle').value;
             const linkUrl = document.getElementById('bannerLinkUrl').value;
@@ -698,14 +702,14 @@
             const isActive = document.getElementById('bannerActive').checked;
 
             // 새 배너인데 이미지 없으면 에러
-            if (!editingId && (!imageInput.files || !imageInput.files[0])) {
+            if (!editingId && !selectedFile) {
                 showAlert('배너 이미지를 선택해주세요.', 'error');
                 return;
             }
 
             const formData = new FormData();
-            if (imageInput.files && imageInput.files[0]) {
-                formData.append('image', imageInput.files[0]);
+            if (selectedFile) {
+                formData.append('image', selectedFile);
             }
             formData.append('title', title);
             formData.append('subtitle', subtitle);
