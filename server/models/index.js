@@ -10,6 +10,8 @@ const MediaCoverage = require('./MediaCoverage');
 const Event = require('./Events');
 const CardNews = require('./CardNews');
 const Gallery = require('./Gallery');
+const Banner = require('./Banner');
+const BannerSettings = require('./BannerSettings');
 
 module.exports = {
     Notice,
@@ -23,5 +25,7 @@ module.exports = {
     MediaCoverage,
     Event,
     CardNews,
-    Gallery
+    Gallery,
+    Banner,
+    BannerSettings
 }; 
