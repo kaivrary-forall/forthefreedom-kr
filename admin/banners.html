@@ -466,6 +466,24 @@
 
         <div class="card">
             <div class="card-header">
+                <h2>⚙️ 표시 설정</h2>
+            </div>
+            <div class="card-body">
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0;">
+                    <div>
+                        <strong>랜덤 순서로 표시</strong>
+                        <p style="color: #666; font-size: 0.85rem; margin-top: 0.25rem;">활성화하면 배너가 랜덤 순서로 표시됩니다</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="randomOrderToggle" onchange="updateSettings()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
                 <h2>📌 사용 안내</h2>
             </div>
             <div class="card-body">
@@ -547,7 +565,48 @@
         // 페이지 로드 시
         document.addEventListener('DOMContentLoaded', function() {
             loadBanners();
+            loadSettings();
         });
+
+        // 설정 불러오기
+        async function loadSettings() {
+            try {
+                const response = await fetch(window.API_BASE + '/banners/settings');
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('randomOrderToggle').checked = result.data.randomOrder;
+                }
+            } catch (error) {
+                console.error('설정 로드 오류:', error);
+            }
+        }
+
+        // 설정 업데이트
+        async function updateSettings() {
+            const randomOrder = document.getElementById('randomOrderToggle').checked;
+            
+            try {
+                const response = await fetch(window.API_BASE + '/banners/settings', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ randomOrder })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert(randomOrder ? '랜덤 순서가 활성화되었습니다.' : '순서대로 표시됩니다.', 'success');
+                } else {
+                    showAlert('설정 변경에 실패했습니다.', 'error');
+                }
+            } catch (error) {
+                console.error('설정 업데이트 오류:', error);
+                showAlert('서버 오류가 발생했습니다.', 'error');
+            }
+        }
 
         // 배너 목록 불러오기
         async function loadBanners() {
