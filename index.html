@@ -288,36 +288,38 @@
     <!-- Navigation Component -->
     <div id="navigation-container"></div>
 
-    <!-- Hero Section Wrapper -->
+    <!-- Hero Section Wrapper - 동적 배너 슬라이더 -->
     <div class="hero-wrapper max-w-7xl" style="width: 100%; margin: 104px auto 0 auto; padding: 0 24px;">
-        <section id="home" class="hero-section hero-bg-responsive" style="width: 100%; height: auto; aspect-ratio: 21/9; position: relative; margin: 0; padding: 0px; overflow: hidden; background-size: cover; background-repeat: no-repeat; background-attachment: scroll; background-position: center; border-radius: 16px;">
-            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to right, rgba(0,0,0,0.6), rgba(0,0,0,0.3), rgba(0,0,0,0.1)); z-index: 2; border-radius: 16px;"></div>
-            <div style="position: absolute; top: 50%; left: 0; transform: translateY(-50%); z-index: 10; width: 100%; padding: 0 1rem;">
-                <div style="max-width: 48rem; color: white; text-align: left; margin-left: 0; padding-left: 48px;">
-                    <h1 style="font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 300; margin-bottom: 1rem; line-height: 1.2; font-family: 'Pretendard', 'Noto Sans KR', sans-serif; text-shadow: 2px 2px 8px rgba(0,0,0,0.6);">
-                        <span style="font-weight: 700;">자유</span><span style="font-weight: 400;">와</span><span style="font-weight: 700;">혁신</span>
-                    </h1>
-                    <p style="font-size: clamp(1rem, 2vw, 1.25rem); margin-bottom: 1.5rem; font-weight: 400; line-height: 1.6; font-family: 'Pretendard', 'Noto Sans KR', sans-serif; max-width: 90%; text-shadow: 1px 1px 4px rgba(0,0,0,0.6); opacity: 0.9;">
-                        부정선거 • 반국가세력 척결로 청년에게 미래를!!
-                    </p>
-                    <a href="https://www.ihappynanum.com/Nanum/api/screen/F7FCRIO2E3" target="_blank" style="background-color: #A50034; color: white; padding: 0.75rem 1.75rem; font-size: clamp(0.9rem, 1.5vw, 1rem); font-weight: 500; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; font-family: 'Pretendard', 'Noto Sans KR', sans-serif; text-decoration: none; display: inline-block;" onmouseover="this.style.backgroundColor='#8B002C'" onmouseout="this.style.backgroundColor='#A50034'">
-                        당원가입
-                    </a>
+        <div id="banner-slider" style="position: relative; width: 100%; aspect-ratio: 21/9; border-radius: 16px; overflow: hidden;">
+            <!-- 배너 슬라이드 컨테이너 -->
+            <div id="banner-slides" style="display: flex; transition: transform 0.5s ease-in-out; height: 100%;">
+                <!-- 기본 배너 (DB에서 불러오기 전 표시) -->
+                <div class="banner-slide" style="min-width: 100%; height: 100%; position: relative; background-image: url('images/hero-image.webp'); background-size: cover; background-position: center;">
+                    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to right, rgba(0,0,0,0.6), rgba(0,0,0,0.3), rgba(0,0,0,0.1));"></div>
+                    <div style="position: absolute; top: 50%; left: 0; transform: translateY(-50%); z-index: 10; width: 100%; padding: 0 1rem;">
+                        <div style="max-width: 48rem; color: white; text-align: left; margin-left: 0; padding-left: 48px;">
+                            <h1 class="banner-title" style="font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 300; margin-bottom: 1rem; line-height: 1.2; font-family: 'Pretendard', 'Noto Sans KR', sans-serif; text-shadow: 2px 2px 8px rgba(0,0,0,0.6);">
+                                <span style="font-weight: 700;">자유</span><span style="font-weight: 400;">와</span><span style="font-weight: 700;">혁신</span>
+                            </h1>
+                            <p class="banner-subtitle" style="font-size: clamp(1rem, 2vw, 1.25rem); margin-bottom: 1.5rem; font-weight: 400; line-height: 1.6; font-family: 'Pretendard', 'Noto Sans KR', sans-serif; max-width: 90%; text-shadow: 1px 1px 4px rgba(0,0,0,0.6); opacity: 0.9;">
+                                부정선거 • 반국가세력 척결로 청년에게 미래를!!
+                            </p>
+                            <a href="https://www.ihappynanum.com/Nanum/api/screen/F7FCRIO2E3" target="_blank" class="banner-btn" style="background-color: #A50034; color: white; padding: 0.75rem 1.75rem; font-size: clamp(0.9rem, 1.5vw, 1rem); font-weight: 500; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; font-family: 'Pretendard', 'Noto Sans KR', sans-serif; text-decoration: none; display: inline-block;">
+                                당원가입
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </section>
+        </div>
         
         <!-- 슬라이드 컨트롤 -->
         <div style="display: flex; align-items: center; justify-content: center; gap: 16px; padding: 20px 0;">
             <button onclick="prevSlide()" style="background: none; border: none; cursor: pointer; font-size: 20px; color: #666; padding: 8px;">
                 <i class="fas fa-chevron-left"></i>
             </button>
-            <div style="display: flex; gap: 8px; align-items: center;">
-                <span style="width: 10px; height: 10px; border-radius: 50%; background-color: #A50034;"></span>
-                <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #ccc;"></span>
-                <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #ccc;"></span>
-                <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #ccc;"></span>
-                <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #ccc;"></span>
+            <div id="slide-dots" style="display: flex; gap: 8px; align-items: center;">
+                <span class="slide-dot active" style="width: 10px; height: 10px; border-radius: 50%; background-color: #A50034; cursor: pointer; transition: all 0.3s;"></span>
             </div>
             <button onclick="togglePause()" style="background: none; border: none; cursor: pointer; font-size: 18px; color: #666; padding: 8px;">
                 <i class="fas fa-pause" id="pause-icon"></i>
@@ -327,6 +329,117 @@
             </button>
         </div>
     </div>
+    
+    <!-- 배너 슬라이더 스크립트 -->
+    <script>
+        let currentSlide = 0;
+        let totalSlides = 1;
+        let slideInterval;
+        let isPaused = false;
+        const SLIDE_DURATION = 5000; // 5초
+        
+        // 배너 데이터 로드
+        async function loadBanners() {
+            try {
+                const response = await fetch(window.API_URL + '/banners');
+                const result = await response.json();
+                
+                if (result.success && result.data.length > 0) {
+                    renderBanners(result.data);
+                }
+            } catch (error) {
+                console.log('배너 로드 실패, 기본 배너 사용:', error);
+            }
+        }
+        
+        // 배너 렌더링
+        function renderBanners(banners) {
+            const slidesContainer = document.getElementById('banner-slides');
+            const dotsContainer = document.getElementById('slide-dots');
+            
+            // 슬라이드 생성
+            slidesContainer.innerHTML = banners.map((banner, index) => `
+                <div class="banner-slide" style="min-width: 100%; height: 100%; position: relative; background-image: url('${banner.imageUrl}'); background-size: cover; background-position: center;">
+                    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to right, rgba(0,0,0,0.6), rgba(0,0,0,0.3), rgba(0,0,0,0.1));"></div>
+                    <div style="position: absolute; top: 50%; left: 0; transform: translateY(-50%); z-index: 10; width: 100%; padding: 0 1rem;">
+                        <div style="max-width: 48rem; color: white; text-align: left; margin-left: 0; padding-left: 48px;">
+                            ${banner.title ? `<h1 class="banner-title" style="font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 700; margin-bottom: 1rem; line-height: 1.2; font-family: 'Pretendard', 'Noto Sans KR', sans-serif; text-shadow: 2px 2px 8px rgba(0,0,0,0.6);">${banner.title}</h1>` : ''}
+                            ${banner.subtitle ? `<p class="banner-subtitle" style="font-size: clamp(1rem, 2vw, 1.25rem); margin-bottom: 1.5rem; font-weight: 400; line-height: 1.6; font-family: 'Pretendard', 'Noto Sans KR', sans-serif; max-width: 90%; text-shadow: 1px 1px 4px rgba(0,0,0,0.6); opacity: 0.9;">${banner.subtitle}</p>` : ''}
+                            ${banner.linkUrl ? `<a href="${banner.linkUrl}" target="_blank" class="banner-btn" style="background-color: #A50034; color: white; padding: 0.75rem 1.75rem; font-size: clamp(0.9rem, 1.5vw, 1rem); font-weight: 500; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; font-family: 'Pretendard', 'Noto Sans KR', sans-serif; text-decoration: none; display: inline-block;">${banner.linkText || '자세히 보기'}</a>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            // 점 네비게이션 생성
+            totalSlides = banners.length;
+            dotsContainer.innerHTML = banners.map((_, index) => `
+                <span class="slide-dot ${index === 0 ? 'active' : ''}" onclick="goToSlide(${index})" style="width: ${index === 0 ? '10px' : '8px'}; height: ${index === 0 ? '10px' : '8px'}; border-radius: 50%; background-color: ${index === 0 ? '#A50034' : '#ccc'}; cursor: pointer; transition: all 0.3s;"></span>
+            `).join('');
+            
+            // 자동 재생 시작
+            startAutoPlay();
+        }
+        
+        // 슬라이드 이동
+        function goToSlide(index) {
+            currentSlide = index;
+            const slidesContainer = document.getElementById('banner-slides');
+            slidesContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
+            updateDots();
+        }
+        
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            goToSlide(currentSlide);
+        }
+        
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            goToSlide(currentSlide);
+        }
+        
+        // 점 네비게이션 업데이트
+        function updateDots() {
+            const dots = document.querySelectorAll('.slide-dot');
+            dots.forEach((dot, index) => {
+                if (index === currentSlide) {
+                    dot.style.backgroundColor = '#A50034';
+                    dot.style.width = '10px';
+                    dot.style.height = '10px';
+                } else {
+                    dot.style.backgroundColor = '#ccc';
+                    dot.style.width = '8px';
+                    dot.style.height = '8px';
+                }
+            });
+        }
+        
+        // 자동 재생
+        function startAutoPlay() {
+            if (slideInterval) clearInterval(slideInterval);
+            if (!isPaused && totalSlides > 1) {
+                slideInterval = setInterval(nextSlide, SLIDE_DURATION);
+            }
+        }
+        
+        function togglePause() {
+            isPaused = !isPaused;
+            const icon = document.getElementById('pause-icon');
+            if (isPaused) {
+                icon.classList.remove('fa-pause');
+                icon.classList.add('fa-play');
+                clearInterval(slideInterval);
+            } else {
+                icon.classList.remove('fa-play');
+                icon.classList.add('fa-pause');
+                startAutoPlay();
+            }
+        }
+        
+        // 페이지 로드 시 배너 불러오기
+        document.addEventListener('DOMContentLoaded', loadBanners);
+    </script>
 
     <!-- Representative Message Section -->
     <section class="py-12 sm:py-16 lg:py-24 bg-white" style="opacity: 1; transform: translateY(0px); transition: 0.6s;">
