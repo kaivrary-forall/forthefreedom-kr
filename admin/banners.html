@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자유와혁신 - 배너 관리</title>
+    
+    <!-- 파비콘 설정 -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.png">
+    <link rel="shortcut icon" type="image/png" href="/images/favicon.png">
+    
+    <!-- API 설정 로드 -->
+    <script src="/config.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .header h1 {
+            font-size: 1.3rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h2 {
+            font-size: 1.2rem;
+            color: #333;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd6;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+        }
+
+        /* 배너 목록 */
+        .banner-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .banner-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+
+        .banner-item.inactive {
+            opacity: 0.5;
+        }
+
+        .banner-order {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .banner-order button {
+            background: #e9ecef;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 0.8rem;
+        }
+
+        .banner-order button:hover {
+            background: #dee2e6;
+        }
+
+        .banner-thumbnail {
+            width: 200px;
+            height: 86px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .banner-info {
+            flex: 1;
+        }
+
+        .banner-info h3 {
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+            color: #333;
+        }
+
+        .banner-info p {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 0.25rem;
+        }
+
+        .banner-info small {
+            color: #999;
+            font-size: 0.8rem;
+        }
+
+        .banner-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* 폼 스타일 */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* 이미지 업로드 */
+        .image-upload {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .image-upload:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .image-upload.has-image {
+            padding: 1rem;
+        }
+
+        .image-upload img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+        }
+
+        .image-upload input {
+            display: none;
+        }
+
+        .image-upload p {
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        /* 모달 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.2rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        /* 토글 스위치 */
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: #28a745;
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        /* 로딩 */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: #ddd;
+            margin-bottom: 1rem;
+        }
+
+        /* 알림 */
+        .alert {
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <a href="/admin/dashboard.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> 대시보드
+            </a>
+            <h1>🖼️ 메인 배너 관리</h1>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="alertContainer"></div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>배너 목록</h2>
+                <button class="btn btn-success" onclick="openCreateModal()">
+                    <i class="fas fa-plus"></i> 새 배너 추가
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="bannerList" class="banner-list">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> 불러오는 중...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>📌 사용 안내</h2>
+            </div>
+            <div class="card-body">
+                <ul style="color: #666; line-height: 1.8;">
+                    <li><strong>권장 이미지 크기:</strong> 1380 x 591 픽셀 (21:9 비율)</li>
+                    <li><strong>지원 형식:</strong> JPG, PNG, WebP</li>
+                    <li><strong>순서:</strong> 위/아래 버튼으로 순서 변경 가능</li>
+                    <li><strong>활성화:</strong> 토글 스위치로 표시/숨김 설정</li>
+                    <li>제목과 부제목은 선택사항입니다 (비워두면 이미지만 표시)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 배너 추가/수정 모달 -->
+    <div id="bannerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">새 배너 추가</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="bannerForm">
+                    <input type="hidden" id="bannerId">
+                    
+                    <div class="form-group">
+                        <label>배너 이미지 *</label>
+                        <div class="image-upload" id="imageUpload" onclick="document.getElementById('imageInput').click()">
+                            <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #667eea;"></i>
+                            <p>클릭하여 이미지 업로드</p>
+                            <p style="font-size: 0.8rem; color: #999;">권장: 1380 x 591px (21:9)</p>
+                            <input type="file" id="imageInput" accept="image/*" onchange="previewImage(this)">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>제목 (선택)</label>
+                        <input type="text" id="bannerTitle" placeholder="배너에 표시할 제목">
+                    </div>
+
+                    <div class="form-group">
+                        <label>부제목 (선택)</label>
+                        <input type="text" id="bannerSubtitle" placeholder="배너에 표시할 부제목">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>링크 URL (선택)</label>
+                            <input type="text" id="bannerLinkUrl" placeholder="https://...">
+                        </div>
+                        <div class="form-group">
+                            <label>버튼 텍스트</label>
+                            <input type="text" id="bannerLinkText" placeholder="자세히 보기" value="자세히 보기">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="bannerActive" checked>
+                            활성화 (메인 페이지에 표시)
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">취소</button>
+                <button class="btn btn-primary" onclick="saveBanner()">
+                    <i class="fas fa-save"></i> 저장
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let banners = [];
+        let editingId = null;
+
+        // 페이지 로드 시
+        document.addEventListener('DOMContentLoaded', function() {
+            loadBanners();
+        });
+
+        // 배너 목록 불러오기
+        async function loadBanners() {
+            try {
+                const response = await fetch(window.API_URL + '/banners?all=true');
+                const result = await response.json();
+                
+                if (result.success) {
+                    banners = result.data;
+                    renderBanners();
+                } else {
+                    showAlert('배너 목록을 불러오지 못했습니다.', 'error');
+                }
+            } catch (error) {
+                console.error('배너 로드 오류:', error);
+                showAlert('서버 연결에 실패했습니다.', 'error');
+            }
+        }
+
+        // 배너 목록 렌더링
+        function renderBanners() {
+            const container = document.getElementById('bannerList');
+            
+            if (banners.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-image"></i>
+                        <p>등록된 배너가 없습니다.</p>
+                        <button class="btn btn-primary" onclick="openCreateModal()" style="margin-top: 1rem;">
+                            <i class="fas fa-plus"></i> 첫 배너 추가하기
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = banners.map((banner, index) => `
+                <div class="banner-item ${banner.isActive ? '' : 'inactive'}">
+                    <div class="banner-order">
+                        <button onclick="moveBanner(${index}, -1)" ${index === 0 ? 'disabled' : ''}>
+                            <i class="fas fa-chevron-up"></i>
+                        </button>
+                        <button onclick="moveBanner(${index}, 1)" ${index === banners.length - 1 ? 'disabled' : ''}>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <img src="${banner.imageUrl}" alt="${banner.title || '배너'}" class="banner-thumbnail">
+                    <div class="banner-info">
+                        <h3>${banner.title || '(제목 없음)'}</h3>
+                        <p>${banner.subtitle || '(부제목 없음)'}</p>
+                        <small>
+                            ${banner.linkUrl ? '🔗 링크 있음' : '링크 없음'} · 
+                            ${banner.isActive ? '✅ 활성' : '⏸️ 비활성'}
+                        </small>
+                    </div>
+                    <div class="banner-actions">
+                        <label class="toggle-switch">
+                            <input type="checkbox" ${banner.isActive ? 'checked' : ''} onchange="toggleActive('${banner._id}', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <button class="btn btn-primary btn-sm" onclick="openEditModal('${banner._id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteBanner('${banner._id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 모달 열기 (추가)
+        function openCreateModal() {
+            editingId = null;
+            document.getElementById('modalTitle').textContent = '새 배너 추가';
+            document.getElementById('bannerForm').reset();
+            document.getElementById('bannerLinkText').value = '자세히 보기';
+            document.getElementById('bannerActive').checked = true;
+            
+            // 이미지 미리보기 초기화
+            const imageUpload = document.getElementById('imageUpload');
+            imageUpload.innerHTML = `
+                <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #667eea;"></i>
+                <p>클릭하여 이미지 업로드</p>
+                <p style="font-size: 0.8rem; color: #999;">권장: 1380 x 591px (21:9)</p>
+                <input type="file" id="imageInput" accept="image/*" onchange="previewImage(this)">
+            `;
+            imageUpload.classList.remove('has-image');
+            
+            document.getElementById('bannerModal').classList.add('active');
+        }
+
+        // 모달 열기 (수정)
+        function openEditModal(id) {
+            const banner = banners.find(b => b._id === id);
+            if (!banner) return;
+
+            editingId = id;
+            document.getElementById('modalTitle').textContent = '배너 수정';
+            document.getElementById('bannerId').value = id;
+            document.getElementById('bannerTitle').value = banner.title || '';
+            document.getElementById('bannerSubtitle').value = banner.subtitle || '';
+            document.getElementById('bannerLinkUrl').value = banner.linkUrl || '';
+            document.getElementById('bannerLinkText').value = banner.linkText || '자세히 보기';
+            document.getElementById('bannerActive').checked = banner.isActive;
+
+            // 기존 이미지 표시
+            const imageUpload = document.getElementById('imageUpload');
+            imageUpload.innerHTML = `
+                <img src="${banner.imageUrl}" alt="현재 이미지">
+                <p style="font-size: 0.8rem; color: #666; margin-top: 0.5rem;">클릭하여 새 이미지로 변경</p>
+                <input type="file" id="imageInput" accept="image/*" onchange="previewImage(this)">
+            `;
+            imageUpload.classList.add('has-image');
+
+            document.getElementById('bannerModal').classList.add('active');
+        }
+
+        // 모달 닫기
+        function closeModal() {
+            document.getElementById('bannerModal').classList.remove('active');
+            editingId = null;
+        }
+
+        // 이미지 미리보기
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imageUpload = document.getElementById('imageUpload');
+                    imageUpload.innerHTML = `
+                        <img src="${e.target.result}" alt="미리보기">
+                        <p style="font-size: 0.8rem; color: #666; margin-top: 0.5rem;">클릭하여 다른 이미지 선택</p>
+                        <input type="file" id="imageInput" accept="image/*" onchange="previewImage(this)">
+                    `;
+                    imageUpload.classList.add('has-image');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // 배너 저장
+        async function saveBanner() {
+            const imageInput = document.getElementById('imageInput');
+            const title = document.getElementById('bannerTitle').value;
+            const subtitle = document.getElementById('bannerSubtitle').value;
+            const linkUrl = document.getElementById('bannerLinkUrl').value;
+            const linkText = document.getElementById('bannerLinkText').value;
+            const isActive = document.getElementById('bannerActive').checked;
+
+            // 새 배너인데 이미지 없으면 에러
+            if (!editingId && (!imageInput.files || !imageInput.files[0])) {
+                showAlert('배너 이미지를 선택해주세요.', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            if (imageInput.files && imageInput.files[0]) {
+                formData.append('image', imageInput.files[0]);
+            }
+            formData.append('title', title);
+            formData.append('subtitle', subtitle);
+            formData.append('linkUrl', linkUrl);
+            formData.append('linkText', linkText);
+            formData.append('isActive', isActive);
+            formData.append('order', editingId ? banners.find(b => b._id === editingId).order : banners.length);
+
+            try {
+                const url = editingId 
+                    ? `${window.API_URL}/banners/${editingId}`
+                    : `${window.API_URL}/banners`;
+                
+                const response = await fetch(url, {
+                    method: editingId ? 'PUT' : 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert(editingId ? '배너가 수정되었습니다.' : '배너가 추가되었습니다.', 'success');
+                    closeModal();
+                    loadBanners();
+                } else {
+                    showAlert(result.message || '저장에 실패했습니다.', 'error');
+                }
+            } catch (error) {
+                console.error('배너 저장 오류:', error);
+                showAlert('서버 오류가 발생했습니다.', 'error');
+            }
+        }
+
+        // 배너 삭제
+        async function deleteBanner(id) {
+            if (!confirm('정말 이 배너를 삭제하시겠습니까?')) return;
+
+            try {
+                const response = await fetch(`${window.API_URL}/banners/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('배너가 삭제되었습니다.', 'success');
+                    loadBanners();
+                } else {
+                    showAlert(result.message || '삭제에 실패했습니다.', 'error');
+                }
+            } catch (error) {
+                console.error('배너 삭제 오류:', error);
+                showAlert('서버 오류가 발생했습니다.', 'error');
+            }
+        }
+
+        // 활성화 토글
+        async function toggleActive(id, isActive) {
+            try {
+                const formData = new FormData();
+                formData.append('isActive', isActive);
+
+                const response = await fetch(`${window.API_URL}/banners/${id}`, {
+                    method: 'PUT',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert(isActive ? '배너가 활성화되었습니다.' : '배너가 비활성화되었습니다.', 'success');
+                    loadBanners();
+                } else {
+                    showAlert(result.message || '변경에 실패했습니다.', 'error');
+                    loadBanners(); // 원래 상태로 복구
+                }
+            } catch (error) {
+                console.error('토글 오류:', error);
+                showAlert('서버 오류가 발생했습니다.', 'error');
+                loadBanners();
+            }
+        }
+
+        // 배너 순서 이동
+        async function moveBanner(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= banners.length) return;
+
+            // 배열에서 순서 교체
+            [banners[index], banners[newIndex]] = [banners[newIndex], banners[index]];
+
+            // 순서 업데이트
+            const orders = banners.map((banner, i) => ({
+                id: banner._id,
+                order: i
+            }));
+
+            try {
+                const response = await fetch(`${window.API_URL}/banners/reorder/bulk`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ orders })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    renderBanners();
+                } else {
+                    showAlert('순서 변경에 실패했습니다.', 'error');
+                    loadBanners();
+                }
+            } catch (error) {
+                console.error('순서 변경 오류:', error);
+                showAlert('서버 오류가 발생했습니다.', 'error');
+                loadBanners();
+            }
+        }
+
+        // 알림 표시
+        function showAlert(message, type) {
+            const container = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                ${message}
+            `;
+            container.appendChild(alert);
+
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

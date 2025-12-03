@@ -258,6 +258,28 @@
                     <h3 class="text-2xl font-semibold text-gray-900 mb-6">🚀 콘텐츠 관리</h3>
                     
                     <div class="stats-grid">
+                        <!-- 메인 배너 -->
+                        <div class="content-card p-6" style="border: 2px solid #667eea;">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-images text-2xl" style="color: #667eea;"></i>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">메인 배너</h4>
+                                        <p class="text-gray-600 text-sm">홈페이지 슬라이더</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-semibold" style="color: #667eea;" id="card-banners">0</div>
+                                    <div class="text-gray-500 text-xs">건</div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <a href="banners.html" class="flex-1 action-btn py-2 px-3 text-center text-sm" style="background: #667eea; color: white;">
+                                    <i class="fas fa-cog mr-2"></i>배너 관리
+                                </a>
+                            </div>
+                        </div>
+
                         <!-- 공지사항 -->
                         <div class="content-card p-6">
                             <div class="flex items-center justify-between mb-4">
@@ -625,6 +647,19 @@
 
             try {
                 totalContent = 0;
+                
+                // 배너 카운트 별도 로드
+                try {
+                    const bannerResponse = await fetch(`${API_BASE}/banners?all=true`);
+                    if (bannerResponse.ok) {
+                        const bannerData = await bannerResponse.json();
+                        const bannerCount = bannerData.count || 0;
+                        updateContentCount('banners', bannerCount);
+                    }
+                } catch (e) {
+                    console.warn('배너 데이터 로드 실패:', e);
+                    updateContentCount('banners', 0);
+                }
                 
                 // 모든 콘텐츠 타입의 데이터를 병렬로 가져오기
                 const promises = contentTypes.map(async (type) => {
