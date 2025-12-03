@@ -250,6 +250,7 @@ app.use('/api/media-coverage', require('./routes/mediaCoverage'));
 app.use('/api/events', require('./routes/events'));
 app.use('/api/card-news', require('./routes/cardNews'));
 app.use('/api/gallery', require('./routes/gallery'));
+app.use('/api/banners', require('./routes/banners'));
 
 // 유틸리티 라우트 (한글 파일명 복원)
 app.use('/api/fix-filenames', require('./routes/fixFilenames'));
