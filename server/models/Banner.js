@@ -25,6 +25,11 @@ const bannerSchema = new mongoose.Schema({
     type: String,
     default: '자세히 보기'
   },
+  source: {
+    type: String,
+    trim: true,
+    default: ''
+  },
   order: {
     type: Number,
     default: 0
