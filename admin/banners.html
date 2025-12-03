@@ -541,6 +541,12 @@
                     </div>
 
                     <div class="form-group">
+                        <label>출처 표기 (선택)</label>
+                        <input type="text" id="bannerSource" placeholder="예: © 자유와혁신, 사진: 홍길동">
+                        <p style="font-size: 0.8rem; color: #999; margin-top: 0.25rem;">이미지 오른쪽 하단에 작은 글씨로 표시됩니다</p>
+                    </div>
+
+                    <div class="form-group">
                         <label>
                             <input type="checkbox" id="bannerActive" checked>
                             활성화 (메인 페이지에 표시)
@@ -685,6 +691,7 @@
             document.getElementById('modalTitle').textContent = '새 배너 추가';
             document.getElementById('bannerForm').reset();
             document.getElementById('bannerLinkText').value = '자세히 보기';
+            document.getElementById('bannerSource').value = '';
             document.getElementById('bannerActive').checked = true;
             
             // 이미지 미리보기 초기화
@@ -713,6 +720,7 @@
             document.getElementById('bannerSubtitle').value = banner.subtitle || '';
             document.getElementById('bannerLinkUrl').value = banner.linkUrl || '';
             document.getElementById('bannerLinkText').value = banner.linkText || '자세히 보기';
+            document.getElementById('bannerSource').value = banner.source || '';
             document.getElementById('bannerActive').checked = banner.isActive;
 
             // 기존 이미지 표시
@@ -758,6 +766,7 @@
             const subtitle = document.getElementById('bannerSubtitle').value;
             const linkUrl = document.getElementById('bannerLinkUrl').value;
             const linkText = document.getElementById('bannerLinkText').value;
+            const source = document.getElementById('bannerSource').value;
             const isActive = document.getElementById('bannerActive').checked;
 
             // 새 배너인데 이미지 없으면 에러
@@ -774,6 +783,7 @@
             formData.append('subtitle', subtitle);
             formData.append('linkUrl', linkUrl);
             formData.append('linkText', linkText);
+            formData.append('source', source);
             formData.append('isActive', isActive);
             formData.append('order', editingId ? banners.find(b => b._id === editingId).order : banners.length);
 
