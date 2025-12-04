@@ -321,14 +321,16 @@
             100% { background-position: 200% 0; }
         }
         
-        /* 모바일에서 배너 비율 변경 */
+        /* 모바일에서 배너 비율 변경 + 여백 제거 */
         @media (max-width: 768px) {
             #banner-slider {
                 aspect-ratio: 4/5 !important;
+                border-radius: 0 !important;
             }
             .hero-wrapper {
-                padding: 0 12px !important;
-                margin-top: 80px !important;
+                padding: 0 !important;
+                margin-top: 72px !important;
+                max-width: 100% !important;
             }
         }
     </style>
