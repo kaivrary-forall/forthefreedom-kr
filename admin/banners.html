@@ -433,6 +433,60 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+
+        .btn-remove-image {
+            padding: 0.4rem 0.75rem;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            flex: 1;
+        }
+
+        .btn-remove-image:hover {
+            background: #c82333;
+        }
+
+        .image-upload {
+            min-height: 120px;
+        }
+
+        .image-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            align-items: center;
+        }
+
+        .image-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.75rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .image-toggle input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #28a745;
+        }
+
+        .image-toggle .toggle-text {
+            color: #333;
+        }
+
+        .image-toggle input[type="checkbox"]:not(:checked) + .toggle-text {
+            color: #999;
+            text-decoration: line-through;
+        }
     </style>
 </head>
 <body>
@@ -509,15 +563,48 @@
                 <form id="bannerForm">
                     <input type="hidden" id="bannerId">
                     
-                    <div class="form-group">
-                        <label>배너 이미지 *</label>
-                        <div class="image-upload" id="imageUpload" onclick="document.getElementById('imageInput').click()">
-                            <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #667eea;"></i>
-                            <p>클릭하여 이미지 업로드</p>
-                            <p style="font-size: 0.8rem; color: #999;">권장: 1380 x 591px (21:9)</p>
-                            <input type="file" id="imageInput" accept="image/*" onchange="previewImage(this)">
+                    <div class="form-row" style="gap: 1rem;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>🖥️ PC용 이미지</label>
+                            <div class="image-upload" id="imageUpload" onclick="document.getElementById('imageInput').click()">
+                                <i class="fas fa-desktop" style="font-size: 1.5rem; color: #667eea;"></i>
+                                <p style="font-size: 0.9rem;">클릭하여 업로드</p>
+                                <p style="font-size: 0.75rem; color: #999;">권장: 1380 x 591px (21:9)</p>
+                                <input type="file" id="imageInput" accept="image/*" onchange="previewImage(this, 'pc')">
+                            </div>
+                            <div class="image-controls">
+                                <button type="button" id="removeImageBtn" class="btn-remove-image" onclick="removeImage('pc')" style="display: none;">
+                                    <i class="fas fa-trash"></i> 삭제
+                                </button>
+                                <label class="image-toggle" id="imageActiveToggle" style="display: none;">
+                                    <input type="checkbox" id="imageActiveCheckbox" checked>
+                                    <span class="toggle-text">PC 표시</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>📱 모바일용 이미지</label>
+                            <div class="image-upload" id="mobileImageUpload" onclick="document.getElementById('mobileImageInput').click()">
+                                <i class="fas fa-mobile-alt" style="font-size: 1.5rem; color: #28a745;"></i>
+                                <p style="font-size: 0.9rem;">클릭하여 업로드</p>
+                                <p style="font-size: 0.75rem; color: #999;">권장: 800 x 600px (4:3)</p>
+                                <input type="file" id="mobileImageInput" accept="image/*" onchange="previewImage(this, 'mobile')">
+                            </div>
+                            <div class="image-controls">
+                                <button type="button" id="removeMobileImageBtn" class="btn-remove-image" onclick="removeImage('mobile')" style="display: none;">
+                                    <i class="fas fa-trash"></i> 삭제
+                                </button>
+                                <label class="image-toggle" id="mobileImageActiveToggle" style="display: none;">
+                                    <input type="checkbox" id="mobileImageActiveCheckbox" checked>
+                                    <span class="toggle-text">모바일 표시</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
+                    <p style="font-size: 0.8rem; color: #666; margin-bottom: 1rem; background: #f8f9fa; padding: 0.75rem; border-radius: 6px;">
+                        💡 <strong>PC만 업로드</strong>: PC에서만 표시 | <strong>모바일만 업로드</strong>: 모바일에서만 표시 | <strong>둘 다 업로드</strong>: 각 기기에서 해당 이미지 표시<br>
+                        🔘 토글로 이미지를 삭제하지 않고 일시적으로 끌 수 있습니다
+                    </p>
 
                     <div class="form-group">
                         <label>제목 (선택)</label>
@@ -566,13 +653,45 @@
     <script>
         let banners = [];
         let editingId = null;
-        let selectedFile = null; // 선택한 파일 저장
+        let selectedFile = null; // PC용 파일
+        let selectedMobileFile = null; // 모바일용 파일
+        let removeImageFlag = false; // PC 이미지 삭제 플래그
+        let removeMobileImageFlag = false; // 모바일 이미지 삭제 플래그
 
         // 페이지 로드 시
         document.addEventListener('DOMContentLoaded', function() {
             loadBanners();
             loadSettings();
         });
+
+        // 이미지 삭제 함수
+        function removeImage(type) {
+            if (type === 'pc') {
+                removeImageFlag = true;
+                selectedFile = null;
+                const imageUpload = document.getElementById('imageUpload');
+                imageUpload.innerHTML = `
+                    <i class="fas fa-desktop" style="font-size: 1.5rem; color: #ccc;"></i>
+                    <p style="font-size: 0.9rem; color: #999;">이미지 삭제됨</p>
+                    <p style="font-size: 0.75rem; color: #999;">클릭하여 다시 업로드</p>
+                    <input type="file" id="imageInput" accept="image/*" onchange="previewImage(this, 'pc')">
+                `;
+                imageUpload.classList.remove('has-image');
+                document.getElementById('removeImageBtn').style.display = 'none';
+            } else {
+                removeMobileImageFlag = true;
+                selectedMobileFile = null;
+                const mobileUpload = document.getElementById('mobileImageUpload');
+                mobileUpload.innerHTML = `
+                    <i class="fas fa-mobile-alt" style="font-size: 1.5rem; color: #ccc;"></i>
+                    <p style="font-size: 0.9rem; color: #999;">이미지 삭제됨</p>
+                    <p style="font-size: 0.75rem; color: #999;">클릭하여 다시 업로드</p>
+                    <input type="file" id="mobileImageInput" accept="image/*" onchange="previewImage(this, 'mobile')">
+                `;
+                mobileUpload.classList.remove('has-image');
+                document.getElementById('removeMobileImageBtn').style.display = 'none';
+            }
+        }
 
         // 설정 불러오기
         async function loadSettings() {
@@ -687,22 +806,41 @@
         // 모달 열기 (추가)
         function openCreateModal() {
             editingId = null;
-            selectedFile = null; // 파일 초기화
+            selectedFile = null;
+            selectedMobileFile = null;
+            removeImageFlag = false;
+            removeMobileImageFlag = false;
             document.getElementById('modalTitle').textContent = '새 배너 추가';
             document.getElementById('bannerForm').reset();
             document.getElementById('bannerLinkText').value = '자세히 보기';
             document.getElementById('bannerSource').value = '';
             document.getElementById('bannerActive').checked = true;
             
-            // 이미지 미리보기 초기화
+            // PC 이미지 초기화
             const imageUpload = document.getElementById('imageUpload');
             imageUpload.innerHTML = `
-                <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #667eea;"></i>
-                <p>클릭하여 이미지 업로드</p>
-                <p style="font-size: 0.8rem; color: #999;">권장: 1380 x 591px (21:9)</p>
-                <input type="file" id="imageInput" accept="image/*" onchange="previewImage(this)">
+                <i class="fas fa-desktop" style="font-size: 1.5rem; color: #667eea;"></i>
+                <p style="font-size: 0.9rem;">클릭하여 업로드</p>
+                <p style="font-size: 0.75rem; color: #999;">권장: 1380 x 591px (21:9)</p>
+                <input type="file" id="imageInput" accept="image/*" onchange="previewImage(this, 'pc')">
             `;
             imageUpload.classList.remove('has-image');
+            document.getElementById('removeImageBtn').style.display = 'none';
+            document.getElementById('imageActiveToggle').style.display = 'none';
+            document.getElementById('imageActiveCheckbox').checked = true;
+            
+            // 모바일 이미지 초기화
+            const mobileUpload = document.getElementById('mobileImageUpload');
+            mobileUpload.innerHTML = `
+                <i class="fas fa-mobile-alt" style="font-size: 1.5rem; color: #28a745;"></i>
+                <p style="font-size: 0.9rem;">클릭하여 업로드</p>
+                <p style="font-size: 0.75rem; color: #999;">권장: 800 x 600px (4:3)</p>
+                <input type="file" id="mobileImageInput" accept="image/*" onchange="previewImage(this, 'mobile')">
+            `;
+            mobileUpload.classList.remove('has-image');
+            document.getElementById('removeMobileImageBtn').style.display = 'none';
+            document.getElementById('mobileImageActiveToggle').style.display = 'none';
+            document.getElementById('mobileImageActiveCheckbox').checked = true;
             
             document.getElementById('bannerModal').classList.add('active');
         }
@@ -713,7 +851,10 @@
             if (!banner) return;
 
             editingId = id;
-            selectedFile = null; // 파일 초기화
+            selectedFile = null;
+            selectedMobileFile = null;
+            removeImageFlag = false;
+            removeMobileImageFlag = false;
             document.getElementById('modalTitle').textContent = '배너 수정';
             document.getElementById('bannerId').value = id;
             document.getElementById('bannerTitle').value = banner.title || '';
@@ -723,14 +864,53 @@
             document.getElementById('bannerSource').value = banner.source || '';
             document.getElementById('bannerActive').checked = banner.isActive;
 
-            // 기존 이미지 표시
+            // PC 이미지 표시
             const imageUpload = document.getElementById('imageUpload');
-            imageUpload.innerHTML = `
-                <img src="${banner.imageUrl}" alt="현재 이미지">
-                <p style="font-size: 0.8rem; color: #666; margin-top: 0.5rem;">클릭하여 새 이미지로 변경</p>
-                <input type="file" id="imageInput" accept="image/*" onchange="previewImage(this)">
-            `;
-            imageUpload.classList.add('has-image');
+            if (banner.imageUrl) {
+                imageUpload.innerHTML = `
+                    <img src="${banner.imageUrl}" alt="PC 이미지" style="${banner.imageActive === false ? 'opacity: 0.4;' : ''}">
+                    <p style="font-size: 0.75rem; color: #666; margin-top: 0.5rem;">클릭하여 변경</p>
+                    <input type="file" id="imageInput" accept="image/*" onchange="previewImage(this, 'pc')">
+                `;
+                imageUpload.classList.add('has-image');
+                document.getElementById('removeImageBtn').style.display = 'block';
+                document.getElementById('imageActiveToggle').style.display = 'flex';
+                document.getElementById('imageActiveCheckbox').checked = banner.imageActive !== false;
+            } else {
+                imageUpload.innerHTML = `
+                    <i class="fas fa-desktop" style="font-size: 1.5rem; color: #667eea;"></i>
+                    <p style="font-size: 0.9rem;">클릭하여 업로드</p>
+                    <p style="font-size: 0.75rem; color: #999;">권장: 1380 x 591px (21:9)</p>
+                    <input type="file" id="imageInput" accept="image/*" onchange="previewImage(this, 'pc')">
+                `;
+                imageUpload.classList.remove('has-image');
+                document.getElementById('removeImageBtn').style.display = 'none';
+                document.getElementById('imageActiveToggle').style.display = 'none';
+            }
+            
+            // 모바일 이미지 표시
+            const mobileUpload = document.getElementById('mobileImageUpload');
+            if (banner.mobileImageUrl) {
+                mobileUpload.innerHTML = `
+                    <img src="${banner.mobileImageUrl}" alt="모바일 이미지" style="${banner.mobileImageActive === false ? 'opacity: 0.4;' : ''}">
+                    <p style="font-size: 0.75rem; color: #666; margin-top: 0.5rem;">클릭하여 변경</p>
+                    <input type="file" id="mobileImageInput" accept="image/*" onchange="previewImage(this, 'mobile')">
+                `;
+                mobileUpload.classList.add('has-image');
+                document.getElementById('removeMobileImageBtn').style.display = 'block';
+                document.getElementById('mobileImageActiveToggle').style.display = 'flex';
+                document.getElementById('mobileImageActiveCheckbox').checked = banner.mobileImageActive !== false;
+            } else {
+                mobileUpload.innerHTML = `
+                    <i class="fas fa-mobile-alt" style="font-size: 1.5rem; color: #28a745;"></i>
+                    <p style="font-size: 0.9rem;">클릭하여 업로드</p>
+                    <p style="font-size: 0.75rem; color: #999;">권장: 800 x 600px (4:3)</p>
+                    <input type="file" id="mobileImageInput" accept="image/*" onchange="previewImage(this, 'mobile')">
+                `;
+                mobileUpload.classList.remove('has-image');
+                document.getElementById('removeMobileImageBtn').style.display = 'none';
+                document.getElementById('mobileImageActiveToggle').style.display = 'none';
+            }
 
             document.getElementById('bannerModal').classList.add('active');
         }
@@ -739,23 +919,49 @@
         function closeModal() {
             document.getElementById('bannerModal').classList.remove('active');
             editingId = null;
-            selectedFile = null; // 파일 초기화
+            selectedFile = null;
+            selectedMobileFile = null;
+            removeImageFlag = false;
+            removeMobileImageFlag = false;
         }
 
         // 이미지 미리보기
-        function previewImage(input) {
+        function previewImage(input, type) {
             if (input.files && input.files[0]) {
-                selectedFile = input.files[0]; // 파일 저장
                 const reader = new FileReader();
-                reader.onload = function(e) {
-                    const imageUpload = document.getElementById('imageUpload');
-                    imageUpload.innerHTML = `
-                        <img src="${e.target.result}" alt="미리보기">
-                        <p style="font-size: 0.8rem; color: #666; margin-top: 0.5rem;">클릭하여 다른 이미지 선택</p>
-                        <input type="file" id="imageInput" accept="image/*" onchange="previewImage(this)">
-                    `;
-                    imageUpload.classList.add('has-image');
-                };
+                
+                if (type === 'pc') {
+                    selectedFile = input.files[0];
+                    removeImageFlag = false;
+                    reader.onload = function(e) {
+                        const imageUpload = document.getElementById('imageUpload');
+                        imageUpload.innerHTML = `
+                            <img src="${e.target.result}" alt="PC 미리보기">
+                            <p style="font-size: 0.75rem; color: #666; margin-top: 0.5rem;">클릭하여 변경</p>
+                            <input type="file" id="imageInput" accept="image/*" onchange="previewImage(this, 'pc')">
+                        `;
+                        imageUpload.classList.add('has-image');
+                        document.getElementById('removeImageBtn').style.display = 'block';
+                        document.getElementById('imageActiveToggle').style.display = 'flex';
+                        document.getElementById('imageActiveCheckbox').checked = true;
+                    };
+                } else {
+                    selectedMobileFile = input.files[0];
+                    removeMobileImageFlag = false;
+                    reader.onload = function(e) {
+                        const mobileUpload = document.getElementById('mobileImageUpload');
+                        mobileUpload.innerHTML = `
+                            <img src="${e.target.result}" alt="모바일 미리보기">
+                            <p style="font-size: 0.75rem; color: #666; margin-top: 0.5rem;">클릭하여 변경</p>
+                            <input type="file" id="mobileImageInput" accept="image/*" onchange="previewImage(this, 'mobile')">
+                        `;
+                        mobileUpload.classList.add('has-image');
+                        document.getElementById('removeMobileImageBtn').style.display = 'block';
+                        document.getElementById('mobileImageActiveToggle').style.display = 'flex';
+                        document.getElementById('mobileImageActiveCheckbox').checked = true;
+                    };
+                }
+                
                 reader.readAsDataURL(input.files[0]);
             }
         }
@@ -768,23 +974,41 @@
             const linkText = document.getElementById('bannerLinkText').value;
             const source = document.getElementById('bannerSource').value;
             const isActive = document.getElementById('bannerActive').checked;
+            const imageActive = document.getElementById('imageActiveCheckbox').checked;
+            const mobileImageActive = document.getElementById('mobileImageActiveCheckbox').checked;
 
-            // 새 배너인데 이미지 없으면 에러
-            if (!editingId && !selectedFile) {
-                showAlert('배너 이미지를 선택해주세요.', 'error');
+            // 새 배너인데 이미지 둘 다 없으면 에러
+            if (!editingId && !selectedFile && !selectedMobileFile) {
+                showAlert('PC용 또는 모바일용 이미지 중 하나는 선택해주세요.', 'error');
                 return;
             }
 
             const formData = new FormData();
+            
+            // PC 이미지 처리
             if (selectedFile) {
                 formData.append('image', selectedFile);
             }
+            if (removeImageFlag) {
+                formData.append('removeImage', 'true');
+            }
+            
+            // 모바일 이미지 처리
+            if (selectedMobileFile) {
+                formData.append('mobileImage', selectedMobileFile);
+            }
+            if (removeMobileImageFlag) {
+                formData.append('removeMobileImage', 'true');
+            }
+            
             formData.append('title', title);
             formData.append('subtitle', subtitle);
             formData.append('linkUrl', linkUrl);
             formData.append('linkText', linkText);
             formData.append('source', source);
             formData.append('isActive', isActive);
+            formData.append('imageActive', imageActive);
+            formData.append('mobileImageActive', mobileImageActive);
             formData.append('order', editingId ? banners.find(b => b._id === editingId).order : banners.length);
 
             try {
