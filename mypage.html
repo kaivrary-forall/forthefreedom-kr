@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>마이페이지 | 자유와혁신</title>
+    <meta name="description" content="자유와혁신 회원 마이페이지입니다.">
+    
+    <!-- 파비콘 -->
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#A50034',
+                        'primary-dark': '#8B002C',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="config.js"></script>
+    
+    <style>
+        .section-card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .info-row {
+            display: flex;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            width: 100px;
+            color: #6b7280;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+        .info-value {
+            flex: 1;
+            color: #1f2937;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #A50034;
+            box-shadow: 0 0 0 2px rgba(165, 0, 52, 0.1);
+        }
+        .btn-primary {
+            background: #A50034;
+            color: white;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .btn-primary:hover {
+            background: #8B002C;
+        }
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .badge-primary {
+            background: #fef2f2;
+            color: #A50034;
+        }
+        .badge-success {
+            background: #ecfdf5;
+            color: #059669;
+        }
+        .badge-gray {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            max-width: 400px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div id="navigation-container"></div>
+    
+    <main class="min-h-screen pt-24 pb-16">
+        <div class="max-w-3xl mx-auto px-4">
+            <!-- 헤더 -->
+            <div class="flex items-center justify-between mb-6">
+                <h1 class="text-2xl font-bold text-gray-900">마이페이지</h1>
+                <button onclick="logout()" class="text-gray-500 hover:text-gray-700 text-sm">
+                    <i class="fas fa-sign-out-alt mr-1"></i> 로그아웃
+                </button>
+            </div>
+            
+            <!-- 로딩 -->
+            <div id="loading" class="text-center py-12">
+                <i class="fas fa-spinner fa-spin text-3xl text-gray-400"></i>
+                <p class="text-gray-500 mt-2">정보를 불러오는 중...</p>
+            </div>
+            
+            <!-- 컨텐츠 -->
+            <div id="content" class="hidden">
+                <!-- 프로필 요약 -->
+                <div class="section-card bg-gradient-to-r from-primary to-red-700 text-white">
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-2xl"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span id="profileNickname" class="text-xl font-bold"></span>
+                                <span id="memberTypeBadge" class="badge"></span>
+                            </div>
+                            <p id="profileUserId" class="text-white/70 text-sm"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 기본 정보 -->
+                <div class="section-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="section-title"><i class="fas fa-user text-primary"></i> 기본 정보</h2>
+                        <button onclick="openEditModal()" class="text-primary text-sm hover:underline">
+                            <i class="fas fa-edit mr-1"></i> 수정
+                        </button>
+                    </div>
+                    <div>
+                        <div class="info-row">
+                            <span class="info-label">아이디</span>
+                            <span id="infoUserId" class="info-value"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">닉네임</span>
+                            <span class="info-value">
+                                <span id="infoNickname"></span>
+                                <button onclick="openNicknameModal()" class="ml-2 text-xs text-primary hover:underline">변경</button>
+                            </span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">이름</span>
+                            <span id="infoName" class="info-value"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">이메일</span>
+                            <span id="infoEmail" class="info-value"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">연락처</span>
+                            <span id="infoPhone" class="info-value"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">주소</span>
+                            <span id="infoAddress" class="info-value"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 당원 정보 -->
+                <div class="section-card">
+                    <h2 class="section-title"><i class="fas fa-id-card text-primary"></i> 당원 정보</h2>
+                    <div id="partyMemberInfo">
+                        <!-- 일반회원인 경우 -->
+                        <div id="generalMemberSection" class="hidden">
+                            <div class="bg-gray-50 rounded-lg p-4 text-center">
+                                <p class="text-gray-600 mb-3">아직 혁신 당원이 아니십니다</p>
+                                <a href="support.html" class="btn-primary inline-block">
+                                    <i class="fas fa-user-plus mr-1"></i> 당원 가입하기
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- 혁신당원인 경우 -->
+                        <div id="partyMemberSection" class="hidden">
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                                <div class="flex items-center gap-2 text-green-700 font-semibold mb-2">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>혁신 당원 (당비 납부 중)</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3 text-sm">
+                                    <div>
+                                        <span class="text-gray-500">납부 시작일</span>
+                                        <p id="partyFeeStartDate" class="font-medium text-gray-900">-</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">월 납부액</span>
+                                        <p id="partyFeeMonthly" class="font-medium text-gray-900">-</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">총 납부 금액</span>
+                                        <p id="partyFeeTotalPaid" class="font-medium text-gray-900">-</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">최근 납부일</span>
+                                        <p id="partyFeeLastPayment" class="font-medium text-gray-900">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 후원/구매 내역 -->
+                <div class="section-card">
+                    <h2 class="section-title"><i class="fas fa-heart text-primary"></i> 후원/구매 내역</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-50 rounded-lg p-4 text-center">
+                            <p class="text-gray-500 text-sm">총 후원금</p>
+                            <p id="donationTotal" class="text-xl font-bold text-gray-900">0원</p>
+                            <p id="donationCount" class="text-xs text-gray-400">0회</p>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4 text-center">
+                            <p class="text-gray-500 text-sm">총 구매금</p>
+                            <p id="purchaseTotal" class="text-xl font-bold text-gray-900">0원</p>
+                            <p id="purchaseCount" class="text-xs text-gray-400">0회</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 계정 관리 -->
+                <div class="section-card">
+                    <h2 class="section-title"><i class="fas fa-cog text-primary"></i> 계정 관리</h2>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="openPasswordModal()" class="btn-secondary">
+                            <i class="fas fa-key mr-1"></i> 비밀번호 변경
+                        </button>
+                        <button onclick="openWithdrawModal()" class="text-red-500 hover:text-red-600 text-sm px-4 py-2">
+                            <i class="fas fa-user-times mr-1"></i> 회원 탈퇴
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- 정보 수정 모달 -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6">
+                <h3 class="text-lg font-bold mb-4">기본 정보 수정</h3>
+                <form id="editForm" onsubmit="saveInfo(event)">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">이름</label>
+                            <input type="text" id="editName" class="form-input" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+                            <input type="email" id="editEmail" class="form-input" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">연락처</label>
+                            <input type="tel" id="editPhone" class="form-input" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">주소</label>
+                            <div class="flex gap-2 mb-2">
+                                <input type="text" id="editZipCode" class="form-input w-28" placeholder="우편번호" readonly>
+                                <button type="button" onclick="searchAddress()" class="btn-secondary text-sm">주소검색</button>
+                            </div>
+                            <input type="text" id="editAddress" class="form-input mb-2" placeholder="기본주소" readonly>
+                            <input type="text" id="editAddressDetail" class="form-input" placeholder="상세주소">
+                        </div>
+                    </div>
+                    <div class="flex gap-3 mt-6">
+                        <button type="button" onclick="closeModal('editModal')" class="flex-1 btn-secondary">취소</button>
+                        <button type="submit" class="flex-1 btn-primary">저장</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 닉네임 변경 모달 -->
+    <div id="nicknameModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6">
+                <h3 class="text-lg font-bold mb-4">닉네임 변경</h3>
+                <div id="nicknameStatus" class="mb-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-700"></div>
+                <form id="nicknameForm" onsubmit="changeNickname(event)">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">새 닉네임</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="newNickname" class="form-input flex-1" placeholder="2~20자" required>
+                            <button type="button" onclick="checkNewNickname()" class="btn-secondary text-sm whitespace-nowrap">중복확인</button>
+                        </div>
+                        <p id="nicknameError" class="text-red-500 text-sm mt-1 hidden"></p>
+                        <p id="nicknameSuccess" class="text-green-500 text-sm mt-1 hidden"></p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button type="button" onclick="closeModal('nicknameModal')" class="flex-1 btn-secondary">취소</button>
+                        <button type="submit" id="nicknameSubmitBtn" class="flex-1 btn-primary" disabled>변경</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 비밀번호 변경 모달 -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6">
+                <h3 class="text-lg font-bold mb-4">비밀번호 변경</h3>
+                <form id="passwordForm" onsubmit="changePassword(event)">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">현재 비밀번호</label>
+                            <input type="password" id="currentPassword" class="form-input" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">새 비밀번호</label>
+                            <input type="password" id="newPassword" class="form-input" placeholder="8자 이상" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">새 비밀번호 확인</label>
+                            <input type="password" id="newPasswordConfirm" class="form-input" required>
+                        </div>
+                    </div>
+                    <p id="passwordError" class="text-red-500 text-sm mt-2 hidden"></p>
+                    <div class="flex gap-3 mt-6">
+                        <button type="button" onclick="closeModal('passwordModal')" class="flex-1 btn-secondary">취소</button>
+                        <button type="submit" class="flex-1 btn-primary">변경</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 회원 탈퇴 모달 -->
+    <div id="withdrawModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6">
+                <h3 class="text-lg font-bold text-red-600 mb-4">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>회원 탈퇴
+                </h3>
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 text-sm text-red-700">
+                    <p class="font-semibold mb-2">탈퇴 전 확인사항</p>
+                    <ul class="space-y-1">
+                        <li>• 혁신 당원인 경우 당비 납부가 자동 해지됩니다</li>
+                        <li>• 후원/구매 내역은 법적 보관 기간 동안 유지됩니다</li>
+                        <li>• 탈퇴 후에도 재가입이 가능합니다</li>
+                    </ul>
+                </div>
+                <form id="withdrawForm" onsubmit="withdraw(event)">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">탈퇴 사유 (선택)</label>
+                            <textarea id="withdrawReason" class="form-input" rows="3" placeholder="탈퇴 사유를 입력해주세요"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">비밀번호 확인</label>
+                            <input type="password" id="withdrawPassword" class="form-input" placeholder="본인 확인을 위해 비밀번호를 입력해주세요" required>
+                        </div>
+                    </div>
+                    <div class="flex gap-3 mt-6">
+                        <button type="button" onclick="closeModal('withdrawModal')" class="flex-1 btn-secondary">취소</button>
+                        <button type="submit" class="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">탈퇴하기</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 카카오 주소 API -->
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    
+    <script src="nav.js"></script>
+    <script>
+        loadNavigation();
+        
+        let memberData = null;
+        let nicknameChecked = false;
+        
+        // 로그인 체크
+        const token = localStorage.getItem('memberToken');
+        if (!token) {
+            window.location.href = 'login.html?return=' + encodeURIComponent(window.location.pathname);
+        }
+        
+        // 페이지 로드 시 정보 불러오기
+        document.addEventListener('DOMContentLoaded', loadMemberInfo);
+        
+        // 회원 정보 불러오기
+        async function loadMemberInfo() {
+            try {
+                const response = await fetch(`${window.API_BASE}/members/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('memberToken');
+                        localStorage.removeItem('memberInfo');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    throw new Error('정보 조회 실패');
+                }
+                
+                const result = await response.json();
+                memberData = result.data;
+                
+                renderMemberInfo();
+                
+            } catch (error) {
+                console.error('회원 정보 로드 오류:', error);
+                alert('정보를 불러오는 중 오류가 발생했습니다');
+            }
+        }
+        
+        // 회원 정보 렌더링
+        function renderMemberInfo() {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('content').classList.remove('hidden');
+            
+            // 프로필 요약
+            document.getElementById('profileNickname').textContent = memberData.nickname;
+            document.getElementById('profileUserId').textContent = '@' + memberData.userId;
+            
+            // 회원 유형 배지
+            const badge = document.getElementById('memberTypeBadge');
+            if (memberData.memberType === 'party_member') {
+                badge.textContent = '혁신 당원';
+                badge.className = 'badge bg-white/20 text-white';
+            } else {
+                badge.textContent = '일반 회원';
+                badge.className = 'badge bg-white/20 text-white';
+            }
+            
+            // 기본 정보
+            document.getElementById('infoUserId').textContent = memberData.userId;
+            document.getElementById('infoNickname').textContent = memberData.nickname;
+            document.getElementById('infoName').textContent = memberData.name;
+            document.getElementById('infoEmail').textContent = memberData.email;
+            document.getElementById('infoPhone').textContent = memberData.phone;
+            
+            let address = memberData.address || '-';
+            if (memberData.addressDetail) address += ' ' + memberData.addressDetail;
+            document.getElementById('infoAddress').textContent = address;
+            
+            // 당원 정보
+            if (memberData.memberType === 'party_member' && memberData.happyNanum?.partyFee?.isActive) {
+                document.getElementById('generalMemberSection').classList.add('hidden');
+                document.getElementById('partyMemberSection').classList.remove('hidden');
+                
+                const fee = memberData.happyNanum.partyFee;
+                document.getElementById('partyFeeStartDate').textContent = formatDate(fee.startDate);
+                document.getElementById('partyFeeMonthly').textContent = formatMoney(fee.monthlyAmount) + '원';
+                document.getElementById('partyFeeTotalPaid').textContent = formatMoney(fee.totalPaid) + '원';
+                document.getElementById('partyFeeLastPayment').textContent = formatDate(fee.lastPaymentDate);
+            } else {
+                document.getElementById('generalMemberSection').classList.remove('hidden');
+                document.getElementById('partyMemberSection').classList.add('hidden');
+            }
+            
+            // 후원/구매 내역
+            document.getElementById('donationTotal').textContent = formatMoney(memberData.donation?.totalAmount || 0) + '원';
+            document.getElementById('donationCount').textContent = (memberData.donation?.count || 0) + '회';
+            document.getElementById('purchaseTotal').textContent = formatMoney(memberData.purchase?.totalAmount || 0) + '원';
+            document.getElementById('purchaseCount').textContent = (memberData.purchase?.count || 0) + '회';
+        }
+        
+        // 유틸리티 함수
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+        }
+        
+        function formatMoney(amount) {
+            return (amount || 0).toLocaleString();
+        }
+        
+        // 모달 열기/닫기
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+        
+        // 정보 수정 모달
+        function openEditModal() {
+            document.getElementById('editName').value = memberData.name;
+            document.getElementById('editEmail').value = memberData.email;
+            document.getElementById('editPhone').value = memberData.phone;
+            document.getElementById('editZipCode').value = memberData.zipCode || '';
+            document.getElementById('editAddress').value = memberData.address || '';
+            document.getElementById('editAddressDetail').value = memberData.addressDetail || '';
+            document.getElementById('editModal').classList.add('active');
+        }
+        
+        // 주소 검색
+        function searchAddress() {
+            new daum.Postcode({
+                oncomplete: function(data) {
+                    document.getElementById('editZipCode').value = data.zonecode;
+                    document.getElementById('editAddress').value = data.roadAddress || data.jibunAddress;
+                    document.getElementById('editAddressDetail').focus();
+                }
+            }).open();
+        }
+        
+        // 정보 저장
+        async function saveInfo(event) {
+            event.preventDefault();
+            
+            try {
+                const response = await fetch(`${window.API_BASE}/members/me`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        name: document.getElementById('editName').value,
+                        email: document.getElementById('editEmail').value,
+                        phone: document.getElementById('editPhone').value,
+                        zipCode: document.getElementById('editZipCode').value,
+                        address: document.getElementById('editAddress').value,
+                        addressDetail: document.getElementById('editAddressDetail').value
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('정보가 수정되었습니다');
+                    closeModal('editModal');
+                    loadMemberInfo();
+                } else {
+                    alert(result.message || '수정에 실패했습니다');
+                }
+            } catch (error) {
+                console.error('정보 수정 오류:', error);
+                alert('수정 중 오류가 발생했습니다');
+            }
+        }
+        
+        // 닉네임 모달
+        async function openNicknameModal() {
+            nicknameChecked = false;
+            document.getElementById('newNickname').value = '';
+            document.getElementById('nicknameError').classList.add('hidden');
+            document.getElementById('nicknameSuccess').classList.add('hidden');
+            document.getElementById('nicknameSubmitBtn').disabled = true;
+            
+            // 닉네임 변경 상태 조회
+            try {
+                const response = await fetch(`${window.API_BASE}/members/me/nickname-status`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await response.json();
+                
+                const statusEl = document.getElementById('nicknameStatus');
+                if (result.data.canChangeFree) {
+                    statusEl.innerHTML = `<i class="fas fa-gift mr-1"></i> 무료 변경 가능 (${result.data.remainingFreeChanges}회 남음)`;
+                    statusEl.className = 'mb-4 p-3 bg-green-50 rounded-lg text-sm text-green-700';
+                } else {
+                    statusEl.innerHTML = `<i class="fas fa-info-circle mr-1"></i> 무료 변경 횟수를 모두 사용하셨습니다`;
+                    statusEl.className = 'mb-4 p-3 bg-yellow-50 rounded-lg text-sm text-yellow-700';
+                }
+            } catch (error) {
+                console.error('닉네임 상태 조회 오류:', error);
+            }
+            
+            document.getElementById('nicknameModal').classList.add('active');
+        }
+        
+        // 닉네임 중복 확인
+        async function checkNewNickname() {
+            const nickname = document.getElementById('newNickname').value.trim();
+            const errorEl = document.getElementById('nicknameError');
+            const successEl = document.getElementById('nicknameSuccess');
+            
+            errorEl.classList.add('hidden');
+            successEl.classList.add('hidden');
+            
+            if (!nickname) {
+                errorEl.textContent = '닉네임을 입력해주세요';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
+            if (nickname.length < 2 || nickname.length > 20) {
+                errorEl.textContent = '닉네임은 2~20자여야 합니다';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
+            if (nickname === memberData.nickname) {
+                errorEl.textContent = '현재 닉네임과 동일합니다';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${window.API_BASE}/members/check-nickname?nickname=${encodeURIComponent(nickname)}`);
+                const result = await response.json();
+                
+                if (result.available) {
+                    successEl.textContent = '사용 가능한 닉네임입니다';
+                    successEl.classList.remove('hidden');
+                    nicknameChecked = true;
+                    document.getElementById('nicknameSubmitBtn').disabled = false;
+                } else {
+                    errorEl.textContent = result.message;
+                    errorEl.classList.remove('hidden');
+                    nicknameChecked = false;
+                    document.getElementById('nicknameSubmitBtn').disabled = true;
+                }
+            } catch (error) {
+                errorEl.textContent = '확인 중 오류가 발생했습니다';
+                errorEl.classList.remove('hidden');
+            }
+        }
+        
+        // 닉네임 입력 시 초기화
+        document.getElementById('newNickname').addEventListener('input', function() {
+            nicknameChecked = false;
+            document.getElementById('nicknameSubmitBtn').disabled = true;
+            document.getElementById('nicknameSuccess').classList.add('hidden');
+        });
+        
+        // 닉네임 변경
+        async function changeNickname(event) {
+            event.preventDefault();
+            
+            if (!nicknameChecked) {
+                alert('닉네임 중복확인을 해주세요');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${window.API_BASE}/members/me/nickname`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        nickname: document.getElementById('newNickname').value.trim()
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(result.message);
+                    closeModal('nicknameModal');
+                    loadMemberInfo();
+                } else {
+                    alert(result.message || '닉네임 변경에 실패했습니다');
+                }
+            } catch (error) {
+                console.error('닉네임 변경 오류:', error);
+                alert('변경 중 오류가 발생했습니다');
+            }
+        }
+        
+        // 비밀번호 모달
+        function openPasswordModal() {
+            document.getElementById('passwordForm').reset();
+            document.getElementById('passwordError').classList.add('hidden');
+            document.getElementById('passwordModal').classList.add('active');
+        }
+        
+        // 비밀번호 변경
+        async function changePassword(event) {
+            event.preventDefault();
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const newPasswordConfirm = document.getElementById('newPasswordConfirm').value;
+            const errorEl = document.getElementById('passwordError');
+            
+            errorEl.classList.add('hidden');
+            
+            if (newPassword.length < 8) {
+                errorEl.textContent = '새 비밀번호는 8자 이상이어야 합니다';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
+            if (newPassword !== newPasswordConfirm) {
+                errorEl.textContent = '새 비밀번호가 일치하지 않습니다';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${window.API_BASE}/members/me/password`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        currentPassword,
+                        newPassword,
+                        newPasswordConfirm
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('비밀번호가 변경되었습니다');
+                    closeModal('passwordModal');
+                } else {
+                    errorEl.textContent = result.message;
+                    errorEl.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('비밀번호 변경 오류:', error);
+                errorEl.textContent = '변경 중 오류가 발생했습니다';
+                errorEl.classList.remove('hidden');
+            }
+        }
+        
+        // 탈퇴 모달
+        function openWithdrawModal() {
+            document.getElementById('withdrawForm').reset();
+            document.getElementById('withdrawModal').classList.add('active');
+        }
+        
+        // 회원 탈퇴
+        async function withdraw(event) {
+            event.preventDefault();
+            
+            if (!confirm('정말 탈퇴하시겠습니까?\n\n이 작업은 취소할 수 없습니다.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${window.API_BASE}/members/me/withdraw`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        reason: document.getElementById('withdrawReason').value,
+                        password: document.getElementById('withdrawPassword').value
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('탈퇴 처리가 완료되었습니다.\n\n그동안 자유와혁신과 함께해주셔서 감사합니다.');
+                    localStorage.removeItem('memberToken');
+                    localStorage.removeItem('memberInfo');
+                    window.location.href = 'index.html';
+                } else {
+                    alert(result.message || '탈퇴 처리에 실패했습니다');
+                }
+            } catch (error) {
+                console.error('탈퇴 오류:', error);
+                alert('탈퇴 처리 중 오류가 발생했습니다');
+            }
+        }
+        
+        // 로그아웃
+        function logout() {
+            if (confirm('로그아웃 하시겠습니까?')) {
+                localStorage.removeItem('memberToken');
+                localStorage.removeItem('memberInfo');
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>
