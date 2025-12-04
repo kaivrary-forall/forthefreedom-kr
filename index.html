@@ -320,6 +320,17 @@
             0% { background-position: -200% 0; }
             100% { background-position: 200% 0; }
         }
+        
+        /* 모바일에서 배너 비율 변경 */
+        @media (max-width: 768px) {
+            #banner-slider {
+                aspect-ratio: 4/3 !important;
+            }
+            .hero-wrapper {
+                padding: 0 12px !important;
+                margin-top: 80px !important;
+            }
+        }
     </style>
     
     <!-- 배너 슬라이더 스크립트 -->
@@ -340,6 +351,11 @@
             return shuffled;
         }
         
+        // 모바일 체크 함수
+        function isMobile() {
+            return window.innerWidth <= 768;
+        }
+        
         // 배너 데이터 로드
         async function loadBanners() {
             try {
@@ -355,12 +371,29 @@
                 if (result.success && result.data.length > 0) {
                     let bannerData = result.data;
                     
+                    // PC/모바일에 따라 필터링 (이미지 존재 + 활성화 상태 체크)
+                    const mobile = isMobile();
+                    bannerData = bannerData.filter(banner => {
+                        if (mobile) {
+                            // 모바일: mobileImageUrl이 있고 mobileImageActive가 true인 배너만
+                            return banner.mobileImageUrl && banner.mobileImageActive !== false;
+                        } else {
+                            // PC: imageUrl이 있고 imageActive가 true인 배너만
+                            return banner.imageUrl && banner.imageActive !== false;
+                        }
+                    });
+                    
+                    if (bannerData.length === 0) {
+                        console.log('표시할 배너가 없습니다.');
+                        return;
+                    }
+                    
                     // 랜덤 순서 설정이 켜져 있으면 섞기
                     if (settings.success && settings.data.randomOrder) {
                         bannerData = shuffleArray(bannerData);
                     }
                     
-                    renderBanners(bannerData);
+                    renderBanners(bannerData, mobile);
                 }
             } catch (error) {
                 console.log('배너 로드 실패, 기본 배너 사용:', error);
@@ -368,25 +401,32 @@
         }
         
         // 배너 렌더링
-        function renderBanners(banners) {
+        function renderBanners(banners, mobile = false) {
             const slidesContainer = document.getElementById('banner-slides');
             const dotsContainer = document.getElementById('slide-dots');
             const controlsContainer = document.getElementById('slide-controls');
             
             // 슬라이드 생성
-            slidesContainer.innerHTML = banners.map((banner, index) => `
-                <div class="banner-slide" style="min-width: 100%; height: 100%; position: relative; background-image: url('${banner.imageUrl}'); background-size: cover; background-position: center;">
+            slidesContainer.innerHTML = banners.map((banner, index) => {
+                const imageUrl = mobile ? banner.mobileImageUrl : banner.imageUrl;
+                const paddingLeft = mobile ? '20px' : '48px';
+                const sourceBottom = mobile ? '12px' : '20px';
+                const sourceRight = mobile ? '16px' : '28px';
+                const sourceSize = mobile ? '10px' : '13px';
+                
+                return `
+                <div class="banner-slide" style="min-width: 100%; height: 100%; position: relative; background-image: url('${imageUrl}'); background-size: cover; background-position: center;">
                     <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to right, rgba(0,0,0,0.6), rgba(0,0,0,0.3), rgba(0,0,0,0.1));"></div>
                     <div style="position: absolute; top: 50%; left: 0; transform: translateY(-50%); z-index: 10; width: 100%; padding: 0 1rem;">
-                        <div style="max-width: 48rem; color: white; text-align: left; margin-left: 0; padding-left: 48px;">
-                            ${banner.title ? `<h1 class="banner-title" style="font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 700; margin-bottom: 1rem; line-height: 1.2; font-family: 'Pretendard', 'Noto Sans KR', sans-serif; text-shadow: 2px 2px 8px rgba(0,0,0,0.6);">${banner.title}</h1>` : ''}
-                            ${banner.subtitle ? `<p class="banner-subtitle" style="font-size: clamp(1rem, 2vw, 1.25rem); margin-bottom: 1.5rem; font-weight: 400; line-height: 1.6; font-family: 'Pretendard', 'Noto Sans KR', sans-serif; max-width: 90%; text-shadow: 1px 1px 4px rgba(0,0,0,0.6); opacity: 0.9;">${banner.subtitle}</p>` : ''}
-                            ${banner.linkUrl ? `<a href="${banner.linkUrl}" target="_blank" class="banner-btn" style="background-color: #A50034; color: white; padding: 0.75rem 1.75rem; font-size: clamp(0.9rem, 1.5vw, 1rem); font-weight: 500; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; font-family: 'Pretendard', 'Noto Sans KR', sans-serif; text-decoration: none; display: inline-block;">${banner.linkText || '자세히 보기'}</a>` : ''}
+                        <div style="max-width: 48rem; color: white; text-align: left; margin-left: 0; padding-left: ${paddingLeft};">
+                            ${banner.title ? `<h1 class="banner-title" style="font-size: clamp(1.5rem, 4vw, 3.5rem); font-weight: 700; margin-bottom: 1rem; line-height: 1.2; font-family: 'Pretendard', 'Noto Sans KR', sans-serif; text-shadow: 2px 2px 8px rgba(0,0,0,0.6);">${banner.title}</h1>` : ''}
+                            ${banner.subtitle ? `<p class="banner-subtitle" style="font-size: clamp(0.85rem, 2vw, 1.25rem); margin-bottom: 1.5rem; font-weight: 400; line-height: 1.6; font-family: 'Pretendard', 'Noto Sans KR', sans-serif; max-width: 90%; text-shadow: 1px 1px 4px rgba(0,0,0,0.6); opacity: 0.9;">${banner.subtitle}</p>` : ''}
+                            ${banner.linkUrl ? `<a href="${banner.linkUrl}" target="_blank" class="banner-btn" style="background-color: #A50034; color: white; padding: ${mobile ? '0.6rem 1.25rem' : '0.75rem 1.75rem'}; font-size: clamp(0.8rem, 1.5vw, 1rem); font-weight: 500; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; font-family: 'Pretendard', 'Noto Sans KR', sans-serif; text-decoration: none; display: inline-block;">${banner.linkText || '자세히 보기'}</a>` : ''}
                         </div>
                     </div>
-                    ${banner.source ? `<div style="position: absolute; bottom: 20px; right: 28px; z-index: 10; color: rgba(255,255,255,0.7); font-size: 13px; font-family: 'Pretendard', 'Noto Sans KR', sans-serif; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">${banner.source}</div>` : ''}
+                    ${banner.source ? `<div style="position: absolute; bottom: ${sourceBottom}; right: ${sourceRight}; z-index: 10; color: rgba(255,255,255,0.7); font-size: ${sourceSize}; font-family: 'Pretendard', 'Noto Sans KR', sans-serif; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">${banner.source}</div>` : ''}
                 </div>
-            `).join('');
+            `}).join('');
             
             // 점 네비게이션 생성
             totalSlides = banners.length;
