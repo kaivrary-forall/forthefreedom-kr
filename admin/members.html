@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원 관리 - 자유와혁신 관리자</title>
+    <script src="/config.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#A50034',
+                        'primary-dark': '#8B002C',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            background-attachment: fixed;
+        }
+        .nav-bar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .content-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .stat-card.active {
+            border-color: #A50034;
+            background: #fef2f2;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.625rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .badge-pending { background: #fef3c7; color: #92400e; }
+        .badge-active { background: #d1fae5; color: #065f46; }
+        .badge-suspended { background: #fee2e2; color: #991b1b; }
+        .badge-withdrawn { background: #e5e7eb; color: #374151; }
+        .badge-party { background: #fce7f3; color: #9d174d; }
+        .badge-general { background: #f3f4f6; color: #4b5563; }
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #A50034; color: white; }
+        .btn-primary:hover { background: #8B002C; }
+        .btn-secondary { background: #f3f4f6; color: #374151; }
+        .btn-secondary:hover { background: #e5e7eb; }
+        .btn-success { background: #059669; color: white; }
+        .btn-success:hover { background: #047857; }
+        .btn-danger { background: #dc2626; color: white; }
+        .btn-danger:hover { background: #b91c1c; }
+        .form-input {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #A50034;
+            box-shadow: 0 0 0 2px rgba(165, 0, 52, 0.1);
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #6b7280;
+        }
+        tr:hover {
+            background: #f9fafb;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .pagination {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+        .pagination button {
+            padding: 0.5rem 0.875rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            background: white;
+            font-size: 0.875rem;
+        }
+        .pagination button:hover:not(:disabled) {
+            background: #f3f4f6;
+        }
+        .pagination button.active {
+            background: #A50034;
+            color: white;
+            border-color: #A50034;
+        }
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <!-- 네비게이션 -->
+    <nav class="nav-bar fixed top-0 left-0 right-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-8">
+                    <a href="dashboard.html" class="flex items-center space-x-2">
+                        <img src="../images/logo.png" alt="자유와혁신" class="h-8">
+                        <span class="font-bold text-gray-900">관리자</span>
+                    </a>
+                    <div class="hidden md:flex space-x-4">
+                        <a href="dashboard.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">대시보드</a>
+                        <a href="content.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">콘텐츠</a>
+                        <a href="banners.html" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">배너</a>
+                        <a href="members.html" class="text-primary font-semibold px-3 py-2 text-sm">회원관리</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="adminName" class="text-sm text-gray-600"></span>
+                    <button onclick="logout()" class="btn btn-secondary">
+                        <i class="fas fa-sign-out-alt mr-1"></i> 로그아웃
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="min-h-screen pt-20 pb-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- 헤더 -->
+            <div class="mb-8">
+                <h1 class="text-2xl font-bold text-gray-900">👥 회원 관리</h1>
+                <p class="text-gray-600 mt-1">회원 가입 승인 및 관리</p>
+            </div>
+
+            <!-- 통계 카드 -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+                <div class="stat-card cursor-pointer" onclick="filterByStatus('')" id="stat-total">
+                    <div class="text-2xl font-bold text-gray-900" id="count-total">0</div>
+                    <div class="text-sm text-gray-500">전체</div>
+                </div>
+                <div class="stat-card cursor-pointer" onclick="filterByStatus('pending')" id="stat-pending">
+                    <div class="text-2xl font-bold text-yellow-600" id="count-pending">0</div>
+                    <div class="text-sm text-gray-500">승인대기</div>
+                </div>
+                <div class="stat-card cursor-pointer" onclick="filterByStatus('active')" id="stat-active">
+                    <div class="text-2xl font-bold text-green-600" id="count-active">0</div>
+                    <div class="text-sm text-gray-500">정상</div>
+                </div>
+                <div class="stat-card cursor-pointer" onclick="filterByStatus('suspended')" id="stat-suspended">
+                    <div class="text-2xl font-bold text-red-600" id="count-suspended">0</div>
+                    <div class="text-sm text-gray-500">정지</div>
+                </div>
+                <div class="stat-card cursor-pointer" onclick="filterByStatus('withdrawn')" id="stat-withdrawn">
+                    <div class="text-2xl font-bold text-gray-500" id="count-withdrawn">0</div>
+                    <div class="text-sm text-gray-500">탈퇴</div>
+                </div>
+                <div class="stat-card cursor-pointer" onclick="filterByType('party_member')" id="stat-party">
+                    <div class="text-2xl font-bold text-pink-600" id="count-party">0</div>
+                    <div class="text-sm text-gray-500">혁신당원</div>
+                </div>
+            </div>
+
+            <!-- 승인 대기 목록 -->
+            <div id="pendingSection" class="content-card p-6 mb-8 hidden">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-yellow-700">
+                        <i class="fas fa-clock mr-2"></i>승인 대기 중 <span id="pendingCount" class="text-sm font-normal">(0명)</span>
+                    </h2>
+                    <button onclick="bulkApprove()" class="btn btn-success text-sm">
+                        <i class="fas fa-check-double mr-1"></i> 전체 승인
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="selectAllPending" onchange="toggleSelectAll(this, 'pending')"></th>
+                                <th>아이디</th>
+                                <th>닉네임</th>
+                                <th>이름</th>
+                                <th>이메일</th>
+                                <th>신청일</th>
+                                <th>작업</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pendingTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 검색/필터 -->
+            <div class="content-card p-4 mb-6">
+                <div class="flex flex-wrap gap-4 items-center">
+                    <div class="flex-1 min-w-[200px]">
+                        <div class="relative">
+                            <input type="text" id="searchInput" class="form-input pl-10" placeholder="아이디, 닉네임, 이름, 이메일 검색" onkeypress="if(event.key==='Enter') searchMembers()">
+                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                    </div>
+                    <select id="statusFilter" class="form-input w-auto" onchange="applyFilters()">
+                        <option value="">전체 상태</option>
+                        <option value="pending">승인대기</option>
+                        <option value="active">정상</option>
+                        <option value="suspended">정지</option>
+                        <option value="withdrawn">탈퇴</option>
+                    </select>
+                    <select id="typeFilter" class="form-input w-auto" onchange="applyFilters()">
+                        <option value="">전체 유형</option>
+                        <option value="general">일반회원</option>
+                        <option value="party_member">혁신당원</option>
+                    </select>
+                    <button onclick="searchMembers()" class="btn btn-primary">
+                        <i class="fas fa-search mr-1"></i> 검색
+                    </button>
+                    <button onclick="resetFilters()" class="btn btn-secondary">
+                        <i class="fas fa-redo mr-1"></i> 초기화
+                    </button>
+                </div>
+            </div>
+
+            <!-- 회원 목록 -->
+            <div class="content-card">
+                <div class="p-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h2 class="font-semibold text-gray-900">회원 목록</h2>
+                        <span id="totalCount" class="text-sm text-gray-500">총 0명</span>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>아이디</th>
+                                <th>닉네임</th>
+                                <th>이름</th>
+                                <th>이메일</th>
+                                <th>상태</th>
+                                <th>유형</th>
+                                <th>가입일</th>
+                                <th>작업</th>
+                            </tr>
+                        </thead>
+                        <tbody id="memberTableBody">
+                            <tr>
+                                <td colspan="8" class="text-center py-12 text-gray-500">
+                                    <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                                    <p>데이터를 불러오는 중...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="pagination" class="pagination p-4"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 회원 상세 모달 -->
+    <div id="memberModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-bold">회원 상세 정보</h3>
+                    <button onclick="closeModal('memberModal')" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div id="memberDetail"></div>
+                <div id="memberActions" class="flex flex-wrap gap-2 mt-6 pt-4 border-t"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 반려 사유 모달 -->
+    <div id="rejectModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6">
+                <h3 class="text-lg font-bold mb-4">가입 반려</h3>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">반려 사유</label>
+                    <textarea id="rejectReason" class="form-input" rows="3" placeholder="반려 사유를 입력해주세요"></textarea>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="closeModal('rejectModal')" class="flex-1 btn btn-secondary">취소</button>
+                    <button onclick="confirmReject()" class="flex-1 btn btn-danger">반려</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 상태 변경 모달 -->
+    <div id="statusModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6">
+                <h3 class="text-lg font-bold mb-4">상태 변경</h3>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">변경할 상태</label>
+                    <select id="newStatus" class="form-input">
+                        <option value="active">정상</option>
+                        <option value="suspended">정지</option>
+                        <option value="withdrawn">탈퇴</option>
+                    </select>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="closeModal('statusModal')" class="flex-1 btn btn-secondary">취소</button>
+                    <button onclick="confirmStatusChange()" class="flex-1 btn btn-primary">변경</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 인증 체크
+        const token = localStorage.getItem('adminToken');
+        const adminInfo = JSON.parse(localStorage.getItem('adminInfo') || '{}');
+        
+        if (!token) {
+            window.location.href = 'index.html';
+        }
+        
+        document.getElementById('adminName').textContent = adminInfo.name || '관리자';
+        
+        // 상태
+        let currentPage = 1;
+        let currentStatus = '';
+        let currentType = '';
+        let currentSearch = '';
+        let selectedMemberId = null;
+        let pendingMembers = [];
+        
+        // 페이지 로드
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStats();
+            loadPendingMembers();
+            loadMembers();
+        });
+        
+        // 통계 로드
+        async function loadStats() {
+            try {
+                const response = await fetch(`${window.API_BASE}/admin/members/stats`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    const stats = result.data;
+                    document.getElementById('count-total').textContent = stats.total;
+                    document.getElementById('count-pending').textContent = stats.pending;
+                    document.getElementById('count-active').textContent = stats.active;
+                    document.getElementById('count-suspended').textContent = stats.suspended;
+                    document.getElementById('count-withdrawn').textContent = stats.withdrawn;
+                    document.getElementById('count-party').textContent = stats.partyMembers;
+                }
+            } catch (error) {
+                console.error('통계 로드 오류:', error);
+            }
+        }
+        
+        // 승인 대기 목록 로드
+        async function loadPendingMembers() {
+            try {
+                const response = await fetch(`${window.API_BASE}/admin/members/pending`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await response.json();
+                
+                if (result.success && result.data.length > 0) {
+                    pendingMembers = result.data;
+                    document.getElementById('pendingSection').classList.remove('hidden');
+                    document.getElementById('pendingCount').textContent = `(${result.data.length}명)`;
+                    renderPendingTable(result.data);
+                } else {
+                    document.getElementById('pendingSection').classList.add('hidden');
+                }
+            } catch (error) {
+                console.error('승인 대기 로드 오류:', error);
+            }
+        }
+        
+        // 승인 대기 테이블 렌더링
+        function renderPendingTable(members) {
+            const tbody = document.getElementById('pendingTableBody');
+            tbody.innerHTML = members.map(m => `
+                <tr>
+                    <td><input type="checkbox" class="pending-checkbox" value="${m._id}"></td>
+                    <td class="font-medium">${m.userId}</td>
+                    <td>${m.nickname}</td>
+                    <td>${m.name}</td>
+                    <td>${m.email}</td>
+                    <td>${formatDate(m.appliedAt)}</td>
+                    <td>
+                        <div class="flex gap-2">
+                            <button onclick="approveMember('${m._id}')" class="btn btn-success text-xs py-1 px-2">
+                                <i class="fas fa-check mr-1"></i>승인
+                            </button>
+                            <button onclick="openRejectModal('${m._id}')" class="btn btn-danger text-xs py-1 px-2">
+                                <i class="fas fa-times mr-1"></i>반려
+                            </button>
+                            <button onclick="viewMember('${m._id}')" class="btn btn-secondary text-xs py-1 px-2">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // 회원 목록 로드
+        async function loadMembers() {
+            try {
+                const params = new URLSearchParams({
+                    page: currentPage,
+                    limit: 20
+                });
+                if (currentStatus) params.append('status', currentStatus);
+                if (currentType) params.append('memberType', currentType);
+                if (currentSearch) params.append('search', currentSearch);
+                
+                const response = await fetch(`${window.API_BASE}/admin/members?${params}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    renderMemberTable(result.data.members);
+                    renderPagination(result.data.pagination);
+                    document.getElementById('totalCount').textContent = `총 ${result.data.pagination.total}명`;
+                }
+            } catch (error) {
+                console.error('회원 목록 로드 오류:', error);
+                document.getElementById('memberTableBody').innerHTML = `
+                    <tr><td colspan="8" class="text-center py-12 text-red-500">데이터를 불러오는 중 오류가 발생했습니다</td></tr>
+                `;
+            }
+        }
+        
+        // 회원 테이블 렌더링
+        function renderMemberTable(members) {
+            const tbody = document.getElementById('memberTableBody');
+            
+            if (members.length === 0) {
+                tbody.innerHTML = `
+                    <tr><td colspan="8" class="text-center py-12 text-gray-500">
+                        <i class="fas fa-users text-4xl mb-2 opacity-30"></i>
+                        <p>회원이 없습니다</p>
+                    </td></tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = members.map(m => `
+                <tr>
+                    <td class="font-medium">${m.userId}</td>
+                    <td>${m.nickname}</td>
+                    <td>${m.name}</td>
+                    <td class="text-sm text-gray-500">${m.email}</td>
+                    <td>${getStatusBadge(m.status)}</td>
+                    <td>${getTypeBadge(m.memberType)}</td>
+                    <td class="text-sm text-gray-500">${formatDate(m.appliedAt)}</td>
+                    <td>
+                        <div class="flex gap-1">
+                            <button onclick="viewMember('${m._id}')" class="btn btn-secondary text-xs py-1 px-2" title="상세보기">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            ${m.status === 'pending' ? `
+                                <button onclick="approveMember('${m._id}')" class="btn btn-success text-xs py-1 px-2" title="승인">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // 페이지네이션 렌더링
+        function renderPagination(pagination) {
+            const container = document.getElementById('pagination');
+            const { page, totalPages } = pagination;
+            
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            let html = '';
+            html += `<button onclick="goToPage(${page - 1})" ${page === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>`;
+            
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= page - 2 && i <= page + 2)) {
+                    html += `<button onclick="goToPage(${i})" class="${i === page ? 'active' : ''}">${i}</button>`;
+                } else if (i === page - 3 || i === page + 3) {
+                    html += `<span class="px-2">...</span>`;
+                }
+            }
+            
+            html += `<button onclick="goToPage(${page + 1})" ${page === totalPages ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>`;
+            
+            container.innerHTML = html;
+        }
+        
+        // 페이지 이동
+        function goToPage(page) {
+            currentPage = page;
+            loadMembers();
+        }
+        
+        // 필터 적용
+        function applyFilters() {
+            currentStatus = document.getElementById('statusFilter').value;
+            currentType = document.getElementById('typeFilter').value;
+            currentPage = 1;
+            loadMembers();
+            updateStatCards();
+        }
+        
+        // 검색
+        function searchMembers() {
+            currentSearch = document.getElementById('searchInput').value.trim();
+            currentPage = 1;
+            loadMembers();
+        }
+        
+        // 필터 초기화
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('typeFilter').value = '';
+            currentStatus = '';
+            currentType = '';
+            currentSearch = '';
+            currentPage = 1;
+            loadMembers();
+            updateStatCards();
+        }
+        
+        // 상태별 필터
+        function filterByStatus(status) {
+            document.getElementById('statusFilter').value = status;
+            document.getElementById('typeFilter').value = '';
+            currentStatus = status;
+            currentType = '';
+            currentPage = 1;
+            loadMembers();
+            updateStatCards();
+        }
+        
+        // 유형별 필터
+        function filterByType(type) {
+            document.getElementById('typeFilter').value = type;
+            document.getElementById('statusFilter').value = '';
+            currentType = type;
+            currentStatus = '';
+            currentPage = 1;
+            loadMembers();
+            updateStatCards();
+        }
+        
+        // 통계 카드 활성화 상태 업데이트
+        function updateStatCards() {
+            document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('active'));
+            if (currentStatus) {
+                document.getElementById('stat-' + currentStatus)?.classList.add('active');
+            } else if (currentType === 'party_member') {
+                document.getElementById('stat-party')?.classList.add('active');
+            } else if (!currentStatus && !currentType) {
+                document.getElementById('stat-total')?.classList.add('active');
+            }
+        }
+        
+        // 회원 상세 보기
+        async function viewMember(id) {
+            try {
+                const response = await fetch(`${window.API_BASE}/admin/members/${id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    const m = result.data;
+                    selectedMemberId = id;
+                    
+                    document.getElementById('memberDetail').innerHTML = `
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3 pb-4 border-b">
+                                <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-gray-400"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-lg">${m.nickname}</div>
+                                    <div class="text-sm text-gray-500">@${m.userId}</div>
+                                </div>
+                                <div class="ml-auto flex gap-2">
+                                    ${getStatusBadge(m.status)}
+                                    ${getTypeBadge(m.memberType)}
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 text-sm">
+                                <div><span class="text-gray-500">이름:</span> ${m.name}</div>
+                                <div><span class="text-gray-500">연락처:</span> ${m.phone}</div>
+                                <div class="col-span-2"><span class="text-gray-500">이메일:</span> ${m.email}</div>
+                                <div class="col-span-2"><span class="text-gray-500">주소:</span> ${m.address || '-'} ${m.addressDetail || ''}</div>
+                                <div><span class="text-gray-500">가입신청:</span> ${formatDateTime(m.appliedAt)}</div>
+                                <div><span class="text-gray-500">승인일:</span> ${m.approvedAt ? formatDateTime(m.approvedAt) : '-'}</div>
+                                <div><span class="text-gray-500">마지막 로그인:</span> ${m.lastLoginAt ? formatDateTime(m.lastLoginAt) : '-'}</div>
+                                <div><span class="text-gray-500">로그인 횟수:</span> ${m.loginCount || 0}회</div>
+                            </div>
+                            ${m.happyNanum?.isLinked ? `
+                                <div class="bg-pink-50 rounded-lg p-3 mt-4">
+                                    <div class="font-semibold text-pink-700 mb-2">해피나눔 연동</div>
+                                    <div class="text-sm text-gray-600">회원번호: ${m.happyNanum.memberId}</div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                    
+                    // 작업 버튼
+                    let actions = '';
+                    if (m.status === 'pending') {
+                        actions += `<button onclick="approveMember('${id}')" class="btn btn-success"><i class="fas fa-check mr-1"></i>승인</button>`;
+                        actions += `<button onclick="openRejectModal('${id}')" class="btn btn-danger"><i class="fas fa-times mr-1"></i>반려</button>`;
+                    } else {
+                        actions += `<button onclick="openStatusModal('${id}')" class="btn btn-secondary"><i class="fas fa-exchange-alt mr-1"></i>상태변경</button>`;
+                        if (m.memberType === 'general') {
+                            actions += `<button onclick="changeMemberType('${id}', 'party_member')" class="btn btn-primary"><i class="fas fa-user-plus mr-1"></i>당원 전환</button>`;
+                        } else {
+                            actions += `<button onclick="changeMemberType('${id}', 'general')" class="btn btn-secondary"><i class="fas fa-user-minus mr-1"></i>일반 전환</button>`;
+                        }
+                    }
+                    actions += `<button onclick="deleteMember('${id}')" class="btn btn-danger"><i class="fas fa-trash mr-1"></i>삭제</button>`;
+                    
+                    document.getElementById('memberActions').innerHTML = actions;
+                    document.getElementById('memberModal').classList.add('active');
+                }
+            } catch (error) {
+                console.error('회원 상세 조회 오류:', error);
+                alert('회원 정보를 불러오는 중 오류가 발생했습니다');
+            }
+        }
+        
+        // 가입 승인
+        async function approveMember(id) {
+            if (!confirm('이 회원의 가입을 승인하시겠습니까?')) return;
+            
+            try {
+                const response = await fetch(`${window.API_BASE}/admin/members/${id}/approve`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('가입이 승인되었습니다');
+                    closeModal('memberModal');
+                    loadStats();
+                    loadPendingMembers();
+                    loadMembers();
+                } else {
+                    alert(result.message || '승인에 실패했습니다');
+                }
+            } catch (error) {
+                console.error('승인 오류:', error);
+                alert('처리 중 오류가 발생했습니다');
+            }
+        }
+        
+        // 반려 모달 열기
+        function openRejectModal(id) {
+            selectedMemberId = id;
+            document.getElementById('rejectReason').value = '';
+            document.getElementById('rejectModal').classList.add('active');
+        }
+        
+        // 반려 확인
+        async function confirmReject() {
+            const reason = document.getElementById('rejectReason').value.trim();
+            
+            try {
+                const response = await fetch(`${window.API_BASE}/admin/members/${selectedMemberId}/reject`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ reason })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('가입이 반려되었습니다');
+                    closeModal('rejectModal');
+                    closeModal('memberModal');
+                    loadStats();
+                    loadPendingMembers();
+                    loadMembers();
+                } else {
+                    alert(result.message || '반려에 실패했습니다');
+                }
+            } catch (error) {
+                console.error('반려 오류:', error);
+                alert('처리 중 오류가 발생했습니다');
+            }
+        }
+        
+        // 일괄 승인
+        async function bulkApprove() {
+            const checkboxes = document.querySelectorAll('.pending-checkbox:checked');
+            const ids = Array.from(checkboxes).map(cb => cb.value);
+            
+            if (ids.length === 0) {
+                alert('승인할 회원을 선택해주세요');
+                return;
+            }
+            
+            if (!confirm(`선택한 ${ids.length}명의 가입을 승인하시겠습니까?`)) return;
+            
+            try {
+                const response = await fetch(`${window.API_BASE}/admin/members/bulk-approve`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ memberIds: ids })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`${result.data.approvedCount}명의 가입이 승인되었습니다`);
+                    loadStats();
+                    loadPendingMembers();
+                    loadMembers();
+                } else {
+                    alert(result.message || '일괄 승인에 실패했습니다');
+                }
+            } catch (error) {
+                console.error('일괄 승인 오류:', error);
+                alert('처리 중 오류가 발생했습니다');
+            }
+        }
+        
+        // 전체 선택 토글
+        function toggleSelectAll(checkbox, type) {
+            const checkboxes = document.querySelectorAll(`.${type}-checkbox`);
+            checkboxes.forEach(cb => cb.checked = checkbox.checked);
+        }
+        
+        // 상태 변경 모달
+        function openStatusModal(id) {
+            selectedMemberId = id;
+            document.getElementById('statusModal').classList.add('active');
+        }
+        
+        // 상태 변경 확인
+        async function confirmStatusChange() {
+            const newStatus = document.getElementById('newStatus').value;
+            
+            try {
+                const response = await fetch(`${window.API_BASE}/admin/members/${selectedMemberId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('상태가 변경되었습니다');
+                    closeModal('statusModal');
+                    closeModal('memberModal');
+                    loadStats();
+                    loadMembers();
+                } else {
+                    alert(result.message || '상태 변경에 실패했습니다');
+                }
+            } catch (error) {
+                console.error('상태 변경 오류:', error);
+                alert('처리 중 오류가 발생했습니다');
+            }
+        }
+        
+        // 회원 유형 변경
+        async function changeMemberType(id, newType) {
+            const typeName = newType === 'party_member' ? '혁신당원' : '일반회원';
+            if (!confirm(`이 회원을 ${typeName}(으)로 변경하시겠습니까?`)) return;
+            
+            try {
+                const response = await fetch(`${window.API_BASE}/admin/members/${id}/member-type`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ memberType: newType })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('회원 유형이 변경되었습니다');
+                    closeModal('memberModal');
+                    loadStats();
+                    loadMembers();
+                } else {
+                    alert(result.message || '변경에 실패했습니다');
+                }
+            } catch (error) {
+                console.error('유형 변경 오류:', error);
+                alert('처리 중 오류가 발생했습니다');
+            }
+        }
+        
+        // 회원 삭제
+        async function deleteMember(id) {
+            if (!confirm('정말 이 회원을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.')) return;
+            if (!confirm('회원 데이터가 완전히 삭제됩니다. 계속하시겠습니까?')) return;
+            
+            try {
+                const response = await fetch(`${window.API_BASE}/admin/members/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('회원이 삭제되었습니다');
+                    closeModal('memberModal');
+                    loadStats();
+                    loadPendingMembers();
+                    loadMembers();
+                } else {
+                    alert(result.message || '삭제에 실패했습니다');
+                }
+            } catch (error) {
+                console.error('삭제 오류:', error);
+                alert('처리 중 오류가 발생했습니다');
+            }
+        }
+        
+        // 모달 닫기
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+        
+        // 유틸리티 함수
+        function getStatusBadge(status) {
+            const badges = {
+                pending: '<span class="badge badge-pending">승인대기</span>',
+                active: '<span class="badge badge-active">정상</span>',
+                suspended: '<span class="badge badge-suspended">정지</span>',
+                withdrawn: '<span class="badge badge-withdrawn">탈퇴</span>'
+            };
+            return badges[status] || status;
+        }
+        
+        function getTypeBadge(type) {
+            return type === 'party_member' 
+                ? '<span class="badge badge-party">혁신당원</span>'
+                : '<span class="badge badge-general">일반</span>';
+        }
+        
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
+        }
+        
+        function formatDateTime(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return `${formatDate(dateStr)} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+        }
+        
+        // 로그아웃
+        function logout() {
+            if (confirm('로그아웃 하시겠습니까?')) {
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminInfo');
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>
