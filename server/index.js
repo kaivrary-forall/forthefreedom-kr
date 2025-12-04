@@ -252,6 +252,10 @@ app.use('/api/card-news', require('./routes/cardNews'));
 app.use('/api/gallery', require('./routes/gallery'));
 app.use('/api/banners', require('./routes/banners'));
 
+// 회원 관련 라우트
+app.use('/api/members', require('./routes/members'));
+app.use('/api/admin/members', require('./routes/adminMembers'));
+
 // 유틸리티 라우트 (한글 파일명 복원)
 app.use('/api/fix-filenames', require('./routes/fixFilenames'));
 
