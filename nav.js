@@ -141,14 +141,31 @@ function loadNavigation() {
                         </div>
                     </div>
                     
-                    <!-- 오른쪽: 후원하기, 당원가입 -->
-                    <div class="hidden md:flex items-center gap-8">
-                        <a href="${pathPrefix}support.html" class="text-[#212121] hover:text-[#a50034] font-medium text-lg tracking-tight transition-colors duration-200">
+                    <!-- 오른쪽: 후원하기, 당원가입, 로그인/마이페이지 -->
+                    <div class="hidden md:flex items-center gap-6">
+                        <a href="${pathPrefix}support.html" class="text-[#212121] hover:text-[#a50034] font-medium text-base tracking-tight transition-colors duration-200">
                             후원하기
                         </a>
-                        <a href="https://www.ihappynanum.com/Nanum/api/screen/F7FCRIO2E3" target="_blank" class="text-[#a50034] font-bold text-lg tracking-tight hover:opacity-80 transition-opacity duration-200">
+                        <a href="https://www.ihappynanum.com/Nanum/api/screen/F7FCRIO2E3" target="_blank" class="text-[#a50034] font-bold text-base tracking-tight hover:opacity-80 transition-opacity duration-200">
                             당원가입
                         </a>
+                        <div class="border-l border-gray-300 h-5"></div>
+                        <!-- 비로그인 상태 -->
+                        <div id="nav-guest" class="flex items-center gap-4">
+                            <a href="${pathPrefix}login.html" class="text-[#212121] hover:text-[#a50034] text-sm transition-colors duration-200">
+                                로그인
+                            </a>
+                            <a href="${pathPrefix}join.html" class="bg-[#a50034] text-white px-4 py-1.5 rounded-full text-sm font-medium hover:bg-[#8B002C] transition-colors duration-200">
+                                회원가입
+                            </a>
+                        </div>
+                        <!-- 로그인 상태 -->
+                        <div id="nav-member" class="hidden flex items-center gap-4">
+                            <span id="nav-nickname" class="text-[#212121] text-sm font-medium"></span>
+                            <a href="${pathPrefix}mypage.html" class="text-[#a50034] hover:underline text-sm font-medium">
+                                마이페이지
+                            </a>
+                        </div>
                     </div>
                     
                     <!-- 모바일 메뉴 버튼 -->
@@ -232,8 +249,31 @@ function loadNavigation() {
                             </div>
                         </div>
                         
+                        <!-- 로그인/회원 영역 -->
+                        <div class="pt-4 px-3 border-t border-gray-200 mt-4">
+                            <!-- 비로그인 상태 -->
+                            <div id="mobile-nav-guest" class="flex gap-2">
+                                <a href="${pathPrefix}login.html" class="flex-1 bg-gray-100 text-gray-700 text-center py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors">
+                                    로그인
+                                </a>
+                                <a href="${pathPrefix}join.html" class="flex-1 bg-[#a50034] text-white text-center py-3 rounded-lg font-bold hover:bg-[#8B002C] transition-colors">
+                                    회원가입
+                                </a>
+                            </div>
+                            <!-- 로그인 상태 -->
+                            <div id="mobile-nav-member" class="hidden">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span id="mobile-nav-nickname" class="font-medium text-gray-900"></span>
+                                    <button onclick="navLogout()" class="text-sm text-gray-500 hover:text-red-600">로그아웃</button>
+                                </div>
+                                <a href="${pathPrefix}mypage.html" class="block w-full bg-[#a50034] text-white text-center py-3 rounded-lg font-bold hover:bg-[#8B002C] transition-colors">
+                                    마이페이지
+                                </a>
+                            </div>
+                        </div>
+                        
                         <!-- 당원가입 버튼 -->
-                        <div class="pt-4 px-3">
+                        <div class="pt-3 px-3">
                             <a href="https://www.ihappynanum.com/Nanum/api/screen/F7FCRIO2E3" target="_blank" class="block w-full bg-red-600 text-white text-center py-3 rounded-lg font-bold hover:bg-red-700 transition-colors">
                                 당원가입
                             </a>
@@ -247,6 +287,9 @@ function loadNavigation() {
     const navigationContainer = document.getElementById('navigation-container');
     if (navigationContainer) {
         navigationContainer.innerHTML = navigationHTML;
+        
+        // 로그인 상태 체크
+        checkLoginStatus();
         
         // 모바일 메뉴 토글
         const mobileMenuButton = document.getElementById('mobile-menu-button');
@@ -444,6 +487,59 @@ function toggleMobileSubmenu(submenuId) {
 // 전역 함수로 등록
 window.toggleMobileMenu = toggleMobileMenu;
 window.toggleMobileSubmenu = toggleMobileSubmenu;
+
+// 로그인 상태 체크
+function checkLoginStatus() {
+    const token = localStorage.getItem('memberToken');
+    const memberInfo = JSON.parse(localStorage.getItem('memberInfo') || '{}');
+    
+    // 데스크톱 네비게이션
+    const navGuest = document.getElementById('nav-guest');
+    const navMember = document.getElementById('nav-member');
+    const navNickname = document.getElementById('nav-nickname');
+    
+    // 모바일 네비게이션
+    const mobileNavGuest = document.getElementById('mobile-nav-guest');
+    const mobileNavMember = document.getElementById('mobile-nav-member');
+    const mobileNavNickname = document.getElementById('mobile-nav-nickname');
+    
+    if (token && memberInfo.nickname) {
+        // 로그인 상태
+        if (navGuest) navGuest.classList.add('hidden');
+        if (navMember) {
+            navMember.classList.remove('hidden');
+            navMember.classList.add('flex');
+        }
+        if (navNickname) navNickname.textContent = memberInfo.nickname + '님';
+        
+        if (mobileNavGuest) mobileNavGuest.classList.add('hidden');
+        if (mobileNavMember) mobileNavMember.classList.remove('hidden');
+        if (mobileNavNickname) mobileNavNickname.textContent = memberInfo.nickname + '님';
+    } else {
+        // 비로그인 상태
+        if (navGuest) navGuest.classList.remove('hidden');
+        if (navMember) {
+            navMember.classList.add('hidden');
+            navMember.classList.remove('flex');
+        }
+        
+        if (mobileNavGuest) mobileNavGuest.classList.remove('hidden');
+        if (mobileNavMember) mobileNavMember.classList.add('hidden');
+    }
+}
+
+// 네비게이션 로그아웃
+function navLogout() {
+    if (confirm('로그아웃 하시겠습니까?')) {
+        localStorage.removeItem('memberToken');
+        localStorage.removeItem('memberInfo');
+        window.location.reload();
+    }
+}
+
+// 전역 함수로 등록
+window.checkLoginStatus = checkLoginStatus;
+window.navLogout = navLogout;
 
 // 페이지 로드 시 이벤트 리스너 추가
 document.addEventListener('DOMContentLoaded', function() {
