@@ -16,8 +16,12 @@ const auth = (req, res, next) => {
     // 토큰 검증
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
-    // 관리자 권한 확인 (role 또는 type으로 체크)
-    if (decoded.role !== 'admin' && decoded.type !== 'admin') {
+    // 관리자 권한 확인 (admin 또는 super_admin)
+    const isAdmin = decoded.role === 'admin' || 
+                    decoded.role === 'super_admin' || 
+                    decoded.type === 'admin';
+    
+    if (!isAdmin) {
       return res.status(403).json({
         success: false,
         message: '관리자 권한이 필요합니다.'
