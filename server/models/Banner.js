@@ -12,9 +12,24 @@ const bannerSchema = new mongoose.Schema({
   },
   imageUrl: {
     type: String,
-    required: true
+    default: ''
+  },
+  imageActive: {
+    type: Boolean,
+    default: true
+  },
+  mobileImageUrl: {
+    type: String,
+    default: ''
+  },
+  mobileImageActive: {
+    type: Boolean,
+    default: true
   },
   originalName: {
+    type: String
+  },
+  mobileOriginalName: {
     type: String
   },
   linkUrl: {
