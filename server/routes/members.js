@@ -348,11 +348,12 @@ router.get('/me', authMember, async (req, res) => {
 // ===== 내 정보 수정 =====
 router.put('/me', authMember, async (req, res) => {
   try {
-    const { name, phone, address, addressDetail, zipCode, birthDate } = req.body;
+    const { name, email, phone, address, addressDetail, zipCode, birthDate } = req.body;
 
     // 수정 가능한 필드만 업데이트
     const updateData = {};
     if (name) updateData.name = name;
+    if (email) updateData.email = email.toLowerCase();
     if (phone) updateData.phone = phone;
     if (address !== undefined) updateData.address = address;
     if (addressDetail !== undefined) updateData.addressDetail = addressDetail;
@@ -365,7 +366,7 @@ router.put('/me', authMember, async (req, res) => {
       { new: true, runValidators: true }
     );
 
-    console.log('✅ 정보 수정:', member.email);
+    console.log('✅ 정보 수정:', member.userId);
 
     res.json({
       success: true,
