@@ -253,7 +253,7 @@ router.put('/:id/status', async (req, res) => {
   try {
     const { status } = req.body;
 
-    if (!['active', 'suspended', 'withdrawn'].includes(status)) {
+    if (!['pending', 'active', 'suspended', 'withdrawn'].includes(status)) {
       return res.status(400).json({
         success: false,
         message: '유효하지 않은 상태입니다'
