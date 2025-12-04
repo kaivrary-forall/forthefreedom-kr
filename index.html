@@ -501,6 +501,38 @@
         
         // 페이지 로드 시 배너 불러오기
         document.addEventListener('DOMContentLoaded', loadBanners);
+        
+        // 터치 스와이프 기능 (모바일)
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const slider = document.getElementById('banner-slider');
+            
+            slider.addEventListener('touchstart', function(e) {
+                touchStartX = e.changedTouches[0].screenX;
+            }, { passive: true });
+            
+            slider.addEventListener('touchend', function(e) {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            }, { passive: true });
+        });
+        
+        function handleSwipe() {
+            const swipeThreshold = 50; // 최소 스와이프 거리
+            const diff = touchStartX - touchEndX;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    // 왼쪽으로 스와이프 → 다음 슬라이드
+                    nextSlide();
+                } else {
+                    // 오른쪽으로 스와이프 → 이전 슬라이드
+                    prevSlide();
+                }
+            }
+        }
     </script>
 
     <!-- Representative Message Section -->
