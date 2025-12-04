@@ -112,6 +112,17 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- 계정 상태 안내 (강제 로그아웃 시) -->
+            <div id="statusNotice" class="hidden mt-6 p-4 rounded-lg">
+                <div class="flex items-start gap-3">
+                    <i id="statusIcon" class="mt-1"></i>
+                    <div class="text-sm">
+                        <p id="statusTitle" class="font-semibold mb-1"></p>
+                        <p id="statusMessage"></p>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
     
@@ -123,6 +134,58 @@
         const token = localStorage.getItem('memberToken');
         if (token) {
             window.location.href = 'mypage.html';
+        }
+        
+        // URL 파라미터로 상태 메시지 표시 (강제 로그아웃 시)
+        const urlParams = new URLSearchParams(window.location.search);
+        const statusCode = urlParams.get('status');
+        
+        if (statusCode) {
+            const statusNotice = document.getElementById('statusNotice');
+            const statusIcon = document.getElementById('statusIcon');
+            const statusTitle = document.getElementById('statusTitle');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            const statusConfig = {
+                'ACCOUNT_PENDING': {
+                    bg: 'bg-yellow-50 border border-yellow-200',
+                    icon: 'fas fa-clock text-yellow-500',
+                    titleColor: 'text-yellow-800',
+                    msgColor: 'text-yellow-700',
+                    title: '승인 대기 중',
+                    message: '계정이 승인 대기 상태로 변경되었습니다. 관리자 승인 후 다시 로그인해주세요.'
+                },
+                'ACCOUNT_SUSPENDED': {
+                    bg: 'bg-red-50 border border-red-200',
+                    icon: 'fas fa-ban text-red-500',
+                    titleColor: 'text-red-800',
+                    msgColor: 'text-red-700',
+                    title: '계정 정지',
+                    message: '계정이 정지되었습니다. 문의사항은 관리자에게 연락해주세요.'
+                },
+                'ACCOUNT_WITHDRAWN': {
+                    bg: 'bg-gray-100 border border-gray-300',
+                    icon: 'fas fa-user-slash text-gray-500',
+                    titleColor: 'text-gray-800',
+                    msgColor: 'text-gray-600',
+                    title: '탈퇴된 계정',
+                    message: '탈퇴 처리된 계정입니다.'
+                }
+            };
+            
+            const config = statusConfig[statusCode];
+            if (config) {
+                statusNotice.className = `mt-6 p-4 rounded-lg ${config.bg}`;
+                statusIcon.className = `${config.icon} mt-1`;
+                statusTitle.className = `font-semibold mb-1 ${config.titleColor}`;
+                statusTitle.textContent = config.title;
+                statusMessage.className = config.msgColor;
+                statusMessage.textContent = config.message;
+                statusNotice.classList.remove('hidden');
+            }
+            
+            // URL에서 파라미터 제거 (새로고침 시 메시지 안 보이게)
+            window.history.replaceState({}, document.title, window.location.pathname);
         }
         
         // 비밀번호 표시/숨김
