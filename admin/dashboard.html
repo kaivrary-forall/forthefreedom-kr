@@ -280,6 +280,28 @@
                             </div>
                         </div>
 
+                        <!-- 회원관리 -->
+                        <div class="content-card p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-users text-2xl" style="color: #A50034;"></i>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">회원관리</h4>
+                                        <p class="text-gray-600 text-sm">회원 가입 승인 및 관리</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-semibold" style="color: #A50034;" id="card-members-pending">0</div>
+                                    <div class="text-gray-500 text-xs">승인대기</div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <a href="members.html" class="flex-1 action-btn py-2 px-3 text-center text-sm" style="background: #A50034; color: white;">
+                                    <i class="fas fa-user-cog mr-2"></i>회원 관리
+                                </a>
+                            </div>
+                        </div>
+
                         <!-- 공지사항 -->
                         <div class="content-card p-6">
                             <div class="flex items-center justify-between mb-4">
@@ -659,6 +681,23 @@
                 } catch (e) {
                     console.warn('배너 데이터 로드 실패:', e);
                     updateContentCount('banners', 0);
+                }
+                
+                // 회원 승인대기 수 로드
+                try {
+                    const memberResponse = await fetch(`${API_BASE}/admin/members/stats`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (memberResponse.ok) {
+                        const memberData = await memberResponse.json();
+                        if (memberData.success) {
+                            const pendingCount = memberData.data.pending || 0;
+                            updateContentCount('members-pending', pendingCount);
+                        }
+                    }
+                } catch (e) {
+                    console.warn('회원 통계 로드 실패:', e);
+                    updateContentCount('members-pending', 0);
                 }
                 
                 // 모든 콘텐츠 타입의 데이터를 병렬로 가져오기
