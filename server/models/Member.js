@@ -87,15 +87,13 @@ const memberSchema = new mongoose.Schema({
     type: Date
   },
   approvedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Admin'
+    type: String  // 관리자 ID (문자열)
   },
   rejectedAt: {
     type: Date
   },
   rejectedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Admin'
+    type: String  // 관리자 ID (문자열)
   },
   rejectReason: {
     type: String
