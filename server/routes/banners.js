@@ -114,39 +114,52 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// 배너 생성 (이미지 업로드 포함)
-router.post('/', upload.single('image'), async (req, res) => {
+// 배너 생성 (PC/모바일 이미지 업로드 포함)
+router.post('/', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'mobileImage', maxCount: 1 }]), async (req, res) => {
     try {
         console.log('📸 배너 업로드 요청');
-        console.log('📁 파일:', req.file ? req.file.filename : '없음');
+        console.log('📁 PC 파일:', req.files?.image ? req.files.image[0].filename : '없음');
+        console.log('📁 모바일 파일:', req.files?.mobileImage ? req.files.mobileImage[0].filename : '없음');
         console.log('📝 데이터:', req.body);
         
-        if (!req.file) {
+        // PC 이미지와 모바일 이미지 둘 다 없으면 에러
+        if (!req.files?.image && !req.files?.mobileImage) {
             return res.status(400).json({
                 success: false,
-                message: '배너 이미지가 필요합니다'
+                message: 'PC용 또는 모바일용 이미지 중 하나는 필요합니다'
             });
         }
         
-        const { title, subtitle, linkUrl, linkText, source, order, isActive } = req.body;
+        const { title, subtitle, linkUrl, linkText, source, order, isActive, imageActive, mobileImageActive } = req.body;
         
         // 이미지 URL 생성 (Railway 환경 대응)
         const baseUrl = process.env.NODE_ENV === 'production' 
             ? process.env.BASE_URL || 'https://forthefreedom-kr-production.up.railway.app'
             : 'http://localhost:9000';
-        const imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
         
         const bannerData = {
             title: title || '',
             subtitle: subtitle || '',
-            imageUrl: imageUrl,
-            originalName: req.file.originalname,
             linkUrl: linkUrl || '',
             linkText: linkText || '자세히 보기',
             source: source || '',
             order: parseInt(order) || 0,
-            isActive: isActive !== 'false'
+            isActive: isActive !== 'false',
+            imageActive: imageActive !== 'false',
+            mobileImageActive: mobileImageActive !== 'false'
         };
+        
+        // PC 이미지가 있으면 추가
+        if (req.files?.image) {
+            bannerData.imageUrl = `${baseUrl}/uploads/${req.files.image[0].filename}`;
+            bannerData.originalName = req.files.image[0].originalname;
+        }
+        
+        // 모바일 이미지가 있으면 추가
+        if (req.files?.mobileImage) {
+            bannerData.mobileImageUrl = `${baseUrl}/uploads/${req.files.mobileImage[0].filename}`;
+            bannerData.mobileOriginalName = req.files.mobileImage[0].originalname;
+        }
         
         const banner = new Banner(bannerData);
         await banner.save();
@@ -169,9 +182,9 @@ router.post('/', upload.single('image'), async (req, res) => {
 });
 
 // 배너 수정
-router.put('/:id', upload.single('image'), async (req, res) => {
+router.put('/:id', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'mobileImage', maxCount: 1 }]), async (req, res) => {
     try {
-        const { title, subtitle, linkUrl, linkText, source, order, isActive } = req.body;
+        const { title, subtitle, linkUrl, linkText, source, order, isActive, imageActive, mobileImageActive, removeImage, removeMobileImage } = req.body;
         
         const existingBanner = await Banner.findById(req.params.id);
         if (!existingBanner) {
@@ -188,16 +201,31 @@ router.put('/:id', upload.single('image'), async (req, res) => {
             linkText: linkText || existingBanner.linkText,
             source: source !== undefined ? source : existingBanner.source,
             order: order !== undefined ? parseInt(order) : existingBanner.order,
-            isActive: isActive !== undefined ? isActive !== 'false' : existingBanner.isActive
+            isActive: isActive !== undefined ? isActive !== 'false' : existingBanner.isActive,
+            imageActive: imageActive !== undefined ? imageActive !== 'false' : existingBanner.imageActive,
+            mobileImageActive: mobileImageActive !== undefined ? mobileImageActive !== 'false' : existingBanner.mobileImageActive
         };
         
-        // 새 이미지가 업로드된 경우
-        if (req.file) {
-            const baseUrl = process.env.NODE_ENV === 'production' 
-                ? process.env.BASE_URL || 'https://forthefreedom-kr-production.up.railway.app'
-                : 'http://localhost:9000';
-            updateData.imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
-            updateData.originalName = req.file.originalname;
+        const baseUrl = process.env.NODE_ENV === 'production' 
+            ? process.env.BASE_URL || 'https://forthefreedom-kr-production.up.railway.app'
+            : 'http://localhost:9000';
+        
+        // PC 이미지 처리
+        if (removeImage === 'true') {
+            updateData.imageUrl = '';
+            updateData.originalName = '';
+        } else if (req.files?.image) {
+            updateData.imageUrl = `${baseUrl}/uploads/${req.files.image[0].filename}`;
+            updateData.originalName = req.files.image[0].originalname;
+        }
+        
+        // 모바일 이미지 처리
+        if (removeMobileImage === 'true') {
+            updateData.mobileImageUrl = '';
+            updateData.mobileOriginalName = '';
+        } else if (req.files?.mobileImage) {
+            updateData.mobileImageUrl = `${baseUrl}/uploads/${req.files.mobileImage[0].filename}`;
+            updateData.mobileOriginalName = req.files.mobileImage[0].originalname;
         }
         
         const banner = await Banner.findByIdAndUpdate(
