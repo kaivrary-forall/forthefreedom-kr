@@ -38,12 +38,24 @@ const authMember = async (req, res, next) => {
     // 계정 상태 확인
     if (member.status !== 'active') {
       let message = '계정에 문제가 있습니다';
-      if (member.status === 'pending') message = '승인 대기 중인 계정입니다';
-      if (member.status === 'suspended') message = '정지된 계정입니다';
-      if (member.status === 'withdrawn') message = '탈퇴한 계정입니다';
+      let code = 'ACCOUNT_INACTIVE';
+      
+      if (member.status === 'pending') {
+        message = '승인 대기 중인 계정입니다';
+        code = 'ACCOUNT_PENDING';
+      }
+      if (member.status === 'suspended') {
+        message = '정지된 계정입니다';
+        code = 'ACCOUNT_SUSPENDED';
+      }
+      if (member.status === 'withdrawn') {
+        message = '탈퇴한 계정입니다';
+        code = 'ACCOUNT_WITHDRAWN';
+      }
       
       return res.status(403).json({
         success: false,
+        code,
         message
       });
     }
