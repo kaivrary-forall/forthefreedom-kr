@@ -101,7 +101,7 @@ router.get('/stats', async (req, res) => {
     const [
       // 전체
       totalCount,
-      // 회원 유형별
+      // 회원 유형별 (memberType이 없거나 null인 경우 general로 간주)
       generalCount,
       partyMemberCount,
       innovationMemberCount,
@@ -109,22 +109,33 @@ router.get('/stats', async (req, res) => {
       pendingCount,
       activeCount,
       suspendedCount,
-      // 탈퇴 유형별
+      // 탈퇴 유형별 (withdrawalType이 없거나 null인 경우 self로 간주)
       withdrawnSelfCount,
       withdrawnForcedCount
     ] = await Promise.all([
       // 전체
       Member.countDocuments(),
-      // 회원 유형별
-      Member.countDocuments({ memberType: 'general' }),
+      // 회원 유형별 - general은 명시적 general 또는 필드가 없는/null인 경우
+      Member.countDocuments({ $or: [
+        { memberType: 'general' },
+        { memberType: { $exists: false } },
+        { memberType: null }
+      ]}),
       Member.countDocuments({ memberType: 'party_member' }),
       Member.countDocuments({ memberType: 'innovation_member' }),
       // 상태별
       Member.countDocuments({ status: 'pending' }),
       Member.countDocuments({ status: 'active' }),
       Member.countDocuments({ status: 'suspended' }),
-      // 탈퇴 유형별
-      Member.countDocuments({ status: 'withdrawn', withdrawalType: 'self' }),
+      // 탈퇴 유형별 - self는 명시적 self 또는 필드가 없는/null인 경우
+      Member.countDocuments({ 
+        status: 'withdrawn', 
+        $or: [
+          { withdrawalType: 'self' },
+          { withdrawalType: { $exists: false } },
+          { withdrawalType: null }
+        ]
+      }),
       Member.countDocuments({ status: 'withdrawn', withdrawalType: 'forced' })
     ]);
 
