@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자유와혁신 - 관리자 대시보드</title>
+    <!-- API 설정 로드 -->
+    <script src="/config.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#A50034',
+                        'primary-dark': '#8B002C',
+                        'blue': {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a'
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            'from': { opacity: '0' },
+                            'to': { opacity: '1' }
+                        },
+                        slideUp: {
+                            'from': { transform: 'translateY(20px)', opacity: '0' },
+                            'to': { transform: 'translateY(0px)', opacity: '1' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            background-attachment: fixed;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .nav-bar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .content-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .content-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-color: #3b82f6;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .logo-container {
+            transition: transform 0.2s ease;
+        }
+
+        .logo-container:hover {
+            transform: scale(1.02);
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border: none;
+            color: white;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border-radius: 8px;
+        }
+        
+        .action-btn:hover {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+
+        .icon-blue {
+            color: #3b82f6;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- 깔끔한 네비게이션 -->
+    <!-- 공통 네비게이션 -->
+    <div id="admin-nav-container"></div>
+    <script src="admin-nav.js"></script>
+    <script>loadAdminNav('dashboard');</script>
+
+    <div class="min-h-screen pt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- 로딩 상태 -->
+            <div id="loading" class="flex flex-col items-center justify-center py-20">
+                <div class="animate-spin rounded-full h-12 w-12 border-3 border-blue-500 border-t-transparent mb-4"></div>
+                <p class="text-gray-600">데이터를 불러오는 중...</p>
+            </div>
+
+            <!-- 에러 메시지 -->
+            <div id="errorMessage" class="hidden glass-card border-l-4 border-red-500 p-4 mb-6 animate-slide-up">
+                <div class="flex">
+                    <i class="fas fa-exclamation-triangle text-red-500 mr-3 mt-1"></i>
+                    <div class="text-red-700" id="errorText">데이터를 불러오는 중 오류가 발생했습니다.</div>
+                </div>
+            </div>
+
+            <!-- 대시보드 콘텐츠 -->
+            <div id="dashboard" class="hidden">
+                <!-- 회원 관리 섹션 -->
+                <div class="mb-8 animate-slide-up">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-6">👥 회원 관리</h3>
+                    
+                    <!-- 회원 현황판 -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <!-- 회원 유형별 -->
+                        <div class="content-card p-5">
+                            <h4 class="text-sm font-semibold text-gray-500 mb-4">회원 유형</h4>
+                            <div class="grid grid-cols-4 gap-3">
+                                <div class="text-center p-3 bg-gray-50 rounded-lg">
+                                    <div class="text-2xl font-bold text-gray-900" id="stat-members-total">0</div>
+                                    <div class="text-xs text-gray-500">전체</div>
+                                </div>
+                                <div class="text-center p-3 bg-gray-50 rounded-lg">
+                                    <div class="text-2xl font-bold text-gray-600" id="stat-members-general">0</div>
+                                    <div class="text-xs text-gray-500">일반</div>
+                                </div>
+                                <div class="text-center p-3 bg-blue-50 rounded-lg">
+                                    <div class="text-2xl font-bold text-blue-600" id="stat-members-party">0</div>
+                                    <div class="text-xs text-gray-500">당원</div>
+                                </div>
+                                <div class="text-center p-3 bg-red-50 rounded-lg">
+                                    <div class="text-2xl font-bold" style="color: #A50034;" id="stat-members-innovation">0</div>
+                                    <div class="text-xs text-gray-500">혁신당원</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 회원 상태별 -->
+                        <div class="content-card p-5">
+                            <h4 class="text-sm font-semibold text-gray-500 mb-4">회원 상태</h4>
+                            <div class="grid grid-cols-5 gap-3">
+                                <div class="text-center p-3 bg-yellow-50 rounded-lg">
+                                    <div class="text-2xl font-bold text-yellow-500" id="stat-members-pending">0</div>
+                                    <div class="text-xs text-gray-500">승인대기</div>
+                                </div>
+                                <div class="text-center p-3 bg-green-50 rounded-lg">
+                                    <div class="text-2xl font-bold text-green-500" id="stat-members-active">0</div>
+                                    <div class="text-xs text-gray-500">정상</div>
+                                </div>
+                                <div class="text-center p-3 bg-red-50 rounded-lg">
+                                    <div class="text-2xl font-bold text-red-500" id="stat-members-suspended">0</div>
+                                    <div class="text-xs text-gray-500">정지</div>
+                                </div>
+                                <div class="text-center p-3 bg-gray-100 rounded-lg">
+                                    <div class="text-2xl font-bold text-gray-400" id="stat-members-withdrawn-self">0</div>
+                                    <div class="text-xs text-gray-500">자진탈퇴</div>
+                                </div>
+                                <div class="text-center p-3 bg-gray-200 rounded-lg">
+                                    <div class="text-2xl font-bold text-gray-500" id="stat-members-withdrawn-forced">0</div>
+                                    <div class="text-xs text-gray-500">강제탈퇴</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 회원관리 카드 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="content-card p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-users text-2xl" style="color: #A50034;"></i>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">회원관리</h4>
+                                        <p class="text-gray-600 text-sm">회원 가입 승인 및 관리</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-semibold" style="color: #A50034;" id="card-members-pending">0</div>
+                                    <div class="text-gray-500 text-xs">승인대기</div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <a href="members.html" class="flex-1 action-btn py-2 px-3 text-center text-sm" style="background: #A50034; color: white;">
+                                    <i class="fas fa-user-cog mr-2"></i>회원 관리
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 콘텐츠 현황 및 관리 섹션 -->
+                <div class="mb-8 animate-slide-up">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-6">📊 콘텐츠 현황 및 관리</h3>
+                    
+                    <!-- 콘텐츠 현황판 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                        <div class="stat-card">
+                            <i class="fas fa-bullhorn text-3xl icon-blue mb-3"></i>
+                            <div class="text-2xl font-semibold text-gray-900" id="stat-notices">0</div>
+                            <div class="text-gray-600">공지사항</div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-microphone text-3xl icon-blue mb-3"></i>
+                            <div class="text-2xl font-semibold text-gray-900" id="stat-spokesperson">0</div>
+                            <div class="text-gray-600">대변인 발언</div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-newspaper text-3xl icon-blue mb-3"></i>
+                            <div class="text-2xl font-semibold text-gray-900" id="stat-media">0</div>
+                            <div class="text-gray-600">언론보도</div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-calendar text-3xl icon-blue mb-3"></i>
+                            <div class="text-2xl font-semibold text-gray-900" id="stat-events">0</div>
+                            <div class="text-gray-600">주요일정</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 콘텐츠 관리 카드 -->
+                    <div class="stats-grid">
+                        <!-- 메인 배너 -->
+                        <div class="content-card p-6" style="border: 2px solid #667eea;">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-images text-2xl" style="color: #667eea;"></i>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">메인 배너</h4>
+                                        <p class="text-gray-600 text-sm">홈페이지 슬라이더</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-semibold" style="color: #667eea;" id="card-banners">0</div>
+                                    <div class="text-gray-500 text-xs">건</div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <a href="banners.html" class="flex-1 action-btn py-2 px-3 text-center text-sm" style="background: #667eea; color: white;">
+                                    <i class="fas fa-cog mr-2"></i>배너 관리
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- 공지사항 -->
+                        <div class="content-card p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-bullhorn text-2xl icon-blue"></i>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">공지사항</h4>
+                                        <p class="text-gray-600 text-sm">중요한 당 소식</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-semibold text-blue-600" id="card-notices">0</div>
+                                    <div class="text-gray-500 text-xs">건</div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <a href="content.html?type=notices" class="flex-1 action-btn py-2 px-3 text-center text-sm">
+                                    <i class="fas fa-list mr-2"></i>관리
+                                </a>
+                                <a href="content.html?type=notices&action=create" class="flex-1 action-btn py-2 px-3 text-center text-sm">
+                                    <i class="fas fa-plus mr-2"></i>새 글
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- 대변인 -->
+                        <div class="content-card p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-microphone text-2xl icon-blue"></i>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">대변인</h4>
+                                        <p class="text-gray-600 text-sm">당 입장 발표</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-semibold text-blue-600" id="card-spokesperson">0</div>
+                                    <div class="text-gray-500 text-xs">건</div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <a href="content.html?type=spokesperson" class="flex-1 action-btn py-2 px-3 text-center text-sm">
+                                    <i class="fas fa-list mr-2"></i>관리
+                                </a>
+                                <a href="content.html?type=spokesperson&action=create" class="flex-1 action-btn py-2 px-3 text-center text-sm">
+                                    <i class="fas fa-plus mr-2"></i>새 글
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- 정책위원회 -->
+                        <div class="content-card p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-users text-2xl icon-blue"></i>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">정책위원회</h4>
+                                        <p class="text-gray-600 text-sm">정책 연구 자료</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-semibold text-blue-600" id="card-policy-committee">0</div>
+                                    <div class="text-gray-500 text-xs">건</div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <a href="content.html?type=policy-committee" class="flex-1 action-btn py-2 px-3 text-center text-sm">
+                                    <i class="fas fa-list mr-2"></i>관리
+                                </a>
+                                <a href="content.html?type=policy-committee&action=create" class="flex-1 action-btn py-2 px-3 text-center text-sm">
+                                    <i class="fas fa-plus mr-2"></i>새 글
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- 뉴미디어 -->
+                        <div class="content-card p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-mobile-alt text-2xl icon-blue"></i>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">뉴미디어</h4>
+                                        <p class="text-gray-600 text-sm">디지털 콘텐츠</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-semibold text-blue-600" id="card-new-media">0</div>
+                                    <div class="text-gray-500 text-xs">건</div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <a href="content.html?type=new-media" class="flex-1 action-btn py-2 px-3 text-center text-sm">
+                                    <i class="fas fa-list mr-2"></i>관리
+                                </a>
+                                <a href="content.html?type=new-media&action=create" class="flex-1 action-btn py-2 px-3 text-center text-sm">
+                                    <i class="fas fa-plus mr-2"></i>새 글
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- 언론보도 -->
+                        <div class="content-card p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-tv text-2xl icon-blue"></i>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">언론보도</h4>
+                                        <p class="text-gray-600 text-sm">언론사 보도 자료</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-semibold text-blue-600" id="card-media-coverage">0</div>
+                                    <div class="text-gray-500 text-xs">건</div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <a href="content.html?type=media-coverage" class="flex-1 action-btn py-2 px-3 text-center text-sm">
+                                    <i class="fas fa-list mr-2"></i>관리
+                                </a>
+                                <a href="content.html?type=media-coverage&action=create" class="flex-1 action-btn py-2 px-3 text-center text-sm">
+                                    <i class="fas fa-plus mr-2"></i>새 글
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- 주요일정 -->
+                        <div class="content-card p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-calendar-alt text-2xl icon-blue"></i>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">주요일정</h4>
+                                        <p class="text-gray-600 text-sm">당 행사 및 일정</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-semibold text-blue-600" id="card-events">0</div>
+                                    <div class="text-gray-500 text-xs">건</div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <a href="content.html?type=events" class="flex-1 action-btn py-2 px-3 text-center text-sm">
+                                    <i class="fas fa-list mr-2"></i>관리
+                                </a>
+                                <a href="content.html?type=events&action=create" class="flex-1 action-btn py-2 px-3 text-center text-sm">
+                                    <i class="fas fa-plus mr-2"></i>새 글
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- 카드뉴스 -->
+                        <div class="content-card p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-id-card text-2xl icon-blue"></i>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">카드뉴스</h4>
+                                        <p class="text-gray-600 text-sm">인포그래픽 콘텐츠</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-semibold text-blue-600" id="card-card-news">0</div>
+                                    <div class="text-gray-500 text-xs">건</div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <a href="content.html?type=card-news" class="flex-1 action-btn py-2 px-3 text-center text-sm">
+                                    <i class="fas fa-list mr-2"></i>관리
+                                </a>
+                                <a href="content.html?type=card-news&action=create" class="flex-1 action-btn py-2 px-3 text-center text-sm">
+                                    <i class="fas fa-plus mr-2"></i>새 글
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- 포토갤러리 -->
+                        <div class="content-card p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-images text-2xl icon-blue"></i>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">포토갤러리</h4>
+                                        <p class="text-gray-600 text-sm">활동 사진 모음</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-semibold text-blue-600" id="card-gallery">0</div>
+                                    <div class="text-gray-500 text-xs">건</div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <a href="content.html?type=gallery" class="flex-1 action-btn py-2 px-3 text-center text-sm">
+                                    <i class="fas fa-list mr-2"></i>관리
+                                </a>
+                                <a href="content.html?type=gallery&action=create" class="flex-1 action-btn py-2 px-3 text-center text-sm">
+                                    <i class="fas fa-plus mr-2"></i>새 글
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- 정책자료 -->
+                        <div class="content-card p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-file-alt text-2xl icon-blue"></i>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">정책자료</h4>
+                                        <p class="text-gray-600 text-sm">정책 관련 문서</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-semibold text-blue-600" id="card-policy-materials">0</div>
+                                    <div class="text-gray-500 text-xs">건</div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <a href="content.html?type=policy-materials" class="flex-1 action-btn py-2 px-3 text-center text-sm">
+                                    <i class="fas fa-list mr-2"></i>관리
+                                </a>
+                                <a href="content.html?type=policy-materials&action=create" class="flex-1 action-btn py-2 px-3 text-center text-sm">
+                                    <i class="fas fa-plus mr-2"></i>새 글
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- 당헌당규 -->
+                        <div class="content-card p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-gavel text-2xl icon-blue"></i>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">당헌당규</h4>
+                                        <p class="text-gray-600 text-sm">당 규정 및 규칙</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-semibold text-blue-600" id="card-party-constitution">0</div>
+                                    <div class="text-gray-500 text-xs">건</div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <a href="content.html?type=party-constitution" class="flex-1 action-btn py-2 px-3 text-center text-sm">
+                                    <i class="fas fa-list mr-2"></i>관리
+                                </a>
+                                <a href="content.html?type=party-constitution&action=create" class="flex-1 action-btn py-2 px-3 text-center text-sm">
+                                    <i class="fas fa-plus mr-2"></i>새 글
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- 선거자료 -->
+                        <div class="content-card p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-vote-yea text-2xl icon-blue"></i>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">선거자료</h4>
+                                        <p class="text-gray-600 text-sm">선거 관련 자료</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-semibold text-blue-600" id="card-election-materials">0</div>
+                                    <div class="text-gray-500 text-xs">건</div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <a href="content.html?type=election-materials" class="flex-1 action-btn py-2 px-3 text-center text-sm">
+                                    <i class="fas fa-list mr-2"></i>관리
+                                </a>
+                                <a href="content.html?type=election-materials&action=create" class="flex-1 action-btn py-2 px-3 text-center text-sm">
+                                    <i class="fas fa-plus mr-2"></i>새 글
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 시스템 정보 -->
+                <div class="mt-12 animate-fade-in">
+                    <div class="glass-card p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-900 mb-2">시스템 정보</h4>
+                                <p class="text-gray-600">자유와혁신 콘텐츠 관리 시스템 v1.0</p>
+                            </div>
+                            <div class="flex space-x-3">
+                                <a href="../index.html" target="_blank" class="action-btn px-4 py-2 text-sm">
+                                    <i class="fas fa-external-link-alt mr-2"></i>웹사이트 보기
+                                </a>
+                                <button onclick="refreshDashboard()" class="action-btn px-4 py-2 text-sm">
+                                    <i class="fas fa-sync-alt mr-2"></i>새로고침
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API 설정 - config.js에서 로드된 설정 사용
+        const API_BASE = window.API_BASE;
+
+        let totalContent = 0;
+
+        // 시간 업데이트 (요소가 있을 때만)
+        function updateTime() {
+            const el = document.getElementById('currentTime');
+            if (el) {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('ko-KR');
+                el.textContent = timeString;
+            }
+        }
+
+        // API 상태 체크 (요소가 있을 때만)
+        async function checkApiStatus() {
+            const statusDot = document.getElementById('apiStatusDot');
+            const statusText = document.getElementById('apiStatusText');
+            
+            if (!statusDot || !statusText) return;
+            
+            try {
+                // 간단한 API 호출로 연결 상태 확인
+                const response = await fetch(`${window.API_BASE}/health`, {
+                    method: 'GET',
+                    timeout: 5000 // 5초 타임아웃
+                });
+                
+                if (response.ok) {
+                    // 연결 성공
+                    statusDot.className = 'w-2 h-2 rounded-full bg-green-500';
+                    statusText.textContent = '연결됨';
+                    statusText.className = 'text-xs font-medium text-green-600';
+                    console.log('✅ API 연결 상태: 정상');
+                } else {
+                    throw new Error('API 응답 오류');
+                }
+            } catch (error) {
+                // 연결 실패
+                statusDot.className = 'w-2 h-2 rounded-full bg-red-500';
+                statusText.textContent = '연결안됨';
+                statusText.className = 'text-xs font-medium text-red-600';
+                console.log('❌ API 연결 상태: 비정상');
+            }
+        }
+
+        // 페이지 로드 시 실행
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTime();
+            setInterval(updateTime, 1000);
+            
+            // API 상태 체크 시작 (즉시 한 번, 그 후 30초마다)
+            checkApiStatus();
+            setInterval(checkApiStatus, 30000); // 30초마다 체크
+            
+            loadDashboardData();
+        });
+
+        // 대시보드 데이터 로드
+        async function loadDashboardData() {
+            showLoading();
+            
+            // 인증 토큰 가져오기
+            const token = localStorage.getItem('adminToken');
+            
+            const contentTypes = [
+                'notices', 'spokesperson', 'policy-committee', 'new-media', 
+                'media-coverage', 'events', 'card-news', 'gallery', 
+                'policy-materials', 'party-constitution', 'election-materials'
+            ];
+
+            try {
+                totalContent = 0;
+                
+                // 배너 카운트 별도 로드
+                try {
+                    const bannerResponse = await fetch(`${API_BASE}/banners?all=true`);
+                    if (bannerResponse.ok) {
+                        const bannerData = await bannerResponse.json();
+                        const bannerCount = bannerData.count || 0;
+                        updateContentCount('banners', bannerCount);
+                    }
+                } catch (e) {
+                    console.warn('배너 데이터 로드 실패:', e);
+                    updateContentCount('banners', 0);
+                }
+                
+                // 회원 통계 로드
+                try {
+                    const memberResponse = await fetch(`${API_BASE}/admin/members/stats`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (memberResponse.ok) {
+                        const memberData = await memberResponse.json();
+                        if (memberData.success) {
+                            const stats = memberData.data;
+                            // 회원 유형 업데이트
+                            document.getElementById('stat-members-total').textContent = stats.total || 0;
+                            document.getElementById('stat-members-general').textContent = stats.general || 0;
+                            document.getElementById('stat-members-party').textContent = stats.partyMember || 0;
+                            document.getElementById('stat-members-innovation').textContent = stats.innovationMember || 0;
+                            // 회원 상태 업데이트
+                            document.getElementById('stat-members-pending').textContent = stats.pending || 0;
+                            document.getElementById('stat-members-active').textContent = stats.active || 0;
+                            document.getElementById('stat-members-suspended').textContent = stats.suspended || 0;
+                            document.getElementById('stat-members-withdrawn-self').textContent = stats.withdrawnSelf || 0;
+                            document.getElementById('stat-members-withdrawn-forced').textContent = stats.withdrawnForced || 0;
+                            // 카드 업데이트
+                            updateContentCount('members-pending', stats.pending || 0);
+                        }
+                    }
+                } catch (e) {
+                    console.warn('회원 통계 로드 실패:', e);
+                    updateContentCount('members-pending', 0);
+                }
+                
+                // 모든 콘텐츠 타입의 데이터를 병렬로 가져오기
+                const promises = contentTypes.map(async (type) => {
+                    try {
+                        const response = await fetch(`${API_BASE}/${type}?page=1&limit=1`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            const count = data.pagination ? data.pagination.total : 0;
+                            updateContentCount(type, count);
+                            totalContent += count;
+                            return count;
+                        }
+                    } catch (error) {
+                        console.warn(`${type} 데이터 로드 실패:`, error);
+                        updateContentCount(type, 0);
+                        return 0;
+                    }
+                });
+
+                await Promise.all(promises);
+                
+                // 총 콘텐츠 수 업데이트 (요소가 있을 때만)
+                const heroEl = document.getElementById('total-content-hero');
+                if (heroEl) {
+                    heroEl.textContent = totalContent.toLocaleString();
+                }
+                
+                // 상위 통계 업데이트
+                updateTopStats();
+                
+                hideLoading();
+                showDashboard();
+
+            } catch (error) {
+                console.error('대시보드 데이터 로드 오류:', error);
+                showError('데이터를 불러오는 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 콘텐츠 카운트 업데이트
+        function updateContentCount(type, count) {
+            const elementId = `card-${type}`;
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = count.toLocaleString();
+            }
+        }
+
+        // 상위 통계 업데이트
+        function updateTopStats() {
+            const notices = parseInt(document.getElementById('card-notices').textContent) || 0;
+            const spokesperson = parseInt(document.getElementById('card-spokesperson').textContent) || 0;
+            const mediaCoverage = parseInt(document.getElementById('card-media-coverage').textContent) || 0;
+            const events = parseInt(document.getElementById('card-events').textContent) || 0;
+
+            document.getElementById('stat-notices').textContent = notices.toLocaleString();
+            document.getElementById('stat-spokesperson').textContent = spokesperson.toLocaleString();
+            document.getElementById('stat-media').textContent = mediaCoverage.toLocaleString();
+            document.getElementById('stat-events').textContent = events.toLocaleString();
+        }
+
+        // 로딩 표시
+        function showLoading() {
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('errorMessage').classList.add('hidden');
+        }
+
+        // 로딩 숨기기
+        function hideLoading() {
+            document.getElementById('loading').classList.add('hidden');
+        }
+
+        // 대시보드 표시
+        function showDashboard() {
+            document.getElementById('dashboard').classList.remove('hidden');
+        }
+
+        // 에러 표시
+        function showError(message) {
+            document.getElementById('errorText').textContent = message;
+            document.getElementById('errorMessage').classList.remove('hidden');
+            hideLoading();
+        }
+
+        // 대시보드 새로고침
+        function refreshDashboard() {
+            loadDashboardData();
+        }
+
+        // logout 함수는 admin-nav.js에서 정의됨
+    </script>
+</body>
+</html> 
