@@ -659,6 +659,9 @@
         async function loadDashboardData() {
             showLoading();
             
+            // 인증 토큰 가져오기
+            const token = localStorage.getItem('adminToken');
+            
             const contentTypes = [
                 'notices', 'spokesperson', 'policy-committee', 'new-media', 
                 'media-coverage', 'events', 'card-news', 'gallery', 
