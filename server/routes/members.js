@@ -393,11 +393,10 @@ router.get('/me', authMember, async (req, res) => {
 // ===== 내 정보 수정 =====
 router.put('/me', authMember, async (req, res) => {
   try {
-    const { name, email, phone, address, addressDetail, zipCode, birthDate } = req.body;
+    const { email, phone, address, addressDetail, zipCode, birthDate } = req.body;
 
-    // 수정 가능한 필드만 업데이트
+    // 수정 가능한 필드만 업데이트 (이름은 수정 불가)
     const updateData = {};
-    if (name) updateData.name = name;
     if (email) updateData.email = email.toLowerCase();
     if (phone) updateData.phone = phone;
     if (address !== undefined) updateData.address = address;
