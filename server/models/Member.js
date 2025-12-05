@@ -102,9 +102,26 @@ const memberSchema = new mongoose.Schema({
   // === 회원 유형 ===
   memberType: {
     type: String,
-    enum: ['general', 'party_member'],
+    enum: ['general', 'party_member', 'innovation_member'],
     default: 'general'
-    // general: 일반회원, party_member: 혁신당원
+    // general: 일반회원, party_member: 당원, innovation_member: 혁신당원
+  },
+  
+  // === 탈퇴 유형 ===
+  withdrawalType: {
+    type: String,
+    enum: ['self', 'forced'],
+    default: null
+    // self: 자진탈퇴, forced: 강제탈퇴
+  },
+  withdrawnAt: {
+    type: Date
+  },
+  withdrawnBy: {
+    type: String  // 강제탈퇴 시 관리자 ID
+  },
+  withdrawalReason: {
+    type: String
   },
 
   // === 해피나눔 연동 (혁신 당원용) ===
