@@ -12,18 +12,8 @@
             theme: {
                 extend: {
                     colors: {
-                        'primary': {
-                            50: '#f8fafc',
-                            100: '#f1f5f9',
-                            200: '#e2e8f0',
-                            300: '#cbd5e1',
-                            400: '#94a3b8',
-                            500: '#64748b',
-                            600: '#475569',
-                            700: '#334155',
-                            800: '#1e293b',
-                            900: '#0f172a'
-                        },
+                        'primary': '#A50034',
+                        'primary-dark': '#8B002C',
                         'blue': {
                             50: '#eff6ff',
                             100: '#dbeafe',
@@ -148,66 +138,12 @@
 </head>
 <body class="min-h-screen">
     <!-- 깔끔한 네비게이션 -->
-    <nav class="nav-bar sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <!-- 로고 및 타이틀 -->
-                <div class="flex items-center space-x-4">
-                    <div class="logo-container">
-                        <img src="../1x/Asset%201.png" alt="자유와혁신 로고" class="h-12 w-auto" onerror="this.src='../images/logo.png'">
-                    </div>
-                    <div>
-                        <h1 class="text-xl font-semibold text-gray-900">
-                            자유와혁신 관리자
-                        </h1>
-                        <p class="text-sm text-gray-600">콘텐츠 관리 시스템</p>
-                    </div>
-                </div>
+    <!-- 공통 네비게이션 -->
+    <div id="admin-nav-container"></div>
+    <script src="admin-nav.js"></script>
+    <script>loadAdminNav('dashboard');</script>
 
-                <!-- 우측 정보 영역 -->
-                <div class="flex items-center space-x-6">
-                    <!-- 총 콘텐츠 표시 -->
-                    <div class="glass-card px-4 py-2 text-center">
-                        <div class="text-lg font-semibold text-blue-600" id="total-content-hero">25</div>
-                        <div class="text-xs text-gray-600">총 콘텐츠</div>
-                    </div>
-
-                    <!-- 현재 시간 -->
-                    <div class="text-center">
-                        <div class="text-xs text-gray-500">현재 시간</div>
-                        <div class="text-sm font-medium text-gray-900" id="currentTime">--:--:--</div>
-                    </div>
-
-                    <!-- API 연결 상태 -->
-                    <div class="text-center">
-                        <div class="text-xs text-gray-500">API 상태</div>
-                        <div class="flex items-center justify-center space-x-1">
-                            <div class="w-2 h-2 rounded-full bg-gray-400" id="apiStatusDot"></div>
-                            <span class="text-xs font-medium text-gray-600" id="apiStatusText">확인중</span>
-                        </div>
-                    </div>
-
-                    <!-- 사용자 정보 -->
-                    <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                            <i class="fas fa-user text-white text-sm"></i>
-                        </div>
-                        <div class="hidden md:block">
-                            <div class="text-sm font-medium text-gray-900">관리자</div>
-                            <div class="text-xs text-gray-500">Administrator</div>
-                        </div>
-                    </div>
-
-                    <!-- 로그아웃 버튼 -->
-                    <button onclick="logout()" class="action-btn px-4 py-2 text-sm font-medium">
-                        <i class="fas fa-sign-out-alt mr-2"></i>로그아웃
-                    </button>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <div class="min-h-screen">
+    <div class="min-h-screen pt-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <!-- 로딩 상태 -->
             <div id="loading" class="flex flex-col items-center justify-center py-20">
@@ -786,45 +722,7 @@
             loadDashboardData();
         }
 
-        // 🚪 완전한 로그아웃 함수
-        async function logout() {
-            if (confirm('정말 로그아웃하시겠습니까?')) {
-                try {
-                    const token = localStorage.getItem('adminToken');
-                    const refreshToken = localStorage.getItem('adminRefreshToken');
-                    
-                    // 서버에 로그아웃 API 호출
-                    if (token) {
-                        await fetch(`${API_BASE}/auth/logout`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${token}`
-                            },
-                            body: JSON.stringify({ refreshToken })
-                        });
-                    }
-                } catch (error) {
-                    console.log('서버 로그아웃 호출 실패 (무시):', error);
-                }
-                
-                // 모든 토큰 정보 완전 삭제
-                localStorage.removeItem('adminToken');
-                localStorage.removeItem('adminRefreshToken');
-                localStorage.removeItem('adminUser');
-                localStorage.removeItem('tokenExpiry');
-                localStorage.removeItem('authToken'); // 기존 토큰도 삭제
-                
-                // 세션 스토리지도 정리
-                sessionStorage.clear();
-                
-                console.log('🚪 완전 로그아웃 완료');
-                alert('로그아웃되었습니다.');
-                
-                // 로그인 페이지로 강제 이동
-                window.location.href = 'index.html';
-            }
-        }
+        // logout 함수는 admin-nav.js에서 정의됨
     </script>
 </body>
 </html> 
