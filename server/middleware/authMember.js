@@ -26,7 +26,21 @@ const authMember = async (req, res, next) => {
     // 토큰 검증
     const decoded = jwt.verify(token, JWT_SECRET);
 
-    // 회원 조회
+    // 🔐 관리자 토큰인 경우 DB 조회 없이 통과
+    if (decoded.isAdmin) {
+      req.member = {
+        _id: decoded.id,
+        userId: 'admin_00',
+        nickname: '슈퍼관리자',
+        name: '슈퍼관리자',
+        status: 'active',
+        memberType: 'admin',
+        isAdmin: true
+      };
+      return next();
+    }
+
+    // 일반 회원 조회
     const member = await Member.findById(decoded.id);
     if (!member) {
       return res.status(401).json({
