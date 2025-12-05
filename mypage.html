@@ -885,6 +885,8 @@
                 if (result.success) {
                     alert('이메일이 성공적으로 변경되었습니다!');
                     closeModal('emailChangeModal');
+                    // 기본 정보 수정 모달의 이메일 필드도 업데이트
+                    document.getElementById('editEmail').value = pendingNewEmail;
                     loadMemberInfo(); // 정보 새로고침
                 } else {
                     errorEl.textContent = result.message || '인증에 실패했습니다';
