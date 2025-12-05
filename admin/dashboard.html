@@ -544,17 +544,22 @@
 
         let totalContent = 0;
 
-        // 시간 업데이트
+        // 시간 업데이트 (요소가 있을 때만)
         function updateTime() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('ko-KR');
-            document.getElementById('currentTime').textContent = timeString;
+            const el = document.getElementById('currentTime');
+            if (el) {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('ko-KR');
+                el.textContent = timeString;
+            }
         }
 
-        // API 상태 체크
+        // API 상태 체크 (요소가 있을 때만)
         async function checkApiStatus() {
             const statusDot = document.getElementById('apiStatusDot');
             const statusText = document.getElementById('apiStatusText');
+            
+            if (!statusDot || !statusText) return;
             
             try {
                 // 간단한 API 호출로 연결 상태 확인
@@ -656,8 +661,11 @@
 
                 await Promise.all(promises);
                 
-                // 총 콘텐츠 수 업데이트
-                document.getElementById('total-content-hero').textContent = totalContent.toLocaleString();
+                // 총 콘텐츠 수 업데이트 (요소가 있을 때만)
+                const heroEl = document.getElementById('total-content-hero');
+                if (heroEl) {
+                    heroEl.textContent = totalContent.toLocaleString();
+                }
                 
                 // 상위 통계 업데이트
                 updateTopStats();
