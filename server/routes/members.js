@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcryptjs');
 const Member = require('../models/Member');
 const { generateToken, authMember } = require('../middleware/authMember');
+const { ADMIN_CREDENTIALS } = require('./auth');
 
 // ===== 회원가입 =====
 router.post('/register', async (req, res) => {
@@ -247,7 +249,50 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // 회원 조회 (비밀번호 포함)
+    // 🔐 관리자 계정 체크 (슈퍼관리자는 일반 로그인도 가능)
+    if (userId.toLowerCase() === ADMIN_CREDENTIALS.username.toLowerCase()) {
+      // 관리자 비밀번호 확인
+      const isAdminMatch = ADMIN_CREDENTIALS.passwordHash 
+        ? await bcrypt.compare(password, ADMIN_CREDENTIALS.passwordHash)
+        : password === ADMIN_CREDENTIALS.password;
+      
+      if (isAdminMatch) {
+        // 관리자용 토큰 생성 (7일)
+        const jwt = require('jsonwebtoken');
+        const JWT_SECRET = process.env.JWT_SECRET || 'forthefreedom-secret-key-2025';
+        const token = jwt.sign(
+          { id: ADMIN_CREDENTIALS.id, role: ADMIN_CREDENTIALS.role, isAdmin: true },
+          JWT_SECRET,
+          { expiresIn: '7d' }
+        );
+
+        console.log('✅ 관리자 일반 로그인:', userId);
+
+        return res.json({
+          success: true,
+          message: '로그인 성공',
+          data: {
+            token,
+            member: {
+              id: ADMIN_CREDENTIALS.id,
+              userId: ADMIN_CREDENTIALS.username,
+              nickname: ADMIN_CREDENTIALS.nickname,
+              name: ADMIN_CREDENTIALS.name,
+              memberType: 'admin',
+              status: 'active',
+              isAdmin: true
+            }
+          }
+        });
+      } else {
+        return res.status(401).json({
+          success: false,
+          message: '아이디 또는 비밀번호가 올바르지 않습니다'
+        });
+      }
+    }
+
+    // 일반 회원 조회 (비밀번호 포함)
     const member = await Member.findOne({ userId: userId.toLowerCase() }).select('+password');
     
     if (!member) {
