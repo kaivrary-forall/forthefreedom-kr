@@ -155,7 +155,7 @@ function loadNavigation() {
                             <a href="${pathPrefix}login.html" class="text-[#212121] hover:text-[#a50034] text-sm transition-colors duration-200">
                                 로그인
                             </a>
-                            <a href="${pathPrefix}join.html" class="bg-[#a50034] text-white px-4 py-1.5 rounded-full text-sm font-medium hover:bg-[#8B002C] transition-colors duration-200">
+                            <a href="#" onclick="alert('현재 테스트 기간으로 회원가입이 일시 중단되었습니다.'); return false;" class="bg-gray-400 text-white px-4 py-1.5 rounded-full text-sm font-medium cursor-not-allowed">
                                 회원가입
                             </a>
                         </div>
@@ -256,7 +256,7 @@ function loadNavigation() {
                                 <a href="${pathPrefix}login.html" class="flex-1 bg-gray-100 text-gray-700 text-center py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors">
                                     로그인
                                 </a>
-                                <a href="${pathPrefix}join.html" class="flex-1 bg-[#a50034] text-white text-center py-3 rounded-lg font-bold hover:bg-[#8B002C] transition-colors">
+                                <a href="#" onclick="alert('현재 테스트 기간으로 회원가입이 일시 중단되었습니다.'); return false;" class="flex-1 bg-gray-400 text-white text-center py-3 rounded-lg font-bold cursor-not-allowed">
                                     회원가입
                                 </a>
                             </div>
