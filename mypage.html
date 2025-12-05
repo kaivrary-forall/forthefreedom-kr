@@ -299,8 +299,8 @@
                 <form id="editForm" onsubmit="saveInfo(event)">
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">이름</label>
-                            <input type="text" id="editName" class="form-input" required>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">이름 <span class="text-xs text-gray-400">(변경 불가)</span></label>
+                            <input type="text" id="editName" class="form-input bg-gray-100 text-gray-500 cursor-not-allowed" readonly>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
@@ -582,7 +582,6 @@
                         'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({
-                        name: document.getElementById('editName').value,
                         email: document.getElementById('editEmail').value,
                         phone: document.getElementById('editPhone').value,
                         zipCode: document.getElementById('editZipCode').value,
