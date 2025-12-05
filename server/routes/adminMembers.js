@@ -11,7 +11,8 @@ router.get('/', async (req, res) => {
   try {
     const { 
       status, 
-      memberType, 
+      memberType,
+      withdrawalType,
       search, 
       page = 1, 
       limit = 20,
@@ -23,6 +24,7 @@ router.get('/', async (req, res) => {
     const filter = {};
     if (status) filter.status = status;
     if (memberType) filter.memberType = memberType;
+    if (withdrawalType) filter.withdrawalType = withdrawalType;
     if (search) {
       filter.$or = [
         { userId: { $regex: search, $options: 'i' } },
@@ -97,30 +99,51 @@ router.get('/pending', async (req, res) => {
 router.get('/stats', async (req, res) => {
   try {
     const [
+      // 전체
       totalCount,
+      // 회원 유형별
+      generalCount,
+      partyMemberCount,
+      innovationMemberCount,
+      // 상태별
       pendingCount,
       activeCount,
       suspendedCount,
-      withdrawnCount,
-      partyMemberCount
+      // 탈퇴 유형별
+      withdrawnSelfCount,
+      withdrawnForcedCount
     ] = await Promise.all([
+      // 전체
       Member.countDocuments(),
+      // 회원 유형별
+      Member.countDocuments({ memberType: 'general' }),
+      Member.countDocuments({ memberType: 'party_member' }),
+      Member.countDocuments({ memberType: 'innovation_member' }),
+      // 상태별
       Member.countDocuments({ status: 'pending' }),
       Member.countDocuments({ status: 'active' }),
       Member.countDocuments({ status: 'suspended' }),
-      Member.countDocuments({ status: 'withdrawn' }),
-      Member.countDocuments({ memberType: 'party_member', status: 'active' })
+      // 탈퇴 유형별
+      Member.countDocuments({ status: 'withdrawn', withdrawalType: 'self' }),
+      Member.countDocuments({ status: 'withdrawn', withdrawalType: 'forced' })
     ]);
 
     res.json({
       success: true,
       data: {
+        // 전체
         total: totalCount,
+        // 회원 유형별
+        general: generalCount,
+        partyMember: partyMemberCount,
+        innovationMember: innovationMemberCount,
+        // 상태별
         pending: pendingCount,
         active: activeCount,
         suspended: suspendedCount,
-        withdrawn: withdrawnCount,
-        partyMembers: partyMemberCount
+        // 탈퇴 유형별
+        withdrawnSelf: withdrawnSelfCount,
+        withdrawnForced: withdrawnForcedCount
       }
     });
 
@@ -290,12 +313,12 @@ router.put('/:id/status', async (req, res) => {
   }
 });
 
-// ===== 회원 유형 변경 (일반/혁신당원) =====
+// ===== 회원 유형 변경 (일반/당원/혁신당원) =====
 router.put('/:id/member-type', async (req, res) => {
   try {
     const { memberType } = req.body;
 
-    if (!['general', 'party_member'].includes(memberType)) {
+    if (!['general', 'party_member', 'innovation_member'].includes(memberType)) {
       return res.status(400).json({
         success: false,
         message: '유효하지 않은 회원 유형입니다'
