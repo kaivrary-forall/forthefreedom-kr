@@ -303,8 +303,11 @@
                             <input type="text" id="editName" class="form-input bg-gray-100 text-gray-500 cursor-not-allowed" readonly>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
-                            <input type="email" id="editEmail" class="form-input" required>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">이메일 <span class="text-xs text-gray-400">(별도 인증 필요)</span></label>
+                            <div class="flex gap-2">
+                                <input type="email" id="editEmail" class="form-input flex-1 bg-gray-100 text-gray-500 cursor-not-allowed" readonly>
+                                <button type="button" onclick="openEmailChangeModal()" class="btn-secondary text-sm whitespace-nowrap">변경</button>
+                            </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">연락처</label>
@@ -350,6 +353,51 @@
                         <button type="submit" id="nicknameSubmitBtn" class="flex-1 btn-primary" disabled>변경</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 이메일 변경 모달 -->
+    <div id="emailChangeModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6">
+                <h3 class="text-lg font-bold mb-4">이메일 변경</h3>
+                
+                <!-- Step 1: 새 이메일 입력 -->
+                <div id="emailStep1">
+                    <p class="text-sm text-gray-600 mb-4">새 이메일 주소로 인증 코드가 발송됩니다.</p>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">현재 이메일</label>
+                        <input type="email" id="currentEmailDisplay" class="form-input bg-gray-100 text-gray-500" readonly>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">새 이메일</label>
+                        <input type="email" id="newEmailInput" class="form-input" placeholder="새 이메일 주소 입력" required>
+                        <p id="emailRequestError" class="text-red-500 text-sm mt-1 hidden"></p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button type="button" onclick="closeModal('emailChangeModal')" class="flex-1 btn-secondary">취소</button>
+                        <button type="button" onclick="requestEmailCode()" id="emailRequestBtn" class="flex-1 btn-primary">인증 코드 발송</button>
+                    </div>
+                </div>
+                
+                <!-- Step 2: 인증 코드 입력 -->
+                <div id="emailStep2" class="hidden">
+                    <div class="mb-4 p-3 bg-blue-50 rounded-lg">
+                        <p class="text-sm text-blue-700">📧 <strong id="sentEmailDisplay"></strong>으로 인증 코드를 발송했습니다.</p>
+                        <p class="text-xs text-blue-600 mt-1">5분 내로 입력해주세요.</p>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">인증 코드 (6자리)</label>
+                        <input type="text" id="emailVerifyCode" class="form-input text-center text-2xl tracking-widest" placeholder="000000" maxlength="6" pattern="[0-9]{6}">
+                        <p id="emailVerifyError" class="text-red-500 text-sm mt-1 hidden"></p>
+                    </div>
+                    <div class="flex gap-3 mb-3">
+                        <button type="button" onclick="backToEmailStep1()" class="flex-1 btn-secondary">뒤로</button>
+                        <button type="button" onclick="verifyEmailCode()" id="emailVerifyBtn" class="flex-1 btn-primary">확인</button>
+                    </div>
+                    <button type="button" onclick="requestEmailCode()" class="w-full text-sm text-gray-500 hover:text-primary">인증 코드 재발송</button>
+                </div>
             </div>
         </div>
     </div>
@@ -582,7 +630,6 @@
                         'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({
-                        email: document.getElementById('editEmail').value,
                         phone: document.getElementById('editPhone').value,
                         zipCode: document.getElementById('editZipCode').value,
                         address: document.getElementById('editAddress').value,
@@ -723,6 +770,133 @@
             } catch (error) {
                 console.error('닉네임 변경 오류:', error);
                 alert('변경 중 오류가 발생했습니다');
+            }
+        }
+
+        // ===== 이메일 변경 =====
+        let pendingNewEmail = '';
+
+        function openEmailChangeModal() {
+            // 초기화
+            document.getElementById('currentEmailDisplay').value = memberData.email;
+            document.getElementById('newEmailInput').value = '';
+            document.getElementById('emailVerifyCode').value = '';
+            document.getElementById('emailRequestError').classList.add('hidden');
+            document.getElementById('emailVerifyError').classList.add('hidden');
+            document.getElementById('emailStep1').classList.remove('hidden');
+            document.getElementById('emailStep2').classList.add('hidden');
+            document.getElementById('emailRequestBtn').disabled = false;
+            document.getElementById('emailRequestBtn').textContent = '인증 코드 발송';
+            pendingNewEmail = '';
+            
+            document.getElementById('emailChangeModal').classList.add('active');
+        }
+
+        async function requestEmailCode() {
+            const newEmail = document.getElementById('newEmailInput').value.trim();
+            const errorEl = document.getElementById('emailRequestError');
+            const btn = document.getElementById('emailRequestBtn');
+            
+            errorEl.classList.add('hidden');
+            
+            if (!newEmail) {
+                errorEl.textContent = '새 이메일 주소를 입력해주세요';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
+            // 이메일 형식 검증
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(newEmail)) {
+                errorEl.textContent = '올바른 이메일 형식이 아닙니다';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = '발송 중...';
+
+            try {
+                const response = await fetch(`${window.API_BASE}/members/me/email/request`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ newEmail })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    pendingNewEmail = newEmail;
+                    document.getElementById('sentEmailDisplay').textContent = newEmail;
+                    document.getElementById('emailStep1').classList.add('hidden');
+                    document.getElementById('emailStep2').classList.remove('hidden');
+                } else {
+                    errorEl.textContent = result.message || '인증 코드 발송에 실패했습니다';
+                    errorEl.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('이메일 인증 요청 오류:', error);
+                errorEl.textContent = '요청 중 오류가 발생했습니다';
+                errorEl.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '인증 코드 발송';
+            }
+        }
+
+        function backToEmailStep1() {
+            document.getElementById('emailStep1').classList.remove('hidden');
+            document.getElementById('emailStep2').classList.add('hidden');
+            document.getElementById('emailVerifyCode').value = '';
+            document.getElementById('emailVerifyError').classList.add('hidden');
+        }
+
+        async function verifyEmailCode() {
+            const code = document.getElementById('emailVerifyCode').value.trim();
+            const errorEl = document.getElementById('emailVerifyError');
+            const btn = document.getElementById('emailVerifyBtn');
+            
+            errorEl.classList.add('hidden');
+            
+            if (!code || code.length !== 6) {
+                errorEl.textContent = '6자리 인증 코드를 입력해주세요';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = '확인 중...';
+
+            try {
+                const response = await fetch(`${window.API_BASE}/members/me/email/verify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ code })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('이메일이 성공적으로 변경되었습니다!');
+                    closeModal('emailChangeModal');
+                    loadMemberInfo(); // 정보 새로고침
+                } else {
+                    errorEl.textContent = result.message || '인증에 실패했습니다';
+                    errorEl.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('이메일 인증 확인 오류:', error);
+                errorEl.textContent = '확인 중 오류가 발생했습니다';
+                errorEl.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '확인';
             }
         }
         
