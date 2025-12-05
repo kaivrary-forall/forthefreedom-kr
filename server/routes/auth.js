@@ -392,4 +392,4 @@ router.get('/security-status', verifyToken, (req, res) => {
     }
 });
 
-module.exports = { router, verifyToken }; 
+module.exports = { router, verifyToken, ADMIN_CREDENTIALS };
