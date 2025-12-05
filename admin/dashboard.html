@@ -165,8 +165,36 @@
                 <div class="mb-8 animate-slide-up">
                     <h3 class="text-2xl font-semibold text-gray-900 mb-6">👥 회원 관리</h3>
                     
+                    <!-- 회원 현황판 -->
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+                        <div class="stat-card">
+                            <div class="text-2xl font-semibold text-gray-900" id="stat-members-total">0</div>
+                            <div class="text-gray-600 text-sm">전체</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="text-2xl font-semibold text-yellow-500" id="stat-members-pending">0</div>
+                            <div class="text-gray-600 text-sm">승인대기</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="text-2xl font-semibold text-green-500" id="stat-members-active">0</div>
+                            <div class="text-gray-600 text-sm">정상</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="text-2xl font-semibold text-red-500" id="stat-members-suspended">0</div>
+                            <div class="text-gray-600 text-sm">정지</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="text-2xl font-semibold text-gray-400" id="stat-members-withdrawn">0</div>
+                            <div class="text-gray-600 text-sm">탈퇴</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="text-2xl font-semibold" style="color: #A50034;" id="stat-members-party">0</div>
+                            <div class="text-gray-600 text-sm">혁신당원</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 회원관리 카드 -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <!-- 회원관리 카드 -->
                         <div class="content-card p-6">
                             <div class="flex items-center justify-between mb-4">
                                 <div class="flex items-center space-x-3">
@@ -190,11 +218,12 @@
                     </div>
                 </div>
 
-                <!-- 통계 요약 -->
+                <!-- 콘텐츠 현황 및 관리 섹션 -->
                 <div class="mb-8 animate-slide-up">
-                    <h3 class="text-2xl font-semibold text-gray-900 mb-6">📊 콘텐츠 현황</h3>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-6">📊 콘텐츠 현황 및 관리</h3>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- 콘텐츠 현황판 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
                         <div class="stat-card">
                             <i class="fas fa-bullhorn text-3xl icon-blue mb-3"></i>
                             <div class="text-2xl font-semibold text-gray-900" id="stat-notices">0</div>
@@ -216,12 +245,8 @@
                             <div class="text-gray-600">주요일정</div>
                         </div>
                     </div>
-                </div>
-
-                <!-- 콘텐츠 관리 섹션 -->
-                <div class="animate-slide-up">
-                    <h3 class="text-2xl font-semibold text-gray-900 mb-6">🚀 콘텐츠 관리</h3>
                     
+                    <!-- 콘텐츠 관리 카드 -->
                     <div class="stats-grid">
                         <!-- 메인 배너 -->
                         <div class="content-card p-6" style="border: 2px solid #667eea;">
@@ -631,7 +656,7 @@
                     updateContentCount('banners', 0);
                 }
                 
-                // 회원 승인대기 수 로드
+                // 회원 통계 로드
                 try {
                     const memberResponse = await fetch(`${API_BASE}/admin/members/stats`, {
                         headers: { 'Authorization': `Bearer ${token}` }
@@ -639,8 +664,16 @@
                     if (memberResponse.ok) {
                         const memberData = await memberResponse.json();
                         if (memberData.success) {
-                            const pendingCount = memberData.data.pending || 0;
-                            updateContentCount('members-pending', pendingCount);
+                            const stats = memberData.data;
+                            // 상황판 업데이트
+                            document.getElementById('stat-members-total').textContent = stats.total || 0;
+                            document.getElementById('stat-members-pending').textContent = stats.pending || 0;
+                            document.getElementById('stat-members-active').textContent = stats.active || 0;
+                            document.getElementById('stat-members-suspended').textContent = stats.suspended || 0;
+                            document.getElementById('stat-members-withdrawn').textContent = stats.withdrawn || 0;
+                            document.getElementById('stat-members-party').textContent = stats.partyMembers || 0;
+                            // 카드 업데이트
+                            updateContentCount('members-pending', stats.pending || 0);
                         }
                     }
                 } catch (e) {
