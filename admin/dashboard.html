@@ -166,30 +166,55 @@
                     <h3 class="text-2xl font-semibold text-gray-900 mb-6">👥 회원 관리</h3>
                     
                     <!-- 회원 현황판 -->
-                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-                        <div class="stat-card">
-                            <div class="text-2xl font-semibold text-gray-900" id="stat-members-total">0</div>
-                            <div class="text-gray-600 text-sm">전체</div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <!-- 회원 유형별 -->
+                        <div class="content-card p-5">
+                            <h4 class="text-sm font-semibold text-gray-500 mb-4">회원 유형</h4>
+                            <div class="grid grid-cols-4 gap-3">
+                                <div class="text-center p-3 bg-gray-50 rounded-lg">
+                                    <div class="text-2xl font-bold text-gray-900" id="stat-members-total">0</div>
+                                    <div class="text-xs text-gray-500">전체</div>
+                                </div>
+                                <div class="text-center p-3 bg-gray-50 rounded-lg">
+                                    <div class="text-2xl font-bold text-gray-600" id="stat-members-general">0</div>
+                                    <div class="text-xs text-gray-500">일반</div>
+                                </div>
+                                <div class="text-center p-3 bg-blue-50 rounded-lg">
+                                    <div class="text-2xl font-bold text-blue-600" id="stat-members-party">0</div>
+                                    <div class="text-xs text-gray-500">당원</div>
+                                </div>
+                                <div class="text-center p-3 bg-red-50 rounded-lg">
+                                    <div class="text-2xl font-bold" style="color: #A50034;" id="stat-members-innovation">0</div>
+                                    <div class="text-xs text-gray-500">혁신당원</div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="stat-card">
-                            <div class="text-2xl font-semibold text-yellow-500" id="stat-members-pending">0</div>
-                            <div class="text-gray-600 text-sm">승인대기</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="text-2xl font-semibold text-green-500" id="stat-members-active">0</div>
-                            <div class="text-gray-600 text-sm">정상</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="text-2xl font-semibold text-red-500" id="stat-members-suspended">0</div>
-                            <div class="text-gray-600 text-sm">정지</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="text-2xl font-semibold text-gray-400" id="stat-members-withdrawn">0</div>
-                            <div class="text-gray-600 text-sm">탈퇴</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="text-2xl font-semibold" style="color: #A50034;" id="stat-members-party">0</div>
-                            <div class="text-gray-600 text-sm">혁신당원</div>
+                        
+                        <!-- 회원 상태별 -->
+                        <div class="content-card p-5">
+                            <h4 class="text-sm font-semibold text-gray-500 mb-4">회원 상태</h4>
+                            <div class="grid grid-cols-5 gap-3">
+                                <div class="text-center p-3 bg-yellow-50 rounded-lg">
+                                    <div class="text-2xl font-bold text-yellow-500" id="stat-members-pending">0</div>
+                                    <div class="text-xs text-gray-500">승인대기</div>
+                                </div>
+                                <div class="text-center p-3 bg-green-50 rounded-lg">
+                                    <div class="text-2xl font-bold text-green-500" id="stat-members-active">0</div>
+                                    <div class="text-xs text-gray-500">정상</div>
+                                </div>
+                                <div class="text-center p-3 bg-red-50 rounded-lg">
+                                    <div class="text-2xl font-bold text-red-500" id="stat-members-suspended">0</div>
+                                    <div class="text-xs text-gray-500">정지</div>
+                                </div>
+                                <div class="text-center p-3 bg-gray-100 rounded-lg">
+                                    <div class="text-2xl font-bold text-gray-400" id="stat-members-withdrawn-self">0</div>
+                                    <div class="text-xs text-gray-500">자진탈퇴</div>
+                                </div>
+                                <div class="text-center p-3 bg-gray-200 rounded-lg">
+                                    <div class="text-2xl font-bold text-gray-500" id="stat-members-withdrawn-forced">0</div>
+                                    <div class="text-xs text-gray-500">강제탈퇴</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
@@ -665,13 +690,17 @@
                         const memberData = await memberResponse.json();
                         if (memberData.success) {
                             const stats = memberData.data;
-                            // 상황판 업데이트
+                            // 회원 유형 업데이트
                             document.getElementById('stat-members-total').textContent = stats.total || 0;
+                            document.getElementById('stat-members-general').textContent = stats.general || 0;
+                            document.getElementById('stat-members-party').textContent = stats.partyMember || 0;
+                            document.getElementById('stat-members-innovation').textContent = stats.innovationMember || 0;
+                            // 회원 상태 업데이트
                             document.getElementById('stat-members-pending').textContent = stats.pending || 0;
                             document.getElementById('stat-members-active').textContent = stats.active || 0;
                             document.getElementById('stat-members-suspended').textContent = stats.suspended || 0;
-                            document.getElementById('stat-members-withdrawn').textContent = stats.withdrawn || 0;
-                            document.getElementById('stat-members-party').textContent = stats.partyMembers || 0;
+                            document.getElementById('stat-members-withdrawn-self').textContent = stats.withdrawnSelf || 0;
+                            document.getElementById('stat-members-withdrawn-forced').textContent = stats.withdrawnForced || 0;
                             // 카드 업데이트
                             updateContentCount('members-pending', stats.pending || 0);
                         }

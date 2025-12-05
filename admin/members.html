@@ -177,30 +177,55 @@
             </div>
 
             <!-- 통계 카드 -->
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-                <div class="stat-card cursor-pointer" onclick="filterByStatus('')" id="stat-total">
-                    <div class="text-2xl font-bold text-gray-900" id="count-total">0</div>
-                    <div class="text-sm text-gray-500">전체</div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- 회원 유형별 -->
+                <div class="content-card p-5">
+                    <h4 class="text-sm font-semibold text-gray-500 mb-4">회원 유형</h4>
+                    <div class="grid grid-cols-4 gap-3">
+                        <div class="stat-card cursor-pointer p-3" onclick="filterByStatus('')" id="stat-total">
+                            <div class="text-2xl font-bold text-gray-900" id="count-total">0</div>
+                            <div class="text-xs text-gray-500">전체</div>
+                        </div>
+                        <div class="stat-card cursor-pointer p-3" onclick="filterByType('general')" id="stat-general">
+                            <div class="text-2xl font-bold text-gray-600" id="count-general">0</div>
+                            <div class="text-xs text-gray-500">일반</div>
+                        </div>
+                        <div class="stat-card cursor-pointer p-3" onclick="filterByType('party_member')" id="stat-party">
+                            <div class="text-2xl font-bold text-blue-600" id="count-party">0</div>
+                            <div class="text-xs text-gray-500">당원</div>
+                        </div>
+                        <div class="stat-card cursor-pointer p-3" onclick="filterByType('innovation_member')" id="stat-innovation">
+                            <div class="text-2xl font-bold" style="color: #A50034;" id="count-innovation">0</div>
+                            <div class="text-xs text-gray-500">혁신당원</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-card cursor-pointer" onclick="filterByStatus('pending')" id="stat-pending">
-                    <div class="text-2xl font-bold text-yellow-600" id="count-pending">0</div>
-                    <div class="text-sm text-gray-500">승인대기</div>
-                </div>
-                <div class="stat-card cursor-pointer" onclick="filterByStatus('active')" id="stat-active">
-                    <div class="text-2xl font-bold text-green-600" id="count-active">0</div>
-                    <div class="text-sm text-gray-500">정상</div>
-                </div>
-                <div class="stat-card cursor-pointer" onclick="filterByStatus('suspended')" id="stat-suspended">
-                    <div class="text-2xl font-bold text-red-600" id="count-suspended">0</div>
-                    <div class="text-sm text-gray-500">정지</div>
-                </div>
-                <div class="stat-card cursor-pointer" onclick="filterByStatus('withdrawn')" id="stat-withdrawn">
-                    <div class="text-2xl font-bold text-gray-500" id="count-withdrawn">0</div>
-                    <div class="text-sm text-gray-500">탈퇴</div>
-                </div>
-                <div class="stat-card cursor-pointer" onclick="filterByType('party_member')" id="stat-party">
-                    <div class="text-2xl font-bold text-pink-600" id="count-party">0</div>
-                    <div class="text-sm text-gray-500">혁신당원</div>
+                
+                <!-- 회원 상태별 -->
+                <div class="content-card p-5">
+                    <h4 class="text-sm font-semibold text-gray-500 mb-4">회원 상태</h4>
+                    <div class="grid grid-cols-5 gap-3">
+                        <div class="stat-card cursor-pointer p-3" onclick="filterByStatus('pending')" id="stat-pending">
+                            <div class="text-2xl font-bold text-yellow-500" id="count-pending">0</div>
+                            <div class="text-xs text-gray-500">승인대기</div>
+                        </div>
+                        <div class="stat-card cursor-pointer p-3" onclick="filterByStatus('active')" id="stat-active">
+                            <div class="text-2xl font-bold text-green-500" id="count-active">0</div>
+                            <div class="text-xs text-gray-500">정상</div>
+                        </div>
+                        <div class="stat-card cursor-pointer p-3" onclick="filterByStatus('suspended')" id="stat-suspended">
+                            <div class="text-2xl font-bold text-red-500" id="count-suspended">0</div>
+                            <div class="text-xs text-gray-500">정지</div>
+                        </div>
+                        <div class="stat-card cursor-pointer p-3" onclick="filterByWithdrawal('self')" id="stat-withdrawn-self">
+                            <div class="text-2xl font-bold text-gray-400" id="count-withdrawn-self">0</div>
+                            <div class="text-xs text-gray-500">자진탈퇴</div>
+                        </div>
+                        <div class="stat-card cursor-pointer p-3" onclick="filterByWithdrawal('forced')" id="stat-withdrawn-forced">
+                            <div class="text-2xl font-bold text-gray-500" id="count-withdrawn-forced">0</div>
+                            <div class="text-xs text-gray-500">강제탈퇴</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -367,6 +392,7 @@
         let currentPage = 1;
         let currentStatus = '';
         let currentType = '';
+        let currentWithdrawalType = '';
         let currentSearch = '';
         let selectedMemberId = null;
         let pendingMembers = [];
@@ -388,12 +414,17 @@
                 
                 if (result.success) {
                     const stats = result.data;
-                    document.getElementById('count-total').textContent = stats.total;
-                    document.getElementById('count-pending').textContent = stats.pending;
-                    document.getElementById('count-active').textContent = stats.active;
-                    document.getElementById('count-suspended').textContent = stats.suspended;
-                    document.getElementById('count-withdrawn').textContent = stats.withdrawn;
-                    document.getElementById('count-party').textContent = stats.partyMembers;
+                    // 회원 유형별
+                    document.getElementById('count-total').textContent = stats.total || 0;
+                    document.getElementById('count-general').textContent = stats.general || 0;
+                    document.getElementById('count-party').textContent = stats.partyMember || 0;
+                    document.getElementById('count-innovation').textContent = stats.innovationMember || 0;
+                    // 회원 상태별
+                    document.getElementById('count-pending').textContent = stats.pending || 0;
+                    document.getElementById('count-active').textContent = stats.active || 0;
+                    document.getElementById('count-suspended').textContent = stats.suspended || 0;
+                    document.getElementById('count-withdrawn-self').textContent = stats.withdrawnSelf || 0;
+                    document.getElementById('count-withdrawn-forced').textContent = stats.withdrawnForced || 0;
                 }
             } catch (error) {
                 console.error('통계 로드 오류:', error);
@@ -458,6 +489,7 @@
                 });
                 if (currentStatus) params.append('status', currentStatus);
                 if (currentType) params.append('memberType', currentType);
+                if (currentWithdrawalType) params.append('withdrawalType', currentWithdrawalType);
                 if (currentSearch) params.append('search', currentSearch);
                 
                 const response = await fetch(`${window.API_BASE}/admin/members?${params}`, {
@@ -584,6 +616,7 @@
             document.getElementById('typeFilter').value = '';
             currentStatus = status;
             currentType = '';
+            currentWithdrawalType = '';
             currentPage = 1;
             loadMembers();
             updateStatCards();
@@ -595,6 +628,19 @@
             document.getElementById('statusFilter').value = '';
             currentType = type;
             currentStatus = '';
+            currentWithdrawalType = '';
+            currentPage = 1;
+            loadMembers();
+            updateStatCards();
+        }
+        
+        // 탈퇴 유형별 필터
+        function filterByWithdrawal(withdrawalType) {
+            document.getElementById('statusFilter').value = 'withdrawn';
+            document.getElementById('typeFilter').value = '';
+            currentStatus = 'withdrawn';
+            currentType = '';
+            currentWithdrawalType = withdrawalType;
             currentPage = 1;
             loadMembers();
             updateStatCards();
@@ -603,10 +649,18 @@
         // 통계 카드 활성화 상태 업데이트
         function updateStatCards() {
             document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('active'));
-            if (currentStatus) {
+            if (currentWithdrawalType === 'self') {
+                document.getElementById('stat-withdrawn-self')?.classList.add('active');
+            } else if (currentWithdrawalType === 'forced') {
+                document.getElementById('stat-withdrawn-forced')?.classList.add('active');
+            } else if (currentStatus) {
                 document.getElementById('stat-' + currentStatus)?.classList.add('active');
+            } else if (currentType === 'general') {
+                document.getElementById('stat-general')?.classList.add('active');
             } else if (currentType === 'party_member') {
                 document.getElementById('stat-party')?.classList.add('active');
+            } else if (currentType === 'innovation_member') {
+                document.getElementById('stat-innovation')?.classList.add('active');
             } else if (!currentStatus && !currentType) {
                 document.getElementById('stat-total')?.classList.add('active');
             }
