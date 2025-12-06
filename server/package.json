@@ -27,6 +27,7 @@
     "multer": "^2.0.1",
     "node-cache": "^5.1.2",
     "resend": "^4.0.0",
+    "cloudinary": "^2.5.1",
     "ua-parser-js": "^2.0.4"
   },
   "devDependencies": {
