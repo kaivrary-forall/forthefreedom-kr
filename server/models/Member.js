@@ -28,6 +28,10 @@ const memberSchema = new mongoose.Schema({
     minlength: [2, '닉네임은 최소 2자 이상이어야 합니다'],
     maxlength: [20, '닉네임은 최대 20자까지 가능합니다']
   },
+  profileImage: {
+    type: String,
+    default: ''  // Cloudinary URL
+  },
   nicknameChangeCount: {
     type: Number,
     default: 0  // 0이면 무료 변경 가능, 1 이상이면 유료
