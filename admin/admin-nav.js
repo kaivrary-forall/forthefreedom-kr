@@ -152,9 +152,18 @@ function updateSessionCountdown(expTime) {
     const remaining = expTime - now;
 
     if (remaining <= 0) {
-        countdownEl.textContent = '만료됨';
-        countdownEl.classList.remove('text-gray-500', 'text-yellow-600');
-        countdownEl.classList.add('text-red-500');
+        // 세션 만료 - 자동 로그아웃 및 리다이렉트
+        clearInterval(sessionTimerInterval);
+        sessionTimerInterval = null;
+        
+        // 로컬 스토리지 정리
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminRefreshToken');
+        localStorage.removeItem('adminUser');
+        localStorage.removeItem('adminInfo');
+        
+        alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+        window.location.href = 'index.html';
         return;
     }
 
