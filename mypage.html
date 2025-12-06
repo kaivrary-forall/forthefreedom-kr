@@ -162,8 +162,16 @@
                 <!-- 프로필 요약 -->
                 <div class="section-card bg-gradient-to-r from-primary to-red-700 text-white">
                     <div class="flex items-center gap-4">
-                        <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-                            <i class="fas fa-user text-2xl"></i>
+                        <!-- 프로필 이미지 (클릭하면 변경) -->
+                        <div class="relative group cursor-pointer" onclick="document.getElementById('profileImageInput').click()">
+                            <div id="profileImageContainer" class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center overflow-hidden">
+                                <i id="profileImageIcon" class="fas fa-user text-2xl"></i>
+                                <img id="profileImagePreview" src="" alt="프로필" class="w-full h-full object-cover hidden">
+                            </div>
+                            <div class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <i class="fas fa-camera text-white"></i>
+                            </div>
+                            <input type="file" id="profileImageInput" accept="image/*" class="hidden" onchange="uploadProfileImage(this)">
                         </div>
                         <div>
                             <div class="flex items-center gap-2">
@@ -536,6 +544,16 @@
             // 프로필 요약
             document.getElementById('profileNickname').textContent = memberData.nickname;
             document.getElementById('profileUserId').textContent = '@' + memberData.userId;
+            
+            // 프로필 이미지
+            if (memberData.profileImage) {
+                document.getElementById('profileImageIcon').classList.add('hidden');
+                document.getElementById('profileImagePreview').src = memberData.profileImage;
+                document.getElementById('profileImagePreview').classList.remove('hidden');
+            } else {
+                document.getElementById('profileImageIcon').classList.remove('hidden');
+                document.getElementById('profileImagePreview').classList.add('hidden');
+            }
             
             // 회원 유형 배지
             const badge = document.getElementById('memberTypeBadge');
@@ -1003,6 +1021,63 @@
                 console.error('탈퇴 오류:', error);
                 alert('탈퇴 처리 중 오류가 발생했습니다');
             }
+        }
+        
+        // 프로필 이미지 업로드
+        async function uploadProfileImage(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            // 파일 크기 체크 (2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('이미지 크기는 2MB 이하만 가능합니다');
+                input.value = '';
+                return;
+            }
+            
+            // 이미지 파일 체크
+            if (!file.type.startsWith('image/')) {
+                alert('이미지 파일만 업로드 가능합니다');
+                input.value = '';
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('profileImage', file);
+            
+            // 업로드 중 표시
+            const icon = document.getElementById('profileImageIcon');
+            const preview = document.getElementById('profileImagePreview');
+            icon.className = 'fas fa-spinner fa-spin text-2xl';
+            
+            try {
+                const response = await fetch(`${window.API_BASE}/members/me/profile-image`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // 이미지 표시
+                    icon.classList.add('hidden');
+                    preview.src = result.data.profileImage;
+                    preview.classList.remove('hidden');
+                    memberData.profileImage = result.data.profileImage;
+                } else {
+                    alert(result.message || '이미지 업로드에 실패했습니다');
+                    icon.className = 'fas fa-user text-2xl';
+                }
+            } catch (error) {
+                console.error('프로필 이미지 업로드 오류:', error);
+                alert('이미지 업로드 중 오류가 발생했습니다');
+                icon.className = 'fas fa-user text-2xl';
+            }
+            
+            input.value = '';
         }
         
         // 로그아웃
