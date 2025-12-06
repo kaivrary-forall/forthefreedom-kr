@@ -114,19 +114,30 @@ function loadAdminNav(currentPage) {
     initSessionTimer();
 }
 
+// 세션 타이머 인터벌 ID 저장
+let sessionTimerInterval = null;
+
 // 세션 타이머 초기화
 function initSessionTimer() {
     const token = localStorage.getItem('adminToken');
     if (!token) return;
+
+    // 기존 타이머 정리
+    if (sessionTimerInterval) {
+        clearInterval(sessionTimerInterval);
+        sessionTimerInterval = null;
+    }
 
     // JWT 토큰에서 만료 시간 추출
     try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         const expTime = payload.exp * 1000; // 초 → 밀리초
         
-        // 1초마다 카운트다운 업데이트
+        // 즉시 업데이트
         updateSessionCountdown(expTime);
-        setInterval(() => updateSessionCountdown(expTime), 1000);
+        
+        // 1초마다 카운트다운 업데이트
+        sessionTimerInterval = setInterval(() => updateSessionCountdown(expTime), 1000);
     } catch (e) {
         console.warn('토큰 파싱 실패:', e);
     }
