@@ -59,9 +59,12 @@ function loadAdminNav(currentPage) {
                 <!-- 오른쪽: 세션 타이머 + 관리자 정보 + 로그아웃 -->
                 <div class="flex items-center space-x-4">
                     <!-- 세션 타이머 -->
-                    <div id="sessionTimer" class="hidden sm:flex items-center space-x-1 text-sm">
+                    <div id="sessionTimer" class="hidden sm:flex items-center space-x-2 text-sm">
                         <i class="fas fa-clock text-gray-400"></i>
                         <span id="sessionCountdown" class="text-gray-500 font-mono">--:--</span>
+                        <button onclick="extendSession()" class="px-2 py-1 text-xs bg-gray-100 hover:bg-primary hover:text-white text-gray-600 rounded transition-colors" title="세션 연장">
+                            <i class="fas fa-redo"></i>
+                        </button>
                     </div>
                     
                     <div class="hidden sm:flex items-center space-x-2">
@@ -158,6 +161,46 @@ function updateSessionCountdown(expTime) {
     }
 
     countdownEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// 세션 연장
+async function extendSession() {
+    const refreshToken = localStorage.getItem('adminRefreshToken');
+    
+    if (!refreshToken) {
+        alert('세션을 연장할 수 없습니다. 다시 로그인해주세요.');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${window.API_BASE}/auth/refresh`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refreshToken })
+        });
+
+        const result = await response.json();
+
+        if (result.success && result.accessToken) {
+            // 새 토큰 저장
+            localStorage.setItem('adminToken', result.accessToken);
+            
+            // 타이머 재시작
+            initSessionTimer();
+            
+            // 피드백
+            const countdownEl = document.getElementById('sessionCountdown');
+            if (countdownEl) {
+                countdownEl.textContent = '연장됨!';
+                setTimeout(() => initSessionTimer(), 1000);
+            }
+        } else {
+            alert('세션 연장 실패. 다시 로그인해주세요.');
+        }
+    } catch (error) {
+        console.error('세션 연장 오류:', error);
+        alert('세션 연장 중 오류가 발생했습니다.');
+    }
 }
 
 // 모바일 메뉴 토글
