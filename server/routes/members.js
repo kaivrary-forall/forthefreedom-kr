@@ -8,10 +8,10 @@ const { ADMIN_CREDENTIALS } = require('./auth');
 const { sendVerificationCode, generateVerificationCode } = require('../utils/email');
 const { uploadProfileImage } = require('../utils/cloudinary');
 
-// 프로필 이미지 업로드 설정 (메모리 저장, 2MB 제한)
+// 프로필 이미지 업로드 설정 (메모리 저장, 10MB 제한 - 서버에서 압축)
 const profileUpload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
@@ -887,7 +887,7 @@ router.post('/me/profile-image', authMember, profileUpload.single('profileImage'
     if (error.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({
         success: false,
-        message: '이미지 크기는 2MB 이하만 가능합니다'
+        message: '이미지 크기는 10MB 이하만 가능합니다'
       });
     }
     
