@@ -181,9 +181,9 @@ async function extendSession() {
 
         const result = await response.json();
 
-        if (result.success && result.accessToken) {
+        if (result.success && result.token) {
             // 새 토큰 저장
-            localStorage.setItem('adminToken', result.accessToken);
+            localStorage.setItem('adminToken', result.token);
             
             // 타이머 재시작
             initSessionTimer();
