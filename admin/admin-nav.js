@@ -56,8 +56,14 @@ function loadAdminNav(currentPage) {
                     </div>
                 </div>
 
-                <!-- 오른쪽: 관리자 정보 + 로그아웃 -->
+                <!-- 오른쪽: 세션 타이머 + 관리자 정보 + 로그아웃 -->
                 <div class="flex items-center space-x-4">
+                    <!-- 세션 타이머 -->
+                    <div id="sessionTimer" class="hidden sm:flex items-center space-x-1 text-sm">
+                        <i class="fas fa-clock text-gray-400"></i>
+                        <span id="sessionCountdown" class="text-gray-500 font-mono">--:--</span>
+                    </div>
+                    
                     <div class="hidden sm:flex items-center space-x-2">
                         <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
                             <i class="fas fa-user text-white text-sm"></i>
@@ -100,6 +106,58 @@ function loadAdminNav(currentPage) {
         </div>
     </nav>
     `;
+
+    // 세션 타이머 시작
+    initSessionTimer();
+}
+
+// 세션 타이머 초기화
+function initSessionTimer() {
+    const token = localStorage.getItem('adminToken');
+    if (!token) return;
+
+    // JWT 토큰에서 만료 시간 추출
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const expTime = payload.exp * 1000; // 초 → 밀리초
+        
+        // 1초마다 카운트다운 업데이트
+        updateSessionCountdown(expTime);
+        setInterval(() => updateSessionCountdown(expTime), 1000);
+    } catch (e) {
+        console.warn('토큰 파싱 실패:', e);
+    }
+}
+
+// 세션 카운트다운 업데이트
+function updateSessionCountdown(expTime) {
+    const countdownEl = document.getElementById('sessionCountdown');
+    if (!countdownEl) return;
+
+    const now = Date.now();
+    const remaining = expTime - now;
+
+    if (remaining <= 0) {
+        countdownEl.textContent = '만료됨';
+        countdownEl.classList.remove('text-gray-500', 'text-yellow-600');
+        countdownEl.classList.add('text-red-500');
+        return;
+    }
+
+    const minutes = Math.floor(remaining / 60000);
+    const seconds = Math.floor((remaining % 60000) / 1000);
+    
+    // 5분 이하면 노란색, 1분 이하면 빨간색
+    countdownEl.classList.remove('text-gray-500', 'text-yellow-600', 'text-red-500');
+    if (minutes < 1) {
+        countdownEl.classList.add('text-red-500');
+    } else if (minutes < 5) {
+        countdownEl.classList.add('text-yellow-600');
+    } else {
+        countdownEl.classList.add('text-gray-500');
+    }
+
+    countdownEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
 
 // 모바일 메뉴 토글

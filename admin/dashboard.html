@@ -159,6 +159,22 @@
                 </div>
             </div>
 
+            <!-- 세션 만료 메시지 -->
+            <div id="sessionExpiredMessage" class="hidden glass-card border-l-4 border-yellow-500 p-4 mb-6 animate-slide-up">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <i class="fas fa-clock text-yellow-500 mr-3"></i>
+                        <div>
+                            <div class="text-yellow-700 font-semibold">세션이 만료되었습니다</div>
+                            <div class="text-yellow-600 text-sm">회원 정보를 불러오려면 다시 로그인해주세요.</div>
+                        </div>
+                    </div>
+                    <button onclick="location.href='login.html'" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                        다시 로그인
+                    </button>
+                </div>
+            </div>
+
             <!-- 대시보드 콘텐츠 -->
             <div id="dashboard" class="hidden">
                 <!-- 회원 관리 섹션 -->
@@ -689,7 +705,11 @@
                     const memberResponse = await fetch(`${API_BASE}/admin/members/stats`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
-                    if (memberResponse.ok) {
+                    
+                    // 토큰 만료 체크 (401 에러)
+                    if (memberResponse.status === 401) {
+                        showSessionExpiredMessage();
+                    } else if (memberResponse.ok) {
                         const memberData = await memberResponse.json();
                         if (memberData.success) {
                             const stats = memberData.data;
@@ -706,6 +726,8 @@
                             document.getElementById('stat-members-withdrawn-forced').textContent = stats.withdrawnForced || 0;
                             // 카드 업데이트
                             updateContentCount('members-pending', stats.pending || 0);
+                            // 세션 만료 메시지 숨기기
+                            hideSessionExpiredMessage();
                         }
                     }
                 } catch (e) {
@@ -795,6 +817,16 @@
             document.getElementById('errorText').textContent = message;
             document.getElementById('errorMessage').classList.remove('hidden');
             hideLoading();
+        }
+
+        // 세션 만료 메시지 표시
+        function showSessionExpiredMessage() {
+            document.getElementById('sessionExpiredMessage').classList.remove('hidden');
+        }
+
+        // 세션 만료 메시지 숨기기
+        function hideSessionExpiredMessage() {
+            document.getElementById('sessionExpiredMessage').classList.add('hidden');
         }
 
         // 대시보드 새로고침
