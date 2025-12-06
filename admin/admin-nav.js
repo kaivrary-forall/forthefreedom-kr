@@ -146,15 +146,19 @@ function initSessionTimer() {
 // 세션 카운트다운 업데이트
 function updateSessionCountdown(expTime) {
     const countdownEl = document.getElementById('sessionCountdown');
+    const timerEl = document.getElementById('sessionTimer');
     if (!countdownEl) return;
 
     const now = Date.now();
     const remaining = expTime - now;
 
     if (remaining <= 0) {
-        // 세션 만료 - 자동 로그아웃 및 리다이렉트
+        // 세션 만료 - 타이머 숨기고 자동 로그아웃
         clearInterval(sessionTimerInterval);
         sessionTimerInterval = null;
+        
+        // 타이머 숨기기
+        if (timerEl) timerEl.classList.add('hidden');
         
         // 로컬 스토리지 정리
         localStorage.removeItem('adminToken');
@@ -185,10 +189,21 @@ function updateSessionCountdown(expTime) {
 
 // 세션 연장
 async function extendSession() {
+    const token = localStorage.getItem('adminToken');
     const refreshToken = localStorage.getItem('adminRefreshToken');
     
-    if (!refreshToken) {
-        alert('세션을 연장할 수 없습니다. 다시 로그인해주세요.');
+    // 토큰 없으면 무시
+    if (!token || !refreshToken) {
+        return;
+    }
+    
+    // 이미 만료된 토큰인지 체크
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.exp * 1000 < Date.now()) {
+            return; // 이미 만료됨
+        }
+    } catch (e) {
         return;
     }
 
