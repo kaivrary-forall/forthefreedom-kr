@@ -1,10 +1,25 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
+const multer = require('multer');
 const Member = require('../models/Member');
 const { generateToken, authMember } = require('../middleware/authMember');
 const { ADMIN_CREDENTIALS } = require('./auth');
 const { sendVerificationCode, generateVerificationCode } = require('../utils/email');
+const { uploadProfileImage } = require('../utils/cloudinary');
+
+// 프로필 이미지 업로드 설정 (메모리 저장, 2MB 제한)
+const profileUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('이미지 파일만 업로드 가능합니다'), false);
+    }
+  }
+});
 
 // 이메일 인증 코드 임시 저장소 (메모리, 5분 만료)
 const emailVerificationCodes = new Map();
@@ -824,6 +839,84 @@ router.post('/me/email/verify', authMember, async (req, res) => {
     res.status(500).json({
       success: false,
       message: '이메일 변경 중 오류가 발생했습니다'
+    });
+  }
+});
+
+// ===== 프로필 이미지 업로드 =====
+router.post('/me/profile-image', authMember, profileUpload.single('profileImage'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: '이미지 파일을 선택해주세요'
+      });
+    }
+
+    const memberId = req.member._id.toString();
+
+    // Cloudinary에 업로드
+    const result = await uploadProfileImage(req.file.buffer, memberId);
+
+    if (!result.success) {
+      return res.status(500).json({
+        success: false,
+        message: '이미지 업로드에 실패했습니다'
+      });
+    }
+
+    // DB에 이미지 URL 저장
+    await Member.findByIdAndUpdate(req.member._id, {
+      profileImage: result.url
+    });
+
+    console.log('✅ 프로필 이미지 변경:', req.member.userId, result.url);
+
+    res.json({
+      success: true,
+      message: '프로필 이미지가 변경되었습니다',
+      data: {
+        profileImage: result.url
+      }
+    });
+
+  } catch (error) {
+    console.error('프로필 이미지 업로드 오류:', error);
+    
+    // Multer 에러 처리
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({
+        success: false,
+        message: '이미지 크기는 2MB 이하만 가능합니다'
+      });
+    }
+    
+    res.status(500).json({
+      success: false,
+      message: '프로필 이미지 업로드 중 오류가 발생했습니다'
+    });
+  }
+});
+
+// ===== 프로필 이미지 삭제 =====
+router.delete('/me/profile-image', authMember, async (req, res) => {
+  try {
+    await Member.findByIdAndUpdate(req.member._id, {
+      profileImage: ''
+    });
+
+    console.log('✅ 프로필 이미지 삭제:', req.member.userId);
+
+    res.json({
+      success: true,
+      message: '프로필 이미지가 삭제되었습니다'
+    });
+
+  } catch (error) {
+    console.error('프로필 이미지 삭제 오류:', error);
+    res.status(500).json({
+      success: false,
+      message: '프로필 이미지 삭제 중 오류가 발생했습니다'
     });
   }
 });
