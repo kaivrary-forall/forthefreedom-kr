@@ -221,7 +221,7 @@
                             <span id="infoAddress" class="info-value"></span>
                         </div>
                         <div class="info-row">
-                            <span class="info-label">행정동</span>
+                            <span class="info-label">행정동 주소</span>
                             <span id="infoAddressDong" class="info-value"></span>
                         </div>
                     </div>
@@ -750,8 +750,10 @@
                 oncomplete: function(data) {
                     document.getElementById('editZipCode').value = data.zonecode;
                     document.getElementById('editAddress').value = data.roadAddress || data.jibunAddress;
-                    // 행정동 저장 (hname: 행정동명, 없으면 법정동 bname 사용)
-                    document.getElementById('editAddressDong').value = data.hname || data.bname || '';
+                    // 행정동 전체 주소 (시/도 + 구/군 + 행정동)
+                    const dong = data.hname || data.bname || '';
+                    const fullDong = dong ? `${data.sido} ${data.sigungu} ${dong}` : '';
+                    document.getElementById('editAddressDong').value = fullDong;
                     document.getElementById('editAddressDetail').focus();
                 }
             }).open();
