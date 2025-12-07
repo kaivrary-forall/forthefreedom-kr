@@ -141,14 +141,14 @@ function loadNavigation() {
                         </div>
                     </div>
                     
-                    <!-- 오른쪽: 후원하기, 당원가입, 로그인/마이페이지 -->
+                    <!-- 오른쪽: 일수 카운터, 로그인/마이페이지 -->
                     <div class="hidden md:flex items-center gap-6">
-                        <a href="${pathPrefix}support.html" class="text-[#212121] hover:text-[#a50034] font-medium text-base tracking-tight transition-colors duration-200">
-                            후원하기
-                        </a>
-                        <a href="https://www.ihappynanum.com/Nanum/api/screen/F7FCRIO2E3" target="_blank" class="text-[#a50034] font-bold text-base tracking-tight hover:opacity-80 transition-opacity duration-200">
-                            당원가입
-                        </a>
+                        <!-- 일수 카운터 -->
+                        <div id="day-counter" class="flex items-center gap-2">
+                            <span id="day-counter-text" class="text-[#212121] font-medium text-sm tracking-tight"></span>
+                            <span id="day-counter-number" class="bg-[#a50034] text-white px-2 py-0.5 rounded font-bold text-sm"></span>
+                            <span class="text-[#212121] font-medium text-sm">일째</span>
+                        </div>
                         <div class="border-l border-gray-300 h-5"></div>
                         <!-- 비로그인 상태 -->
                         <div id="nav-guest" class="flex items-center gap-4">
@@ -503,6 +503,10 @@ function checkLoginStatus() {
     const mobileNavMember = document.getElementById('mobile-nav-member');
     const mobileNavNickname = document.getElementById('mobile-nav-nickname');
     
+    // 일수 카운터
+    const dayCounterText = document.getElementById('day-counter-text');
+    const dayCounterNumber = document.getElementById('day-counter-number');
+    
     if (token && memberInfo.nickname) {
         // 로그인 상태
         if (navGuest) navGuest.classList.add('hidden');
@@ -515,6 +519,16 @@ function checkLoginStatus() {
         if (mobileNavGuest) mobileNavGuest.classList.add('hidden');
         if (mobileNavMember) mobileNavMember.classList.remove('hidden');
         if (mobileNavNickname) mobileNavNickname.textContent = memberInfo.nickname + '님';
+        
+        // 일수 카운터 - 회원가입일 기준
+        if (dayCounterText && dayCounterNumber && memberInfo.appliedAt) {
+            const joinDate = new Date(memberInfo.appliedAt);
+            const today = new Date();
+            const diffTime = today - joinDate;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            dayCounterText.textContent = '자유와혁신과 함께한 지';
+            dayCounterNumber.textContent = diffDays.toLocaleString();
+        }
     } else {
         // 비로그인 상태
         if (navGuest) navGuest.classList.remove('hidden');
@@ -525,6 +539,21 @@ function checkLoginStatus() {
         
         if (mobileNavGuest) mobileNavGuest.classList.remove('hidden');
         if (mobileNavMember) mobileNavMember.classList.add('hidden');
+        
+        // 일수 카운터 - 창당일(2025.07.12) 기준
+        if (dayCounterText && dayCounterNumber) {
+            const foundingDate = new Date('2025-07-12');
+            const today = new Date();
+            const diffTime = today - foundingDate;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            dayCounterText.textContent = '자유와혁신의 발걸음,';
+            // 창당일 전이면 D-day 표시
+            if (diffDays <= 0) {
+                dayCounterNumber.textContent = 'D' + diffDays;
+            } else {
+                dayCounterNumber.textContent = diffDays.toLocaleString();
+            }
+        }
     }
 }
 
