@@ -311,7 +311,8 @@ router.post('/login', async (req, res) => {
               name: ADMIN_CREDENTIALS.name,
               memberType: 'admin',
               status: 'active',
-              isAdmin: true
+              isAdmin: true,
+              appliedAt: '2025-07-12T00:00:00.000Z' // 창당일
             }
           }
         });
@@ -388,7 +389,8 @@ router.post('/login', async (req, res) => {
           nickname: member.nickname,
           name: member.name,
           memberType: member.memberType,
-          status: member.status
+          status: member.status,
+          appliedAt: member.appliedAt
         }
       }
     });
