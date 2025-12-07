@@ -8,10 +8,10 @@ const { ADMIN_CREDENTIALS } = require('./auth');
 const { sendVerificationCode, generateVerificationCode } = require('../utils/email');
 const { uploadProfileImage } = require('../utils/cloudinary');
 
-// 프로필 이미지 업로드 설정 (메모리 저장, 10MB 제한 - 서버에서 압축)
+// 프로필 이미지 업로드 설정 (메모리 저장, 30MB 제한 - 서버에서 압축)
 const profileUpload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  limits: { fileSize: 30 * 1024 * 1024 }, // 30MB
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
@@ -46,6 +46,7 @@ router.post('/register', async (req, res) => {
       email,
       phone, 
       address,
+      addressDong,
       addressDetail,
       zipCode,
       birthDate,
@@ -137,6 +138,7 @@ router.post('/register', async (req, res) => {
       email: email.toLowerCase(),
       phone,
       address: address || '',
+      addressDong: addressDong || '',
       addressDetail: addressDetail || '',
       zipCode: zipCode || '',
       birthDate: birthDate || null,
@@ -422,12 +424,13 @@ router.get('/me', authMember, async (req, res) => {
 // ===== 내 정보 수정 =====
 router.put('/me', authMember, async (req, res) => {
   try {
-    const { phone, address, addressDetail, zipCode, birthDate } = req.body;
+    const { phone, address, addressDong, addressDetail, zipCode, birthDate } = req.body;
 
     // 수정 가능한 필드만 업데이트 (이름, 이메일은 별도 인증 필요)
     const updateData = {};
     if (phone) updateData.phone = phone;
     if (address !== undefined) updateData.address = address;
+    if (addressDong !== undefined) updateData.addressDong = addressDong;
     if (addressDetail !== undefined) updateData.addressDetail = addressDetail;
     if (zipCode !== undefined) updateData.zipCode = zipCode;
     if (birthDate !== undefined) updateData.birthDate = birthDate;
@@ -887,7 +890,7 @@ router.post('/me/profile-image', authMember, profileUpload.single('profileImage'
     if (error.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({
         success: false,
-        message: '이미지 크기는 10MB 이하만 가능합니다'
+        message: '이미지 크기는 30MB 이하만 가능합니다'
       });
     }
     
