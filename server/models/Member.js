@@ -62,6 +62,11 @@ const memberSchema = new mongoose.Schema({
     trim: true,
     default: ''
   },
+  addressDong: {
+    type: String,
+    trim: true,
+    default: ''  // 행정동 (예: 역삼1동)
+  },
   addressDetail: {
     type: String,
     trim: true,
