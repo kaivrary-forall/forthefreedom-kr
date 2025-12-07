@@ -79,6 +79,30 @@
             cursor: pointer;
             color: #6b7280;
         }
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -271,6 +295,21 @@
         </div>
     </main>
     
+    <!-- 주소검색 모달 -->
+    <div id="addressModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold">주소 검색</h3>
+                    <button type="button" onclick="closeAddressModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div id="addressSearchWrap" style="width: 100%; height: 400px;"></div>
+            </div>
+        </div>
+    </div>
+    
     <!-- 카카오 주소 API -->
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     
@@ -387,15 +426,33 @@
         });
         
         // 주소 검색
+        // 주소 검색 모달 열기
         function searchAddress() {
+            document.getElementById('addressModal').classList.add('active');
+            
+            // 기존 내용 초기화
+            const wrap = document.getElementById('addressSearchWrap');
+            wrap.innerHTML = '';
+            
             new daum.Postcode({
                 oncomplete: function(data) {
                     document.getElementById('zipCode').value = data.zonecode;
                     document.getElementById('address').value = data.roadAddress || data.jibunAddress;
-                    document.getElementById('addressDong').value = data.hname || data.bname || '';
+                    // 행정동 전체 주소 (시/도 + 구/군 + 행정동)
+                    const dong = data.hname || data.bname || '';
+                    const fullDong = dong ? `${data.sido} ${data.sigungu} ${dong}` : '';
+                    document.getElementById('addressDong').value = fullDong;
                     document.getElementById('addressDetail').focus();
-                }
-            }).open();
+                    closeAddressModal();
+                },
+                width: '100%',
+                height: '100%'
+            }).embed(wrap);
+        }
+        
+        // 주소 검색 모달 닫기
+        function closeAddressModal() {
+            document.getElementById('addressModal').classList.remove('active');
         }
         
         // 전체 동의 토글
