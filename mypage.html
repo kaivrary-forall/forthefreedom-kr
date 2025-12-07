@@ -217,8 +217,12 @@
                             <span id="infoPhone" class="info-value"></span>
                         </div>
                         <div class="info-row">
-                            <span class="info-label">주소</span>
+                            <span class="info-label">도로명주소</span>
                             <span id="infoAddress" class="info-value"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">행정동</span>
+                            <span id="infoAddressDong" class="info-value"></span>
                         </div>
                     </div>
                 </div>
@@ -437,6 +441,7 @@
                                 <button type="button" onclick="searchAddress()" class="btn-secondary text-sm">주소검색</button>
                             </div>
                             <input type="text" id="editAddress" class="form-input mb-2" placeholder="기본주소" readonly>
+                            <input type="hidden" id="editAddressDong">
                             <input type="text" id="editAddressDetail" class="form-input" placeholder="상세주소">
                         </div>
                     </div>
@@ -681,9 +686,13 @@
             document.getElementById('infoEmail').textContent = memberData.email;
             document.getElementById('infoPhone').textContent = memberData.phone;
             
+            // 도로명 주소
             let address = memberData.address || '-';
             if (memberData.addressDetail) address += ' ' + memberData.addressDetail;
             document.getElementById('infoAddress').textContent = address;
+            
+            // 행정동
+            document.getElementById('infoAddressDong').textContent = memberData.addressDong || '-';
             
             // 당원 정보
             if (memberData.memberType === 'party_member' && memberData.happyNanum?.partyFee?.isActive) {
@@ -730,6 +739,7 @@
             document.getElementById('editPhone').value = memberData.phone;
             document.getElementById('editZipCode').value = memberData.zipCode || '';
             document.getElementById('editAddress').value = memberData.address || '';
+            document.getElementById('editAddressDong').value = memberData.addressDong || '';
             document.getElementById('editAddressDetail').value = memberData.addressDetail || '';
             document.getElementById('editModal').classList.add('active');
         }
@@ -740,6 +750,8 @@
                 oncomplete: function(data) {
                     document.getElementById('editZipCode').value = data.zonecode;
                     document.getElementById('editAddress').value = data.roadAddress || data.jibunAddress;
+                    // 행정동 저장 (hname: 행정동명, 없으면 법정동 bname 사용)
+                    document.getElementById('editAddressDong').value = data.hname || data.bname || '';
                     document.getElementById('editAddressDetail').focus();
                 }
             }).open();
@@ -760,6 +772,7 @@
                         phone: document.getElementById('editPhone').value,
                         zipCode: document.getElementById('editZipCode').value,
                         address: document.getElementById('editAddress').value,
+                        addressDong: document.getElementById('editAddressDong').value,
                         addressDetail: document.getElementById('editAddressDetail').value
                     })
                 });

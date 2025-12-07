@@ -204,6 +204,7 @@
                             </button>
                         </div>
                         <input type="text" id="address" class="form-input mb-2" placeholder="기본주소" readonly>
+                        <input type="hidden" id="addressDong">
                         <input type="text" id="addressDetail" class="form-input" placeholder="상세주소를 입력해주세요">
                     </div>
                     
@@ -391,6 +392,7 @@
                 oncomplete: function(data) {
                     document.getElementById('zipCode').value = data.zonecode;
                     document.getElementById('address').value = data.roadAddress || data.jibunAddress;
+                    document.getElementById('addressDong').value = data.hname || data.bname || '';
                     document.getElementById('addressDetail').focus();
                 }
             }).open();
@@ -442,6 +444,7 @@
             const birthDate = document.getElementById('birthDate').value;
             const zipCode = document.getElementById('zipCode').value;
             const address = document.getElementById('address').value;
+            const addressDong = document.getElementById('addressDong').value;
             const addressDetail = document.getElementById('addressDetail').value.trim();
             
             const agreeTerms = document.getElementById('agreeTerms').checked;
@@ -535,6 +538,7 @@
                         birthDate: birthDate || null,
                         zipCode,
                         address,
+                        addressDong,
                         addressDetail,
                         agreements: {
                             terms: agreeTerms,
