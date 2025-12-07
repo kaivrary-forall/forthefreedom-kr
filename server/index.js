@@ -237,6 +237,7 @@ app.post('/api/test/create-sample-file', (req, res) => {
 const { router: authRouter } = require('./routes/auth');
 app.use('/api/auth', authRouter);
 app.use('/api/notices', require('./routes/notices'));
+app.use('/api/personnel', require('./routes/personnel'));
 app.use('/api/activities', require('./routes/activities'));
 app.use('/api/policy-materials', require('./routes/policyMaterials'));
 app.use('/api/party-constitution', require('./routes/partyConstitution'));
