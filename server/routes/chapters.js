@@ -83,7 +83,8 @@ router.get('/admin/list', async (req, res) => {
 router.put('/admin/:id/chairman', async (req, res) => {
     try {
         const { 
-            chairmanName, 
+            chairmanName,
+            chairmanWebsite,
             chairmanInstagram, 
             chairmanFacebook, 
             chairmanThreads, 
@@ -103,6 +104,7 @@ router.put('/admin/:id/chairman', async (req, res) => {
         
         // 빈 문자열은 null로 변환
         chapter.chairmanName = chairmanName?.trim() || null;
+        chapter.chairmanWebsite = chairmanWebsite?.trim() || null;
         chapter.chairmanInstagram = chairmanInstagram?.trim() || null;
         chapter.chairmanFacebook = chairmanFacebook?.trim() || null;
         chapter.chairmanThreads = chairmanThreads?.trim() || null;
@@ -140,6 +142,7 @@ router.delete('/admin/:id/chairman', async (req, res) => {
         }
         
         chapter.chairmanName = null;
+        chapter.chairmanWebsite = null;
         chapter.chairmanInstagram = null;
         chapter.chairmanFacebook = null;
         chapter.chairmanThreads = null;
