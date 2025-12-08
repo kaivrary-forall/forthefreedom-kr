@@ -31,6 +31,11 @@ const chapterSchema = new mongoose.Schema({
     default: null
   },
   // SNS 채널들
+  chairmanWebsite: {
+    type: String,
+    trim: true,
+    default: null
+  },
   chairmanInstagram: {
     type: String,
     trim: true,
