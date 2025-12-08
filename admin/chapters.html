@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자유와혁신 - 당협위원장 관리</title>
+    <script src="/config.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#A50034',
+                        'primary-dark': '#8B002C',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            background-attachment: fixed;
+        }
+        .nav-bar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .content-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .chapter-row:hover {
+            background-color: #f8fafc;
+        }
+        .btn-save {
+            background-color: #A50034;
+            color: white;
+        }
+        .btn-save:hover {
+            background-color: #8B002C;
+        }
+        .btn-delete {
+            background-color: #ef4444;
+            color: white;
+        }
+        .btn-delete:hover {
+            background-color: #dc2626;
+        }
+        .input-field {
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 8px 12px;
+            transition: border-color 0.2s;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #A50034;
+            box-shadow: 0 0 0 2px rgba(165, 0, 52, 0.1);
+        }
+        .status-vacant {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .status-filled {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+    </style>
+</head>
+<body>
+    <!-- 네비게이션 -->
+    <div id="admin-nav-container"></div>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <!-- 헤더 -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">당협위원장 관리</h1>
+            <p class="mt-2 text-gray-600">서울특별시당 49개 지역구 당협위원장 정보를 관리합니다.</p>
+        </div>
+
+        <!-- 통계 카드 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="content-card p-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-map-marker-alt text-primary text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-500">총 지역구</p>
+                        <p class="text-2xl font-bold text-gray-900" id="totalCount">-</p>
+                    </div>
+                </div>
+            </div>
+            <div class="content-card p-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-user-check text-green-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-500">위원장 임명</p>
+                        <p class="text-2xl font-bold text-gray-900" id="filledCount">-</p>
+                    </div>
+                </div>
+            </div>
+            <div class="content-card p-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-user-plus text-yellow-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-500">공석</p>
+                        <p class="text-2xl font-bold text-gray-900" id="vacantCount">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 검색 및 필터 -->
+        <div class="content-card p-4 mb-6">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="지역구 또는 위원장 이름 검색..."
+                               class="input-field w-full pl-10">
+                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <select id="statusFilter" class="input-field">
+                        <option value="all">전체</option>
+                        <option value="filled">위원장 임명</option>
+                        <option value="vacant">공석</option>
+                    </select>
+                    <button onclick="loadChapters()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 테이블 -->
+        <div class="content-card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">지역구</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">상태</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">당협위원장</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">스레드</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">유튜브</th>
+                            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">관리</th>
+                        </tr>
+                    </thead>
+                    <tbody id="chaptersTableBody" class="divide-y divide-gray-200">
+                        <!-- 동적으로 생성 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 로딩 -->
+        <div id="loadingOverlay" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg p-6 flex items-center gap-4">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <span class="text-gray-700">처리 중...</span>
+            </div>
+        </div>
+
+        <!-- 토스트 메시지 -->
+        <div id="toast" class="fixed bottom-6 right-6 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+            <span id="toastMessage"></span>
+        </div>
+    </main>
+
+    <script src="admin-nav.js"></script>
+    <script>
+        // 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            // 관리자 인증 확인
+            const token = localStorage.getItem('adminToken');
+            if (!token) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            loadAdminNav('chapters');
+            loadChapters();
+
+            // 검색 이벤트
+            document.getElementById('searchInput').addEventListener('input', filterChapters);
+            document.getElementById('statusFilter').addEventListener('change', filterChapters);
+        });
+
+        let allChapters = [];
+
+        // 지역구 목록 로드
+        async function loadChapters() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/chapters/admin/list?province=seoul`);
+                const result = await response.json();
+
+                if (result.success) {
+                    allChapters = result.data;
+                    renderChapters(allChapters);
+                    updateStats();
+                } else {
+                    showToast('데이터 로드 실패: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('로드 오류:', error);
+                showToast('서버 연결 오류', 'error');
+            }
+        }
+
+        // 통계 업데이트
+        function updateStats() {
+            const total = allChapters.length;
+            const filled = allChapters.filter(c => c.chairmanName).length;
+            const vacant = total - filled;
+
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('filledCount').textContent = filled;
+            document.getElementById('vacantCount').textContent = vacant;
+        }
+
+        // 테이블 렌더링
+        function renderChapters(chapters) {
+            const tbody = document.getElementById('chaptersTableBody');
+            
+            if (chapters.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                            <i class="fas fa-inbox text-4xl mb-4 block"></i>
+                            데이터가 없습니다.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = chapters.map(chapter => `
+                <tr class="chapter-row" data-id="${chapter._id}">
+                    <td class="px-6 py-4">
+                        <div class="font-medium text-gray-900">${chapter.name}</div>
+                        ${chapter.note ? `<div class="text-xs text-gray-500">${chapter.note}</div>` : ''}
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full ${chapter.chairmanName ? 'status-filled' : 'status-vacant'}">
+                            ${chapter.chairmanName ? '임명' : '공석'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <input type="text" 
+                               class="input-field w-full max-w-[150px]" 
+                               placeholder="이름 입력"
+                               value="${chapter.chairmanName || ''}"
+                               data-field="chairmanName"
+                               data-id="${chapter._id}">
+                    </td>
+                    <td class="px-6 py-4">
+                        <input type="text" 
+                               class="input-field w-full max-w-[200px]" 
+                               placeholder="스레드 URL"
+                               value="${chapter.chairmanThreads || ''}"
+                               data-field="chairmanThreads"
+                               data-id="${chapter._id}">
+                    </td>
+                    <td class="px-6 py-4">
+                        <input type="text" 
+                               class="input-field w-full max-w-[200px]" 
+                               placeholder="유튜브 URL"
+                               value="${chapter.chairmanYoutube || ''}"
+                               data-field="chairmanYoutube"
+                               data-id="${chapter._id}">
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <div class="flex items-center justify-center gap-2">
+                            <button onclick="saveChairman('${chapter._id}')" 
+                                    class="btn-save px-3 py-1.5 rounded text-sm font-medium">
+                                <i class="fas fa-save mr-1"></i> 저장
+                            </button>
+                            ${chapter.chairmanName ? `
+                            <button onclick="deleteChairman('${chapter._id}')" 
+                                    class="btn-delete px-3 py-1.5 rounded text-sm font-medium">
+                                <i class="fas fa-trash mr-1"></i>
+                            </button>
+                            ` : ''}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 필터링
+        function filterChapters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            let filtered = allChapters;
+
+            // 검색어 필터
+            if (searchTerm) {
+                filtered = filtered.filter(c => 
+                    c.name.toLowerCase().includes(searchTerm) ||
+                    (c.chairmanName && c.chairmanName.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            // 상태 필터
+            if (statusFilter === 'filled') {
+                filtered = filtered.filter(c => c.chairmanName);
+            } else if (statusFilter === 'vacant') {
+                filtered = filtered.filter(c => !c.chairmanName);
+            }
+
+            renderChapters(filtered);
+        }
+
+        // 당협위원장 저장
+        async function saveChairman(id) {
+            const row = document.querySelector(`tr[data-id="${id}"]`);
+            const chairmanName = row.querySelector('[data-field="chairmanName"]').value.trim();
+            const chairmanThreads = row.querySelector('[data-field="chairmanThreads"]').value.trim();
+            const chairmanYoutube = row.querySelector('[data-field="chairmanYoutube"]').value.trim();
+
+            showLoading(true);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/chapters/admin/${id}/chairman`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                    },
+                    body: JSON.stringify({
+                        chairmanName,
+                        chairmanThreads,
+                        chairmanYoutube
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast('저장되었습니다.', 'success');
+                    // 로컬 데이터 업데이트
+                    const chapter = allChapters.find(c => c._id === id);
+                    if (chapter) {
+                        chapter.chairmanName = chairmanName || null;
+                        chapter.chairmanThreads = chairmanThreads || null;
+                        chapter.chairmanYoutube = chairmanYoutube || null;
+                    }
+                    filterChapters();
+                    updateStats();
+                } else {
+                    showToast('저장 실패: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('저장 오류:', error);
+                showToast('서버 연결 오류', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 당협위원장 삭제 (공석으로 변경)
+        async function deleteChairman(id) {
+            if (!confirm('당협위원장 정보를 삭제하시겠습니까?\n(공석으로 변경됩니다)')) {
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/chapters/admin/${id}/chairman`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast('삭제되었습니다.', 'success');
+                    // 로컬 데이터 업데이트
+                    const chapter = allChapters.find(c => c._id === id);
+                    if (chapter) {
+                        chapter.chairmanName = null;
+                        chapter.chairmanThreads = null;
+                        chapter.chairmanYoutube = null;
+                    }
+                    filterChapters();
+                    updateStats();
+                } else {
+                    showToast('삭제 실패: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('삭제 오류:', error);
+                showToast('서버 연결 오류', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 로딩 표시
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').classList.toggle('hidden', !show);
+        }
+
+        // 토스트 메시지
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            toast.className = `fixed bottom-6 right-6 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 z-50 ${
+                type === 'success' ? 'bg-green-600 text-white' :
+                type === 'error' ? 'bg-red-600 text-white' :
+                'bg-gray-900 text-white'
+            }`;
+            
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

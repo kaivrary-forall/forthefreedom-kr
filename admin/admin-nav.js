@@ -8,7 +8,8 @@ function loadAdminNav(currentPage) {
         dashboard: currentPage === 'dashboard',
         content: currentPage === 'content',
         banners: currentPage === 'banners',
-        members: currentPage === 'members'
+        members: currentPage === 'members',
+        chapters: currentPage === 'chapters'
     };
 
     // 관리자 정보 가져오기
@@ -52,6 +53,11 @@ function loadAdminNav(currentPage) {
                         <!-- 회원관리 -->
                         <a href="members.html" class="px-3 py-2 text-sm font-medium rounded-md transition-colors ${pages.members ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}">
                             <i class="fas fa-users mr-1"></i> 회원관리
+                        </a>
+                        
+                        <!-- 당협 관리 -->
+                        <a href="chapters.html" class="px-3 py-2 text-sm font-medium rounded-md transition-colors ${pages.chapters ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}">
+                            <i class="fas fa-map-marker-alt mr-1"></i> 당협 관리
                         </a>
                     </div>
                 </div>
@@ -103,6 +109,9 @@ function loadAdminNav(currentPage) {
                 <div class="border-t border-gray-100 my-2 pt-2">
                     <a href="members.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.members ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
                         <i class="fas fa-users mr-2"></i> 회원관리
+                    </a>
+                    <a href="chapters.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.chapters ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
+                        <i class="fas fa-map-marker-alt mr-2"></i> 당협 관리
                     </a>
                 </div>
             </div>
