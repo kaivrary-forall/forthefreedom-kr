@@ -111,8 +111,15 @@
                     </p>
                 </div>
 
+                <!-- 시도당 탭 -->
+                <div class="mb-8">
+                    <div class="flex flex-wrap justify-center gap-2 border-b border-gray-200 pb-4" id="tabContainer">
+                        <!-- 동적으로 생성됨 -->
+                    </div>
+                </div>
+
                 <!-- 검색 영역 -->
-                <div class="mb-10 max-w-2xl mx-auto">
+                <div class="mb-10 max-w-2xl mx-auto" id="searchArea">
                     <div class="relative">
                         <input type="text" id="searchInput" 
                                placeholder="행정동을 입력하세요 (예: 역삼1동, 신사동, 잠실동)" 
@@ -128,6 +135,16 @@
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="chaptersContainer">
                     <!-- 동적으로 생성됨 -->
                 </div>
+                
+                <!-- 준비중 메시지 -->
+                <div id="preparingMessage" class="hidden text-center py-20">
+                    <div class="max-w-md mx-auto">
+                        <i class="fas fa-hard-hat text-gray-400 text-6xl mb-6"></i>
+                        <h3 class="text-2xl font-bold text-gray-700 mb-4" id="preparingTitle">경기도당</h3>
+                        <p class="text-gray-500 text-lg">당협위원회 구성 준비 중입니다.</p>
+                        <p class="text-gray-400 mt-2">빠른 시일 내에 안내드리겠습니다.</p>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
@@ -135,8 +152,30 @@
     <script src="config.js"></script>
     <script src="nav.js"></script>
     <script>
-        // 당협위원회 데이터
-        const chapters = [
+        // 시도당 목록
+        const provinces = [
+            { id: 'seoul', name: '서울특별시당', hasData: true },
+            { id: 'gyeonggi', name: '경기도당', hasData: false },
+            { id: 'incheon', name: '인천광역시당', hasData: false },
+            { id: 'busan', name: '부산광역시당', hasData: false },
+            { id: 'daegu', name: '대구광역시당', hasData: false },
+            { id: 'daejeon', name: '대전광역시당', hasData: false },
+            { id: 'gwangju', name: '광주광역시당', hasData: false },
+            { id: 'sejong', name: '세종특별자치시당', hasData: false },
+            { id: 'gangwon', name: '강원특별자치도당', hasData: false },
+            { id: 'chungbuk', name: '충청북도당', hasData: false },
+            { id: 'chungnam', name: '충청남도당', hasData: false },
+            { id: 'gyeongbuk', name: '경상북도당', hasData: false },
+            { id: 'gyeongnam', name: '경상남도당', hasData: false },
+            { id: 'jeonbuk', name: '전북특별자치도당', hasData: false },
+            { id: 'jeonnam', name: '전라남도당', hasData: false },
+            { id: 'jeju', name: '제주특별자치도당', hasData: false }
+        ];
+
+        let currentProvince = 'seoul';
+
+        // 서울 당협위원회 데이터
+        const seoulChapters = [
             {
                 name: "강남 갑",
                 dongs: ["신사동", "논현1동", "논현2동", "압구정동", "청담동", "역삼1동", "역삼2동"],
@@ -381,10 +420,19 @@
             }
         ];
 
-        // 페이지 로드 시 카드 렌더링
+        // 현재 활성화된 당협 데이터 가져오기
+        function getChapters() {
+            if (currentProvince === 'seoul') {
+                return seoulChapters;
+            }
+            return [];
+        }
+
+        // 페이지 로드 시 초기화
         document.addEventListener('DOMContentLoaded', () => {
             loadNavigation();
-            renderChapters();
+            renderTabs();
+            switchProvince('seoul');
             
             // 엔터키 검색
             document.getElementById('searchInput').addEventListener('keypress', (e) => {
@@ -392,9 +440,63 @@
             });
         });
 
+        // 탭 렌더링
+        function renderTabs() {
+            const container = document.getElementById('tabContainer');
+            container.innerHTML = provinces.map(province => `
+                <button onclick="switchProvince('${province.id}')" 
+                        id="tab-${province.id}"
+                        class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-all
+                               ${province.id === currentProvince 
+                                   ? 'bg-red-600 text-white' 
+                                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}
+                               ${!province.hasData ? 'opacity-70' : ''}">
+                    ${province.name.replace('특별시당', '').replace('광역시당', '').replace('특별자치시당', '').replace('특별자치도당', '').replace('도당', '')}
+                    ${!province.hasData ? '<span class="text-xs ml-1">(준비중)</span>' : ''}
+                </button>
+            `).join('');
+        }
+
+        // 시도당 전환
+        function switchProvince(provinceId) {
+            currentProvince = provinceId;
+            const province = provinces.find(p => p.id === provinceId);
+            
+            // 탭 스타일 업데이트
+            provinces.forEach(p => {
+                const tabEl = document.getElementById(`tab-${p.id}`);
+                if (p.id === provinceId) {
+                    tabEl.classList.remove('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
+                    tabEl.classList.add('bg-red-600', 'text-white');
+                } else {
+                    tabEl.classList.remove('bg-red-600', 'text-white');
+                    tabEl.classList.add('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
+                }
+            });
+            
+            // 검색 초기화
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchResult').classList.add('hidden');
+            
+            if (province.hasData) {
+                // 데이터가 있는 시도당
+                document.getElementById('searchArea').classList.remove('hidden');
+                document.getElementById('chaptersContainer').classList.remove('hidden');
+                document.getElementById('preparingMessage').classList.add('hidden');
+                renderChapters();
+            } else {
+                // 준비 중인 시도당
+                document.getElementById('searchArea').classList.add('hidden');
+                document.getElementById('chaptersContainer').classList.add('hidden');
+                document.getElementById('preparingMessage').classList.remove('hidden');
+                document.getElementById('preparingTitle').textContent = province.name;
+            }
+        }
+
         // 카드 렌더링
         function renderChapters(highlightDong = null) {
             const container = document.getElementById('chaptersContainer');
+            const chapters = getChapters();
             
             container.innerHTML = chapters.map((chapter, index) => {
                 const isHighlighted = highlightDong && chapter.dongs.some(dong => 
@@ -432,6 +534,7 @@
         function searchDong() {
             const searchTerm = document.getElementById('searchInput').value.trim();
             const resultEl = document.getElementById('searchResult');
+            const chapters = getChapters();
             
             if (!searchTerm) {
                 resultEl.classList.add('hidden');
