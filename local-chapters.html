@@ -545,6 +545,7 @@
                         note: chapter.note || null,
                         chairman: chapter.chairmanName ? {
                             name: chapter.chairmanName,
+                            website: chapter.chairmanWebsite,
                             instagram: chapter.chairmanInstagram,
                             facebook: chapter.chairmanFacebook,
                             threads: chapter.chairmanThreads,
@@ -759,8 +760,14 @@
                 // 당협위원장 섹션
                 let chairmanHtml = '';
                 if (chapter.chairman) {
-                    // SNS 아이콘 생성 (6개: 인스타, 페북, 스레드, 엑스, 블로그, 유튜브)
+                    // SNS 아이콘 생성 (7개: 웹사이트, 인스타, 페북, 스레드, 엑스, 블로그, 유튜브)
                     let snsIcons = '';
+                    if (chapter.chairman.website) {
+                        snsIcons += `<a href="${chapter.chairman.website}" target="_blank" rel="noopener noreferrer" 
+                                       class="text-gray-500 hover:text-blue-500 transition-colors" title="웹사이트">
+                                       <i class="fas fa-globe"></i>
+                                     </a>`;
+                    }
                     if (chapter.chairman.instagram) {
                         snsIcons += `<a href="${chapter.chairman.instagram}" target="_blank" rel="noopener noreferrer" 
                                        class="text-gray-500 hover:text-pink-500 transition-colors" title="인스타그램">
