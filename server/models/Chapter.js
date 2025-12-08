@@ -30,7 +30,28 @@ const chapterSchema = new mongoose.Schema({
     trim: true,
     default: null
   },
+  // SNS 채널들
+  chairmanInstagram: {
+    type: String,
+    trim: true,
+    default: null
+  },
+  chairmanFacebook: {
+    type: String,
+    trim: true,
+    default: null
+  },
   chairmanThreads: {
+    type: String,
+    trim: true,
+    default: null
+  },
+  chairmanX: {
+    type: String,
+    trim: true,
+    default: null
+  },
+  chairmanNaverBlog: {
     type: String,
     trim: true,
     default: null
