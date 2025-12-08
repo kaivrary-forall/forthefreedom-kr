@@ -10,8 +10,8 @@ const chapterSchema = new mongoose.Schema({
   // 지역구 이름 (분리)
   districtName: {
     type: String,
-    required: true,
-    trim: true
+    trim: true,
+    default: null
   },
   districtSuffix: {
     type: String,
