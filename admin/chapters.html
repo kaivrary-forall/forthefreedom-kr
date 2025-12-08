@@ -155,6 +155,7 @@
                             <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">지역구</th>
                             <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">상태</th>
                             <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">당협위원장</th>
+                            <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap"><i class="fas fa-globe text-blue-500"></i> 웹사이트</th>
                             <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap"><i class="fab fa-instagram text-pink-500"></i> 인스타</th>
                             <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap"><i class="fab fa-facebook text-blue-600"></i> 페북</th>
                             <th class="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap"><i class="fas fa-at text-gray-800"></i> 스레드</th>
@@ -244,7 +245,7 @@
             if (chapters.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="10" class="px-6 py-12 text-center text-gray-500">
+                        <td colspan="11" class="px-6 py-12 text-center text-gray-500">
                             <i class="fas fa-inbox text-4xl mb-4 block"></i>
                             데이터가 없습니다.
                         </td>
@@ -270,6 +271,14 @@
                                placeholder="이름"
                                value="${chapter.chairmanName || ''}"
                                data-field="chairmanName"
+                               data-id="${chapter._id}">
+                    </td>
+                    <td class="px-4 py-4">
+                        <input type="text" 
+                               class="input-field w-full min-w-[120px]" 
+                               placeholder="웹사이트 URL"
+                               value="${chapter.chairmanWebsite || ''}"
+                               data-field="chairmanWebsite"
                                data-id="${chapter._id}">
                     </td>
                     <td class="px-4 py-4">
@@ -367,6 +376,7 @@
         async function saveChairman(id) {
             const row = document.querySelector(`tr[data-id="${id}"]`);
             const chairmanName = row.querySelector('[data-field="chairmanName"]').value.trim();
+            const chairmanWebsite = row.querySelector('[data-field="chairmanWebsite"]').value.trim();
             const chairmanInstagram = row.querySelector('[data-field="chairmanInstagram"]').value.trim();
             const chairmanFacebook = row.querySelector('[data-field="chairmanFacebook"]').value.trim();
             const chairmanThreads = row.querySelector('[data-field="chairmanThreads"]').value.trim();
@@ -385,6 +395,7 @@
                     },
                     body: JSON.stringify({
                         chairmanName,
+                        chairmanWebsite,
                         chairmanInstagram,
                         chairmanFacebook,
                         chairmanThreads,
