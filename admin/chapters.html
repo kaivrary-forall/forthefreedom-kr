@@ -409,17 +409,17 @@
 
                 if (result.success) {
                     showToast('저장되었습니다.', 'success');
-                    // 로컬 데이터 업데이트 (모든 SNS 필드)
+                    // 서버 응답 데이터로 업데이트 (URL 정규화된 값 반영)
                     const chapter = allChapters.find(c => c._id === id);
-                    if (chapter) {
-                        chapter.chairmanName = chairmanName || null;
-                        chapter.chairmanWebsite = chairmanWebsite || null;
-                        chapter.chairmanInstagram = chairmanInstagram || null;
-                        chapter.chairmanFacebook = chairmanFacebook || null;
-                        chapter.chairmanThreads = chairmanThreads || null;
-                        chapter.chairmanX = chairmanX || null;
-                        chapter.chairmanNaverBlog = chairmanNaverBlog || null;
-                        chapter.chairmanYoutube = chairmanYoutube || null;
+                    if (chapter && result.data) {
+                        chapter.chairmanName = result.data.chairmanName;
+                        chapter.chairmanWebsite = result.data.chairmanWebsite;
+                        chapter.chairmanInstagram = result.data.chairmanInstagram;
+                        chapter.chairmanFacebook = result.data.chairmanFacebook;
+                        chapter.chairmanThreads = result.data.chairmanThreads;
+                        chapter.chairmanX = result.data.chairmanX;
+                        chapter.chairmanNaverBlog = result.data.chairmanNaverBlog;
+                        chapter.chairmanYoutube = result.data.chairmanYoutube;
                     }
                     filterChapters();
                     updateStats();
