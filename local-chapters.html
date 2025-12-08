@@ -243,7 +243,7 @@
                 name: "강남 병",
                 dongs: ["삼성1동", "삼성2동", "대치1동", "대치2동", "대치4동", "도곡1동", "도곡2동"],
                 kakaoLink: "https://invite.kakao.com/tc/x6dqGoh3rh",
-                chairman: { name: "한성학", memberId: null }
+                chairman: null
             },
             {
                 name: "강동 갑",
@@ -532,7 +532,8 @@
         // API에서 지역구 데이터 로드
         async function loadChaptersFromAPI() {
             try {
-                const response = await fetch(`${typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'https://forthefreedom-kr-production.up.railway.app'}/api/chapters?province=seoul`);
+                const apiBase = (typeof window.API_BASE !== 'undefined' ? window.API_BASE : 'https://forthefreedom-kr-production.up.railway.app/api');
+                const response = await fetch(`${apiBase}/chapters?province=seoul`);
                 const result = await response.json();
                 
                 if (result.success && result.data.length > 0) {
@@ -554,7 +555,6 @@
                         } : null
                     }));
                     console.log('✅ API에서 지역구 데이터 로드:', apiChapters.length, '개');
-                    renderChapters();
                 }
             } catch (error) {
                 console.log('⚠️ API 로드 실패, 하드코딩 데이터 사용:', error.message);
@@ -562,13 +562,15 @@
         }
 
         // 페이지 로드 시 초기화
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             loadNavigation();
             renderTabs();
-            switchProvince('seoul');
             
-            // API에서 최신 데이터 로드 시도
-            loadChaptersFromAPI();
+            // API에서 먼저 데이터 로드 시도 (완료 후 렌더링)
+            await loadChaptersFromAPI();
+            
+            // API 로드 후 렌더링
+            switchProvince('seoul');
             
             // 엔터키 검색
             document.getElementById('searchInput').addEventListener('keypress', (e) => {
