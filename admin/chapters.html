@@ -201,6 +201,7 @@
         });
 
         let allChapters = [];
+        const API_BASE_URL = window.API_BASE.replace('/api', ''); // /api 제거
 
         // 지역구 목록 로드
         async function loadChapters() {
