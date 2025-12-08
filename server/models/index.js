@@ -12,6 +12,7 @@ const CardNews = require('./CardNews');
 const Gallery = require('./Gallery');
 const Banner = require('./Banner');
 const BannerSettings = require('./BannerSettings');
+const Chapter = require('./Chapter');
 
 module.exports = {
     Notice,
@@ -27,5 +28,6 @@ module.exports = {
     CardNews,
     Gallery,
     Banner,
-    BannerSettings
+    BannerSettings,
+    Chapter
 }; 
