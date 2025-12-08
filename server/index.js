@@ -257,6 +257,9 @@ app.use('/api/banners', require('./routes/banners'));
 app.use('/api/members', require('./routes/members'));
 app.use('/api/admin/members', require('./routes/adminMembers'));
 
+// 당협위원회 라우트
+app.use('/api/chapters', require('./routes/chapters'));
+
 // 유틸리티 라우트 (한글 파일명 복원)
 app.use('/api/fix-filenames', require('./routes/fixFilenames'));
 
