@@ -130,8 +130,8 @@ chapterSchema.pre('save', function(next) {
   next();
 });
 
-// 복합 인덱스 설정
-chapterSchema.index({ province: 1, name: 1 }, { unique: true });
+// 복합 인덱스 설정 (unique 제거 - 마이그레이션 호환성)
+chapterSchema.index({ province: 1, name: 1 });
 chapterSchema.index({ province: 1, order: 1 });
 
 module.exports = mongoose.model('Chapter', chapterSchema);
