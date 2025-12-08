@@ -542,26 +542,57 @@
             
             const grid = document.getElementById('officialChannelGrid');
             grid.innerHTML = channelData.channels.map(channel => {
-                let content = '';
+                let cardContent = '';
+                let cardClass = 'bg-white rounded-xl p-4 border border-gray-200 transition-all';
+                let cardWrapper = '';
+                
                 if (channel.type === 'email') {
-                    content = `<a href="mailto:${channel.value}" class="text-red-600 hover:underline font-medium">${channel.value}</a>`;
+                    // 이메일은 값 표시 + 클릭 시 mailto
+                    cardWrapper = `<a href="mailto:${channel.value}" class="block">`;
+                    cardContent = `
+                        <div class="flex items-center gap-3 mb-2">
+                            <i class="${channel.icon} text-red-600 text-xl"></i>
+                            <span class="font-medium text-gray-800">${channel.name}</span>
+                        </div>
+                        <div class="text-sm pl-9 text-red-600 font-medium">
+                            ${channel.value}
+                        </div>
+                    `;
+                    cardClass += ' hover:shadow-md hover:border-red-300 cursor-pointer';
                 } else if (channel.type === 'link') {
-                    const displayUrl = channel.value.replace('https://www.', '').replace('https://', '');
-                    content = `<a href="${channel.value}" target="_blank" rel="noopener noreferrer" class="text-red-600 hover:underline font-medium break-all">${displayUrl}</a>`;
+                    // 링크는 카드 클릭으로 이동
+                    cardWrapper = `<a href="${channel.value}" target="_blank" rel="noopener noreferrer" class="block">`;
+                    cardContent = `
+                        <div class="flex items-center gap-3">
+                            <i class="${channel.icon} text-red-600 text-xl"></i>
+                            <span class="font-medium text-gray-800">${channel.name}</span>
+                            <i class="fas fa-external-link-alt text-gray-400 text-xs ml-auto"></i>
+                        </div>
+                    `;
+                    cardClass += ' hover:shadow-md hover:border-red-300 cursor-pointer';
                 } else {
-                    content = `<span class="text-gray-500">${channel.value}</span>`;
+                    // 텍스트(준비중 등)는 클릭 불가
+                    cardWrapper = '<div class="block">';
+                    cardContent = `
+                        <div class="flex items-center gap-3 mb-2">
+                            <i class="${channel.icon} text-gray-400 text-xl"></i>
+                            <span class="font-medium text-gray-500">${channel.name}</span>
+                        </div>
+                        <div class="text-sm pl-9 text-gray-400">
+                            ${channel.value}
+                        </div>
+                    `;
+                    cardClass += ' opacity-60';
                 }
                 
+                const closeWrapper = channel.type === 'text' ? '</div>' : '</a>';
+                
                 return `
-                <div class="bg-white rounded-xl p-4 border border-gray-200 hover:shadow-md transition-shadow">
-                    <div class="flex items-center gap-3 mb-2">
-                        <i class="${channel.icon} text-red-600 text-lg"></i>
-                        <span class="font-medium text-gray-800">${channel.name}</span>
+                ${cardWrapper}
+                    <div class="${cardClass}">
+                        ${cardContent}
                     </div>
-                    <div class="text-sm pl-8">
-                        ${content}
-                    </div>
-                </div>
+                ${closeWrapper}
                 `;
             }).join('');
         }
