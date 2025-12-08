@@ -148,7 +148,11 @@
 
         <!-- 테이블 -->
         <div class="content-card overflow-hidden">
-            <div class="overflow-x-auto">
+            <!-- 상단 스크롤바 -->
+            <div id="topScrollbar" class="overflow-x-auto" style="overflow-y: hidden; height: 20px;">
+                <div id="topScrollbarInner" style="height: 1px;"></div>
+            </div>
+            <div id="tableContainer" class="overflow-x-auto">
                 <table class="w-full">
                     <thead class="bg-gray-50 border-b border-gray-200">
                         <tr>
@@ -203,6 +207,21 @@
             // 검색 이벤트
             document.getElementById('searchInput').addEventListener('input', filterChapters);
             document.getElementById('statusFilter').addEventListener('change', filterChapters);
+            
+            // 상단/하단 스크롤바 동기화
+            const topScrollbar = document.getElementById('topScrollbar');
+            const tableContainer = document.getElementById('tableContainer');
+            
+            topScrollbar.addEventListener('scroll', () => {
+                tableContainer.scrollLeft = topScrollbar.scrollLeft;
+            });
+            
+            tableContainer.addEventListener('scroll', () => {
+                topScrollbar.scrollLeft = tableContainer.scrollLeft;
+            });
+            
+            // 윈도우 리사이즈 시 스크롤바 너비 재계산
+            window.addEventListener('resize', syncScrollbarWidth);
         });
 
         let allChapters = [];
@@ -345,6 +364,18 @@
                     </td>
                 </tr>
             `).join('');
+            
+            // 상단 스크롤바 너비 동기화
+            syncScrollbarWidth();
+        }
+        
+        // 상단 스크롤바 너비를 테이블 너비에 맞춤
+        function syncScrollbarWidth() {
+            const tableContainer = document.getElementById('tableContainer');
+            const topScrollbarInner = document.getElementById('topScrollbarInner');
+            if (tableContainer && topScrollbarInner) {
+                topScrollbarInner.style.width = tableContainer.scrollWidth + 'px';
+            }
         }
 
         // 필터링
