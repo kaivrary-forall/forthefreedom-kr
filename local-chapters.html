@@ -122,7 +122,7 @@
                 <div class="mb-10 max-w-2xl mx-auto" id="searchArea">
                     <div class="relative">
                         <input type="text" id="searchInput" 
-                               placeholder="행정동을 입력하세요 (예: 역삼1동, 신사동, 잠실동)" 
+                               placeholder="행정동 또는 구 이름을 입력하세요 (예: 역삼1동, 강남구, 송파)" 
                                class="w-full px-5 py-4 pr-12 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 text-lg">
                         <button onclick="searchDong()" class="absolute right-3 top-1/2 transform -translate-y-1/2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
                             <i class="fas fa-search"></i>
@@ -494,17 +494,16 @@
         }
 
         // 카드 렌더링
-        function renderChapters(highlightDong = null) {
+        function renderChapters(highlightTerm = null) {
             const container = document.getElementById('chaptersContainer');
             const chapters = getChapters();
             
             container.innerHTML = chapters.map((chapter, index) => {
-                const isHighlighted = highlightDong && chapter.dongs.some(dong => 
-                    dong.includes(highlightDong) || highlightDong.includes(dong.replace(/[0-9·]/g, ''))
-                );
+                // 하이라이트 여부 체크 (동 + 구 모두)
+                const isHighlighted = highlightTerm && isChapterMatch(chapter, highlightTerm);
                 
                 const dongsHtml = chapter.dongs.map(dong => {
-                    const isMatched = highlightDong && (dong.includes(highlightDong) || highlightDong.includes(dong.replace(/[0-9·]/g, '')));
+                    const isMatched = highlightTerm && (dong.includes(highlightTerm) || highlightTerm.includes(dong.replace(/[0-9·]/g, '')));
                     return `<span class="dong-tag ${isMatched ? 'matched' : ''}">${dong}</span>`;
                 }).join('');
                 
@@ -530,6 +529,22 @@
             }).join('');
         }
 
+        // 검색 매칭 함수 (동 + 구 이름 모두 검색)
+        function isChapterMatch(chapter, searchTerm) {
+            // 구 이름으로 검색 (예: "강남", "강남구", "송파" 등)
+            const normalizedSearch = searchTerm.replace(/구$/, ''); // "강남구" -> "강남"
+            const chapterGu = chapter.name.split(' ')[0]; // "강남 갑" -> "강남"
+            
+            if (chapterGu.includes(normalizedSearch) || normalizedSearch.includes(chapterGu)) {
+                return true;
+            }
+            
+            // 동 이름으로 검색
+            return chapter.dongs.some(dong => 
+                dong.includes(searchTerm) || searchTerm.includes(dong.replace(/[0-9·]/g, ''))
+            );
+        }
+
         // 검색 함수
         function searchDong() {
             const searchTerm = document.getElementById('searchInput').value.trim();
@@ -542,12 +557,8 @@
                 return;
             }
             
-            // 검색어로 해당 지역구 찾기
-            const matchedChapters = chapters.filter(chapter => 
-                chapter.dongs.some(dong => 
-                    dong.includes(searchTerm) || searchTerm.includes(dong.replace(/[0-9·]/g, ''))
-                )
-            );
+            // 검색어로 해당 지역구 찾기 (동 + 구 모두)
+            const matchedChapters = chapters.filter(chapter => isChapterMatch(chapter, searchTerm));
             
             if (matchedChapters.length > 0) {
                 resultEl.innerHTML = `<span class="text-green-600"><i class="fas fa-check-circle mr-2"></i>"${searchTerm}" → <strong>${matchedChapters.map(c => c.name).join(', ')}</strong> 지역구입니다.</span>`;
@@ -557,11 +568,7 @@
                 renderChapters(searchTerm);
                 
                 // 첫 번째 매칭 카드로 스크롤
-                const firstMatchIndex = chapters.findIndex(chapter => 
-                    chapter.dongs.some(dong => 
-                        dong.includes(searchTerm) || searchTerm.includes(dong.replace(/[0-9·]/g, ''))
-                    )
-                );
+                const firstMatchIndex = chapters.findIndex(chapter => isChapterMatch(chapter, searchTerm));
                 if (firstMatchIndex >= 0) {
                     setTimeout(() => {
                         document.getElementById(`chapter-${firstMatchIndex}`).scrollIntoView({ 
@@ -571,7 +578,7 @@
                     }, 100);
                 }
             } else {
-                resultEl.innerHTML = `<span class="text-red-600"><i class="fas fa-times-circle mr-2"></i>"${searchTerm}"에 해당하는 지역구를 찾을 수 없습니다. 정확한 행정동 이름을 입력해주세요.</span>`;
+                resultEl.innerHTML = `<span class="text-red-600"><i class="fas fa-times-circle mr-2"></i>"${searchTerm}"에 해당하는 지역구를 찾을 수 없습니다. 행정동 또는 구 이름을 입력해주세요.</span>`;
                 resultEl.classList.remove('hidden');
                 renderChapters();
             }
