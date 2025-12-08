@@ -102,15 +102,24 @@ router.put('/admin/:id/chairman', async (req, res) => {
             });
         }
         
-        // 빈 문자열은 null로 변환
+        // URL 정규화 함수 (http/https 없으면 https:// 추가)
+        const normalizeUrl = (url) => {
+            if (!url) return null;
+            const trimmed = url.trim();
+            if (!trimmed) return null;
+            if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+            return 'https://' + trimmed;
+        };
+        
+        // 빈 문자열은 null로 변환, URL은 정규화
         chapter.chairmanName = chairmanName?.trim() || null;
-        chapter.chairmanWebsite = chairmanWebsite?.trim() || null;
-        chapter.chairmanInstagram = chairmanInstagram?.trim() || null;
-        chapter.chairmanFacebook = chairmanFacebook?.trim() || null;
-        chapter.chairmanThreads = chairmanThreads?.trim() || null;
-        chapter.chairmanX = chairmanX?.trim() || null;
-        chapter.chairmanNaverBlog = chairmanNaverBlog?.trim() || null;
-        chapter.chairmanYoutube = chairmanYoutube?.trim() || null;
+        chapter.chairmanWebsite = normalizeUrl(chairmanWebsite);
+        chapter.chairmanInstagram = normalizeUrl(chairmanInstagram);
+        chapter.chairmanFacebook = normalizeUrl(chairmanFacebook);
+        chapter.chairmanThreads = normalizeUrl(chairmanThreads);
+        chapter.chairmanX = normalizeUrl(chairmanX);
+        chapter.chairmanNaverBlog = normalizeUrl(chairmanNaverBlog);
+        chapter.chairmanYoutube = normalizeUrl(chairmanYoutube);
         
         await chapter.save();
         
