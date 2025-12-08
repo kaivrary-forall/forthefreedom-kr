@@ -331,7 +331,12 @@ app.post('/api/seed-chapters', async (req, res) => {
             province: 'seoul',
             order: index,
             chairmanName: chapter.chairmanName || null,
+            chairmanWebsite: null,
+            chairmanInstagram: null,
+            chairmanFacebook: null,
             chairmanThreads: null,
+            chairmanX: null,
+            chairmanNaverBlog: null,
             chairmanYoutube: null
         }));
         
