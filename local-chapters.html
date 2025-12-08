@@ -103,12 +103,7 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <!-- 페이지 헤더 -->
                 <div class="text-center mb-12">
-                    <h1 class="text-4xl font-bold text-gray-900 mb-4">시도당·당협위원회 구성</h1>
-                    <p class="text-xl text-gray-600 mb-2">자유와혁신 서울특별시당 각 당협위원회별 카카오톡 팀채팅 안내</p>
-                    <p class="text-base text-red-600 font-medium">
-                        <i class="fas fa-exclamation-circle mr-2"></i>
-                        자신의 도로명 주소가 아닌, <strong>행정동 단위</strong>로 구분하여 지역구를 선택하셔야 합니다.
-                    </p>
+                    <h1 class="text-4xl font-bold text-gray-900 mb-6">시도당·당협위원회</h1>
                 </div>
 
                 <!-- 시도당 탭 -->
@@ -118,29 +113,52 @@
                     </div>
                 </div>
 
-                <!-- 검색 영역 -->
-                <div class="mb-10 max-w-2xl mx-auto" id="searchArea">
-                    <div class="relative">
-                        <input type="text" id="searchInput" 
-                               placeholder="행정동 또는 구 이름을 입력하세요 (예: 역삼1동, 강남구, 송파)" 
-                               class="w-full px-5 py-4 pr-12 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 text-lg">
-                        <button onclick="searchDong()" class="absolute right-3 top-1/2 transform -translate-y-1/2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
-                            <i class="fas fa-search"></i>
-                        </button>
+                <!-- 공식 채널 섹션 -->
+                <div id="officialChannelSection" class="mb-16">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-red-600 pl-4">당협 공식 채널</h2>
+                    
+                    <div class="bg-gray-50 rounded-2xl p-8">
+                        <h3 class="text-xl font-bold text-gray-900 mb-6" id="officialChannelTitle">자유와혁신 서울특별시당 공식채널</h3>
+                        
+                        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4" id="officialChannelGrid">
+                            <!-- 동적으로 생성됨 -->
+                        </div>
                     </div>
-                    <p id="searchResult" class="mt-3 text-center text-gray-600 hidden"></p>
                 </div>
 
-                <!-- 지역구 카드 목록 -->
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="chaptersContainer">
-                    <!-- 동적으로 생성됨 -->
+                <!-- 당협위원회별 채팅방 섹션 -->
+                <div id="chatRoomSection">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-red-600 pl-4" id="chatRoomTitle">서울특별시당 당협위원회별 채팅방</h2>
+                    
+                    <p class="text-base text-red-600 font-medium mb-6">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        자신의 도로명 주소가 아닌, <strong>행정동 단위</strong>로 구분하여 지역구를 선택하셔야 합니다.
+                    </p>
+
+                    <!-- 검색 영역 -->
+                    <div class="mb-10 max-w-2xl mx-auto" id="searchArea">
+                        <div class="relative">
+                            <input type="text" id="searchInput" 
+                                   placeholder="행정동 또는 구 이름을 입력하세요 (예: 역삼1동, 강남구, 송파)" 
+                                   class="w-full px-5 py-4 pr-12 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 text-lg">
+                            <button onclick="searchDong()" class="absolute right-3 top-1/2 transform -translate-y-1/2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                        <p id="searchResult" class="mt-3 text-center text-gray-600 hidden"></p>
+                    </div>
+
+                    <!-- 지역구 카드 목록 -->
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="chaptersContainer">
+                        <!-- 동적으로 생성됨 -->
+                    </div>
                 </div>
                 
                 <!-- 준비중 메시지 -->
                 <div id="preparingMessage" class="hidden text-center py-20">
                     <div class="max-w-md mx-auto">
                         <i class="fas fa-hard-hat text-gray-400 text-6xl mb-6"></i>
-                        <h3 class="text-2xl font-bold text-gray-700 mb-4" id="preparingTitle">경기도당</h3>
+                        <h3 class="text-2xl font-bold text-gray-700 mb-4" id="preparingTitle">경기 시도당</h3>
                         <p class="text-gray-500 text-lg">당협위원회 구성 준비 중입니다.</p>
                         <p class="text-gray-400 mt-2">빠른 시일 내에 안내드리겠습니다.</p>
                     </div>
@@ -173,6 +191,24 @@
         ];
 
         let currentProvince = 'seoul';
+
+        // 공식 채널 데이터
+        const officialChannels = {
+            seoul: {
+                title: '자유와혁신 서울특별시당 공식채널',
+                chatTitle: '서울특별시당 당협위원회별 채팅방',
+                channels: [
+                    { name: '공식 문의 e-mail', value: 'seoul@freeinno.kr', type: 'email', icon: 'fas fa-envelope' },
+                    { name: '네이버 블로그', value: '확보 예정', type: 'text', icon: 'fas fa-blog' },
+                    { name: '인스타그램', value: 'https://www.instagram.com/freeinno_seoul', type: 'link', icon: 'fab fa-instagram' },
+                    { name: '스레드', value: 'https://www.threads.com/@freeinno_seoul', type: 'link', icon: 'fas fa-at' },
+                    { name: '엑스(구 트위터)', value: 'https://x.com/freeinno_seoul', type: 'link', icon: 'fab fa-x-twitter' },
+                    { name: '페이스북', value: 'https://www.facebook.com/profile.php?id=61584750230843', type: 'link', icon: 'fab fa-facebook' },
+                    { name: '유튜브 채널', value: 'https://www.youtube.com/@freeinno_seoul', type: 'link', icon: 'fab fa-youtube' },
+                    { name: '디스코드(온라인 당사)', value: '필요시마다 링크 공유', type: 'text', icon: 'fab fa-discord' }
+                ]
+            }
+        };
 
         // 서울 당협위원회 데이터
         const seoulChapters = [
@@ -480,17 +516,54 @@
             
             if (province.hasData) {
                 // 데이터가 있는 시도당
-                document.getElementById('searchArea').classList.remove('hidden');
-                document.getElementById('chaptersContainer').classList.remove('hidden');
+                document.getElementById('officialChannelSection').classList.remove('hidden');
+                document.getElementById('chatRoomSection').classList.remove('hidden');
                 document.getElementById('preparingMessage').classList.add('hidden');
+                
+                // 공식 채널 렌더링
+                renderOfficialChannels(provinceId);
                 renderChapters();
             } else {
                 // 준비 중인 시도당
-                document.getElementById('searchArea').classList.add('hidden');
-                document.getElementById('chaptersContainer').classList.add('hidden');
+                document.getElementById('officialChannelSection').classList.add('hidden');
+                document.getElementById('chatRoomSection').classList.add('hidden');
                 document.getElementById('preparingMessage').classList.remove('hidden');
                 document.getElementById('preparingTitle').textContent = province.name + ' 시도당';
             }
+        }
+
+        // 공식 채널 렌더링
+        function renderOfficialChannels(provinceId) {
+            const channelData = officialChannels[provinceId];
+            if (!channelData) return;
+            
+            document.getElementById('officialChannelTitle').textContent = channelData.title;
+            document.getElementById('chatRoomTitle').textContent = channelData.chatTitle;
+            
+            const grid = document.getElementById('officialChannelGrid');
+            grid.innerHTML = channelData.channels.map(channel => {
+                let content = '';
+                if (channel.type === 'email') {
+                    content = `<a href="mailto:${channel.value}" class="text-red-600 hover:underline font-medium">${channel.value}</a>`;
+                } else if (channel.type === 'link') {
+                    const displayUrl = channel.value.replace('https://www.', '').replace('https://', '');
+                    content = `<a href="${channel.value}" target="_blank" rel="noopener noreferrer" class="text-red-600 hover:underline font-medium break-all">${displayUrl}</a>`;
+                } else {
+                    content = `<span class="text-gray-500">${channel.value}</span>`;
+                }
+                
+                return `
+                <div class="bg-white rounded-xl p-4 border border-gray-200 hover:shadow-md transition-shadow">
+                    <div class="flex items-center gap-3 mb-2">
+                        <i class="${channel.icon} text-red-600 text-lg"></i>
+                        <span class="font-medium text-gray-800">${channel.name}</span>
+                    </div>
+                    <div class="text-sm pl-8">
+                        ${content}
+                    </div>
+                </div>
+                `;
+            }).join('');
         }
 
         // 카드 렌더링
