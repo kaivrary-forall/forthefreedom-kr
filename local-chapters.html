@@ -154,22 +154,22 @@
     <script>
         // 시도당 목록
         const provinces = [
-            { id: 'seoul', name: '서울특별시당', hasData: true },
-            { id: 'gyeonggi', name: '경기도당', hasData: false },
-            { id: 'incheon', name: '인천광역시당', hasData: false },
-            { id: 'busan', name: '부산광역시당', hasData: false },
-            { id: 'daegu', name: '대구광역시당', hasData: false },
-            { id: 'daejeon', name: '대전광역시당', hasData: false },
-            { id: 'gwangju', name: '광주광역시당', hasData: false },
-            { id: 'sejong', name: '세종특별자치시당', hasData: false },
-            { id: 'gangwon', name: '강원특별자치도당', hasData: false },
-            { id: 'chungbuk', name: '충청북도당', hasData: false },
-            { id: 'chungnam', name: '충청남도당', hasData: false },
-            { id: 'gyeongbuk', name: '경상북도당', hasData: false },
-            { id: 'gyeongnam', name: '경상남도당', hasData: false },
-            { id: 'jeonbuk', name: '전북특별자치도당', hasData: false },
-            { id: 'jeonnam', name: '전라남도당', hasData: false },
-            { id: 'jeju', name: '제주특별자치도당', hasData: false }
+            { id: 'seoul', name: '서울', hasData: true },
+            { id: 'gyeonggi', name: '경기', hasData: false },
+            { id: 'incheon', name: '인천', hasData: false },
+            { id: 'busan', name: '부산', hasData: false },
+            { id: 'daegu', name: '대구', hasData: false },
+            { id: 'daejeon', name: '대전', hasData: false },
+            { id: 'gwangju', name: '광주', hasData: false },
+            { id: 'sejong', name: '세종', hasData: false },
+            { id: 'gangwon', name: '강원', hasData: false },
+            { id: 'chungbuk', name: '충북', hasData: false },
+            { id: 'chungnam', name: '충남', hasData: false },
+            { id: 'gyeongbuk', name: '경북', hasData: false },
+            { id: 'gyeongnam', name: '경남', hasData: false },
+            { id: 'jeonbuk', name: '전북', hasData: false },
+            { id: 'jeonnam', name: '전남', hasData: false },
+            { id: 'jeju', name: '제주', hasData: false }
         ];
 
         let currentProvince = 'seoul';
@@ -451,7 +451,7 @@
                                    ? 'bg-red-600 text-white' 
                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}
                                ${!province.hasData ? 'opacity-70' : ''}">
-                    ${province.name.replace('특별시당', '').replace('광역시당', '').replace('특별자치시당', '').replace('특별자치도당', '').replace('도당', '')}
+                    ${province.name}
                     ${!province.hasData ? '<span class="text-xs ml-1">(준비중)</span>' : ''}
                 </button>
             `).join('');
@@ -489,7 +489,7 @@
                 document.getElementById('searchArea').classList.add('hidden');
                 document.getElementById('chaptersContainer').classList.add('hidden');
                 document.getElementById('preparingMessage').classList.remove('hidden');
-                document.getElementById('preparingTitle').textContent = province.name;
+                document.getElementById('preparingTitle').textContent = province.name + ' 시도당';
             }
         }
 
