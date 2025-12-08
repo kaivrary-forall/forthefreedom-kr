@@ -138,6 +138,13 @@ function loadNavigation() {
                                     </div>
                                 </div>
                             </div>
+                            
+                            <!-- 5. 시도당 당협위원회 구성 -->
+                            <div class="relative group">
+                                <a href="${pathPrefix}local-chapters.html" class="text-[#212121] hover:text-[#a50034] font-medium py-2 transition-colors duration-200 text-lg tracking-tight">
+                                    시도당·당협
+                                </a>
+                            </div>
                         </div>
                     </div>
                     
@@ -247,6 +254,13 @@ function loadNavigation() {
                                 <a href="${pathPrefix}support-guide.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">후원 안내</a>
                                 <a href="${pathPrefix}support-receipt.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">후원영수증 신청</a>
                             </div>
+                        </div>
+                        
+                        <!-- 시도당·당협 메뉴 -->
+                        <div class="mobile-menu-item">
+                            <a href="${pathPrefix}local-chapters.html" class="w-full flex items-center justify-between px-3 py-2 text-lg text-gray-700 hover:bg-gray-50 hover:text-red-600">
+                                <span class="font-bold">시도당·당협</span>
+                            </a>
                         </div>
                         
                         <!-- 로그인/회원 영역 -->
