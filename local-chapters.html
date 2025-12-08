@@ -543,19 +543,35 @@
             const grid = document.getElementById('officialChannelGrid');
             grid.innerHTML = channelData.channels.map(channel => {
                 let cardContent = '';
-                let cardClass = 'bg-white rounded-xl p-4 border border-gray-200 transition-all';
+                let cardClass = 'bg-white rounded-xl p-4 border border-gray-200 transition-all h-20 flex flex-col justify-center';
                 let cardWrapper = '';
+                
+                // X 로고는 SVG로 처리
+                let iconHtml = '';
+                if (channel.icon === 'fab fa-x-twitter') {
+                    iconHtml = `<svg class="w-5 h-5 text-red-600 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>`;
+                } else {
+                    iconHtml = `<i class="${channel.icon} text-red-600 text-xl flex-shrink-0"></i>`;
+                }
+                
+                // 회색 아이콘 버전
+                let grayIconHtml = '';
+                if (channel.icon === 'fab fa-x-twitter') {
+                    grayIconHtml = `<svg class="w-5 h-5 text-gray-400 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>`;
+                } else {
+                    grayIconHtml = `<i class="${channel.icon} text-gray-400 text-xl flex-shrink-0"></i>`;
+                }
                 
                 if (channel.type === 'email') {
                     // 이메일은 값 표시 + 클릭 시 mailto
                     cardWrapper = `<a href="mailto:${channel.value}" class="block">`;
                     cardContent = `
-                        <div class="flex items-center gap-3 mb-2">
-                            <i class="${channel.icon} text-red-600 text-xl"></i>
-                            <span class="font-medium text-gray-800">${channel.name}</span>
-                        </div>
-                        <div class="text-sm pl-9 text-red-600 font-medium">
-                            ${channel.value}
+                        <div class="flex items-center gap-3">
+                            ${iconHtml}
+                            <div class="min-w-0">
+                                <div class="font-medium text-gray-800">${channel.name}</div>
+                                <div class="text-sm text-red-600 font-medium truncate">${channel.value}</div>
+                            </div>
                         </div>
                     `;
                     cardClass += ' hover:shadow-md hover:border-red-300 cursor-pointer';
@@ -564,9 +580,9 @@
                     cardWrapper = `<a href="${channel.value}" target="_blank" rel="noopener noreferrer" class="block">`;
                     cardContent = `
                         <div class="flex items-center gap-3">
-                            <i class="${channel.icon} text-red-600 text-xl"></i>
+                            ${iconHtml}
                             <span class="font-medium text-gray-800">${channel.name}</span>
-                            <i class="fas fa-external-link-alt text-gray-400 text-xs ml-auto"></i>
+                            <i class="fas fa-external-link-alt text-gray-400 text-xs ml-auto flex-shrink-0"></i>
                         </div>
                     `;
                     cardClass += ' hover:shadow-md hover:border-red-300 cursor-pointer';
@@ -574,12 +590,12 @@
                     // 텍스트(준비중 등)는 클릭 불가
                     cardWrapper = '<div class="block">';
                     cardContent = `
-                        <div class="flex items-center gap-3 mb-2">
-                            <i class="${channel.icon} text-gray-400 text-xl"></i>
-                            <span class="font-medium text-gray-500">${channel.name}</span>
-                        </div>
-                        <div class="text-sm pl-9 text-gray-400">
-                            ${channel.value}
+                        <div class="flex items-center gap-3">
+                            ${grayIconHtml}
+                            <div class="min-w-0">
+                                <div class="font-medium text-gray-500">${channel.name}</div>
+                                <div class="text-sm text-gray-400">${channel.value}</div>
+                            </div>
                         </div>
                     `;
                     cardClass += ' opacity-60';
