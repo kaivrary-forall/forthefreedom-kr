@@ -82,7 +82,15 @@ router.get('/admin/list', async (req, res) => {
 // 당협위원장 정보 수정 (관리자용)
 router.put('/admin/:id/chairman', async (req, res) => {
     try {
-        const { chairmanName, chairmanThreads, chairmanYoutube } = req.body;
+        const { 
+            chairmanName, 
+            chairmanInstagram, 
+            chairmanFacebook, 
+            chairmanThreads, 
+            chairmanX, 
+            chairmanNaverBlog, 
+            chairmanYoutube 
+        } = req.body;
         
         const chapter = await Chapter.findById(req.params.id);
         
@@ -95,7 +103,11 @@ router.put('/admin/:id/chairman', async (req, res) => {
         
         // 빈 문자열은 null로 변환
         chapter.chairmanName = chairmanName?.trim() || null;
+        chapter.chairmanInstagram = chairmanInstagram?.trim() || null;
+        chapter.chairmanFacebook = chairmanFacebook?.trim() || null;
         chapter.chairmanThreads = chairmanThreads?.trim() || null;
+        chapter.chairmanX = chairmanX?.trim() || null;
+        chapter.chairmanNaverBlog = chairmanNaverBlog?.trim() || null;
         chapter.chairmanYoutube = chairmanYoutube?.trim() || null;
         
         await chapter.save();
@@ -128,7 +140,11 @@ router.delete('/admin/:id/chairman', async (req, res) => {
         }
         
         chapter.chairmanName = null;
+        chapter.chairmanInstagram = null;
+        chapter.chairmanFacebook = null;
         chapter.chairmanThreads = null;
+        chapter.chairmanX = null;
+        chapter.chairmanNaverBlog = null;
         chapter.chairmanYoutube = null;
         chapter.chairmanMemberId = null;
         
