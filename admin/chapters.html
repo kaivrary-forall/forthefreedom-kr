@@ -409,11 +409,16 @@
 
                 if (result.success) {
                     showToast('저장되었습니다.', 'success');
-                    // 로컬 데이터 업데이트
+                    // 로컬 데이터 업데이트 (모든 SNS 필드)
                     const chapter = allChapters.find(c => c._id === id);
                     if (chapter) {
                         chapter.chairmanName = chairmanName || null;
+                        chapter.chairmanWebsite = chairmanWebsite || null;
+                        chapter.chairmanInstagram = chairmanInstagram || null;
+                        chapter.chairmanFacebook = chairmanFacebook || null;
                         chapter.chairmanThreads = chairmanThreads || null;
+                        chapter.chairmanX = chairmanX || null;
+                        chapter.chairmanNaverBlog = chairmanNaverBlog || null;
                         chapter.chairmanYoutube = chairmanYoutube || null;
                     }
                     filterChapters();
