@@ -544,7 +544,11 @@
                         note: chapter.note || null,
                         chairman: chapter.chairmanName ? {
                             name: chapter.chairmanName,
+                            instagram: chapter.chairmanInstagram,
+                            facebook: chapter.chairmanFacebook,
                             threads: chapter.chairmanThreads,
+                            x: chapter.chairmanX,
+                            naverBlog: chapter.chairmanNaverBlog,
                             youtube: chapter.chairmanYoutube,
                             memberId: chapter.chairmanMemberId
                         } : null
@@ -753,12 +757,36 @@
                 // 당협위원장 섹션
                 let chairmanHtml = '';
                 if (chapter.chairman) {
-                    // SNS 아이콘 생성
+                    // SNS 아이콘 생성 (6개: 인스타, 페북, 스레드, 엑스, 블로그, 유튜브)
                     let snsIcons = '';
+                    if (chapter.chairman.instagram) {
+                        snsIcons += `<a href="${chapter.chairman.instagram}" target="_blank" rel="noopener noreferrer" 
+                                       class="text-gray-500 hover:text-pink-500 transition-colors" title="인스타그램">
+                                       <i class="fab fa-instagram"></i>
+                                     </a>`;
+                    }
+                    if (chapter.chairman.facebook) {
+                        snsIcons += `<a href="${chapter.chairman.facebook}" target="_blank" rel="noopener noreferrer" 
+                                       class="text-gray-500 hover:text-blue-600 transition-colors" title="페이스북">
+                                       <i class="fab fa-facebook"></i>
+                                     </a>`;
+                    }
                     if (chapter.chairman.threads) {
                         snsIcons += `<a href="${chapter.chairman.threads}" target="_blank" rel="noopener noreferrer" 
-                                       class="text-gray-500 hover:text-red-600 transition-colors" title="스레드">
+                                       class="text-gray-500 hover:text-gray-800 transition-colors" title="스레드">
                                        <i class="fas fa-at"></i>
+                                     </a>`;
+                    }
+                    if (chapter.chairman.x) {
+                        snsIcons += `<a href="${chapter.chairman.x}" target="_blank" rel="noopener noreferrer" 
+                                       class="text-gray-500 hover:text-gray-800 transition-colors" title="X(트위터)">
+                                       <svg class="w-4 h-4 inline" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                                     </a>`;
+                    }
+                    if (chapter.chairman.naverBlog) {
+                        snsIcons += `<a href="${chapter.chairman.naverBlog}" target="_blank" rel="noopener noreferrer" 
+                                       class="text-gray-500 hover:text-green-500 transition-colors" title="네이버 블로그">
+                                       <i class="fas fa-blog"></i>
                                      </a>`;
                     }
                     if (chapter.chairman.youtube) {
