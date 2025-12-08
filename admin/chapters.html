@@ -365,8 +365,8 @@
                 </tr>
             `).join('');
             
-            // 상단 스크롤바 너비 동기화
-            syncScrollbarWidth();
+            // 상단 스크롤바 너비 동기화 (렌더링 후)
+            setTimeout(syncScrollbarWidth, 100);
         }
         
         // 상단 스크롤바 너비를 테이블 너비에 맞춤
@@ -374,7 +374,9 @@
             const tableContainer = document.getElementById('tableContainer');
             const topScrollbarInner = document.getElementById('topScrollbarInner');
             if (tableContainer && topScrollbarInner) {
-                topScrollbarInner.style.width = tableContainer.scrollWidth + 'px';
+                const scrollWidth = tableContainer.scrollWidth;
+                topScrollbarInner.style.width = scrollWidth + 'px';
+                console.log('스크롤바 너비 동기화:', scrollWidth);
             }
         }
 
