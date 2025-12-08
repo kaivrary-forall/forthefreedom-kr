@@ -128,6 +128,16 @@
 
                 <!-- 당협위원회별 채팅방 섹션 -->
                 <div id="chatRoomSection">
+                    <!-- 분과위원회 섹션 -->
+                    <div id="committeeSection" class="mb-16">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-red-600 pl-4" id="committeeTitle">서울특별시당 분과위원회 채팅방</h2>
+                        
+                        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4" id="committeeGrid">
+                            <!-- 동적으로 생성됨 -->
+                        </div>
+                    </div>
+
+                    <!-- 당협위원회별 채팅방 -->
                     <h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-red-600 pl-4" id="chatRoomTitle">서울특별시당 당협위원회별 채팅방</h2>
                     
                     <p class="text-base text-red-600 font-medium mb-6">
@@ -196,6 +206,7 @@
         const officialChannels = {
             seoul: {
                 title: '자유와혁신 서울특별시당 공식채널',
+                committeeTitle: '서울특별시당 분과위원회 채팅방',
                 chatTitle: '서울특별시당 당협위원회별 채팅방',
                 channels: [
                     { name: '공식 문의 e-mail', value: 'seoul@freeinno.kr', type: 'email', icon: 'fas fa-envelope' },
@@ -206,6 +217,12 @@
                     { name: '페이스북', value: 'https://www.facebook.com/profile.php?id=61584750230843', type: 'link', icon: 'fab fa-facebook' },
                     { name: '유튜브 채널', value: 'https://www.youtube.com/@freeinno_seoul', type: 'link', icon: 'fab fa-youtube' },
                     { name: '디스코드(온라인 당사)', value: '필요시마다 링크 공유', type: 'text', icon: 'fab fa-discord' }
+                ],
+                committees: [
+                    { name: '홍보분과', kakaoLink: 'https://invite.kakao.com/tc/otfoxuy2HS' },
+                    { name: '조직강화분과', kakaoLink: 'https://invite.kakao.com/tc/3mS6hHHXby' },
+                    { name: '정책분과', kakaoLink: 'https://invite.kakao.com/tc/V5Sw3TgOcl' },
+                    { name: '자원봉사단', kakaoLink: 'https://invite.kakao.com/tc/zeFFJuImTP' }
                 ]
             }
         };
@@ -522,6 +539,7 @@
                 
                 // 공식 채널 렌더링
                 renderOfficialChannels(provinceId);
+                renderCommittees(provinceId);
                 renderChapters();
             } else {
                 // 준비 중인 시도당
@@ -611,6 +629,33 @@
                 ${closeWrapper}
                 `;
             }).join('');
+        }
+
+        // 분과위원회 렌더링
+        function renderCommittees(provinceId) {
+            const channelData = officialChannels[provinceId];
+            if (!channelData || !channelData.committees) {
+                document.getElementById('committeeSection').classList.add('hidden');
+                return;
+            }
+            
+            document.getElementById('committeeSection').classList.remove('hidden');
+            document.getElementById('committeeTitle').textContent = channelData.committeeTitle;
+            
+            const grid = document.getElementById('committeeGrid');
+            grid.innerHTML = channelData.committees.map(committee => `
+                <a href="${committee.kakaoLink}" target="_blank" rel="noopener noreferrer" class="block">
+                    <div class="bg-white rounded-xl p-4 border border-gray-200 transition-all h-20 flex items-center hover:shadow-md hover:border-yellow-400 cursor-pointer">
+                        <div class="flex items-center gap-3 w-full">
+                            <svg class="w-6 h-6 flex-shrink-0" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M128 36C70.562 36 24 72.713 24 118c0 29.279 19.466 54.97 48.748 69.477-1.593 5.494-10.237 35.344-10.581 37.689 0 0-.207 1.762.934 2.434s2.483.15 2.483.15c3.272-.457 37.943-24.811 43.944-29.03 5.995.849 12.168 1.28 18.472 1.28 57.438 0 104-36.712 104-82 0-45.287-46.562-82-104-82z" fill="#3C1E1E"/>
+                            </svg>
+                            <span class="font-medium text-gray-800">${committee.name}</span>
+                            <i class="fas fa-external-link-alt text-gray-400 text-xs ml-auto flex-shrink-0"></i>
+                        </div>
+                    </div>
+                </a>
+            `).join('');
         }
 
         // 카드 렌더링
