@@ -517,12 +517,44 @@
             }
         ];
 
+        // API에서 가져온 데이터 (로드 후 채워짐)
+        let apiChapters = null;
+
         // 현재 활성화된 당협 데이터 가져오기
         function getChapters() {
             if (currentProvince === 'seoul') {
-                return seoulChapters;
+                // API 데이터가 있으면 사용, 없으면 하드코딩 데이터 사용
+                return apiChapters || seoulChapters;
             }
             return [];
+        }
+
+        // API에서 지역구 데이터 로드
+        async function loadChaptersFromAPI() {
+            try {
+                const response = await fetch(`${typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'https://forthefreedom-kr-production.up.railway.app'}/api/chapters?province=seoul`);
+                const result = await response.json();
+                
+                if (result.success && result.data.length > 0) {
+                    // API 데이터를 프론트엔드 형식으로 변환
+                    apiChapters = result.data.map(chapter => ({
+                        name: chapter.name,
+                        dongs: chapter.dongs,
+                        kakaoLink: chapter.kakaoLink,
+                        note: chapter.note || null,
+                        chairman: chapter.chairmanName ? {
+                            name: chapter.chairmanName,
+                            threads: chapter.chairmanThreads,
+                            youtube: chapter.chairmanYoutube,
+                            memberId: chapter.chairmanMemberId
+                        } : null
+                    }));
+                    console.log('✅ API에서 지역구 데이터 로드:', apiChapters.length, '개');
+                    renderChapters();
+                }
+            } catch (error) {
+                console.log('⚠️ API 로드 실패, 하드코딩 데이터 사용:', error.message);
+            }
         }
 
         // 페이지 로드 시 초기화
@@ -530,6 +562,9 @@
             loadNavigation();
             renderTabs();
             switchProvince('seoul');
+            
+            // API에서 최신 데이터 로드 시도
+            loadChaptersFromAPI();
             
             // 엔터키 검색
             document.getElementById('searchInput').addEventListener('keypress', (e) => {
@@ -718,6 +753,21 @@
                 // 당협위원장 섹션
                 let chairmanHtml = '';
                 if (chapter.chairman) {
+                    // SNS 아이콘 생성
+                    let snsIcons = '';
+                    if (chapter.chairman.threads) {
+                        snsIcons += `<a href="${chapter.chairman.threads}" target="_blank" rel="noopener noreferrer" 
+                                       class="text-gray-500 hover:text-red-600 transition-colors" title="스레드">
+                                       <i class="fas fa-at"></i>
+                                     </a>`;
+                    }
+                    if (chapter.chairman.youtube) {
+                        snsIcons += `<a href="${chapter.chairman.youtube}" target="_blank" rel="noopener noreferrer" 
+                                       class="text-gray-500 hover:text-red-600 transition-colors" title="유튜브">
+                                       <i class="fab fa-youtube"></i>
+                                     </a>`;
+                    }
+                    
                     // 위원장 있음 - 나중에 회원 프로필 링크 연결 예정
                     chairmanHtml = `
                         <div class="mt-4 pt-4 border-t border-gray-200">
@@ -725,6 +775,7 @@
                             <div class="flex items-center gap-2">
                                 <i class="fas fa-user-tie text-red-600"></i>
                                 <span class="font-medium text-gray-800">${chapter.chairman.name}</span>
+                                ${snsIcons ? `<div class="flex items-center gap-2 ml-2">${snsIcons}</div>` : ''}
                             </div>
                         </div>
                     `;
