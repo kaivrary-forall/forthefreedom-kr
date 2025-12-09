@@ -26,70 +26,102 @@
             max-width: 900px;
             margin: 0 auto;
         }
-        .post-item {
-            display: flex;
-            padding: 16px 20px;
-            border-bottom: 1px solid #f0f0f0;
-            transition: background 0.15s;
-            cursor: pointer;
+        /* 테이블 스타일 */
+        .board-table {
+            width: 100%;
+            border-collapse: collapse;
         }
-        .post-item:hover {
+        .board-table th {
+            background: #f9fafb;
+            padding: 12px 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #6b7280;
+            border-bottom: 2px solid #e5e7eb;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .board-table td {
+            padding: 14px 8px;
+            font-size: 0.875rem;
+            border-bottom: 1px solid #f0f0f0;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .board-table tr {
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .board-table tbody tr:hover {
             background: #fafafa;
         }
-        .post-content {
-            flex: 1;
-            min-width: 0;
+        .col-no { width: 60px; color: #9ca3af; }
+        .col-title { 
+            text-align: left !important; 
+            max-width: 300px;
         }
-        .post-title {
-            font-size: 1rem;
-            font-weight: 500;
+        .col-title a {
             color: #1f2937;
-            margin-bottom: 6px;
+            font-weight: 500;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            display: block;
         }
-        .post-title:hover {
+        .col-title a:hover {
             color: #A50034;
         }
-        .post-meta {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 0.8rem;
-            color: #9ca3af;
-        }
-        .post-author {
-            color: #6b7280;
-            font-weight: 500;
-        }
-        .post-stats {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-left: auto;
-            flex-shrink: 0;
-            padding-left: 20px;
-        }
-        .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 0.8rem;
-            color: #9ca3af;
-        }
-        .stat-item i {
-            font-size: 0.75rem;
-        }
-        .stat-item.likes { color: #22c55e; }
-        .stat-item.dislikes { color: #6b7280; }
         .comment-count {
             background: #A50034;
             color: white;
+            font-size: 0.65rem;
+            padding: 2px 5px;
+            border-radius: 8px;
+            margin-left: 4px;
+        }
+        .col-avatar {
+            width: 36px;
+        }
+        .author-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+        .author-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .author-avatar i {
             font-size: 0.7rem;
-            padding: 2px 6px;
+            color: #9ca3af;
+        }
+        .col-nickname { 
+            width: 100px; 
+            color: #374151;
+            font-weight: 500;
+        }
+        .col-grade { width: 80px; }
+        .grade-badge {
+            display: inline-block;
+            padding: 2px 8px;
             border-radius: 10px;
-            margin-left: 6px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        .grade-general { background: #f3f4f6; color: #6b7280; }
+        .grade-party { background: #dbeafe; color: #1d4ed8; }
+        .grade-innovation { background: #fef3c7; color: #d97706; }
+        .col-date { width: 90px; color: #9ca3af; font-size: 0.8rem; }
+        .col-view { width: 60px; color: #9ca3af; }
+        .col-like { width: 50px; color: #22c55e; }
+        .col-dislike { width: 50px; color: #6b7280; }
         }
         .board-header {
             display: flex;
@@ -309,7 +341,7 @@
                         `;
                         pagination.classList.add('hidden');
                     } else {
-                        postList.innerHTML = posts.map(post => renderPostItem(post)).join('');
+                        postList.innerHTML = renderPostTable(posts, paginationData);
                         renderPagination();
                         pagination.classList.remove('hidden');
                     }
@@ -328,36 +360,76 @@
             }
         }
         
-        // 게시글 아이템 렌더링
-        function renderPostItem(post) {
-            const date = new Date(post.createdAt);
-            const dateStr = formatDate(date);
+        // 게시글 테이블 렌더링
+        function renderPostTable(posts, paginationData) {
+            const startNo = (paginationData.currentPage - 1) * 20 + 1;
             
             return `
-                <div class="post-item" onclick="goToPost('${post._id}')">>
-                    <div class="post-content">
-                        <div class="post-title">
+                <table class="board-table">
+                    <thead>
+                        <tr>
+                            <th class="col-no">번호</th>
+                            <th class="col-title">제목</th>
+                            <th class="col-avatar"></th>
+                            <th class="col-nickname">작성자</th>
+                            <th class="col-grade">등급</th>
+                            <th class="col-date">작성일</th>
+                            <th class="col-view">조회</th>
+                            <th class="col-like">👍</th>
+                            <th class="col-dislike">👎</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${posts.map((post, index) => renderPostRow(post, paginationData.total - (startNo - 1) - index)).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        // 게시글 행 렌더링
+        function renderPostRow(post, rowNo) {
+            const date = new Date(post.createdAt);
+            const dateStr = formatDate(date);
+            const gradeInfo = getGradeInfo(post.author?.memberType);
+            
+            return `
+                <tr onclick="goToPost('${post._id}')">
+                    <td class="col-no">${rowNo}</td>
+                    <td class="col-title">
+                        <a href="javascript:void(0)">
                             ${escapeHtml(post.title)}
                             ${post.commentCount > 0 ? `<span class="comment-count">${post.commentCount}</span>` : ''}
+                        </a>
+                    </td>
+                    <td class="col-avatar">
+                        <div class="author-avatar">
+                            ${post.author?.profileImage 
+                                ? `<img src="${post.author.profileImage}" alt="">` 
+                                : '<i class="fas fa-user"></i>'}
                         </div>
-                        <div class="post-meta">
-                            <span class="post-author">${post.author?.nickname || '알 수 없음'}</span>
-                            <span>${dateStr}</span>
-                            <span><i class="fas fa-eye"></i> ${post.viewCount}</span>
-                        </div>
-                    </div>
-                    <div class="post-stats">
-                        <div class="stat-item likes">
-                            <i class="fas fa-thumbs-up"></i>
-                            <span>${post.likeCount || 0}</span>
-                        </div>
-                        <div class="stat-item dislikes">
-                            <i class="fas fa-thumbs-down"></i>
-                            <span>${post.dislikeCount || 0}</span>
-                        </div>
-                    </div>
-                </div>
+                    </td>
+                    <td class="col-nickname">${post.author?.nickname || '알 수 없음'}</td>
+                    <td class="col-grade">
+                        <span class="grade-badge ${gradeInfo.class}">${gradeInfo.text}</span>
+                    </td>
+                    <td class="col-date">${dateStr}</td>
+                    <td class="col-view">${post.viewCount}</td>
+                    <td class="col-like">${post.likeCount || 0}</td>
+                    <td class="col-dislike">${post.dislikeCount || 0}</td>
+                </tr>
             `;
+        }
+        
+        // 등급 정보 반환
+        function getGradeInfo(memberType) {
+            switch(memberType) {
+                case 'party_member':
+                    return { text: '당원', class: 'grade-party' };
+                case 'innovation_member':
+                    return { text: '혁신당원', class: 'grade-innovation' };
+                default:
+                    return { text: '일반', class: 'grade-general' };
+            }
         }
         
         // 날짜 포맷
