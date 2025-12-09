@@ -7,8 +7,13 @@ const Chapter = require('../models/Chapter');
 // ============================================
 router.get('/', async (req, res) => {
   try {
-    const { province } = req.query;
-    const filter = { isActive: true };
+    const { province, includeHidden } = req.query;
+    const filter = {};
+    
+    // 관리자 페이지에서는 숨긴 것도 포함
+    if (includeHidden !== 'true') {
+      filter.isActive = true;
+    }
     
     if (province) {
       const provinceMap = {
