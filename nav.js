@@ -1304,6 +1304,7 @@ function renderMypageContent() {
                 '<button class="mp-edit-link" onclick="openMpEditModal()"><i class="fas fa-edit"></i> 수정</button>' +
             '</div>' +
             '<div class="mp-info-row"><span class="mp-info-label">아이디</span><span class="mp-info-value">' + data.userId + '</span></div>' +
+            '<div class="mp-info-row"><span class="mp-info-label">비밀번호</span><span class="mp-info-value">••••••••<button onclick="openMpPasswordModal()">변경</button></span></div>' +
             '<div class="mp-info-row"><span class="mp-info-label">닉네임</span><span class="mp-info-value">' + (data.nickname || '-') + '<button onclick="openMpNicknameModal()">변경</button></span></div>' +
             '<div class="mp-info-row"><span class="mp-info-label">이름</span><span class="mp-info-value">' + (data.name || '-') + '</span></div>' +
             '<div class="mp-info-row"><span class="mp-info-label">이메일</span><span class="mp-info-value">' + (data.email || '-') + '</span></div>' +
@@ -1326,9 +1327,8 @@ function renderMypageContent() {
         '</div>' +
         
         '<div class="mp-section">' +
-            '<div class="mp-section-title"><i class="fas fa-cog"></i> 계정 관리</div>' +
+            '<div class="mp-section-title" style="color:#dc2626;"><i class="fas fa-exclamation-triangle"></i> 위험 구역</div>' +
             '<div class="mp-btn-wrap">' +
-                '<button onclick="openMpPasswordModal()" class="mp-btn mp-btn-secondary"><i class="fas fa-key"></i> 비밀번호 변경</button>' +
                 '<button onclick="openMpWithdrawModal()" class="mp-btn mp-btn-outline"><i class="fas fa-user-times"></i> 회원 탈퇴</button>' +
             '</div>' +
         '</div>';
