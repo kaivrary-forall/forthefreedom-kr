@@ -101,6 +101,11 @@ function loadNavigation() {
                                 </div>
                             </div>
                             
+                            <!-- 아고라 -->
+                            <a href="${pathPrefix}board.html" class="text-[#212121] hover:text-[#a50034] font-medium py-2 transition-colors duration-200 text-lg tracking-tight">
+                                아고라
+                            </a>
+                            
                             <!-- 3. 당원 -->
                             <div class="relative group">
                                 <a href="${pathPrefix}members/join.html" class="text-[#212121] hover:text-[#a50034] font-medium py-2 transition-colors duration-200 text-lg tracking-tight">
@@ -230,6 +235,13 @@ function loadNavigation() {
                                 <a href="${pathPrefix}news/gallery.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">포토갤러리</a>
                                 <a href="${pathPrefix}resources.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">자료실</a>
                             </div>
+                        </div>
+                        
+                        <!-- 아고라 메뉴 -->
+                        <div class="mobile-menu-item">
+                            <a href="${pathPrefix}board.html" class="w-full flex items-center px-3 py-2 text-lg text-gray-700 hover:bg-gray-50 hover:text-red-600 font-bold">
+                                아고라
+                            </a>
                         </div>
                         
                         <!-- 당원 메뉴 -->
