@@ -3,18 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>당협 관리 - 자유혁신당</title>
+    <title>당협 관리 - 자유와혁신</title>
+    <script src="/config.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
-    <script src="config.js"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
                         primary: '#DC2626',
-                        secondary: '#1E3A8A'
+                        secondary: '#1E3A5F'
                     }
                 }
             }
@@ -93,12 +92,13 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
-    <!-- 네비게이션 -->
+<body class="bg-gray-50 min-h-screen">
+    <!-- 관리자 네비게이션 -->
     <div id="admin-nav-container"></div>
 
+    <!-- 메인 콘텐츠 -->
     <main class="max-w-7xl mx-auto px-4 py-8 pt-24">
-        <!-- 헤더 -->
+        <!-- 페이지 헤더 -->
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-gray-900">당협 관리</h1>
             <p class="text-gray-600 mt-2">서울특별시당 지역구를 카드 형태로 관리합니다.</p>
@@ -106,342 +106,334 @@
 
         <!-- 통계 카드 -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                <div class="flex items-center gap-4">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center space-x-4">
                     <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-map-marker-alt text-red-600 text-xl"></i>
+                        <i class="fas fa-map-marker-alt text-red-500 text-xl"></i>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-500">총 지역구</p>
-                        <p id="totalCount" class="text-2xl font-bold text-gray-900">-</p>
+                        <div class="text-sm text-gray-500">총 지역구</div>
+                        <div class="text-2xl font-bold text-gray-900" id="stat-total">-</div>
                     </div>
                 </div>
             </div>
-            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                <div class="flex items-center gap-4">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center space-x-4">
                     <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-user-check text-green-600 text-xl"></i>
+                        <i class="fas fa-user-check text-green-500 text-xl"></i>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-500">위원장 임명</p>
-                        <p id="filledCount" class="text-2xl font-bold text-gray-900">-</p>
+                        <div class="text-sm text-gray-500">위원장 임명</div>
+                        <div class="text-2xl font-bold text-gray-900" id="stat-filled">-</div>
                     </div>
                 </div>
             </div>
-            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                <div class="flex items-center gap-4">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center space-x-4">
                     <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-user-plus text-yellow-600 text-xl"></i>
+                        <i class="fas fa-user-clock text-yellow-500 text-xl"></i>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-500">공석</p>
-                        <p id="vacantCount" class="text-2xl font-bold text-gray-900">-</p>
+                        <div class="text-sm text-gray-500">공석</div>
+                        <div class="text-2xl font-bold text-gray-900" id="stat-vacant">-</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 툴바 -->
-        <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6">
+        <!-- 액션 바 -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
             <div class="flex flex-wrap items-center justify-between gap-4">
-                <div class="flex items-center gap-4">
+                <div class="flex items-center space-x-4">
+                    <!-- 검색 -->
                     <div class="relative">
                         <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" id="searchInput" placeholder="지역구 또는 위원장 검색..." 
-                               class="input-field pl-10 w-64">
+                        <input type="text" id="search-input" placeholder="지역구 또는 위원장 검색..."
+                            class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent w-64">
                     </div>
-                    <select id="statusFilter" class="input-field">
+                    <!-- 필터 -->
+                    <select id="status-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
                         <option value="all">전체</option>
                         <option value="filled">임명</option>
                         <option value="vacant">공석</option>
                     </select>
                 </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="openAddModal()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-                        <i class="fas fa-plus mr-2"></i>지역구 추가
+                <div class="flex items-center space-x-3">
+                    <button onclick="openAddModal()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center space-x-2">
+                        <i class="fas fa-plus"></i>
+                        <span>지역구 추가</span>
                     </button>
-                    <button onclick="runMigration()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
-                        <i class="fas fa-database mr-2"></i>마이그레이션
+                    <button onclick="runMigration()" class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center space-x-2">
+                        <i class="fas fa-database"></i>
+                        <span>마이그레이션</span>
                     </button>
-                    <button onclick="loadChapters()" class="p-2 text-gray-500 hover:text-red-600 transition-colors">
+                    <button onclick="loadChapters()" class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
                         <i class="fas fa-sync-alt"></i>
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- 카드 목록 -->
-        <div id="chaptersContainer" class="space-y-4">
-            <!-- 동적으로 생성 -->
+        <!-- 카드 그리드 -->
+        <div id="chapters-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- 카드들이 여기에 렌더링됨 -->
         </div>
 
-        <!-- 로딩 -->
-        <div id="loadingOverlay" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
-            <div class="bg-white rounded-lg p-6 flex items-center gap-4">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                <span class="text-gray-700">처리 중...</span>
+        <!-- 빈 상태 -->
+        <div id="empty-state" class="hidden text-center py-16">
+            <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-map-marked-alt text-gray-400 text-3xl"></i>
             </div>
-        </div>
-
-        <!-- 토스트 메시지 -->
-        <div id="toast" class="fixed bottom-6 right-6 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
-            <span id="toastMessage"></span>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">지역구가 없습니다</h3>
+            <p class="text-gray-500 mb-4">새 지역구를 추가하거나 시드 데이터를 생성하세요.</p>
+            <button onclick="seedData()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                서울 49개 지역구 생성
+            </button>
         </div>
     </main>
 
-    <!-- 지역구 추가/수정 모달 -->
-    <div id="chapterModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4">
+    <!-- 추가/수정 모달 -->
+    <div id="chapter-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <div class="p-6 border-b border-gray-200">
-                <h2 id="modalTitle" class="text-xl font-bold text-gray-900">지역구 추가</h2>
+                <div class="flex items-center justify-between">
+                    <h2 id="modal-title" class="text-xl font-bold text-gray-900">지역구 추가</h2>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
             </div>
-            <form id="chapterForm" class="p-6 space-y-6">
-                <input type="hidden" id="editingId">
+            <form id="chapter-form" class="p-6 space-y-6">
+                <input type="hidden" id="edit-id">
                 
-                <!-- 지역구 정보 -->
-                <div class="space-y-4">
-                    <h3 class="font-semibold text-gray-800 flex items-center gap-2">
-                        <i class="fas fa-map-marker-alt text-red-600"></i> 지역구 정보
-                    </h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">지역명 *</label>
-                            <input type="text" id="districtName" class="input-field w-full" placeholder="예: 강남" required>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">갑을병</label>
-                            <select id="districtSuffix" class="input-field w-full">
-                                <option value="">없음 (단일)</option>
-                                <option value="갑">갑</option>
-                                <option value="을">을</option>
-                                <option value="병">병</option>
-                                <option value="정">정</option>
-                                <option value="무">무</option>
-                            </select>
-                        </div>
+                <!-- 지역구 이름 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">지역구 이름</label>
+                    <div class="flex space-x-2">
+                        <input type="text" id="district-name" placeholder="예: 강남" required
+                            class="flex-1 input-field">
+                        <select id="district-suffix" class="w-24 input-field">
+                            <option value="">없음</option>
+                            <option value="갑">갑</option>
+                            <option value="을">을</option>
+                            <option value="병">병</option>
+                            <option value="정">정</option>
+                            <option value="무">무</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 위원장 정보 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">위원장</label>
+                    <div class="flex space-x-2">
+                        <input type="text" id="chairman-surname" placeholder="성"
+                            class="w-20 input-field">
+                        <input type="text" id="chairman-given-name" placeholder="이름"
+                            class="flex-1 input-field">
+                    </div>
+                </div>
+
+                <!-- 연락처 -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">연락처</label>
+                        <input type="tel" id="chairman-phone" placeholder="010-0000-0000"
+                            class="w-full input-field">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">행정동 (#으로 구분)</label>
-                        <input type="text" id="dongsRaw" class="input-field w-full" placeholder="#삼성동#대치동#역삼동">
-                        <p class="text-xs text-gray-500 mt-1">예: #삼성동#대치동#역삼동</p>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">카카오톡 링크</label>
-                            <input type="text" id="kakaoLink" class="input-field w-full" placeholder="https://open.kakao.com/...">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">비고</label>
-                            <input type="text" id="note" class="input-field w-full" placeholder="예: 성동구">
-                        </div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">이메일</label>
+                        <input type="email" id="chairman-email" placeholder="email@example.com"
+                            class="w-full input-field">
                     </div>
                 </div>
 
-                <!-- 당협위원장 정보 -->
-                <div class="space-y-4">
-                    <h3 class="font-semibold text-gray-800 flex items-center gap-2">
-                        <i class="fas fa-user-tie text-red-600"></i> 당협위원장 정보
-                    </h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">성</label>
-                            <input type="text" id="chairmanSurname" class="input-field w-full" placeholder="예: 한">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">이름</label>
-                            <input type="text" id="chairmanGivenName" class="input-field w-full" placeholder="예: 성학">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SNS 채널 -->
-                <div class="space-y-4">
-                    <h3 class="font-semibold text-gray-800 flex items-center gap-2">
-                        <i class="fas fa-share-alt text-red-600"></i> SNS 채널
-                    </h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-globe text-blue-500"></i> 웹사이트</label>
-                            <input type="text" id="chairmanWebsite" class="input-field w-full" placeholder="example.com">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1"><i class="fab fa-instagram text-pink-500"></i> 인스타그램</label>
-                            <input type="text" id="chairmanInstagram" class="input-field w-full" placeholder="instagram.com/...">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1"><i class="fab fa-facebook text-blue-600"></i> 페이스북</label>
-                            <input type="text" id="chairmanFacebook" class="input-field w-full" placeholder="facebook.com/...">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-at"></i> 스레드</label>
-                            <input type="text" id="chairmanThreads" class="input-field w-full" placeholder="threads.net/...">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1"><svg class="inline w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> X (트위터)</label>
-                            <input type="text" id="chairmanX" class="input-field w-full" placeholder="x.com/...">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-blog text-green-500"></i> 네이버 블로그</label>
-                            <input type="text" id="chairmanNaverBlog" class="input-field w-full" placeholder="blog.naver.com/...">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1"><i class="fab fa-youtube text-red-500"></i> 유튜브</label>
-                            <input type="text" id="chairmanYoutube" class="input-field w-full" placeholder="youtube.com/...">
-                        </div>
-                    </div>
+                <!-- 행정동 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        행정동 <span class="text-gray-400 font-normal">(# 구분)</span>
+                    </label>
+                    <textarea id="dongs-raw" rows="3" placeholder="역삼동#삼성동#대치동"
+                        class="w-full input-field"></textarea>
+                    <p class="text-xs text-gray-500 mt-1"># 기호로 구분하여 입력하세요</p>
                 </div>
 
                 <!-- 버튼 -->
-                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
-                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeModal()" 
+                        class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
                         취소
                     </button>
-                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-                        <i class="fas fa-save mr-2"></i>저장
+                    <button type="submit"
+                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                        저장
                     </button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- 삭제 확인 모달 -->
+    <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-2">지역구 삭제</h3>
+                <p class="text-gray-500 mb-6" id="delete-message">이 지역구를 삭제하시겠습니까?</p>
+                <div class="flex space-x-3">
+                    <button onclick="closeDeleteModal()" 
+                        class="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                        취소
+                    </button>
+                    <button onclick="confirmDelete()" 
+                        class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                        삭제
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="admin-nav.js"></script>
     <script>
-        let allChapters = [];
-        const API_BASE_URL = window.API_BASE.replace('/api', '');
+        // API 기본 URL - config.js에서 로드됨
+        const API_BASE = window.API_BASE || 'https://forthefreedom-kr-production.up.railway.app/api';
+        
+        // 상태 관리
+        let chapters = [];
+        let filteredChapters = [];
+        let deleteTargetId = null;
         let draggedCard = null;
 
         // 초기화
         document.addEventListener('DOMContentLoaded', () => {
-            const token = localStorage.getItem('adminToken');
-            if (!token) {
-                window.location.href = 'index.html';
-                return;
-            }
-
+            // 네비게이션 로드
             loadAdminNav('chapters');
+            
+            // 데이터 로드
             loadChapters();
-
-            document.getElementById('searchInput').addEventListener('input', filterChapters);
-            document.getElementById('statusFilter').addEventListener('change', filterChapters);
-            document.getElementById('chapterForm').addEventListener('submit', saveChapter);
+            
+            // 이벤트 리스너
+            document.getElementById('search-input').addEventListener('input', filterChapters);
+            document.getElementById('status-filter').addEventListener('change', filterChapters);
+            document.getElementById('chapter-form').addEventListener('submit', handleSubmit);
         });
 
-        // 지역구 목록 로드
+        // 데이터 로드
         async function loadChapters() {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/chapters/admin/list?province=seoul`);
-                const result = await response.json();
-
-                if (result.success) {
-                    allChapters = result.data;
-                    renderChapters(allChapters);
-                    updateStats();
+                const response = await fetch(`${API_BASE}/chapters?province=서울특별시`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
+                
+                chapters = await response.json();
+                filterChapters();
+                updateStats();
             } catch (error) {
-                console.error('로드 오류:', error);
-                showToast('데이터 로드 실패', 'error');
+                console.error('데이터 로드 실패:', error);
+                showToast('데이터를 불러오는데 실패했습니다.', 'error');
             }
         }
 
         // 통계 업데이트
         function updateStats() {
-            const total = allChapters.length;
-            const filled = allChapters.filter(c => c.chairmanName).length;
+            const total = chapters.length;
+            const filled = chapters.filter(c => c.chairmanName).length;
             const vacant = total - filled;
+            
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-filled').textContent = filled;
+            document.getElementById('stat-vacant').textContent = vacant;
+        }
 
-            document.getElementById('totalCount').textContent = total;
-            document.getElementById('filledCount').textContent = filled;
-            document.getElementById('vacantCount').textContent = vacant;
+        // 필터링
+        function filterChapters() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const statusFilter = document.getElementById('status-filter').value;
+            
+            filteredChapters = chapters.filter(chapter => {
+                const matchesSearch = 
+                    (chapter.name || '').toLowerCase().includes(searchTerm) ||
+                    (chapter.chairmanName || '').toLowerCase().includes(searchTerm);
+                
+                const isVacant = !chapter.chairmanName;
+                const matchesStatus = 
+                    statusFilter === 'all' ||
+                    (statusFilter === 'vacant' && isVacant) ||
+                    (statusFilter === 'filled' && !isVacant);
+                
+                return matchesSearch && matchesStatus;
+            });
+            
+            renderChapters();
         }
 
         // 카드 렌더링
-        function renderChapters(chapters) {
-            const container = document.getElementById('chaptersContainer');
+        function renderChapters() {
+            const grid = document.getElementById('chapters-grid');
+            const emptyState = document.getElementById('empty-state');
             
-            if (chapters.length === 0) {
-                container.innerHTML = `
-                    <div class="bg-white rounded-xl p-12 text-center text-gray-500 border border-gray-200">
-                        <i class="fas fa-inbox text-4xl mb-4"></i>
-                        <p>데이터가 없습니다.</p>
-                    </div>
-                `;
+            if (filteredChapters.length === 0) {
+                grid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
                 return;
             }
-
-            container.innerHTML = chapters.map((chapter, index) => `
-                <div class="chapter-card bg-white rounded-xl p-6 shadow-sm border-2 border-gray-200 hover:border-red-300 transition-all"
+            
+            grid.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            
+            grid.innerHTML = filteredChapters.map((chapter, index) => `
+                <div class="chapter-card bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md"
                      data-id="${chapter._id}"
                      draggable="true"
                      ondragstart="handleDragStart(event)"
-                     ondragend="handleDragEnd(event)"
                      ondragover="handleDragOver(event)"
-                     ondrop="handleDrop(event)">
-                    <div class="flex items-start gap-4">
-                        <!-- 순서 변경 버튼 -->
-                        <div class="flex flex-col gap-1">
-                            <button class="btn-move rounded" onclick="moveUp('${chapter._id}')" ${index === 0 ? 'disabled' : ''}>
+                     ondragleave="handleDragLeave(event)"
+                     ondrop="handleDrop(event)"
+                     ondragend="handleDragEnd(event)">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-lg font-bold text-gray-900">${chapter.name || chapter.districtName || '-'}</span>
+                                <span class="px-2 py-0.5 text-xs font-medium rounded-full ${chapter.chairmanName ? 'status-filled' : 'status-vacant'}">
+                                    ${chapter.chairmanName ? '임명' : '공석'}
+                                </span>
+                            </div>
+                            ${chapter.chairmanName ? `
+                                <div class="text-gray-600 mt-1">${chapter.chairmanName} 위원장</div>
+                            ` : ''}
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <button class="btn-move rounded" onclick="moveChapter('${chapter._id}', 'up')" ${index === 0 ? 'disabled' : ''}>
                                 <i class="fas fa-chevron-up"></i>
                             </button>
-                            <div class="text-center text-xs text-gray-400 font-mono">${index + 1}</div>
-                            <button class="btn-move rounded" onclick="moveDown('${chapter._id}')" ${index === chapters.length - 1 ? 'disabled' : ''}>
+                            <button class="btn-move rounded" onclick="moveChapter('${chapter._id}', 'down')" ${index === filteredChapters.length - 1 ? 'disabled' : ''}>
                                 <i class="fas fa-chevron-down"></i>
                             </button>
                         </div>
-                        
-                        <!-- 메인 콘텐츠 -->
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-3 mb-3">
-                                <h3 class="text-lg font-bold text-gray-900">
-                                    ${chapter.districtName || chapter.name}
-                                    ${chapter.districtSuffix ? `<span class="text-red-600">${chapter.districtSuffix}</span>` : ''}
-                                </h3>
-                                <span class="px-2 py-1 text-xs font-medium rounded-full ${chapter.chairmanName ? 'status-filled' : 'status-vacant'}">
-                                    ${chapter.chairmanName ? '임명' : '공석'}
-                                </span>
-                                ${chapter.note ? `<span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">${chapter.note}</span>` : ''}
-                            </div>
-                            
-                            <!-- 행정동 -->
-                            <div class="mb-3">
-                                <span class="text-xs text-gray-500">행정동:</span>
-                                <span class="text-sm text-gray-700 ml-1">
-                                    ${chapter.dongs && chapter.dongs.length > 0 
-                                        ? chapter.dongs.slice(0, 5).join(', ') + (chapter.dongs.length > 5 ? ` 외 ${chapter.dongs.length - 5}개` : '')
-                                        : '-'}
-                                </span>
-                            </div>
-                            
-                            <!-- 위원장 정보 -->
-                            ${chapter.chairmanName ? `
-                                <div class="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
-                                    <i class="fas fa-user-tie text-red-600 text-xl"></i>
-                                    <div>
-                                        <div class="font-medium text-gray-900">${chapter.chairmanName}</div>
-                                        <div class="flex items-center gap-2 mt-1">
-                                            ${chapter.chairmanWebsite ? `<a href="${chapter.chairmanWebsite}" target="_blank" class="text-gray-400 hover:text-blue-500"><i class="fas fa-globe"></i></a>` : ''}
-                                            ${chapter.chairmanInstagram ? `<a href="${chapter.chairmanInstagram}" target="_blank" class="text-gray-400 hover:text-pink-500"><i class="fab fa-instagram"></i></a>` : ''}
-                                            ${chapter.chairmanFacebook ? `<a href="${chapter.chairmanFacebook}" target="_blank" class="text-gray-400 hover:text-blue-600"><i class="fab fa-facebook"></i></a>` : ''}
-                                            ${chapter.chairmanThreads ? `<a href="${chapter.chairmanThreads}" target="_blank" class="text-gray-400 hover:text-gray-800"><i class="fas fa-at"></i></a>` : ''}
-                                            ${chapter.chairmanX ? `<a href="${chapter.chairmanX}" target="_blank" class="text-gray-400 hover:text-gray-800"><svg class="w-4 h-4 inline" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>` : ''}
-                                            ${chapter.chairmanNaverBlog ? `<a href="${chapter.chairmanNaverBlog}" target="_blank" class="text-gray-400 hover:text-green-500"><i class="fas fa-blog"></i></a>` : ''}
-                                            ${chapter.chairmanYoutube ? `<a href="${chapter.chairmanYoutube}" target="_blank" class="text-gray-400 hover:text-red-500"><i class="fab fa-youtube"></i></a>` : ''}
-                                        </div>
-                                    </div>
-                                </div>
-                            ` : `
-                                <div class="p-3 bg-yellow-50 rounded-lg text-yellow-700 text-sm">
-                                    <i class="fas fa-exclamation-triangle mr-2"></i>당협위원장 공석
-                                </div>
-                            `}
+                    </div>
+                    ${chapter.dongsDisplay || chapter.dongs?.length ? `
+                        <div class="text-sm text-gray-500 mb-3 line-clamp-2">
+                            ${chapter.dongsDisplay || chapter.dongs?.join(', ') || ''}
                         </div>
-                        
-                        <!-- 액션 버튼 -->
-                        <div class="flex flex-col gap-2">
-                            <button onclick="openEditModal('${chapter._id}')" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="수정">
-                                <i class="fas fa-edit"></i>
+                    ` : ''}
+                    <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                        <div class="flex items-center text-xs text-gray-400">
+                            <i class="fas fa-grip-vertical mr-2"></i>
+                            드래그로 순서 변경
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="openEditModal('${chapter._id}')" 
+                                class="text-blue-600 hover:text-blue-800 text-sm">
+                                <i class="fas fa-edit mr-1"></i>수정
                             </button>
-                            <button onclick="deleteChapter('${chapter._id}')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="삭제">
-                                <i class="fas fa-trash"></i>
+                            <button onclick="openDeleteModal('${chapter._id}', '${chapter.name}')"
+                                class="text-red-600 hover:text-red-800 text-sm">
+                                <i class="fas fa-trash-alt mr-1"></i>삭제
                             </button>
                         </div>
                     </div>
@@ -449,45 +441,11 @@
             `).join('');
         }
 
-        // 필터링
-        function filterChapters() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const statusFilter = document.getElementById('statusFilter').value;
-
-            let filtered = allChapters;
-
-            if (searchTerm) {
-                filtered = filtered.filter(c => 
-                    (c.name && c.name.toLowerCase().includes(searchTerm)) ||
-                    (c.districtName && c.districtName.toLowerCase().includes(searchTerm)) ||
-                    (c.chairmanName && c.chairmanName.toLowerCase().includes(searchTerm))
-                );
-            }
-
-            if (statusFilter === 'filled') {
-                filtered = filtered.filter(c => c.chairmanName);
-            } else if (statusFilter === 'vacant') {
-                filtered = filtered.filter(c => !c.chairmanName);
-            }
-
-            renderChapters(filtered);
-        }
-
-        // 드래그앤드롭
+        // 드래그 앤 드롭 핸들러
         function handleDragStart(e) {
             draggedCard = e.target.closest('.chapter-card');
             draggedCard.classList.add('dragging');
             e.dataTransfer.effectAllowed = 'move';
-        }
-
-        function handleDragEnd(e) {
-            if (draggedCard) {
-                draggedCard.classList.remove('dragging');
-            }
-            document.querySelectorAll('.chapter-card').forEach(card => {
-                card.classList.remove('drag-over');
-            });
-            draggedCard = null;
         }
 
         function handleDragOver(e) {
@@ -498,259 +456,242 @@
             }
         }
 
-        function handleDrop(e) {
+        function handleDragLeave(e) {
+            const card = e.target.closest('.chapter-card');
+            if (card) {
+                card.classList.remove('drag-over');
+            }
+        }
+
+        async function handleDrop(e) {
             e.preventDefault();
             const targetCard = e.target.closest('.chapter-card');
-            if (!targetCard || targetCard === draggedCard) return;
-
-            targetCard.classList.remove('drag-over');
-
-            const container = document.getElementById('chaptersContainer');
-            const cards = [...container.querySelectorAll('.chapter-card')];
-            const draggedIndex = cards.indexOf(draggedCard);
-            const targetIndex = cards.indexOf(targetCard);
-
-            if (draggedIndex < targetIndex) {
-                targetCard.after(draggedCard);
-            } else {
-                targetCard.before(draggedCard);
+            if (targetCard) {
+                targetCard.classList.remove('drag-over');
             }
-
-            // 새 순서 저장
-            saveNewOrder();
-        }
-
-        async function saveNewOrder() {
-            const container = document.getElementById('chaptersContainer');
-            const orderedIds = [...container.querySelectorAll('.chapter-card')].map(card => card.dataset.id);
-
+            
+            if (!targetCard || targetCard === draggedCard) return;
+            
+            const draggedId = draggedCard.dataset.id;
+            const targetId = targetCard.dataset.id;
+            
+            // 순서 재정렬
+            const draggedIndex = filteredChapters.findIndex(c => c._id === draggedId);
+            const targetIndex = filteredChapters.findIndex(c => c._id === targetId);
+            
+            if (draggedIndex === -1 || targetIndex === -1) return;
+            
+            // 배열 재정렬
+            const [removed] = filteredChapters.splice(draggedIndex, 1);
+            filteredChapters.splice(targetIndex, 0, removed);
+            
+            // 서버에 순서 저장
+            const orderedIds = filteredChapters.map(c => c._id);
             try {
-                const response = await fetch(`${API_BASE_URL}/api/chapters/admin/reorder`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                    },
+                await fetch(`${API_BASE}/chapters/reorder`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ orderedIds })
                 });
-
-                const result = await response.json();
-                if (result.success) {
-                    showToast('순서가 변경되었습니다');
-                    loadChapters();
-                }
+                
+                // 원본 배열도 업데이트
+                chapters = [...filteredChapters];
+                renderChapters();
+                showToast('순서가 변경되었습니다.', 'success');
             } catch (error) {
-                console.error('순서 변경 오류:', error);
-                showToast('순서 변경 실패', 'error');
+                console.error('순서 변경 실패:', error);
+                showToast('순서 변경에 실패했습니다.', 'error');
             }
         }
 
-        // 위로 이동
-        async function moveUp(id) {
-            showLoading(true);
+        function handleDragEnd(e) {
+            if (draggedCard) {
+                draggedCard.classList.remove('dragging');
+            }
+            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+            draggedCard = null;
+        }
+
+        // 순서 이동 (위/아래 버튼)
+        async function moveChapter(id, direction) {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/chapters/admin/${id}/move-up`, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                    }
+                const response = await fetch(`${API_BASE}/chapters/${id}/move`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ direction })
                 });
-                const result = await response.json();
-                if (result.success) {
-                    loadChapters();
+                
+                if (response.ok) {
+                    chapters = await response.json();
+                    filterChapters();
+                    showToast('순서가 변경되었습니다.', 'success');
                 }
             } catch (error) {
-                showToast('이동 실패', 'error');
-            } finally {
-                showLoading(false);
+                console.error('순서 변경 실패:', error);
+                showToast('순서 변경에 실패했습니다.', 'error');
             }
         }
 
-        // 아래로 이동
-        async function moveDown(id) {
-            showLoading(true);
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/chapters/admin/${id}/move-down`, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                    }
-                });
-                const result = await response.json();
-                if (result.success) {
-                    loadChapters();
-                }
-            } catch (error) {
-                showToast('이동 실패', 'error');
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        // 모달
+        // 모달 열기 (추가)
         function openAddModal() {
-            document.getElementById('modalTitle').textContent = '지역구 추가';
-            document.getElementById('chapterForm').reset();
-            document.getElementById('editingId').value = '';
-            document.getElementById('chapterModal').classList.remove('hidden');
+            document.getElementById('modal-title').textContent = '지역구 추가';
+            document.getElementById('edit-id').value = '';
+            document.getElementById('chapter-form').reset();
+            document.getElementById('chapter-modal').classList.remove('hidden');
         }
 
+        // 모달 열기 (수정)
         function openEditModal(id) {
-            const chapter = allChapters.find(c => c._id === id);
+            const chapter = chapters.find(c => c._id === id);
             if (!chapter) return;
-
-            document.getElementById('modalTitle').textContent = '지역구 수정';
-            document.getElementById('editingId').value = id;
-            document.getElementById('districtName').value = chapter.districtName || '';
-            document.getElementById('districtSuffix').value = chapter.districtSuffix || '';
-            document.getElementById('dongsRaw').value = chapter.dongsRaw || '';
-            document.getElementById('kakaoLink').value = chapter.kakaoLink || '';
-            document.getElementById('note').value = chapter.note || '';
-            document.getElementById('chairmanSurname').value = chapter.chairmanSurname || '';
-            document.getElementById('chairmanGivenName').value = chapter.chairmanGivenName || '';
-            document.getElementById('chairmanWebsite').value = chapter.chairmanWebsite || '';
-            document.getElementById('chairmanInstagram').value = chapter.chairmanInstagram || '';
-            document.getElementById('chairmanFacebook').value = chapter.chairmanFacebook || '';
-            document.getElementById('chairmanThreads').value = chapter.chairmanThreads || '';
-            document.getElementById('chairmanX').value = chapter.chairmanX || '';
-            document.getElementById('chairmanNaverBlog').value = chapter.chairmanNaverBlog || '';
-            document.getElementById('chairmanYoutube').value = chapter.chairmanYoutube || '';
-
-            document.getElementById('chapterModal').classList.remove('hidden');
+            
+            document.getElementById('modal-title').textContent = '지역구 수정';
+            document.getElementById('edit-id').value = id;
+            document.getElementById('district-name').value = chapter.districtName || chapter.name || '';
+            document.getElementById('district-suffix').value = chapter.districtSuffix || '';
+            document.getElementById('chairman-surname').value = chapter.chairmanSurname || '';
+            document.getElementById('chairman-given-name').value = chapter.chairmanGivenName || '';
+            document.getElementById('chairman-phone').value = chapter.chairmanPhone || '';
+            document.getElementById('chairman-email').value = chapter.chairmanEmail || '';
+            document.getElementById('dongs-raw').value = chapter.dongsRaw || '';
+            
+            document.getElementById('chapter-modal').classList.remove('hidden');
         }
 
+        // 모달 닫기
         function closeModal() {
-            document.getElementById('chapterModal').classList.add('hidden');
+            document.getElementById('chapter-modal').classList.add('hidden');
         }
 
-        // 저장
-        async function saveChapter(e) {
+        // 폼 제출
+        async function handleSubmit(e) {
             e.preventDefault();
-            showLoading(true);
-
-            const id = document.getElementById('editingId').value;
+            
+            const id = document.getElementById('edit-id').value;
             const data = {
-                districtName: document.getElementById('districtName').value,
-                districtSuffix: document.getElementById('districtSuffix').value,
-                dongsRaw: document.getElementById('dongsRaw').value,
-                kakaoLink: document.getElementById('kakaoLink').value,
-                note: document.getElementById('note').value,
-                chairmanSurname: document.getElementById('chairmanSurname').value,
-                chairmanGivenName: document.getElementById('chairmanGivenName').value,
-                chairmanWebsite: document.getElementById('chairmanWebsite').value,
-                chairmanInstagram: document.getElementById('chairmanInstagram').value,
-                chairmanFacebook: document.getElementById('chairmanFacebook').value,
-                chairmanThreads: document.getElementById('chairmanThreads').value,
-                chairmanX: document.getElementById('chairmanX').value,
-                chairmanNaverBlog: document.getElementById('chairmanNaverBlog').value,
-                chairmanYoutube: document.getElementById('chairmanYoutube').value
+                districtName: document.getElementById('district-name').value,
+                districtSuffix: document.getElementById('district-suffix').value || null,
+                chairmanSurname: document.getElementById('chairman-surname').value || null,
+                chairmanGivenName: document.getElementById('chairman-given-name').value || null,
+                chairmanPhone: document.getElementById('chairman-phone').value || null,
+                chairmanEmail: document.getElementById('chairman-email').value || null,
+                dongsRaw: document.getElementById('dongs-raw').value || null
             };
-
+            
             try {
-                const url = id 
-                    ? `${API_BASE_URL}/api/chapters/admin/${id}` 
-                    : `${API_BASE_URL}/api/chapters/admin`;
+                const url = id ? `${API_BASE}/chapters/${id}` : `${API_BASE}/chapters`;
                 const method = id ? 'PUT' : 'POST';
-
+                
                 const response = await fetch(url, {
                     method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    showToast(id ? '수정되었습니다' : '추가되었습니다');
+                
+                if (response.ok) {
                     closeModal();
                     loadChapters();
+                    showToast(id ? '수정되었습니다.' : '추가되었습니다.', 'success');
                 } else {
-                    showToast(result.message || '저장 실패', 'error');
+                    const err = await response.json();
+                    showToast(err.error || '저장에 실패했습니다.', 'error');
                 }
             } catch (error) {
-                console.error('저장 오류:', error);
-                showToast('서버 연결 오류', 'error');
-            } finally {
-                showLoading(false);
+                console.error('저장 실패:', error);
+                showToast('저장에 실패했습니다.', 'error');
             }
         }
 
-        // 삭제
-        async function deleteChapter(id) {
-            const chapter = allChapters.find(c => c._id === id);
-            if (!confirm(`"${chapter?.name || '이 지역구'}"를 삭제하시겠습니까?`)) return;
+        // 삭제 모달
+        function openDeleteModal(id, name) {
+            deleteTargetId = id;
+            document.getElementById('delete-message').textContent = `"${name}" 지역구를 삭제하시겠습니까?`;
+            document.getElementById('delete-modal').classList.remove('hidden');
+        }
 
-            showLoading(true);
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.add('hidden');
+            deleteTargetId = null;
+        }
+
+        async function confirmDelete() {
+            if (!deleteTargetId) return;
+            
             try {
-                const response = await fetch(`${API_BASE_URL}/api/chapters/admin/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                    }
+                const response = await fetch(`${API_BASE}/chapters/${deleteTargetId}`, {
+                    method: 'DELETE'
                 });
-
-                const result = await response.json();
-                if (result.success) {
-                    showToast('삭제되었습니다');
+                
+                if (response.ok) {
+                    closeDeleteModal();
                     loadChapters();
-                } else {
-                    showToast(result.message || '삭제 실패', 'error');
+                    showToast('삭제되었습니다.', 'success');
                 }
             } catch (error) {
-                showToast('서버 연결 오류', 'error');
-            } finally {
-                showLoading(false);
+                console.error('삭제 실패:', error);
+                showToast('삭제에 실패했습니다.', 'error');
             }
         }
 
         // 마이그레이션
         async function runMigration() {
             if (!confirm('기존 데이터를 새 형식으로 마이그레이션하시겠습니까?')) return;
-
-            showLoading(true);
+            
             try {
-                const response = await fetch(`${API_BASE_URL}/api/chapters/admin/migrate`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                    }
+                const response = await fetch(`${API_BASE}/chapters/migrate`, {
+                    method: 'POST'
                 });
-
+                
                 const result = await response.json();
-                if (result.success) {
-                    showToast(result.message);
+                
+                if (response.ok) {
                     loadChapters();
+                    showToast(result.message, 'success');
                 } else {
-                    showToast(result.message || '마이그레이션 실패', 'error');
+                    showToast(result.error || '마이그레이션 실패', 'error');
                 }
             } catch (error) {
-                showToast('서버 연결 오류', 'error');
-            } finally {
-                showLoading(false);
+                console.error('마이그레이션 실패:', error);
+                showToast('마이그레이션에 실패했습니다.', 'error');
             }
         }
 
-        // 유틸리티
-        function showLoading(show) {
-            document.getElementById('loadingOverlay').classList.toggle('hidden', !show);
+        // 시드 데이터 생성
+        async function seedData() {
+            if (!confirm('서울특별시 49개 지역구 데이터를 생성하시겠습니까?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/chapters/seed`, {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    loadChapters();
+                    showToast(result.message, 'success');
+                } else {
+                    showToast(result.error || '시드 데이터 생성 실패', 'error');
+                }
+            } catch (error) {
+                console.error('시드 생성 실패:', error);
+                showToast('시드 데이터 생성에 실패했습니다.', 'error');
+            }
         }
 
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toastMessage');
-            
-            toastMessage.textContent = message;
-            toast.className = `fixed bottom-6 right-6 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 z-50 ${
-                type === 'error' ? 'bg-red-600 text-white' : 'bg-gray-900 text-white'
+        // 토스트 메시지
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white z-50 transition-all transform ${
+                type === 'success' ? 'bg-green-500' : 
+                type === 'error' ? 'bg-red-500' : 'bg-gray-700'
             }`;
-            
-            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.textContent = message;
+            document.body.appendChild(toast);
             
             setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0');
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
             }, 3000);
         }
     </script>
