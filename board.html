@@ -79,8 +79,14 @@
             border-radius: 8px;
             margin-left: 4px;
         }
-        .col-avatar {
-            width: 36px;
+        .col-author { 
+            width: 130px;
+        }
+        .author-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
         }
         .author-avatar {
             width: 28px;
@@ -91,7 +97,7 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            margin: 0 auto;
+            flex-shrink: 0;
         }
         .author-avatar img {
             width: 100%;
@@ -102,10 +108,10 @@
             font-size: 0.7rem;
             color: #9ca3af;
         }
-        .col-nickname { 
-            width: 100px; 
+        .author-name {
             color: #374151;
             font-weight: 500;
+            white-space: nowrap;
         }
         .col-grade { width: 80px; }
         .grade-badge {
@@ -532,8 +538,7 @@
                         <tr>
                             <th class="col-no">번호</th>
                             <th class="col-title">제목</th>
-                            <th class="col-avatar"></th>
-                            <th class="col-nickname">작성자</th>
+                            <th class="col-author">작성자</th>
                             <th class="col-grade">등급</th>
                             <th class="col-date">작성일</th>
                             <th class="col-view">조회</th>
@@ -563,14 +568,16 @@
                             ${post.commentCount > 0 ? `<span class="comment-count">${post.commentCount}</span>` : ''}
                         </a>
                     </td>
-                    <td class="col-avatar">
-                        <div class="author-avatar">
-                            ${post.author?.profileImage 
-                                ? `<img src="${post.author.profileImage}" alt="">` 
-                                : '<i class="fas fa-user"></i>'}
+                    <td class="col-author">
+                        <div class="author-cell">
+                            <div class="author-avatar">
+                                ${post.author?.profileImage 
+                                    ? `<img src="${post.author.profileImage}" alt="">` 
+                                    : '<i class="fas fa-user"></i>'}
+                            </div>
+                            <span class="author-name">${post.author?.nickname || '알 수 없음'}</span>
                         </div>
                     </td>
-                    <td class="col-nickname">${post.author?.nickname || '알 수 없음'}</td>
                     <td class="col-grade">
                         <span class="grade-badge ${gradeInfo.class}">${gradeInfo.text}</span>
                     </td>
