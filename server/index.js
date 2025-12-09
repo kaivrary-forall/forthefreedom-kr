@@ -271,6 +271,9 @@ app.use('/api/applications', require('./routes/applications'));
 // 게시판 라우트
 app.use('/api/posts', require('./routes/posts'));
 
+// 피드 라우트
+app.use('/api/feed', require('./routes/feed'));
+
 // 404 에러 핸들링
 app.use('*', (req, res) => {
   res.status(404).json({
