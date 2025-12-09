@@ -227,12 +227,15 @@ async function extendSession() {
         
         const result = await response.json();
         
-        if (result.success && result.accessToken) {
-            localStorage.setItem('adminToken', result.accessToken);
+        // accessToken 또는 token 필드 확인
+        const newToken = result.accessToken || result.token;
+        
+        if (result.success && newToken) {
+            localStorage.setItem('adminToken', newToken);
             initSessionTimer(); // 타이머 재시작
             
             // 갱신 성공 알림
-            const btn = event.target.closest('button');
+            const btn = document.querySelector('[onclick="extendSession()"]');
             if (btn) {
                 btn.innerHTML = '<i class="fas fa-check"></i>';
                 setTimeout(() => {
