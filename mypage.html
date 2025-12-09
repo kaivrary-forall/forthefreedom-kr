@@ -1054,8 +1054,8 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    alert('이메일이 성공적으로 변경되었습니다!');
                     closeModal('emailChangeModal');
+                    showSuccessModal('이메일이 성공적으로 변경되었습니다!');
                     // 기본 정보 수정 모달의 이메일 필드도 업데이트
                     document.getElementById('editEmail').value = pendingNewEmail;
                     loadMemberInfo(); // 정보 새로고침
@@ -1393,6 +1393,29 @@
                 window.location.href = 'index.html';
             }
         }
+        
+        // 성공 모달 표시
+        function showSuccessModal(message) {
+            document.getElementById('successMessage').textContent = message;
+            document.getElementById('successModal').classList.add('active');
+        }
+        
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.remove('active');
+        }
     </script>
+    
+    <!-- 성공 모달 -->
+    <div id="successModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <div style="margin-bottom: 20px;">
+                <div style="width: 60px; height: 60px; background: #10b981; border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-check" style="color: white; font-size: 28px;"></i>
+                </div>
+                <p id="successMessage" style="font-size: 16px; color: #333;"></p>
+            </div>
+            <button onclick="closeSuccessModal()" class="btn-primary" style="width: 100%;">확인</button>
+        </div>
+    </div>
 </body>
 </html>
