@@ -920,6 +920,7 @@ function createMypageModal() {
             box-shadow: 0 25px 80px rgba(0,0,0,0.3);
             display: flex;
             flex-direction: column;
+            overscroll-behavior: contain;
         }
         .mp-modal-header {
             display: flex;
@@ -937,7 +938,7 @@ function createMypageModal() {
             transition: all 0.2s;
         }
         .mp-close-btn:hover { background: #e5e7eb; color: #333; }
-        .mp-modal-body { padding: 28px; flex: 1; overflow-y: auto; }
+        .mp-modal-body { padding: 28px; flex: 1; overflow-y: auto; overscroll-behavior: contain; }
         .mp-loading { text-align: center; padding: 60px; color: #6b7280; }
         .mp-loading i { font-size: 2.5rem; margin-bottom: 12px; display: block; color: #A50034; }
         
