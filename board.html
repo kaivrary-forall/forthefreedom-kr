@@ -353,26 +353,22 @@
                 </h1>
             </div>
             
-            <!-- 글쓰기 버튼 (상단) -->
-            <div style="padding: 16px 20px; border-bottom: 1px solid #e5e7eb;">
-                <a href="board-write.html" class="write-btn" id="writeBtn">
-                    <i class="fas fa-pen"></i>
-                    글쓰기
-                </a>
-            </div>
-            
             <!-- 로그인 안내 -->
             <div id="loginNotice" class="login-notice hidden">
                 <i class="fas fa-info-circle"></i>
                 <span>글쓰기와 댓글 작성은 <a href="login.html">로그인</a> 후 이용 가능합니다.</span>
             </div>
             
-            <!-- 컨트롤 바 -->
+            <!-- 정렬 탭 -->
             <div class="control-bar">
                 <div class="sort-tabs">
                     <div class="sort-tab active" data-sort="latest">최신순</div>
                     <div class="sort-tab" data-sort="popular">인기순</div>
                 </div>
+            </div>
+            
+            <!-- 페이지당 + 글쓰기 -->
+            <div style="display: flex; justify-content: flex-end; align-items: center; gap: 12px; padding: 12px 20px; border-bottom: 1px solid #e5e7eb;">
                 <div class="per-page-select">
                     <label>페이지당</label>
                     <select id="perPageSelect" onchange="changePerPage(this.value)">
@@ -381,6 +377,10 @@
                         <option value="100">100개</option>
                     </select>
                 </div>
+                <a href="board-write.html" class="write-btn" id="writeBtn">
+                    <i class="fas fa-pen"></i>
+                    글쓰기
+                </a>
             </div>
             
             <!-- 게시글 목록 -->
