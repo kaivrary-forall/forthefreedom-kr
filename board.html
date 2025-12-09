@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원 게시판 | 자유와혁신</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#A50034',
+                        'primary-dark': '#8B002C',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="config.js"></script>
+    <style>
+        .board-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .post-item {
+            display: flex;
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.15s;
+            cursor: pointer;
+        }
+        .post-item:hover {
+            background: #fafafa;
+        }
+        .post-content {
+            flex: 1;
+            min-width: 0;
+        }
+        .post-title {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #1f2937;
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .post-title:hover {
+            color: #A50034;
+        }
+        .post-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+        .post-author {
+            color: #6b7280;
+            font-weight: 500;
+        }
+        .post-stats {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-left: auto;
+            flex-shrink: 0;
+            padding-left: 20px;
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+        .stat-item i {
+            font-size: 0.75rem;
+        }
+        .stat-item.likes { color: #ef4444; }
+        .stat-item.recommends { color: #f59e0b; }
+        .comment-count {
+            background: #A50034;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 6px;
+        }
+        .board-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 2px solid #A50034;
+        }
+        .board-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        .write-btn {
+            background: #A50034;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+        .write-btn:hover {
+            background: #8B002C;
+        }
+        .sort-tabs {
+            display: flex;
+            gap: 4px;
+            padding: 12px 20px;
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .sort-tab {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .sort-tab:hover {
+            background: #e5e7eb;
+        }
+        .sort-tab.active {
+            background: #A50034;
+            color: white;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9ca3af;
+        }
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            display: block;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            padding: 24px;
+        }
+        .page-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .page-btn:hover {
+            background: #f3f4f6;
+        }
+        .page-btn.active {
+            background: #A50034;
+            color: white;
+        }
+        .page-btn.disabled {
+            color: #d1d5db;
+            cursor: not-allowed;
+        }
+        .login-notice {
+            background: #fef3c7;
+            border: 1px solid #fcd34d;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 16px 20px;
+            font-size: 0.875rem;
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .login-notice a {
+            color: #A50034;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="nav-container"></div>
+    
+    <main class="pt-20 pb-12 px-4">
+        <div class="board-container bg-white rounded-xl shadow-sm overflow-hidden">
+            <!-- 헤더 -->
+            <div class="board-header">
+                <h1 class="board-title">
+                    <i class="fas fa-comments text-primary mr-2"></i>
+                    회원 게시판
+                </h1>
+                <a href="board-write.html" class="write-btn" id="writeBtn">
+                    <i class="fas fa-pen"></i>
+                    글쓰기
+                </a>
+            </div>
+            
+            <!-- 로그인 안내 -->
+            <div id="loginNotice" class="login-notice hidden">
+                <i class="fas fa-info-circle"></i>
+                <span>글쓰기와 댓글 작성은 <a href="login.html">로그인</a> 후 이용 가능합니다.</span>
+            </div>
+            
+            <!-- 정렬 탭 -->
+            <div class="sort-tabs">
+                <div class="sort-tab active" data-sort="latest">최신순</div>
+                <div class="sort-tab" data-sort="popular">인기순</div>
+                <div class="sort-tab" data-sort="recommended">추천순</div>
+            </div>
+            
+            <!-- 게시글 목록 -->
+            <div id="postList">
+                <div class="empty-state">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>게시글을 불러오는 중...</p>
+                </div>
+            </div>
+            
+            <!-- 페이지네이션 -->
+            <div id="pagination" class="pagination hidden"></div>
+        </div>
+    </main>
+    
+    <script src="nav.js"></script>
+    <script>
+        const API_BASE = window.API_BASE || 'https://forthefreedom-kr-production.up.railway.app/api';
+        
+        let currentPage = 1;
+        let currentSort = 'latest';
+        let totalPages = 1;
+        
+        // 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadPosts();
+            setupSortTabs();
+        });
+        
+        // 인증 확인
+        function checkAuth() {
+            const token = localStorage.getItem('memberToken');
+            const writeBtn = document.getElementById('writeBtn');
+            const loginNotice = document.getElementById('loginNotice');
+            
+            if (!token) {
+                writeBtn.classList.add('hidden');
+                loginNotice.classList.remove('hidden');
+            }
+        }
+        
+        // 정렬 탭 설정
+        function setupSortTabs() {
+            document.querySelectorAll('.sort-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.sort-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentSort = this.dataset.sort;
+                    currentPage = 1;
+                    loadPosts();
+                });
+            });
+        }
+        
+        // 게시글 목록 로드
+        async function loadPosts() {
+            const postList = document.getElementById('postList');
+            const pagination = document.getElementById('pagination');
+            
+            try {
+                const token = localStorage.getItem('memberToken');
+                const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+                
+                const response = await fetch(
+                    `${API_BASE}/posts?boardType=member&page=${currentPage}&sort=${currentSort}&limit=20`,
+                    { headers }
+                );
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    const { posts, pagination: paginationData } = result.data;
+                    totalPages = paginationData.totalPages;
+                    
+                    if (posts.length === 0) {
+                        postList.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-file-alt"></i>
+                                <p>아직 게시글이 없습니다</p>
+                                <p class="text-sm mt-2">첫 번째 글을 작성해보세요!</p>
+                            </div>
+                        `;
+                        pagination.classList.add('hidden');
+                    } else {
+                        postList.innerHTML = posts.map(post => renderPostItem(post)).join('');
+                        renderPagination();
+                        pagination.classList.remove('hidden');
+                    }
+                } else {
+                    throw new Error(result.message);
+                }
+                
+            } catch (error) {
+                console.error('게시글 로드 오류:', error);
+                postList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-circle text-red-400"></i>
+                        <p>게시글을 불러올 수 없습니다</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // 게시글 아이템 렌더링
+        function renderPostItem(post) {
+            const date = new Date(post.createdAt);
+            const dateStr = formatDate(date);
+            
+            return `
+                <div class="post-item" onclick="location.href='board-view.html?id=${post._id}'">
+                    <div class="post-content">
+                        <div class="post-title">
+                            ${escapeHtml(post.title)}
+                            ${post.commentCount > 0 ? `<span class="comment-count">${post.commentCount}</span>` : ''}
+                        </div>
+                        <div class="post-meta">
+                            <span class="post-author">${post.author?.nickname || '알 수 없음'}</span>
+                            <span>${dateStr}</span>
+                            <span><i class="fas fa-eye"></i> ${post.viewCount}</span>
+                        </div>
+                    </div>
+                    <div class="post-stats">
+                        <div class="stat-item likes">
+                            <i class="fas fa-heart"></i>
+                            <span>${post.likeCount || 0}</span>
+                        </div>
+                        <div class="stat-item recommends">
+                            <i class="fas fa-thumbs-up"></i>
+                            <span>${post.recommendCount || 0}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 날짜 포맷
+        function formatDate(date) {
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return '방금 전';
+            if (diff < 3600000) return Math.floor(diff / 60000) + '분 전';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + '시간 전';
+            
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            
+            if (year === now.getFullYear()) {
+                return `${month}.${day}`;
+            }
+            return `${year}.${month}.${day}`;
+        }
+        
+        // 페이지네이션 렌더링
+        function renderPagination() {
+            const pagination = document.getElementById('pagination');
+            let html = '';
+            
+            // 이전 버튼
+            html += `<div class="page-btn ${currentPage === 1 ? 'disabled' : ''}" onclick="${currentPage > 1 ? 'goToPage(' + (currentPage - 1) + ')' : ''}">
+                <i class="fas fa-chevron-left"></i>
+            </div>`;
+            
+            // 페이지 번호
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, startPage + 4);
+            
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<div class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</div>`;
+            }
+            
+            // 다음 버튼
+            html += `<div class="page-btn ${currentPage === totalPages ? 'disabled' : ''}" onclick="${currentPage < totalPages ? 'goToPage(' + (currentPage + 1) + ')' : ''}">
+                <i class="fas fa-chevron-right"></i>
+            </div>`;
+            
+            pagination.innerHTML = html;
+        }
+        
+        // 페이지 이동
+        function goToPage(page) {
+            currentPage = page;
+            loadPosts();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // HTML 이스케이프
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
