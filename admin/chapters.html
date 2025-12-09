@@ -65,6 +65,8 @@
                 </div>
                 <select id="filterSelect" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
                     <option value="all">전체</option>
+                    <option value="active">표시 중</option>
+                    <option value="hidden">숨김</option>
                     <option value="filled">위원장 있음</option>
                     <option value="vacant">공석</option>
                 </select>
@@ -72,9 +74,6 @@
             <div class="flex items-center gap-2">
                 <button onclick="openAddModal()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-2">
                     <i class="fas fa-plus"></i> 지역구 추가
-                </button>
-                <button onclick="deleteAllAndSeed()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2">
-                    <i class="fas fa-database"></i> 데이터 초기화
                 </button>
                 <button onclick="loadChapters()" class="px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
                     <i class="fas fa-sync-alt"></i>
@@ -91,10 +90,7 @@
         <div id="emptyState" class="hidden text-center py-20">
             <i class="fas fa-map-marked-alt text-gray-300 text-6xl mb-6"></i>
             <h3 class="text-xl font-medium text-gray-500 mb-2">지역구가 없습니다</h3>
-            <p class="text-gray-400 mb-6">새 지역구를 추가하거나 시드 데이터를 생성하세요.</p>
-            <button onclick="seedData()" class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700">
-                서울 48개 지역구 생성
-            </button>
+            <p class="text-gray-400 mb-6">"지역구 추가" 버튼으로 새 지역구를 추가하세요.</p>
         </div>
     </main>
 
@@ -240,7 +236,7 @@
         // 지역구 목록 로드
         async function loadChapters() {
             try {
-                const response = await fetch(`${API_BASE}/chapters?province=seoul`);
+                const response = await fetch(`${API_BASE}/chapters?province=seoul&includeHidden=true`);
                 const result = await response.json();
                 
                 if (result.success) {
@@ -278,6 +274,8 @@
                                      (chapter.dongsRaw && chapter.dongsRaw.toLowerCase().includes(searchTerm));
                 
                 const matchesFilter = filter === 'all' ||
+                                     (filter === 'active' && chapter.isActive) ||
+                                     (filter === 'hidden' && !chapter.isActive) ||
                                      (filter === 'filled' && chapter.chairmanName) ||
                                      (filter === 'vacant' && !chapter.chairmanName);
                 
@@ -298,7 +296,7 @@
                 const dongsHtml = dongs.map(d => `<span class="dong-tag">${d}</span>`).join('');
                 
                 return `
-                <div class="chapter-card bg-white rounded-xl shadow p-6 border-2 border-transparent"
+                <div class="chapter-card ${!chapter.isActive ? 'opacity-50' : ''} bg-white rounded-xl shadow p-6 border-2 ${!chapter.isActive ? 'border-gray-300 border-dashed' : 'border-transparent'}"
                      data-id="${chapter._id}"
                      draggable="true"
                      ondragstart="handleDragStart(event)"
@@ -308,12 +306,18 @@
                      ondrop="handleDrop(event)">
                     <div class="flex items-center justify-between mb-3">
                         <h3 class="text-lg font-bold text-gray-900">${chapter.name}</h3>
-                        <div class="flex items-center gap-1">
-                            <button onclick="moveChapter('${chapter._id}', 'up')" class="p-1 text-gray-400 hover:text-gray-600">
+                        <div class="flex items-center gap-2">
+                            <button onclick="moveChapter('${chapter._id}', 'up')" class="p-1 text-gray-400 hover:text-gray-600" title="위로">
                                 <i class="fas fa-chevron-up"></i>
                             </button>
-                            <button onclick="moveChapter('${chapter._id}', 'down')" class="p-1 text-gray-400 hover:text-gray-600">
+                            <button onclick="moveChapter('${chapter._id}', 'down')" class="p-1 text-gray-400 hover:text-gray-600" title="아래로">
                                 <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <button onclick="toggleVisibility('${chapter._id}')" class="p-1 ${chapter.isActive ? 'text-gray-400 hover:text-blue-600' : 'text-blue-600'}" title="${chapter.isActive ? '숨기기' : '표시하기'}">
+                                <i class="fas ${chapter.isActive ? 'fa-eye' : 'fa-eye-slash'}"></i>
+                            </button>
+                            <button onclick="openDeleteModal('${chapter._id}')" class="p-1 text-gray-400 hover:text-red-600" title="삭제">
+                                <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
@@ -340,14 +344,9 @@
                     
                     <div class="flex items-center justify-between mt-4 pt-4 border-t text-sm">
                         <span class="text-gray-400"><i class="fas fa-grip-vertical mr-1"></i> 드래그로 순서 변경</span>
-                        <div class="flex gap-2">
-                            <button onclick="openEditModal('${chapter._id}')" class="text-blue-600 hover:text-blue-800">
-                                <i class="fas fa-edit"></i> 수정
-                            </button>
-                            <button onclick="openDeleteModal('${chapter._id}')" class="text-red-600 hover:text-red-800">
-                                <i class="fas fa-trash"></i> 삭제
-                            </button>
-                        </div>
+                        <button onclick="openEditModal('${chapter._id}')" class="text-blue-600 hover:text-blue-800">
+                            <i class="fas fa-edit"></i> 수정
+                        </button>
                     </div>
                 </div>
                 `;
@@ -533,47 +532,25 @@
             }
         }
 
-        // 시드 데이터 생성
-        async function seedData() {
-            if (!confirm('서울특별시 48개 지역구 데이터를 생성하시겠습니까?')) return;
+        // 숨기기/표시 토글
+        async function toggleVisibility(id) {
+            const chapter = chapters.find(c => c._id === id);
+            if (!chapter) return;
             
             try {
-                const response = await fetch(`${API_BASE}/chapters/seed`, { method: 'POST' });
-                const result = await response.json();
+                const response = await fetch(`${API_BASE}/chapters/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ isActive: !chapter.isActive })
+                });
                 
-                if (result.success) {
+                if (response.ok) {
                     loadChapters();
-                    showToast(`${result.count}개 지역구가 생성되었습니다`, 'success');
-                } else {
-                    showToast(result.error || '생성에 실패했습니다', 'error');
+                    showToast(chapter.isActive ? '숨김 처리되었습니다' : '다시 표시됩니다', 'success');
                 }
             } catch (error) {
-                console.error('시드 오류:', error);
-                showToast('생성에 실패했습니다', 'error');
-            }
-        }
-
-        // 전체 삭제 후 시드
-        async function deleteAllAndSeed() {
-            if (!confirm('모든 지역구를 삭제하고 48개 시드 데이터를 새로 생성하시겠습니까?\n\n⚠️ 기존 데이터가 모두 삭제됩니다!')) return;
-            
-            try {
-                // 전체 삭제
-                await fetch(`${API_BASE}/chapters/all`, { method: 'DELETE' });
-                
-                // 시드 생성
-                const response = await fetch(`${API_BASE}/chapters/seed`, { method: 'POST' });
-                const result = await response.json();
-                
-                if (result.success) {
-                    loadChapters();
-                    showToast(`데이터 초기화 완료: ${result.count}개 지역구 생성`, 'success');
-                } else {
-                    showToast(result.error || '생성에 실패했습니다', 'error');
-                }
-            } catch (error) {
-                console.error('초기화 오류:', error);
-                showToast('초기화에 실패했습니다', 'error');
+                console.error('숨기기 오류:', error);
+                showToast('처리에 실패했습니다', 'error');
             }
         }
 
