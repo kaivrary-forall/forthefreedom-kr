@@ -81,8 +81,8 @@
         .stat-item i {
             font-size: 0.75rem;
         }
-        .stat-item.likes { color: #ef4444; }
-        .stat-item.recommends { color: #f59e0b; }
+        .stat-item.likes { color: #22c55e; }
+        .stat-item.dislikes { color: #6b7280; }
         .comment-count {
             background: #A50034;
             color: white;
@@ -224,7 +224,6 @@
             <div class="sort-tabs">
                 <div class="sort-tab active" data-sort="latest">최신순</div>
                 <div class="sort-tab" data-sort="popular">인기순</div>
-                <div class="sort-tab" data-sort="recommended">추천순</div>
             </div>
             
             <!-- 게시글 목록 -->
@@ -349,12 +348,12 @@
                     </div>
                     <div class="post-stats">
                         <div class="stat-item likes">
-                            <i class="fas fa-heart"></i>
+                            <i class="fas fa-thumbs-up"></i>
                             <span>${post.likeCount || 0}</span>
                         </div>
-                        <div class="stat-item recommends">
-                            <i class="fas fa-thumbs-up"></i>
-                            <span>${post.recommendCount || 0}</span>
+                        <div class="stat-item dislikes">
+                            <i class="fas fa-thumbs-down"></i>
+                            <span>${post.dislikeCount || 0}</span>
                         </div>
                     </div>
                 </div>

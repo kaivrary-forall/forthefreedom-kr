@@ -118,22 +118,22 @@
             background: #f9fafb;
         }
         .action-btn.active.like {
-            border-color: #ef4444;
-            background: #fef2f2;
+            border-color: #22c55e;
+            background: #f0fdf4;
         }
-        .action-btn.active.recommend {
-            border-color: #f59e0b;
-            background: #fffbeb;
+        .action-btn.active.dislike {
+            border-color: #6b7280;
+            background: #f3f4f6;
         }
         .action-btn i {
             font-size: 1.5rem;
             color: #9ca3af;
         }
         .action-btn.active.like i {
-            color: #ef4444;
+            color: #22c55e;
         }
-        .action-btn.active.recommend i {
-            color: #f59e0b;
+        .action-btn.active.dislike i {
+            color: #6b7280;
         }
         .action-btn span {
             font-size: 0.875rem;
@@ -408,12 +408,12 @@
                     
                     <div class="post-actions">
                         <button class="action-btn like" id="likeBtn" onclick="toggleLike()">
-                            <i class="fas fa-heart"></i>
+                            <i class="fas fa-thumbs-up"></i>
                             <span>좋아요 <span id="likeCount">0</span></span>
                         </button>
-                        <button class="action-btn recommend" id="recommendBtn" onclick="toggleRecommend()">
-                            <i class="fas fa-thumbs-up"></i>
-                            <span>추천 <span id="recommendCount">0</span></span>
+                        <button class="action-btn dislike" id="dislikeBtn" onclick="toggleDislike()">
+                            <i class="fas fa-thumbs-down"></i>
+                            <span>싫어요 <span id="dislikeCount">0</span></span>
                         </button>
                     </div>
                 </div>
@@ -557,7 +557,7 @@
             document.getElementById('postDate').textContent = formatDate(new Date(post.createdAt));
             document.getElementById('viewCount').textContent = post.viewCount;
             document.getElementById('likeCount').textContent = post.likeCount || 0;
-            document.getElementById('recommendCount').textContent = post.recommendCount || 0;
+            document.getElementById('dislikeCount').textContent = post.dislikeCount || 0;
             
             // 작성자 아바타
             const avatarEl = document.getElementById('authorAvatar');
@@ -565,12 +565,12 @@
                 avatarEl.innerHTML = `<img src="${post.author.profileImage}" alt="프로필">`;
             }
             
-            // 좋아요/추천 상태
+            // 좋아요/싫어요 상태
             if (post.isLiked) {
                 document.getElementById('likeBtn').classList.add('active');
             }
-            if (post.isRecommended) {
-                document.getElementById('recommendBtn').classList.add('active');
+            if (post.isDisliked) {
+                document.getElementById('dislikeBtn').classList.add('active');
             }
             
             // 관리자 버튼
@@ -654,8 +654,8 @@
             }
         }
         
-        // 추천 토글
-        async function toggleRecommend() {
+        // 싫어요 토글
+        async function toggleDislike() {
             if (!isLoggedIn) {
                 alert('로그인이 필요합니다');
                 return;
@@ -663,7 +663,7 @@
             
             try {
                 const token = localStorage.getItem('memberToken');
-                const response = await fetch(`${API_BASE}/posts/${postId}/recommend`, {
+                const response = await fetch(`${API_BASE}/posts/${postId}/dislike`, {
                     method: 'POST',
                     headers: { 'Authorization': 'Bearer ' + token }
                 });
@@ -671,12 +671,12 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    document.getElementById('recommendCount').textContent = result.data.recommendCount;
-                    document.getElementById('recommendBtn').classList.toggle('active', result.data.isRecommended);
+                    document.getElementById('dislikeCount').textContent = result.data.dislikeCount;
+                    document.getElementById('dislikeBtn').classList.toggle('active', result.data.isDisliked);
                 }
                 
             } catch (error) {
-                console.error('추천 오류:', error);
+                console.error('싫어요 오류:', error);
             }
         }
         
