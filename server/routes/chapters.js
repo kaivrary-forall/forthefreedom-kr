@@ -43,7 +43,10 @@ router.get('/', async (req, res) => {
 router.get('/stats', async (req, res) => {
   try {
     const total = await Chapter.countDocuments({ isActive: true });
-    const filled = await Chapter.countDocuments({ isActive: true, chairmanName: { $ne: null, $ne: '' } });
+    const filled = await Chapter.countDocuments({ 
+      isActive: true, 
+      chairmanName: { $nin: [null, ''] }
+    });
     const vacant = total - filled;
     
     res.json({
