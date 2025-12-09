@@ -48,7 +48,7 @@ router.get('/', optionalAuth, async (req, res) => {
       boardType = 'member', 
       page = 1, 
       limit = 20,
-      sort = 'latest' // latest, popular, recommended
+      sort = 'latest' // latest, popular
     } = req.query;
     
     const query = { 
@@ -60,8 +60,6 @@ router.get('/', optionalAuth, async (req, res) => {
     let sortOption = { createdAt: -1 };
     if (sort === 'popular') {
       sortOption = { viewCount: -1, createdAt: -1 };
-    } else if (sort === 'recommended') {
-      sortOption = { recommendCount: -1, createdAt: -1 };
     }
     
     const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -76,13 +74,13 @@ router.get('/', optionalAuth, async (req, res) => {
       Post.countDocuments(query)
     ]);
     
-    // 좋아요/추천 수 추가
+    // 좋아요/싫어요 수 추가
     const postsWithCounts = posts.map(post => ({
       ...post,
       likeCount: post.likes ? post.likes.length : 0,
-      recommendCount: post.recommends ? post.recommends.length : 0,
+      dislikeCount: post.dislikes ? post.dislikes.length : 0,
       isLiked: req.memberId ? post.likes?.some(id => id.toString() === req.memberId) : false,
-      isRecommended: req.memberId ? post.recommends?.some(id => id.toString() === req.memberId) : false
+      isDisliked: req.memberId ? post.dislikes?.some(id => id.toString() === req.memberId) : false
     }));
     
     res.json({
@@ -144,9 +142,9 @@ router.get('/:id', optionalAuth, async (req, res) => {
         post: {
           ...post.toObject(),
           likeCount: post.likes ? post.likes.length : 0,
-          recommendCount: post.recommends ? post.recommends.length : 0,
+          dislikeCount: post.dislikes ? post.dislikes.length : 0,
           isLiked: req.memberId ? post.likes?.some(id => id.toString() === req.memberId) : false,
-          isRecommended: req.memberId ? post.recommends?.some(id => id.toString() === req.memberId) : false,
+          isDisliked: req.memberId ? post.dislikes?.some(id => id.toString() === req.memberId) : false,
           isAuthor: req.memberId === post.author._id.toString(),
           canEdit: req.isAdmin || req.memberId === post.author._id.toString(),
           canDelete: req.isAdmin || req.memberId === post.author._id.toString()
@@ -304,8 +302,8 @@ router.post('/:id/like', authMember, async (req, res) => {
   }
 });
 
-// ===== 추천 토글 =====
-router.post('/:id/recommend', authMember, async (req, res) => {
+// ===== 싫어요 토글 =====
+router.post('/:id/dislike', authMember, async (req, res) => {
   try {
     const post = await Post.findOne({ _id: req.params.id, isDeleted: false });
     
@@ -314,14 +312,14 @@ router.post('/:id/recommend', authMember, async (req, res) => {
     }
     
     const memberIdStr = req.memberId.toString();
-    const recommendIndex = post.recommends.findIndex(id => id.toString() === memberIdStr);
+    const dislikeIndex = post.dislikes.findIndex(id => id.toString() === memberIdStr);
     
-    if (recommendIndex > -1) {
-      // 이미 추천 → 취소
-      post.recommends.splice(recommendIndex, 1);
+    if (dislikeIndex > -1) {
+      // 이미 싫어요 → 취소
+      post.dislikes.splice(dislikeIndex, 1);
     } else {
-      // 추천 추가
-      post.recommends.push(req.memberId);
+      // 싫어요 추가
+      post.dislikes.push(req.memberId);
     }
     
     await post.save();
@@ -329,14 +327,14 @@ router.post('/:id/recommend', authMember, async (req, res) => {
     res.json({
       success: true,
       data: {
-        isRecommended: recommendIndex === -1,
-        recommendCount: post.recommends.length
+        isDisliked: dislikeIndex === -1,
+        dislikeCount: post.dislikes.length
       }
     });
     
   } catch (error) {
-    console.error('추천 오류:', error);
-    res.status(500).json({ success: false, message: '추천 처리에 실패했습니다' });
+    console.error('싫어요 오류:', error);
+    res.status(500).json({ success: false, message: '싫어요 처리에 실패했습니다' });
   }
 });
 
