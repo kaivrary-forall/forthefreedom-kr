@@ -6,6 +6,22 @@ const { generateToken, authMember } = require('../middleware/authMember');
 const { ADMIN_CREDENTIALS } = require('./auth');
 const { sendVerificationCode } = require('../utils/email');
 
+// 선택적 인증 미들웨어
+const optionalAuth = async (req, res, next) => {
+  try {
+    const authHeader = req.headers['authorization'];
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      const jwt = require('jsonwebtoken');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.memberId = decoded.memberId || decoded.id;
+    }
+  } catch (error) {
+    // 토큰 에러 무시
+  }
+  next();
+};
+
 // 이메일 인증 코드 임시 저장소 (메모리)
 const emailVerificationCodes = new Map(); // email -> { code, memberId, expiresAt }
 
@@ -816,6 +832,135 @@ router.post('/me/email/verify', authMember, async (req, res) => {
       success: false,
       message: '이메일 변경 중 오류가 발생했습니다.'
     });
+  }
+});
+
+// ===== 프로필 조회 =====
+router.get('/profile/:memberId', optionalAuth, async (req, res) => {
+  try {
+    const { memberId } = req.params;
+    
+    const member = await Member.findById(memberId)
+      .select('nickname userId profileImage memberType bio createdAt followers following')
+      .lean();
+    
+    if (!member) {
+      return res.status(404).json({ success: false, message: '회원을 찾을 수 없습니다' });
+    }
+    
+    // 게시글/댓글 수 조회
+    const Post = require('../models/Post');
+    const Comment = require('../models/Comment');
+    
+    const [postCount, commentCount] = await Promise.all([
+      Post.countDocuments({ author: memberId, isDeleted: false }),
+      Comment.countDocuments({ author: memberId, isDeleted: false })
+    ]);
+    
+    // 팔로워/팔로잉 수
+    const followerCount = member.followers?.length || 0;
+    const followingCount = member.following?.length || 0;
+    
+    // 내 프로필인지, 팔로우 중인지 확인
+    let isMyProfile = false;
+    let isFollowing = false;
+    
+    if (req.memberId) {
+      isMyProfile = req.memberId.toString() === memberId;
+      if (!isMyProfile) {
+        isFollowing = member.followers?.some(f => f.toString() === req.memberId.toString()) || false;
+      }
+    }
+    
+    res.json({
+      success: true,
+      data: {
+        member: {
+          _id: member._id,
+          nickname: member.nickname,
+          userId: member.userId,
+          profileImage: member.profileImage,
+          memberType: member.memberType,
+          bio: member.bio,
+          createdAt: member.createdAt
+        },
+        postCount,
+        commentCount,
+        followerCount,
+        followingCount,
+        isMyProfile,
+        isFollowing
+      }
+    });
+    
+  } catch (error) {
+    console.error('프로필 조회 오류:', error);
+    res.status(500).json({ success: false, message: '프로필을 불러올 수 없습니다' });
+  }
+});
+
+// ===== 팔로우/언팔로우 =====
+router.post('/:memberId/follow', authMember, async (req, res) => {
+  try {
+    const { memberId } = req.params;
+    const myId = req.memberId;
+    
+    if (myId.toString() === memberId) {
+      return res.status(400).json({ success: false, message: '자기 자신을 팔로우할 수 없습니다' });
+    }
+    
+    const targetMember = await Member.findById(memberId);
+    if (!targetMember) {
+      return res.status(404).json({ success: false, message: '회원을 찾을 수 없습니다' });
+    }
+    
+    const me = await Member.findById(myId);
+    
+    const isFollowing = me.following?.some(f => f.toString() === memberId) || false;
+    
+    if (isFollowing) {
+      // 언팔로우
+      await Member.findByIdAndUpdate(myId, { $pull: { following: memberId } });
+      await Member.findByIdAndUpdate(memberId, { $pull: { followers: myId } });
+    } else {
+      // 팔로우
+      await Member.findByIdAndUpdate(myId, { $addToSet: { following: memberId } });
+      await Member.findByIdAndUpdate(memberId, { $addToSet: { followers: myId } });
+    }
+    
+    // 업데이트된 팔로워 수
+    const updatedTarget = await Member.findById(memberId);
+    
+    res.json({
+      success: true,
+      data: {
+        isFollowing: !isFollowing,
+        followerCount: updatedTarget.followers?.length || 0
+      }
+    });
+    
+  } catch (error) {
+    console.error('팔로우 오류:', error);
+    res.status(500).json({ success: false, message: '팔로우 처리에 실패했습니다' });
+  }
+});
+
+// ===== 자기소개 업데이트 =====
+router.put('/profile/bio', authMember, async (req, res) => {
+  try {
+    const { bio } = req.body;
+    
+    if (bio && bio.length > 200) {
+      return res.status(400).json({ success: false, message: '자기소개는 200자 이내로 작성해주세요' });
+    }
+    
+    await Member.findByIdAndUpdate(req.memberId, { bio: bio || '' });
+    
+    res.json({ success: true, message: '자기소개가 업데이트되었습니다' });
+    
+  } catch (error) {
+    console.error('자기소개 업데이트 오류:', error);
+    res.status(500).json({ success: false, message: '자기소개 업데이트에 실패했습니다' });
   }
 });
 
