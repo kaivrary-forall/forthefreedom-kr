@@ -141,6 +141,7 @@
                             <option value="갑">갑</option>
                             <option value="을">을</option>
                             <option value="병">병</option>
+                            <option value="정">정</option>
                         </select>
                     </div>
                     <div>
@@ -476,9 +477,9 @@
             document.getElementById('modalTitle').textContent = '지역구 수정';
             document.getElementById('chapterId').value = id;
             
-            // 지역구명과 갑/을/병 분리
+            // 지역구명과 갑/을/병/정 분리
             const nameParts = (chapter.name || '').split(' ');
-            const suffix = nameParts.length > 1 && ['갑', '을', '병'].includes(nameParts[nameParts.length - 1]) 
+            const suffix = nameParts.length > 1 && ['갑', '을', '병', '정'].includes(nameParts[nameParts.length - 1]) 
                 ? nameParts.pop() : '';
             document.getElementById('chapterDistrictName').value = nameParts.join(' ');
             document.getElementById('chapterDistrictSuffix').value = suffix;
