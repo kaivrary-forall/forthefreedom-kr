@@ -360,6 +360,8 @@ router.post('/login', async (req, res) => {
           userId: member.userId,
           nickname: member.nickname,
           name: member.name,
+          email: member.email,
+          phone: member.phone,
           memberType: member.memberType,
           status: member.status,
           appliedAt: member.appliedAt
