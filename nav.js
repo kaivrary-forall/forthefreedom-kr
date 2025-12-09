@@ -597,6 +597,7 @@ function navLogout() {
     }
 }
 
+
 // ========== 마이페이지 모달 ==========
 function openMypageModal() {
     if (!document.getElementById('mypageModal')) {
@@ -706,6 +707,7 @@ function createMypageModal() {
         .mypage-btn {
             padding: 10px 16px; border-radius: 8px; font-size: 0.875rem;
             font-weight: 500; cursor: pointer; border: none; transition: all 0.2s;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
         }
         .mypage-btn-primary { background: #A50034; color: white; }
         .mypage-btn-primary:hover { background: #8B002C; }
@@ -761,70 +763,72 @@ async function loadMypageData() {
             'innovation_member': 'innovation'
         };
         
-        body.innerHTML = \`
-            <div class="mypage-section">
-                <div class="mypage-profile-card">
-                    <div class="mypage-avatar">
-                        \${data.profileImage 
-                            ? '<img src="' + data.profileImage + '" alt="프로필">' 
-                            : '<i class="fas fa-user"></i>'}
-                    </div>
-                    <div class="mypage-profile-info">
-                        <h3>\${data.nickname || '닉네임 없음'}
-                            <span class="mypage-badge \${memberTypeClass[data.memberType] || 'general'}">\${memberTypeText[data.memberType] || '일반회원'}</span>
-                        </h3>
-                        <p>\${data.userId}</p>
-                    </div>
-                </div>
-            </div>
+        const avatarHtml = data.profileImage 
+            ? '<img src="' + data.profileImage + '" alt="프로필">' 
+            : '<i class="fas fa-user"></i>';
+        
+        const badgeClass = memberTypeClass[data.memberType] || 'general';
+        const badgeText = memberTypeText[data.memberType] || '일반회원';
+        
+        body.innerHTML = 
+            '<div class="mypage-section">' +
+                '<div class="mypage-profile-card">' +
+                    '<div class="mypage-avatar">' + avatarHtml + '</div>' +
+                    '<div class="mypage-profile-info">' +
+                        '<h3>' + (data.nickname || '닉네임 없음') +
+                            '<span class="mypage-badge ' + badgeClass + '">' + badgeText + '</span>' +
+                        '</h3>' +
+                        '<p>' + data.userId + '</p>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
             
-            <div class="mypage-section">
-                <div class="mypage-section-title">기본 정보</div>
-                <div class="mypage-info-card">
-                    <div class="mypage-info-row">
-                        <span class="mypage-info-label">이름</span>
-                        <span class="mypage-info-value">\${data.name || '-'}</span>
-                    </div>
-                    <div class="mypage-info-row">
-                        <span class="mypage-info-label">이메일</span>
-                        <span class="mypage-info-value">\${data.email || '-'}</span>
-                    </div>
-                    <div class="mypage-info-row">
-                        <span class="mypage-info-label">연락처</span>
-                        <span class="mypage-info-value">\${data.phone || '-'}</span>
-                    </div>
-                    <div class="mypage-info-row">
-                        <span class="mypage-info-label">주소</span>
-                        <span class="mypage-info-value">\${data.address || '-'}</span>
-                    </div>
-                </div>
-            </div>
+            '<div class="mypage-section">' +
+                '<div class="mypage-section-title">기본 정보</div>' +
+                '<div class="mypage-info-card">' +
+                    '<div class="mypage-info-row">' +
+                        '<span class="mypage-info-label">이름</span>' +
+                        '<span class="mypage-info-value">' + (data.name || '-') + '</span>' +
+                    '</div>' +
+                    '<div class="mypage-info-row">' +
+                        '<span class="mypage-info-label">이메일</span>' +
+                        '<span class="mypage-info-value">' + (data.email || '-') + '</span>' +
+                    '</div>' +
+                    '<div class="mypage-info-row">' +
+                        '<span class="mypage-info-label">연락처</span>' +
+                        '<span class="mypage-info-value">' + (data.phone || '-') + '</span>' +
+                    '</div>' +
+                    '<div class="mypage-info-row">' +
+                        '<span class="mypage-info-label">주소</span>' +
+                        '<span class="mypage-info-value">' + (data.address || '-') + '</span>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
             
-            <div class="mypage-section">
-                <div class="mypage-section-title">후원/구매 내역</div>
-                <div class="mypage-stats">
-                    <div class="mypage-stat-card">
-                        <div class="mypage-stat-label">총 후원금</div>
-                        <div class="mypage-stat-value">\${(data.totalDonation || 0).toLocaleString()}원</div>
-                    </div>
-                    <div class="mypage-stat-card">
-                        <div class="mypage-stat-label">총 구매금</div>
-                        <div class="mypage-stat-value">\${(data.totalPurchase || 0).toLocaleString()}원</div>
-                    </div>
-                </div>
-            </div>
+            '<div class="mypage-section">' +
+                '<div class="mypage-section-title">후원/구매 내역</div>' +
+                '<div class="mypage-stats">' +
+                    '<div class="mypage-stat-card">' +
+                        '<div class="mypage-stat-label">총 후원금</div>' +
+                        '<div class="mypage-stat-value">' + (data.totalDonation || 0).toLocaleString() + '원</div>' +
+                    '</div>' +
+                    '<div class="mypage-stat-card">' +
+                        '<div class="mypage-stat-label">총 구매금</div>' +
+                        '<div class="mypage-stat-value">' + (data.totalPurchase || 0).toLocaleString() + '원</div>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
             
-            <div class="mypage-section">
-                <div class="mypage-btn-group">
-                    <a href="mypage.html" class="mypage-btn mypage-btn-primary" onclick="closeMypageModal()">
-                        <i class="fas fa-cog"></i> 정보 수정
-                    </a>
-                    <button onclick="closeMypageModal(); navLogout();" class="mypage-btn mypage-btn-link">
-                        <i class="fas fa-sign-out-alt"></i> 로그아웃
-                    </button>
-                </div>
-            </div>
-        \`;
+            '<div class="mypage-section">' +
+                '<div class="mypage-btn-group">' +
+                    '<a href="mypage.html" class="mypage-btn mypage-btn-primary" onclick="closeMypageModal()">' +
+                        '<i class="fas fa-cog"></i> 정보 수정' +
+                    '</a>' +
+                    '<button onclick="closeMypageModal(); navLogout();" class="mypage-btn mypage-btn-link">' +
+                        '<i class="fas fa-sign-out-alt"></i> 로그아웃' +
+                    '</button>' +
+                '</div>' +
+            '</div>';
         
     } catch (error) {
         console.error('마이페이지 로드 오류:', error);
