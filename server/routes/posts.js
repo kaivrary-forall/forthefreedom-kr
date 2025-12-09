@@ -107,14 +107,22 @@ router.get('/', optionalAuth, async (req, res) => {
 // ===== 게시글 상세 조회 =====
 router.get('/:id', optionalAuth, async (req, res) => {
   try {
-    const post = await Post.findOneAndUpdate(
-      { _id: req.params.id, isDeleted: false },
-      { $inc: { viewCount: 1 } },
-      { new: true }
-    ).populate('author', 'nickname profileImage userId');
+    // 먼저 게시글 조회
+    let post = await Post.findOne({ _id: req.params.id, isDeleted: false })
+      .populate('author', 'nickname profileImage userId');
     
     if (!post) {
       return res.status(404).json({ success: false, message: '게시글을 찾을 수 없습니다' });
+    }
+    
+    // 로그인한 사용자이고, 아직 이 글을 본 적 없으면 조회수 증가
+    if (req.memberId) {
+      const alreadyViewed = post.viewedBy?.some(id => id.toString() === req.memberId);
+      if (!alreadyViewed) {
+        post.viewCount += 1;
+        post.viewedBy.push(req.memberId);
+        await post.save();
+      }
     }
     
     // 댓글 조회
