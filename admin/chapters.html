@@ -295,8 +295,7 @@
             
             container.innerHTML = filtered.map(chapter => {
                 const dongs = chapter.dongs || [];
-                const dongsHtml = dongs.slice(0, 6).map(d => `<span class="dong-tag">${d}</span>`).join('') +
-                                 (dongs.length > 6 ? `<span class="dong-tag">+${dongs.length - 6}</span>` : '');
+                const dongsHtml = dongs.map(d => `<span class="dong-tag">${d}</span>`).join('');
                 
                 return `
                 <div class="chapter-card bg-white rounded-xl shadow p-6 border-2 border-transparent"
