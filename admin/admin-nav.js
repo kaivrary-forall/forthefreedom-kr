@@ -57,22 +57,13 @@ function loadAdminNav(currentPage) {
                         
                         <!-- 당협 관리 -->
                         <a href="chapters.html" class="px-3 py-2 text-sm font-medium rounded-md transition-colors ${pages.chapters ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}">
-                            <i class="fas fa-map-marker-alt mr-1"></i> 당협 관리
+                            <i class="fas fa-map-marker-alt mr-1"></i> 당협관리
                         </a>
                     </div>
                 </div>
 
-                <!-- 오른쪽: 세션 타이머 + 관리자 정보 + 로그아웃 -->
+                <!-- 오른쪽: 관리자 정보 + 로그아웃 -->
                 <div class="flex items-center space-x-4">
-                    <!-- 세션 타이머 -->
-                    <div id="sessionTimer" class="hidden sm:flex items-center space-x-2 text-sm">
-                        <i class="fas fa-clock text-gray-400"></i>
-                        <span id="sessionCountdown" class="text-gray-500 font-mono">--:--</span>
-                        <button onclick="extendSession()" class="px-2 py-1 text-xs bg-gray-100 hover:bg-primary hover:text-white text-gray-600 rounded transition-colors" title="세션 연장">
-                            <i class="fas fa-redo"></i>
-                        </button>
-                    </div>
-                    
                     <div class="hidden sm:flex items-center space-x-2">
                         <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
                             <i class="fas fa-user text-white text-sm"></i>
@@ -111,140 +102,13 @@ function loadAdminNav(currentPage) {
                         <i class="fas fa-users mr-2"></i> 회원관리
                     </a>
                     <a href="chapters.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.chapters ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
-                        <i class="fas fa-map-marker-alt mr-2"></i> 당협 관리
+                        <i class="fas fa-map-marker-alt mr-2"></i> 당협관리
                     </a>
                 </div>
             </div>
         </div>
     </nav>
     `;
-
-    // 세션 타이머 시작
-    initSessionTimer();
-}
-
-// 세션 타이머 인터벌 ID 저장
-let sessionTimerInterval = null;
-
-// 세션 타이머 초기화
-function initSessionTimer() {
-    const token = localStorage.getItem('adminToken');
-    if (!token) return;
-
-    // 기존 타이머 정리
-    if (sessionTimerInterval) {
-        clearInterval(sessionTimerInterval);
-        sessionTimerInterval = null;
-    }
-
-    // JWT 토큰에서 만료 시간 추출
-    try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        const expTime = payload.exp * 1000; // 초 → 밀리초
-        
-        // 즉시 업데이트
-        updateSessionCountdown(expTime);
-        
-        // 1초마다 카운트다운 업데이트
-        sessionTimerInterval = setInterval(() => updateSessionCountdown(expTime), 1000);
-    } catch (e) {
-        console.warn('토큰 파싱 실패:', e);
-    }
-}
-
-// 세션 카운트다운 업데이트
-function updateSessionCountdown(expTime) {
-    const countdownEl = document.getElementById('sessionCountdown');
-    const timerEl = document.getElementById('sessionTimer');
-    if (!countdownEl) return;
-
-    const now = Date.now();
-    const remaining = expTime - now;
-
-    if (remaining <= 0) {
-        // 세션 만료 - 타이머 숨기고 자동 로그아웃
-        clearInterval(sessionTimerInterval);
-        sessionTimerInterval = null;
-        
-        // 타이머 숨기기
-        if (timerEl) timerEl.classList.add('hidden');
-        
-        // 로컬 스토리지 정리
-        localStorage.removeItem('adminToken');
-        localStorage.removeItem('adminRefreshToken');
-        localStorage.removeItem('adminUser');
-        localStorage.removeItem('adminInfo');
-        
-        alert('세션이 만료되었습니다. 다시 로그인해주세요.');
-        window.location.href = 'index.html';
-        return;
-    }
-
-    const minutes = Math.floor(remaining / 60000);
-    const seconds = Math.floor((remaining % 60000) / 1000);
-    
-    // 5분 이하면 노란색, 1분 이하면 빨간색
-    countdownEl.classList.remove('text-gray-500', 'text-yellow-600', 'text-red-500');
-    if (minutes < 1) {
-        countdownEl.classList.add('text-red-500');
-    } else if (minutes < 5) {
-        countdownEl.classList.add('text-yellow-600');
-    } else {
-        countdownEl.classList.add('text-gray-500');
-    }
-
-    countdownEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-}
-
-// 세션 연장
-async function extendSession() {
-    const token = localStorage.getItem('adminToken');
-    const refreshToken = localStorage.getItem('adminRefreshToken');
-    
-    // 토큰 없으면 무시
-    if (!token || !refreshToken) {
-        return;
-    }
-    
-    // 이미 만료된 토큰인지 체크
-    try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        if (payload.exp * 1000 < Date.now()) {
-            return; // 이미 만료됨
-        }
-    } catch (e) {
-        return;
-    }
-
-    try {
-        const response = await fetch(`${window.API_BASE}/auth/refresh`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ refreshToken })
-        });
-
-        const result = await response.json();
-
-        if (result.success && result.token) {
-            // 새 토큰 저장
-            localStorage.setItem('adminToken', result.token);
-            
-            // 타이머 재시작
-            initSessionTimer();
-            
-            // 피드백
-            const countdownEl = document.getElementById('sessionCountdown');
-            if (countdownEl) {
-                countdownEl.textContent = '연장됨!';
-                setTimeout(() => initSessionTimer(), 1000);
-            }
-        } else {
-            alert('세션 연장 실패. 다시 로그인해주세요.');
-        }
-    } catch (error) {
-        console.error('세션 연장 오류:', error);
-        alert('세션 연장 중 오류가 발생했습니다.');
-    }
 }
 
 // 모바일 메뉴 토글
