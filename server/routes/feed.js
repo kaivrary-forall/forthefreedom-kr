@@ -4,7 +4,7 @@ const Feed = require('../models/Feed');
 const Member = require('../models/Member');
 
 // 인증 미들웨어
-const authMember = require('../middleware/authMember');
+const { authMember } = require('../middleware/authMember');
 
 // 선택적 인증 미들웨어
 const optionalAuth = async (req, res, next) => {
