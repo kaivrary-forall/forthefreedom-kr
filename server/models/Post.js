@@ -48,8 +48,8 @@ const postSchema = new mongoose.Schema({
     ref: 'Member'
   }],
   
-  // 추천 (회원 ID 배열)
-  recommends: [{
+  // 싫어요 (회원 ID 배열)
+  dislikes: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Member'
   }],
@@ -87,9 +87,9 @@ postSchema.virtual('likeCount').get(function() {
   return this.likes ? this.likes.length : 0;
 });
 
-// 가상 필드: 추천 수
-postSchema.virtual('recommendCount').get(function() {
-  return this.recommends ? this.recommends.length : 0;
+// 가상 필드: 싫어요 수
+postSchema.virtual('dislikeCount').get(function() {
+  return this.dislikes ? this.dislikes.length : 0;
 });
 
 // JSON 변환 시 가상 필드 포함
