@@ -247,6 +247,21 @@
             color: #9ca3af;
             font-size: 0.85rem;
         }
+        .feed-delete {
+            margin-left: auto;
+            color: #9ca3af;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .feed-delete:hover {
+            color: #ef4444;
+            background: #fef2f2;
+        }
+        .feed-item {
+            transition: opacity 0.2s, transform 0.2s;
+        }
         .feed-text {
             margin-top: 6px;
             font-size: 0.95rem;
@@ -683,8 +698,9 @@
         // 피드 아이템 렌더링
         function renderFeedItem(feed) {
             const date = formatDate(new Date(feed.createdAt));
+            const isMyFeed = isMyProfile;
             return `
-                <div class="feed-item">
+                <div class="feed-item" id="feed-${feed._id}">
                     <div class="feed-header">
                         <div class="feed-avatar">
                             ${feed.author?.profileImage 
@@ -695,6 +711,7 @@
                             <div class="feed-author">
                                 <span class="feed-author-name">${feed.author?.nickname || '알 수 없음'}</span>
                                 <span class="feed-date">· ${date}</span>
+                                ${isMyFeed ? `<span class="feed-delete" onclick="deleteFeed('${feed._id}')" title="삭제"><i class="fas fa-times"></i></span>` : ''}
                             </div>
                             <div class="feed-text">${escapeHtml(feed.content)}</div>
                             <div class="feed-actions">
@@ -861,6 +878,37 @@
                 }
             } catch (error) {
                 console.error('팔로우 오류:', error);
+            }
+        }
+        
+        // 피드 좋아요
+        // 피드 삭제
+        async function deleteFeed(feedId) {
+            if (!confirm('이 피드를 삭제하시겠습니까?')) return;
+            
+            try {
+                const token = localStorage.getItem('memberToken');
+                const response = await fetch(`${API_BASE}/feed/${feedId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // 애니메이션으로 삭제
+                    const feedEl = document.getElementById('feed-' + feedId);
+                    if (feedEl) {
+                        feedEl.style.opacity = '0';
+                        feedEl.style.transform = 'translateX(-20px)';
+                        setTimeout(() => feedEl.remove(), 200);
+                    }
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error('피드 삭제 오류:', error);
+                alert('피드 삭제에 실패했습니다');
             }
         }
         
