@@ -365,9 +365,18 @@
                     
                     <div class="border-t pt-4">
                         ${chapter.chairmanName ? `
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2 flex-wrap">
                                 <i class="fas fa-user-tie text-green-600"></i>
                                 <span class="font-medium">${chapter.chairmanName}</span>
+                                <div class="flex items-center gap-2 ml-2">
+                                    ${chapter.chairmanWebsite ? `<a href="${chapter.chairmanWebsite}" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-blue-500" title="웹사이트"><i class="fas fa-globe"></i></a>` : ''}
+                                    ${chapter.chairmanInstagram ? `<a href="${chapter.chairmanInstagram}" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-pink-500" title="인스타그램"><i class="fab fa-instagram"></i></a>` : ''}
+                                    ${chapter.chairmanFacebook ? `<a href="${chapter.chairmanFacebook}" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-blue-600" title="페이스북"><i class="fab fa-facebook"></i></a>` : ''}
+                                    ${chapter.chairmanThreads ? `<a href="${chapter.chairmanThreads}" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-gray-800" title="스레드"><i class="fas fa-at"></i></a>` : ''}
+                                    ${chapter.chairmanX ? `<a href="${chapter.chairmanX}" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-gray-800" title="X(트위터)"><svg class="w-3 h-3 inline" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>` : ''}
+                                    ${chapter.chairmanNaverBlog ? `<a href="${chapter.chairmanNaverBlog}" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-green-500" title="네이버 블로그"><i class="fas fa-blog"></i></a>` : ''}
+                                    ${chapter.chairmanYoutube ? `<a href="${chapter.chairmanYoutube}" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-red-600" title="유튜브"><i class="fab fa-youtube"></i></a>` : ''}
+                                </div>
                             </div>
                         ` : `
                             <div class="flex items-center gap-2 text-yellow-600">
