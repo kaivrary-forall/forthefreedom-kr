@@ -23,6 +23,8 @@
 </head>
 <body class="bg-gray-100">
     <div id="admin-nav-container"></div>
+    <script src="admin-nav.js"></script>
+    <script>loadAdminNav('chapters');</script>
     
     <main class="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div class="mb-8">
@@ -217,7 +219,6 @@
     <!-- 토스트 메시지 -->
     <div id="toast" class="hidden fixed bottom-6 right-6 px-6 py-3 rounded-lg shadow-lg z-50"></div>
 
-    <script src="admin-nav.js"></script>
     <script>
         // API 기본 URL
         const API_BASE = window.API_BASE || 'https://forthefreedom-kr-production.up.railway.app/api';
@@ -228,7 +229,6 @@
 
         // 초기화
         document.addEventListener('DOMContentLoaded', () => {
-            loadAdminNav('chapters');
             loadChapters();
             
             // 검색 & 필터
