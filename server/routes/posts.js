@@ -282,17 +282,27 @@ router.post('/:id/like', authMember, async (req, res) => {
       // 이미 좋아요 → 취소
       post.likes.splice(likeIndex, 1);
     } else {
-      // 좋아요 추가
+      // 좋아요 추가 + 싫어요 해제
       post.likes.push(req.memberId);
+      const dislikeIndex = post.dislikes.findIndex(id => id.toString() === memberIdStr);
+      if (dislikeIndex > -1) {
+        post.dislikes.splice(dislikeIndex, 1);
+      }
     }
     
     await post.save();
     
+    // 현재 상태 확인
+    const isNowLiked = post.likes.some(id => id.toString() === memberIdStr);
+    const isNowDisliked = post.dislikes.some(id => id.toString() === memberIdStr);
+    
     res.json({
       success: true,
       data: {
-        isLiked: likeIndex === -1,
-        likeCount: post.likes.length
+        isLiked: isNowLiked,
+        likeCount: post.likes.length,
+        isDisliked: isNowDisliked,
+        dislikeCount: post.dislikes.length
       }
     });
     
@@ -318,17 +328,27 @@ router.post('/:id/dislike', authMember, async (req, res) => {
       // 이미 싫어요 → 취소
       post.dislikes.splice(dislikeIndex, 1);
     } else {
-      // 싫어요 추가
+      // 싫어요 추가 + 좋아요 해제
       post.dislikes.push(req.memberId);
+      const likeIndex = post.likes.findIndex(id => id.toString() === memberIdStr);
+      if (likeIndex > -1) {
+        post.likes.splice(likeIndex, 1);
+      }
     }
     
     await post.save();
     
+    // 현재 상태 확인
+    const isNowLiked = post.likes.some(id => id.toString() === memberIdStr);
+    const isNowDisliked = post.dislikes.some(id => id.toString() === memberIdStr);
+    
     res.json({
       success: true,
       data: {
-        isDisliked: dislikeIndex === -1,
-        dislikeCount: post.dislikes.length
+        isDisliked: isNowDisliked,
+        dislikeCount: post.dislikes.length,
+        isLiked: isNowLiked,
+        likeCount: post.likes.length
       }
     });
     
