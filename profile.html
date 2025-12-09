@@ -420,6 +420,81 @@
         .back-btn:hover {
             color: #A50034;
         }
+        
+        /* 삭제 확인 모달 */
+        .delete-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .delete-modal.hidden {
+            display: none;
+        }
+        .delete-modal-backdrop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(91, 112, 131, 0.4);
+        }
+        .delete-modal-content {
+            position: relative;
+            background: #000;
+            border-radius: 16px;
+            width: 320px;
+            padding: 32px;
+            text-align: center;
+        }
+        .delete-modal-content h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #e7e9ea;
+            margin-bottom: 8px;
+        }
+        .delete-modal-content p {
+            font-size: 0.9rem;
+            color: #71767b;
+            line-height: 1.4;
+            margin-bottom: 24px;
+        }
+        .delete-confirm-btn {
+            width: 100%;
+            padding: 12px;
+            background: #f4212e;
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: background 0.2s;
+        }
+        .delete-confirm-btn:hover {
+            background: #dc1e28;
+        }
+        .delete-cancel-btn {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            color: #e7e9ea;
+            border: 1px solid #536471;
+            border-radius: 9999px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .delete-cancel-btn:hover {
+            background: rgba(239, 243, 244, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -522,6 +597,17 @@
             </div>
         </div>
     </main>
+    
+    <!-- 삭제 확인 모달 -->
+    <div id="deleteModal" class="delete-modal hidden">
+        <div class="delete-modal-backdrop" onclick="closeDeleteModal()"></div>
+        <div class="delete-modal-content">
+            <h3>게시물을(를) 삭제할까요?</h3>
+            <p>이 동작은 취소할 수 없으며 내 프로필, 나를 팔로우하는 계정의 타임라인, 그리고 검색 결과에서 삭제됩니다.</p>
+            <button class="delete-confirm-btn" onclick="confirmDeleteFeed()">삭제하기</button>
+            <button class="delete-cancel-btn" onclick="closeDeleteModal()">취소</button>
+        </div>
+    </div>
     
     <script src="nav.js"></script>
     <script>
@@ -883,12 +969,24 @@
         
         // 피드 좋아요
         // 피드 삭제
-        async function deleteFeed(feedId) {
-            if (!confirm('이 피드를 삭제하시겠습니까?')) return;
+        let deletingFeedId = null;
+        
+        function deleteFeed(feedId) {
+            deletingFeedId = feedId;
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+        
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+            deletingFeedId = null;
+        }
+        
+        async function confirmDeleteFeed() {
+            if (!deletingFeedId) return;
             
             try {
                 const token = localStorage.getItem('memberToken');
-                const response = await fetch(`${API_BASE}/feed/${feedId}`, {
+                const response = await fetch(`${API_BASE}/feed/${deletingFeedId}`, {
                     method: 'DELETE',
                     headers: { 'Authorization': 'Bearer ' + token }
                 });
@@ -897,12 +995,13 @@
                 
                 if (result.success) {
                     // 애니메이션으로 삭제
-                    const feedEl = document.getElementById('feed-' + feedId);
+                    const feedEl = document.getElementById('feed-' + deletingFeedId);
                     if (feedEl) {
                         feedEl.style.opacity = '0';
                         feedEl.style.transform = 'translateX(-20px)';
                         setTimeout(() => feedEl.remove(), 200);
                     }
+                    closeDeleteModal();
                 } else {
                     alert(result.message);
                 }
