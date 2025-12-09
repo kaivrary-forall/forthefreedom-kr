@@ -76,6 +76,16 @@
             font-weight: 600;
             color: #1f2937;
         }
+        .grade-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        .grade-general { background: #f3f4f6; color: #6b7280; }
+        .grade-party { background: #dbeafe; color: #1d4ed8; }
+        .grade-innovation { background: #fef3c7; color: #d97706; }
         .post-stats {
             margin-left: auto;
             display: flex;
@@ -394,7 +404,10 @@
                                     <i class="fas fa-user"></i>
                                 </div>
                                 <div>
-                                    <div class="author-name" id="authorName"></div>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span class="author-name" id="authorName"></span>
+                                        <span id="authorGrade" class="grade-badge"></span>
+                                    </div>
                                     <div id="postDate" style="font-size: 0.75rem; color: #9ca3af;"></div>
                                 </div>
                             </div>
@@ -554,6 +567,13 @@
             document.getElementById('postTitle').textContent = post.title;
             document.getElementById('postBody').textContent = post.content;
             document.getElementById('authorName').textContent = post.author?.nickname || '알 수 없음';
+            
+            // 작성자 등급 배지
+            const gradeInfo = getGradeInfo(post.author?.memberType);
+            const gradeEl = document.getElementById('authorGrade');
+            gradeEl.textContent = gradeInfo.text;
+            gradeEl.className = 'grade-badge ' + gradeInfo.class;
+            
             document.getElementById('postDate').textContent = formatDate(new Date(post.createdAt));
             document.getElementById('viewCount').textContent = post.viewCount;
             document.getElementById('likeCount').textContent = post.likeCount || 0;
@@ -809,6 +829,18 @@
             } catch (error) {
                 console.error('댓글 삭제 오류:', error);
                 alert(error.message || '댓글 삭제에 실패했습니다');
+            }
+        }
+        
+        // 등급 정보 반환
+        function getGradeInfo(memberType) {
+            switch(memberType) {
+                case 'party_member':
+                    return { text: '당원', class: 'grade-party' };
+                case 'innovation_member':
+                    return { text: '혁신당원', class: 'grade-innovation' };
+                default:
+                    return { text: '일반', class: 'grade-general' };
             }
         }
         
