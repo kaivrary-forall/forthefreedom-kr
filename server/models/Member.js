@@ -111,10 +111,27 @@ const memberSchema = new mongoose.Schema({
   // === 회원 유형 ===
   memberType: {
     type: String,
-    enum: ['general', 'party_member', 'innovation_member'],
+    enum: ['general', 'party_member', 'innovation_member', 'position_member'],
     default: 'general'
-    // general: 일반회원, party_member: 당원, innovation_member: 혁신당원
+    // general: 일반회원, party_member: 당원, innovation_member: 혁신당원, position_member: 직분당원
   },
+  
+  // === 프로필 ===
+  bio: {
+    type: String,
+    maxlength: 200,
+    default: ''
+  },
+  
+  // === 팔로우 ===
+  followers: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Member'
+  }],
+  following: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Member'
+  }],
   
   // === 탈퇴 유형 ===
   withdrawalType: {
