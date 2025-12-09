@@ -66,7 +66,7 @@ router.get('/', optionalAuth, async (req, res) => {
     
     const [posts, total] = await Promise.all([
       Post.find(query)
-        .populate('author', 'nickname profileImage')
+        .populate('author', 'nickname profileImage memberType')
         .sort(sortOption)
         .skip(skip)
         .limit(parseInt(limit))
@@ -107,7 +107,7 @@ router.get('/:id', optionalAuth, async (req, res) => {
   try {
     // 먼저 게시글 조회
     let post = await Post.findOne({ _id: req.params.id, isDeleted: false })
-      .populate('author', 'nickname profileImage userId');
+      .populate('author', 'nickname profileImage userId memberType');
     
     if (!post) {
       return res.status(404).json({ success: false, message: '게시글을 찾을 수 없습니다' });
