@@ -1327,9 +1327,9 @@ function renderMypageContent() {
         '</div>' +
         
         '<div class="mp-section">' +
-            '<div class="mp-section-title" style="color:#dc2626;"><i class="fas fa-exclamation-triangle"></i> 위험 구역</div>' +
+            '<div class="mp-section-title"><i class="fas fa-exclamation-triangle"></i> 아주 위험한 구역</div>' +
             '<div class="mp-btn-wrap">' +
-                '<button onclick="openMpWithdrawModal()" class="mp-btn mp-btn-outline"><i class="fas fa-user-times"></i> 회원 탈퇴</button>' +
+                '<button onclick="openMpWithdrawModal()" class="mp-btn mp-btn-outline"><i class="fas fa-person-running"></i> 회원 탈퇴</button>' +
             '</div>' +
         '</div>';
 }
