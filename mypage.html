@@ -1048,7 +1048,7 @@
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ code })
+                    body: JSON.stringify({ newEmail: pendingNewEmail, code })
                 });
 
                 const result = await response.json();
