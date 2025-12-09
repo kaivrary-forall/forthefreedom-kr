@@ -16,13 +16,16 @@ const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'temp_jwt_secret_change_in_production_2025';
 const REFRESH_SECRET = process.env.REFRESH_SECRET || 'temp_refresh_secret_change_in_production_2025';
 
+// RefreshToken MongoDB 모델
+const RefreshToken = require('../models/RefreshToken');
+
 // 토큰 만료 시간
-const ACCESS_TOKEN_EXPIRES = '15m'; // 15분
+const ACCESS_TOKEN_EXPIRES = '30m'; // 30분
 const REFRESH_TOKEN_EXPIRES = '7d'; // 7일
 
 // 토큰 블랙리스트 (메모리 저장, 실제 운영시 Redis 권장)
 const tokenBlacklist = new Set();
-const refreshTokens = new Map(); // refreshToken -> { userId, ip, createdAt }
+// refreshTokens는 이제 MongoDB에 저장됨 (RefreshToken 모델)
 
 // 🔐 보안 강화된 관리자 계정 (환경변수 또는 하드코딩 - 절대 프론트엔드 노출 금지)
 const ADMIN_CREDENTIALS = {
@@ -79,13 +82,7 @@ const generateTokens = (user, ip) => {
         { expiresIn: REFRESH_TOKEN_EXPIRES }
     );
     
-    // 리프레시 토큰 저장
-    refreshTokens.set(refreshToken, {
-        userId: user.id,
-        ip: ip,
-        createdAt: Date.now(),
-        userAgent: null // 필요시 추가
-    });
+    // 리프레시 토큰은 호출부에서 DB에 저장
     
     return { accessToken, refreshToken };
 };
@@ -149,6 +146,13 @@ router.post('/login', async (req, res) => {
         
         const { accessToken, refreshToken } = generateTokens(user, clientIP);
         
+        // 리프레시 토큰 DB 저장
+        await RefreshToken.create({
+            token: refreshToken,
+            username: user.username,
+            clientIP: clientIP
+        });
+        
         // 로그인 성공 응답
         res.json({
             success: true,
@@ -177,7 +181,7 @@ router.post('/login', async (req, res) => {
 });
 
 // 🔄 토큰 갱신 엔드포인트
-router.post('/refresh', (req, res) => {
+router.post('/refresh', async (req, res) => {
     try {
         const { refreshToken } = req.body;
         const clientIP = req.ip;
@@ -189,8 +193,9 @@ router.post('/refresh', (req, res) => {
             });
         }
         
-        // 리프레시 토큰 확인
-        if (!refreshTokens.has(refreshToken)) {
+        // DB에서 리프레시 토큰 확인
+        const storedToken = await RefreshToken.findOne({ token: refreshToken });
+        if (!storedToken) {
             return res.status(401).json({
                 success: false,
                 message: '유효하지 않은 리프레시 토큰입니다.'
@@ -198,9 +203,9 @@ router.post('/refresh', (req, res) => {
         }
         
         // 리프레시 토큰 검증
-        jwt.verify(refreshToken, REFRESH_SECRET, (err, decoded) => {
+        jwt.verify(refreshToken, REFRESH_SECRET, async (err, decoded) => {
             if (err) {
-                refreshTokens.delete(refreshToken);
+                await RefreshToken.deleteOne({ token: refreshToken });
                 return res.status(401).json({
                     success: false,
                     message: '만료된 리프레시 토큰입니다.'
@@ -218,6 +223,7 @@ router.post('/refresh', (req, res) => {
             
             res.json({
                 success: true,
+                accessToken: accessToken,
                 token: accessToken,
                 tokenInfo: {
                     expiresIn: ACCESS_TOKEN_EXPIRES,
@@ -236,7 +242,7 @@ router.post('/refresh', (req, res) => {
 });
 
 // 🚪 로그아웃 엔드포인트
-router.post('/logout', (req, res) => {
+router.post('/logout', async (req, res) => {
     try {
         const token = req.headers.authorization?.replace('Bearer ', '');
         const { refreshToken } = req.body;
@@ -247,9 +253,9 @@ router.post('/logout', (req, res) => {
             console.log('🚪 액세스 토큰 블랙리스트 추가');
         }
         
-        // 리프레시 토큰 삭제
-        if (refreshToken && refreshTokens.has(refreshToken)) {
-            refreshTokens.delete(refreshToken);
+        // 리프레시 토큰 DB에서 삭제
+        if (refreshToken) {
+            await RefreshToken.deleteOne({ token: refreshToken });
             console.log('🚪 리프레시 토큰 삭제');
         }
         
@@ -367,18 +373,19 @@ router.post('/change-password', verifyToken, async (req, res) => {
 });
 
 // 📊 보안 상태 조회 (관리자 전용)
-router.get('/security-status', verifyToken, (req, res) => {
+router.get('/security-status', verifyToken, async (req, res) => {
     const { getSecurityStatus } = require('../middleware/security');
     
     try {
         const securityStatus = getSecurityStatus();
+        const refreshTokenCount = await RefreshToken.countDocuments();
         
         res.json({
             success: true,
             security: {
                 ...securityStatus,
                 tokenBlacklist: tokenBlacklist.size,
-                activeRefreshTokens: refreshTokens.size,
+                activeRefreshTokens: refreshTokenCount,
                 serverUptime: process.uptime()
             }
         });
