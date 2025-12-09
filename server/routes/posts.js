@@ -48,13 +48,37 @@ router.get('/', optionalAuth, async (req, res) => {
       boardType = 'member', 
       page = 1, 
       limit = 20,
-      sort = 'latest' // latest, popular
+      sort = 'latest', // latest, popular
+      searchType = 'both',
+      keyword = ''
     } = req.query;
     
     const query = { 
       boardType, 
       isDeleted: false 
     };
+    
+    // 검색 조건 추가
+    if (keyword && keyword.trim()) {
+      const searchRegex = new RegExp(keyword.trim(), 'i');
+      
+      if (searchType === 'title') {
+        query.title = searchRegex;
+      } else if (searchType === 'content') {
+        query.content = searchRegex;
+      } else if (searchType === 'author') {
+        // 작성자 검색은 별도 처리 필요
+        const Member = require('../models/Member');
+        const matchingMembers = await Member.find({ nickname: searchRegex }).select('_id');
+        query.author = { $in: matchingMembers.map(m => m._id) };
+      } else {
+        // both: 제목 또는 내용
+        query.$or = [
+          { title: searchRegex },
+          { content: searchRegex }
+        ];
+      }
+    }
     
     // 정렬 옵션
     let sortOption = { createdAt: -1 };
