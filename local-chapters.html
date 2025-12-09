@@ -838,9 +838,9 @@
                     `;
                 }
                 
-                // 위원장 있는 카드는 좌측 파란색 바 + 옅은 파란 배경
+                // 위원장 있는 카드는 좌측 남색 바 + 옅은 배경
                 const hasChairman = chapter.chairman && chapter.chairman.name;
-                const chairmanStyle = hasChairman ? 'border-l-4 border-l-blue-500 bg-blue-50/30' : '';
+                const chairmanStyle = hasChairman ? 'border-l-4 border-l-[#051C4C] bg-[#051C4C]/5' : '';
                 
                 return `
                 <div class="chapter-card bg-white border-2 ${isHighlighted ? 'border-red-600 bg-red-50' : 'border-gray-200'} ${chairmanStyle} rounded-xl p-6" 
