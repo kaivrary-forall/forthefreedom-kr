@@ -624,8 +624,11 @@ function createMypageModal() {
     const modalHTML = `
     <div id="mypageModal" class="mp-modal">
         <div class="mp-modal-overlay" onclick="closeMypageModal()"></div>
-        <button onclick="closeMypageModal()" class="mp-floating-close">&times;</button>
         <div class="mp-modal-container">
+            <div class="mp-modal-header">
+                <h2>마이페이지</h2>
+                <button onclick="closeMypageModal()" class="mp-close-btn">&times;</button>
+            </div>
             <div class="mp-modal-body" id="mypageModalBody">
                 <div class="mp-loading">
                     <i class="fas fa-spinner fa-spin"></i>
@@ -922,33 +925,7 @@ function createMypageModal() {
             transition: all 0.2s;
         }
         .mp-close-btn:hover { background: #e5e7eb; color: #333; }
-        .mp-floating-close {
-            position: absolute;
-            top: 5vh;
-            right: calc(50% - 400px - 22px);
-            width: 44px;
-            height: 44px;
-            border: none;
-            background: white;
-            border-radius: 50%;
-            font-size: 26px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #666;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            transition: all 0.2s;
-            z-index: 10000;
-        }
-        .mp-floating-close:hover { background: #f3f4f6; color: #333; transform: scale(1.1); }
-        @media (max-width: 900px) {
-            .mp-floating-close {
-                top: 10px;
-                right: 10px;
-            }
-        }
-        .mp-modal-body { padding: 28px; padding-top: 20px; flex: 1; overflow-y: auto; }
+        .mp-modal-body { padding: 28px; flex: 1; overflow-y: auto; }
         .mp-loading { text-align: center; padding: 60px; color: #6b7280; }
         .mp-loading i { font-size: 2.5rem; margin-bottom: 12px; display: block; color: #A50034; }
         
