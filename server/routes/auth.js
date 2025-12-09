@@ -17,7 +17,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'temp_jwt_secret_change_in_producti
 const REFRESH_SECRET = process.env.REFRESH_SECRET || 'temp_refresh_secret_change_in_production_2025';
 
 // 토큰 만료 시간
-const ACCESS_TOKEN_EXPIRES = '15m'; // 15분
+const ACCESS_TOKEN_EXPIRES = '30m'; // 30분
 const REFRESH_TOKEN_EXPIRES = '7d'; // 7일
 
 // 토큰 블랙리스트 (메모리 저장, 실제 운영시 Redis 권장)
@@ -392,4 +392,4 @@ router.get('/security-status', verifyToken, (req, res) => {
     }
 });
 
-module.exports = { router, verifyToken, ADMIN_CREDENTIALS };
+module.exports = { router, verifyToken }; 
