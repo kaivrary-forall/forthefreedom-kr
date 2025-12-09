@@ -172,6 +172,9 @@ function loadNavigation() {
                             <a href="${pathPrefix}mypage.html" class="text-[#a50034] hover:underline text-sm font-medium">
                                 마이페이지
                             </a>
+                            <button onclick="navLogout()" class="text-gray-500 hover:text-gray-700 text-sm">
+                                로그아웃
+                            </button>
                         </div>
                     </div>
                     
