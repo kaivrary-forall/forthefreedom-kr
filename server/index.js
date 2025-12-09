@@ -259,6 +259,12 @@ app.use('/api/admin/members', require('./routes/adminMembers'));
 // 유틸리티 라우트 (한글 파일명 복원)
 app.use('/api/fix-filenames', require('./routes/fixFilenames'));
 
+// 당협(지역구) 관리 라우트
+app.use('/api/chapters', require('./routes/chapters'));
+
+// 인사 게시판 라우트
+app.use('/api/personnel', require('./routes/personnel'));
+
 // 404 에러 핸들링
 app.use('*', (req, res) => {
   res.status(404).json({
