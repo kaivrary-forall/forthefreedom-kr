@@ -1,98 +1,97 @@
-/**
- * 이메일 발송 유틸리티
- * Resend API 사용
- */
-
 const { Resend } = require('resend');
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// 발신자 이메일 (도메인 인증 전에는 Resend 기본 주소 사용)
-const FROM_EMAIL = process.env.SMTP_USER 
-  ? `자유와혁신 <${process.env.SMTP_USER}>`
-  : '자유와혁신 <onboarding@resend.dev>';
-
 /**
- * 이메일 인증 코드 발송
- * @param {string} to - 수신자 이메일
- * @param {string} code - 6자리 인증 코드
- * @returns {Promise<boolean>}
+ * 당협위원장 지원서 이메일 발송
  */
-async function sendVerificationCode(to, code) {
-  try {
-    const { data, error } = await resend.emails.send({
-      from: FROM_EMAIL,
-      to: [to],
-      subject: '[자유와혁신] 이메일 인증 코드',
-      html: `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="UTF-8">
-          <style>
-            body { font-family: 'Malgun Gothic', sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
-            .container { max-width: 600px; margin: 0 auto; background: white; }
-            .header { background: linear-gradient(135deg, #A50034 0%, #8B002C 100%); padding: 30px; text-align: center; }
-            .header h1 { color: white; margin: 0; font-size: 24px; }
-            .content { padding: 40px 30px; }
-            .code-box { background: #f8f9fa; border: 2px dashed #A50034; border-radius: 12px; padding: 30px; text-align: center; margin: 30px 0; }
-            .code { font-size: 36px; font-weight: bold; color: #A50034; letter-spacing: 8px; }
-            .notice { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; font-size: 14px; }
-            .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #666; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h1>🗳️ 자유와혁신</h1>
-            </div>
-            <div class="content">
-              <h2>이메일 인증 코드</h2>
-              <p>안녕하세요, 자유와혁신입니다.</p>
-              <p>이메일 변경을 위한 인증 코드입니다.</p>
-              
-              <div class="code-box">
-                <p style="margin: 0 0 10px 0; color: #666;">인증 코드</p>
-                <div class="code">${code}</div>
-              </div>
-              
-              <div class="notice">
-                ⚠️ 이 코드는 <strong>5분간</strong> 유효합니다.<br>
-                본인이 요청하지 않은 경우 이 메일을 무시해주세요.
-              </div>
-            </div>
-            <div class="footer">
-              <p>© 자유와혁신 Freedom & Innovation</p>
-              <p>이 메일은 발신 전용입니다.</p>
-            </div>
-          </div>
-        </body>
-        </html>
-      `
-    });
+async function sendApplicationEmail({ 
+    toEmail, 
+    applicantName, 
+    applicantEmail, 
+    applicantPhone, 
+    districtName, 
+    motivation,
+    resumeFile,
+    coverLetterFile 
+}) {
+    try {
+        const attachments = [];
+        
+        if (resumeFile) {
+            attachments.push({
+                filename: resumeFile.originalname,
+                content: resumeFile.buffer
+            });
+        }
+        
+        if (coverLetterFile) {
+            attachments.push({
+                filename: coverLetterFile.originalname,
+                content: coverLetterFile.buffer
+            });
+        }
 
-    if (error) {
-      console.error('❌ 인증 메일 발송 실패:', error);
-      return false;
+        const emailHtml = `
+            <div style="font-family: 'Malgun Gothic', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #A50034; border-bottom: 2px solid #A50034; padding-bottom: 10px;">
+                    🗳️ 당협위원장 지원서
+                </h2>
+                
+                <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd; background: #f9f9f9; width: 30%;"><strong>지원 지역구</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${districtName}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd; background: #f9f9f9;"><strong>성명</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${applicantName}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd; background: #f9f9f9;"><strong>연락처</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${applicantPhone}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd; background: #f9f9f9;"><strong>이메일</strong></td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${applicantEmail}</td>
+                    </tr>
+                </table>
+                
+                <h3 style="color: #333; margin-top: 30px;">📝 지원 동기</h3>
+                <div style="padding: 15px; background: #f9f9f9; border-radius: 8px; line-height: 1.8;">
+                    ${motivation.replace(/\n/g, '<br>')}
+                </div>
+                
+                <div style="margin-top: 30px; padding: 15px; background: #fff3cd; border-radius: 8px;">
+                    <strong>📎 첨부 파일:</strong>
+                    <ul style="margin: 10px 0 0 0; padding-left: 20px;">
+                        ${resumeFile ? `<li>이력서: ${resumeFile.originalname}</li>` : '<li style="color: #999;">이력서 미첨부</li>'}
+                        ${coverLetterFile ? `<li>자기소개서: ${coverLetterFile.originalname}</li>` : '<li style="color: #999;">자기소개서 미첨부</li>'}
+                    </ul>
+                </div>
+                
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 12px;">
+                    <p>이 메일은 자유와혁신 홈페이지에서 자동 발송되었습니다.</p>
+                    <p>발송 시각: ${new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}</p>
+                </div>
+            </div>
+        `;
+
+        const result = await resend.emails.send({
+            from: '자유와혁신 <noreply@freeinno.kr>',
+            to: toEmail,
+            subject: `[당협위원장 지원] ${districtName} - ${applicantName}`,
+            html: emailHtml,
+            attachments: attachments.length > 0 ? attachments : undefined
+        });
+
+        console.log('✅ 지원서 이메일 발송 성공:', result);
+        return { success: true, id: result.id };
+        
+    } catch (error) {
+        console.error('❌ 이메일 발송 실패:', error);
+        return { success: false, error: error.message };
     }
-
-    console.log('✅ 인증 메일 발송:', to, data.id);
-    return true;
-  } catch (error) {
-    console.error('❌ 인증 메일 발송 오류:', error);
-    return false;
-  }
 }
 
-/**
- * 6자리 랜덤 인증 코드 생성
- * @returns {string}
- */
-function generateVerificationCode() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
-
-module.exports = {
-  sendVerificationCode,
-  generateVerificationCode
-};
+module.exports = { sendApplicationEmail };
