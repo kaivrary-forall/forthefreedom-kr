@@ -968,30 +968,31 @@ function createMypageModal() {
             background: linear-gradient(135deg, #A50034 0%, #c41e3a 100%);
             color: white;
             border-radius: 12px;
-            padding: 24px;
+            padding: 0;
             display: flex;
-            align-items: center;
-            gap: 20px;
+            align-items: stretch;
+            gap: 0;
+            overflow: hidden;
         }
         .mp-avatar {
-            width: 72px; height: 72px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
+            width: 140px; height: 140px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 0;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.75rem;
+            font-size: 3rem;
             overflow: hidden;
             flex-shrink: 0;
             cursor: pointer;
             position: relative;
             transition: all 0.2s;
         }
-        .mp-avatar:hover { background: rgba(255,255,255,0.3); }
+        .mp-avatar:hover { background: rgba(255,255,255,0.25); }
         .mp-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .mp-avatar-overlay {
             position: absolute;
             inset: 0;
             background: rgba(0,0,0,0.4);
-            border-radius: 50%;
+            border-radius: 0;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -999,6 +1000,13 @@ function createMypageModal() {
             transition: opacity 0.2s;
         }
         .mp-avatar:hover .mp-avatar-overlay { opacity: 1; }
+        .mp-profile-info { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            padding: 24px;
+        }
         .mp-profile-info h3 { font-size: 1.25rem; font-weight: 700; margin: 0 0 6px 0; }
         .mp-profile-info p { opacity: 0.85; font-size: 0.9rem; margin: 0; }
         .mp-badge {
