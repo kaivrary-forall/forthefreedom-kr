@@ -127,16 +127,27 @@
                 <input type="hidden" id="chapterId">
                 
                 <!-- 기본 정보 -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">지역구 이름 *</label>
-                        <input type="text" id="chapterName" required placeholder="예: 강남 갑"
+                        <label class="block text-sm font-medium text-gray-700 mb-1">지역구명 *</label>
+                        <input type="text" id="chapterDistrictName" required placeholder="예: 강남"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">카카오톡 링크</label>
-                        <input type="url" id="chapterKakaoLink" placeholder="https://invite.kakao.com/tc/..."
+                        <label class="block text-sm font-medium text-gray-700 mb-1">갑/을/병</label>
+                        <select id="chapterDistrictSuffix"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+                            <option value="">없음 (단일 지역구)</option>
+                            <option value="갑">갑</option>
+                            <option value="을">을</option>
+                            <option value="병">병</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">채팅방 링크</label>
+                        <input type="text" id="chapterKakaoLink" placeholder="invite.kakao.com/tc/..."
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+                        <p class="text-xs text-gray-500 mt-1">https:// 자동 추가</p>
                     </div>
                 </div>
                 
@@ -158,43 +169,48 @@
                     <h3 class="text-lg font-medium text-gray-900 mb-4">위원장 정보</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">위원장 이름</label>
-                            <input type="text" id="chairmanName" placeholder="홍길동"
+                            <label class="block text-sm font-medium text-gray-700 mb-1">성</label>
+                            <input type="text" id="chairmanSurname" placeholder="홍"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">이름</label>
+                            <input type="text" id="chairmanGivenName" placeholder="길동"
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">웹사이트</label>
-                            <input type="url" id="chairmanWebsite" placeholder="https://..."
+                            <input type="text" id="chairmanWebsite" placeholder="example.com"
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">인스타그램</label>
-                            <input type="url" id="chairmanInstagram" placeholder="https://instagram.com/..."
+                            <input type="text" id="chairmanInstagram" placeholder="instagram.com/username"
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">페이스북</label>
-                            <input type="url" id="chairmanFacebook" placeholder="https://facebook.com/..."
+                            <input type="text" id="chairmanFacebook" placeholder="facebook.com/username"
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">스레드</label>
-                            <input type="url" id="chairmanThreads" placeholder="https://threads.com/..."
+                            <input type="text" id="chairmanThreads" placeholder="threads.net/@username"
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">X (트위터)</label>
-                            <input type="url" id="chairmanX" placeholder="https://x.com/..."
+                            <input type="text" id="chairmanX" placeholder="x.com/username"
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">네이버 블로그</label>
-                            <input type="url" id="chairmanNaverBlog" placeholder="https://blog.naver.com/..."
+                            <input type="text" id="chairmanNaverBlog" placeholder="blog.naver.com/username"
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">유튜브</label>
-                            <input type="url" id="chairmanYoutube" placeholder="https://youtube.com/..."
+                            <input type="text" id="chairmanYoutube" placeholder="youtube.com/@channel"
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
                         </div>
                     </div>
@@ -449,6 +465,7 @@
             document.getElementById('modalTitle').textContent = '지역구 추가';
             document.getElementById('chapterForm').reset();
             document.getElementById('chapterId').value = '';
+            document.getElementById('chapterDistrictSuffix').value = '';
             document.getElementById('chapterModal').classList.remove('hidden');
         }
 
@@ -458,11 +475,28 @@
             
             document.getElementById('modalTitle').textContent = '지역구 수정';
             document.getElementById('chapterId').value = id;
-            document.getElementById('chapterName').value = chapter.name || '';
+            
+            // 지역구명과 갑/을/병 분리
+            const nameParts = (chapter.name || '').split(' ');
+            const suffix = nameParts.length > 1 && ['갑', '을', '병'].includes(nameParts[nameParts.length - 1]) 
+                ? nameParts.pop() : '';
+            document.getElementById('chapterDistrictName').value = nameParts.join(' ');
+            document.getElementById('chapterDistrictSuffix').value = suffix;
+            
             document.getElementById('chapterKakaoLink').value = chapter.kakaoLink || '';
             document.getElementById('chapterDongsRaw').value = chapter.dongsRaw || '';
             document.getElementById('chapterNote').value = chapter.note || '';
-            document.getElementById('chairmanName').value = chapter.chairmanName || '';
+            
+            // 위원장 성/이름 분리 (첫 글자가 성, 나머지가 이름)
+            const fullName = chapter.chairmanName || '';
+            if (fullName) {
+                document.getElementById('chairmanSurname').value = fullName.charAt(0);
+                document.getElementById('chairmanGivenName').value = fullName.slice(1);
+            } else {
+                document.getElementById('chairmanSurname').value = '';
+                document.getElementById('chairmanGivenName').value = '';
+            }
+            
             document.getElementById('chairmanWebsite').value = chapter.chairmanWebsite || '';
             document.getElementById('chairmanInstagram').value = chapter.chairmanInstagram || '';
             document.getElementById('chairmanFacebook').value = chapter.chairmanFacebook || '';
@@ -478,24 +512,45 @@
             document.getElementById('chapterModal').classList.add('hidden');
         }
 
+        // URL 정규화 (https:// 자동 추가)
+        function normalizeUrl(url) {
+            if (!url || url.trim() === '') return null;
+            url = url.trim();
+            if (url && !url.match(/^https?:\/\//i)) {
+                return 'https://' + url;
+            }
+            return url;
+        }
+
         // 폼 제출
         async function handleFormSubmit(e) {
             e.preventDefault();
             
             const id = document.getElementById('chapterId').value;
+            
+            // 지역구명 + 갑/을/병 합치기
+            const districtName = document.getElementById('chapterDistrictName').value.trim();
+            const suffix = document.getElementById('chapterDistrictSuffix').value;
+            const name = suffix ? `${districtName} ${suffix}` : districtName;
+            
+            // 성 + 이름 합치기
+            const surname = document.getElementById('chairmanSurname').value.trim();
+            const givenName = document.getElementById('chairmanGivenName').value.trim();
+            const chairmanName = surname || givenName ? `${surname}${givenName}` : null;
+            
             const data = {
-                name: document.getElementById('chapterName').value,
-                kakaoLink: document.getElementById('chapterKakaoLink').value || null,
+                name: name,
+                kakaoLink: normalizeUrl(document.getElementById('chapterKakaoLink').value),
                 dongsRaw: document.getElementById('chapterDongsRaw').value || null,
                 note: document.getElementById('chapterNote').value || null,
-                chairmanName: document.getElementById('chairmanName').value || null,
-                chairmanWebsite: document.getElementById('chairmanWebsite').value || null,
-                chairmanInstagram: document.getElementById('chairmanInstagram').value || null,
-                chairmanFacebook: document.getElementById('chairmanFacebook').value || null,
-                chairmanThreads: document.getElementById('chairmanThreads').value || null,
-                chairmanX: document.getElementById('chairmanX').value || null,
-                chairmanNaverBlog: document.getElementById('chairmanNaverBlog').value || null,
-                chairmanYoutube: document.getElementById('chairmanYoutube').value || null
+                chairmanName: chairmanName,
+                chairmanWebsite: normalizeUrl(document.getElementById('chairmanWebsite').value),
+                chairmanInstagram: normalizeUrl(document.getElementById('chairmanInstagram').value),
+                chairmanFacebook: normalizeUrl(document.getElementById('chairmanFacebook').value),
+                chairmanThreads: normalizeUrl(document.getElementById('chairmanThreads').value),
+                chairmanX: normalizeUrl(document.getElementById('chairmanX').value),
+                chairmanNaverBlog: normalizeUrl(document.getElementById('chairmanNaverBlog').value),
+                chairmanYoutube: normalizeUrl(document.getElementById('chairmanYoutube').value)
             };
             
             try {
