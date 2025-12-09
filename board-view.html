@@ -647,6 +647,9 @@
                 if (result.success) {
                     document.getElementById('likeCount').textContent = result.data.likeCount;
                     document.getElementById('likeBtn').classList.toggle('active', result.data.isLiked);
+                    // 싫어요 상태도 업데이트
+                    document.getElementById('dislikeCount').textContent = result.data.dislikeCount;
+                    document.getElementById('dislikeBtn').classList.toggle('active', result.data.isDisliked);
                 }
                 
             } catch (error) {
@@ -673,6 +676,9 @@
                 if (result.success) {
                     document.getElementById('dislikeCount').textContent = result.data.dislikeCount;
                     document.getElementById('dislikeBtn').classList.toggle('active', result.data.isDisliked);
+                    // 좋아요 상태도 업데이트
+                    document.getElementById('likeCount').textContent = result.data.likeCount;
+                    document.getElementById('likeBtn').classList.toggle('active', result.data.isLiked);
                 }
                 
             } catch (error) {
