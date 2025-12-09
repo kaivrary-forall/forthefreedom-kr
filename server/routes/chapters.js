@@ -101,7 +101,7 @@ router.post('/seed', async (req, res) => {
       { name: "광진 을", dongsRaw: "자양1동#자양2동#자양3동#자양4동#구의1동#구의3동#화양동", kakaoLink: "https://invite.kakao.com/tc/klUmEYr6R5" },
       { name: "구로 갑", dongsRaw: "개봉1동#개봉2동#개봉3동#고척1동#고척2동#오류1동#오류2동#수궁동#항동", kakaoLink: "https://invite.kakao.com/tc/Grmew30A5t" },
       { name: "구로 을", dongsRaw: "구로1동#구로2동#구로3동#구로4동#구로5동#신도림동#가리봉동", kakaoLink: "https://invite.kakao.com/tc/I726mhYDub" },
-      { name: "금천", dongsRaw: "금천구 전 지역", kakaoLink: "https://invite.kakao.com/tc/w16GSt7hM3" },
+      { name: "금천", dongsRaw: "가산동#독산1동#독산2동#독산3동#독산4동#시흥1동#시흥2동#시흥3동#시흥4동#시흥5동", kakaoLink: "https://invite.kakao.com/tc/w16GSt7hM3" },
       { name: "노원 갑", dongsRaw: "월계1동#월계2동#월계3동#공릉1동#공릉2동#하계1동#하계2동#중계본동#중계2·3동", kakaoLink: "https://invite.kakao.com/tc/DkaUzITz8M" },
       { name: "노원 을", dongsRaw: "중계1동#중계4동#상계1동#상계2동#상계3·4동#상계5동#상계6·7동#상계8동#상계9동#상계10동", kakaoLink: "https://invite.kakao.com/tc/WKKZQElR61" },
       { name: "도봉 갑", dongsRaw: "쌍문1동#쌍문3동#창1동#창2동#창3동#창4동#창5동", kakaoLink: "https://invite.kakao.com/tc/AHsy504VSN" },
@@ -125,14 +125,14 @@ router.post('/seed', async (req, res) => {
       { name: "양천 을", dongsRaw: "신월1동#신월2동#신월3동#신월4동#신월5동#신월6동#신월7동#신정3동#신정4동", kakaoLink: "https://invite.kakao.com/tc/WRQQzVfmF8" },
       { name: "영등포 갑", dongsRaw: "신길3동#당산1동#당산2동#양평1동#양평2동#문래동#영등포동#영등포본동#도림동", kakaoLink: "https://invite.kakao.com/tc/x5ceRq3oE9" },
       { name: "영등포 을", dongsRaw: "신길1동#신길4동#신길5동#신길6동#신길7동#여의동#대림1동#대림2동#대림3동", kakaoLink: "https://invite.kakao.com/tc/q4hFQbBpD9" },
-      { name: "용산", dongsRaw: "용산구 전 지역", kakaoLink: "https://invite.kakao.com/tc/YcmlIpCTb6" },
+      { name: "용산", dongsRaw: "후암동#용산2가동#남영동#청파동#원효로1동#원효로2동#효창동#용문동#한강로동#이촌1동#이촌2동#이태원1동#이태원2동#한남동#서빙고동#보광동", kakaoLink: "https://invite.kakao.com/tc/YcmlIpCTb6" },
       { name: "은평 갑", dongsRaw: "녹번동#역촌동#증산동#신사1동#신사2동#응암1동#응암2동#응암3동#수색동", kakaoLink: "https://invite.kakao.com/tc/n9yxNBceDv" },
       { name: "은평 을", dongsRaw: "구산동#대조동#진관동#갈현1동#갈현2동#불광1동#불광2동", kakaoLink: "https://invite.kakao.com/tc/7WeyD9KkWP" },
-      { name: "종로", dongsRaw: "종로구 전 지역", kakaoLink: "https://invite.kakao.com/tc/wC6aK7wKad" },
+      { name: "종로", dongsRaw: "청운효자동#사직동#삼청동#부암동#평창동#무악동#교남동#가회동#종로1·2·3·4가동#종로5·6가동#이화동#혜화동#창신1동#창신2동#창신3동#숭인1동#숭인2동", kakaoLink: "https://invite.kakao.com/tc/wC6aK7wKad" },
       { name: "중랑 갑", dongsRaw: "상봉2동#망우3동#면목본동#면목2동#면목4동#면목5동#면목3·8동#면목7동", kakaoLink: "https://invite.kakao.com/tc/YMpTN9y6Yg" },
       { name: "중랑 을", dongsRaw: "상봉1동#망우본동#중화1동#중화2동#신내1동#신내2동#묵1동#묵2동", kakaoLink: "https://invite.kakao.com/tc/WKuJmQUz54" },
       { name: "중성동 갑", dongsRaw: "마장동#사근동#응봉동#송정동#용답동#행당1동#행당2동#성수1가1동#성수1가2동#성수2가1동#성수2가3동#왕십리·도선동#왕십리2동", kakaoLink: "https://invite.kakao.com/tc/6yYTIR5SkZ", note: "성동구" },
-      { name: "중성동 을", dongsRaw: "중구 전 지역#금호1가동#금호2·3가동#금호4가동#옥수동", kakaoLink: "https://invite.kakao.com/tc/Wl4H4R4eAX", note: "중구 전 지역 + 성동구 일부" }
+      { name: "중성동 을", dongsRaw: "소공동#회현동#명동#필동#장충동#광희동#을지로동#신당동#다산동#약수동#청구동#동화동#황학동#중림동#금호1가동#금호2·3가동#금호4가동#옥수동", kakaoLink: "https://invite.kakao.com/tc/Wl4H4R4eAX", note: "중구 전 지역 + 성동구 일부" }
     ];
     
     // 데이터 삽입
