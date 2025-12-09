@@ -811,8 +811,8 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    alert('정보가 수정되었습니다');
                     closeModal('editModal');
+                    showSuccessModal('정보가 수정되었습니다');
                     loadMemberInfo();
                 } else {
                     alert(result.message || '수정에 실패했습니다');
