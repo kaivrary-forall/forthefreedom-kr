@@ -1,38 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
-const multer = require('multer');
 const Member = require('../models/Member');
 const { generateToken, authMember } = require('../middleware/authMember');
 const { ADMIN_CREDENTIALS } = require('./auth');
-const { sendVerificationCode, generateVerificationCode } = require('../utils/email');
-const { uploadProfileImage } = require('../utils/cloudinary');
-
-// 프로필 이미지 업로드 설정 (메모리 저장, 30MB 제한 - 서버에서 압축)
-const profileUpload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 30 * 1024 * 1024 }, // 30MB
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('이미지 파일만 업로드 가능합니다'), false);
-    }
-  }
-});
-
-// 이메일 인증 코드 임시 저장소 (메모리, 5분 만료)
-const emailVerificationCodes = new Map();
-
-// 만료된 인증 코드 정리 (5분마다)
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, data] of emailVerificationCodes.entries()) {
-    if (now > data.expiresAt) {
-      emailVerificationCodes.delete(key);
-    }
-  }
-}, 5 * 60 * 1000);
 
 // ===== 회원가입 =====
 router.post('/register', async (req, res) => {
@@ -46,7 +17,6 @@ router.post('/register', async (req, res) => {
       email,
       phone, 
       address,
-      addressDong,
       addressDetail,
       zipCode,
       birthDate,
@@ -138,7 +108,6 @@ router.post('/register', async (req, res) => {
       email: email.toLowerCase(),
       phone,
       address: address || '',
-      addressDong: addressDong || '',
       addressDetail: addressDetail || '',
       zipCode: zipCode || '',
       birthDate: birthDate || null,
@@ -311,8 +280,7 @@ router.post('/login', async (req, res) => {
               name: ADMIN_CREDENTIALS.name,
               memberType: 'admin',
               status: 'active',
-              isAdmin: true,
-              appliedAt: '2025-07-12T00:00:00.000Z' // 창당일
+              isAdmin: true
             }
           }
         });
@@ -389,8 +357,7 @@ router.post('/login', async (req, res) => {
           nickname: member.nickname,
           name: member.name,
           memberType: member.memberType,
-          status: member.status,
-          appliedAt: member.appliedAt
+          status: member.status
         }
       }
     });
@@ -426,13 +393,14 @@ router.get('/me', authMember, async (req, res) => {
 // ===== 내 정보 수정 =====
 router.put('/me', authMember, async (req, res) => {
   try {
-    const { phone, address, addressDong, addressDetail, zipCode, birthDate } = req.body;
+    const { name, email, phone, address, addressDetail, zipCode, birthDate } = req.body;
 
-    // 수정 가능한 필드만 업데이트 (이름, 이메일은 별도 인증 필요)
+    // 수정 가능한 필드만 업데이트
     const updateData = {};
+    if (name) updateData.name = name;
+    if (email) updateData.email = email.toLowerCase();
     if (phone) updateData.phone = phone;
     if (address !== undefined) updateData.address = address;
-    if (addressDong !== undefined) updateData.addressDong = addressDong;
     if (addressDetail !== undefined) updateData.addressDetail = addressDetail;
     if (zipCode !== undefined) updateData.zipCode = zipCode;
     if (birthDate !== undefined) updateData.birthDate = birthDate;
@@ -680,248 +648,6 @@ router.get('/me/nickname-status', authMember, async (req, res) => {
     res.status(500).json({
       success: false,
       message: '조회 중 오류가 발생했습니다'
-    });
-  }
-});
-
-// ===== 이메일 인증 코드 요청 =====
-router.post('/me/email/request', authMember, async (req, res) => {
-  try {
-    const { newEmail } = req.body;
-    const memberId = req.member._id.toString();
-
-    if (!newEmail) {
-      return res.status(400).json({
-        success: false,
-        message: '새 이메일 주소를 입력해주세요'
-      });
-    }
-
-    // 이메일 형식 검증
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(newEmail)) {
-      return res.status(400).json({
-        success: false,
-        message: '올바른 이메일 형식이 아닙니다'
-      });
-    }
-
-    // 현재 이메일과 동일한지 확인
-    if (newEmail.toLowerCase() === req.member.email.toLowerCase()) {
-      return res.status(400).json({
-        success: false,
-        message: '현재 사용 중인 이메일과 동일합니다'
-      });
-    }
-
-    // 다른 회원이 사용 중인 이메일인지 확인
-    const existingMember = await Member.findOne({ 
-      email: newEmail.toLowerCase(),
-      _id: { $ne: req.member._id }
-    });
-    if (existingMember) {
-      return res.status(400).json({
-        success: false,
-        message: '이미 사용 중인 이메일입니다'
-      });
-    }
-
-    // 인증 코드 생성 (6자리)
-    const code = generateVerificationCode();
-    
-    // 저장 (5분 만료)
-    emailVerificationCodes.set(memberId, {
-      email: newEmail.toLowerCase(),
-      code: code,
-      expiresAt: Date.now() + 5 * 60 * 1000, // 5분
-      attempts: 0
-    });
-
-    // 이메일 발송
-    const sent = await sendVerificationCode(newEmail, code);
-    
-    if (!sent) {
-      emailVerificationCodes.delete(memberId);
-      return res.status(500).json({
-        success: false,
-        message: '인증 메일 발송에 실패했습니다. 잠시 후 다시 시도해주세요.'
-      });
-    }
-
-    console.log('✅ 이메일 인증 코드 발송:', req.member.userId, '→', newEmail);
-
-    res.json({
-      success: true,
-      message: '인증 코드가 발송되었습니다. 이메일을 확인해주세요.',
-      data: {
-        email: newEmail,
-        expiresIn: 300 // 5분 (초)
-      }
-    });
-
-  } catch (error) {
-    console.error('이메일 인증 요청 오류:', error);
-    res.status(500).json({
-      success: false,
-      message: '인증 요청 중 오류가 발생했습니다'
-    });
-  }
-});
-
-// ===== 이메일 인증 코드 확인 및 변경 =====
-router.post('/me/email/verify', authMember, async (req, res) => {
-  try {
-    const { code } = req.body;
-    const memberId = req.member._id.toString();
-
-    if (!code) {
-      return res.status(400).json({
-        success: false,
-        message: '인증 코드를 입력해주세요'
-      });
-    }
-
-    // 저장된 인증 정보 확인
-    const verificationData = emailVerificationCodes.get(memberId);
-    
-    if (!verificationData) {
-      return res.status(400).json({
-        success: false,
-        message: '인증 요청 내역이 없습니다. 다시 인증 코드를 요청해주세요.'
-      });
-    }
-
-    // 만료 확인
-    if (Date.now() > verificationData.expiresAt) {
-      emailVerificationCodes.delete(memberId);
-      return res.status(400).json({
-        success: false,
-        message: '인증 코드가 만료되었습니다. 다시 요청해주세요.'
-      });
-    }
-
-    // 시도 횟수 제한 (5회)
-    if (verificationData.attempts >= 5) {
-      emailVerificationCodes.delete(memberId);
-      return res.status(400).json({
-        success: false,
-        message: '인증 시도 횟수를 초과했습니다. 다시 요청해주세요.'
-      });
-    }
-
-    // 코드 확인
-    if (code !== verificationData.code) {
-      verificationData.attempts++;
-      return res.status(400).json({
-        success: false,
-        message: `인증 코드가 일치하지 않습니다. (${5 - verificationData.attempts}회 남음)`
-      });
-    }
-
-    // 이메일 변경
-    const oldEmail = req.member.email;
-    const newEmail = verificationData.email;
-
-    await Member.findByIdAndUpdate(req.member._id, {
-      email: newEmail
-    });
-
-    // 인증 정보 삭제
-    emailVerificationCodes.delete(memberId);
-
-    console.log('✅ 이메일 변경 완료:', req.member.userId, oldEmail, '→', newEmail);
-
-    res.json({
-      success: true,
-      message: '이메일이 성공적으로 변경되었습니다.',
-      data: {
-        email: newEmail
-      }
-    });
-
-  } catch (error) {
-    console.error('이메일 인증 확인 오류:', error);
-    res.status(500).json({
-      success: false,
-      message: '이메일 변경 중 오류가 발생했습니다'
-    });
-  }
-});
-
-// ===== 프로필 이미지 업로드 =====
-router.post('/me/profile-image', authMember, profileUpload.single('profileImage'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: '이미지 파일을 선택해주세요'
-      });
-    }
-
-    const memberId = req.member._id.toString();
-
-    // Cloudinary에 업로드
-    const result = await uploadProfileImage(req.file.buffer, memberId);
-
-    if (!result.success) {
-      return res.status(500).json({
-        success: false,
-        message: '이미지 업로드에 실패했습니다'
-      });
-    }
-
-    // DB에 이미지 URL 저장
-    await Member.findByIdAndUpdate(req.member._id, {
-      profileImage: result.url
-    });
-
-    console.log('✅ 프로필 이미지 변경:', req.member.userId, result.url);
-
-    res.json({
-      success: true,
-      message: '프로필 이미지가 변경되었습니다',
-      data: {
-        profileImage: result.url
-      }
-    });
-
-  } catch (error) {
-    console.error('프로필 이미지 업로드 오류:', error);
-    
-    // Multer 에러 처리
-    if (error.code === 'LIMIT_FILE_SIZE') {
-      return res.status(400).json({
-        success: false,
-        message: '이미지 크기는 30MB 이하만 가능합니다'
-      });
-    }
-    
-    res.status(500).json({
-      success: false,
-      message: '프로필 이미지 업로드 중 오류가 발생했습니다'
-    });
-  }
-});
-
-// ===== 프로필 이미지 삭제 =====
-router.delete('/me/profile-image', authMember, async (req, res) => {
-  try {
-    await Member.findByIdAndUpdate(req.member._id, {
-      profileImage: ''
-    });
-
-    console.log('✅ 프로필 이미지 삭제:', req.member.userId);
-
-    res.json({
-      success: true,
-      message: '프로필 이미지가 삭제되었습니다'
-    });
-
-  } catch (error) {
-    console.error('프로필 이미지 삭제 오류:', error);
-    res.status(500).json({
-      success: false,
-      message: '프로필 이미지 삭제 중 오류가 발생했습니다'
     });
   }
 });
