@@ -930,18 +930,18 @@
             currentApplyDistrict = districtName;
             currentApplyProvince = province;
 
-            const token = localStorage.getItem('token');
-            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            const token = localStorage.getItem('memberToken');
+            const memberInfo = JSON.parse(localStorage.getItem('memberInfo') || 'null');
 
-            if (!token || !user) {
+            if (!token || !memberInfo) {
                 // 비로그인 → 로그인 모달
                 showLoginModal();
-            } else if (user.memberType === 'general') {
+            } else if (memberInfo.memberType === 'general') {
                 // 일반회원 → 당원 가입 안내
                 showPartyJoinModal();
             } else {
                 // 당원/혁신당원 → 지원 폼 모달
-                showApplicationModal(user);
+                showApplicationModal(memberInfo);
             }
         }
 
@@ -977,7 +977,7 @@
             document.getElementById('applicantName').value = user.name || '';
             document.getElementById('applicantEmail').value = user.email || '';
             document.getElementById('applicantPhone').value = user.phone || '';
-            document.getElementById('applicantMemberId').value = user._id || '';
+            document.getElementById('applicantMemberId').value = user.id || '';
             document.getElementById('applicationModal').classList.remove('hidden');
         }
 
