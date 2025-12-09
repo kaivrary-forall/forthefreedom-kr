@@ -1,3 +1,6 @@
+// 세션 타이머 인터벌 ID
+let sessionTimerInterval = null;
+
 // 관리자 공통 네비게이션
 function loadAdminNav(currentPage) {
     const navContainer = document.getElementById('admin-nav-container');
@@ -62,8 +65,19 @@ function loadAdminNav(currentPage) {
                     </div>
                 </div>
 
-                <!-- 오른쪽: 관리자 정보 + 로그아웃 -->
+                <!-- 오른쪽: 세션 타이머 + 관리자 정보 + 로그아웃 -->
                 <div class="flex items-center space-x-4">
+                    <!-- 세션 타이머 -->
+                    <div class="hidden sm:flex items-center space-x-2 text-sm">
+                        <span id="sessionCountdown" class="text-gray-500">
+                            <i class="fas fa-clock mr-1"></i>
+                            <span id="countdownText">--:--</span>
+                        </span>
+                        <button onclick="extendSession()" class="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200" title="세션 연장">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    
                     <div class="hidden sm:flex items-center space-x-2">
                         <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
                             <i class="fas fa-user text-white text-sm"></i>
@@ -105,10 +119,19 @@ function loadAdminNav(currentPage) {
                         <i class="fas fa-map-marker-alt mr-2"></i> 당협관리
                     </a>
                 </div>
+                <!-- 모바일 세션 타이머 -->
+                <div class="border-t border-gray-100 my-2 pt-2 px-3">
+                    <span class="text-xs text-gray-500">
+                        <i class="fas fa-clock mr-1"></i> 남은 시간: <span id="mobileCountdownText">--:--</span>
+                    </span>
+                </div>
             </div>
         </div>
     </nav>
     `;
+    
+    // 세션 타이머 시작
+    initSessionTimer();
 }
 
 // 모바일 메뉴 토글
@@ -116,6 +139,112 @@ function toggleMobileMenu() {
     const menu = document.getElementById('mobileMenu');
     if (menu) {
         menu.classList.toggle('hidden');
+    }
+}
+
+// 세션 타이머 초기화
+function initSessionTimer() {
+    const token = localStorage.getItem('adminToken');
+    if (!token) return;
+
+    // 기존 타이머 정리
+    if (sessionTimerInterval) {
+        clearInterval(sessionTimerInterval);
+        sessionTimerInterval = null;
+    }
+
+    // JWT 토큰에서 만료 시간 추출
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const expTime = payload.exp * 1000; // 초 → 밀리초
+        
+        // 즉시 업데이트
+        updateSessionCountdown(expTime);
+        
+        // 1초마다 카운트다운 업데이트
+        sessionTimerInterval = setInterval(() => updateSessionCountdown(expTime), 1000);
+    } catch (e) {
+        console.warn('토큰 파싱 실패:', e);
+    }
+}
+
+// 카운트다운 업데이트
+function updateSessionCountdown(expTime) {
+    const now = Date.now();
+    const remaining = Math.max(0, expTime - now);
+    
+    const minutes = Math.floor(remaining / 60000);
+    const seconds = Math.floor((remaining % 60000) / 1000);
+    const timeStr = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    
+    // 데스크톱 표시
+    const countdownText = document.getElementById('countdownText');
+    if (countdownText) {
+        countdownText.textContent = timeStr;
+    }
+    
+    // 모바일 표시
+    const mobileCountdownText = document.getElementById('mobileCountdownText');
+    if (mobileCountdownText) {
+        mobileCountdownText.textContent = timeStr;
+    }
+    
+    // 스타일 변경 (5분 이하: 주황, 1분 이하: 빨강)
+    const sessionCountdown = document.getElementById('sessionCountdown');
+    if (sessionCountdown) {
+        if (remaining <= 60000) {
+            sessionCountdown.className = 'text-red-600 font-bold animate-pulse';
+        } else if (remaining <= 300000) {
+            sessionCountdown.className = 'text-orange-500 font-medium';
+        } else {
+            sessionCountdown.className = 'text-gray-500';
+        }
+    }
+    
+    // 만료 시 로그아웃
+    if (remaining <= 0) {
+        clearInterval(sessionTimerInterval);
+        alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+        logout();
+    }
+}
+
+// 세션 연장
+async function extendSession() {
+    const refreshToken = localStorage.getItem('adminRefreshToken');
+    if (!refreshToken) {
+        alert('세션을 연장할 수 없습니다. 다시 로그인해주세요.');
+        return;
+    }
+    
+    try {
+        const apiBase = window.API_BASE || 'https://forthefreedom-kr-production.up.railway.app/api';
+        const response = await fetch(`${apiBase}/auth/refresh`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refreshToken })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success && result.accessToken) {
+            localStorage.setItem('adminToken', result.accessToken);
+            initSessionTimer(); // 타이머 재시작
+            
+            // 갱신 성공 알림
+            const btn = event.target.closest('button');
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-sync-alt"></i>';
+                }, 1000);
+            }
+        } else {
+            alert('세션 연장에 실패했습니다. 다시 로그인해주세요.');
+        }
+    } catch (error) {
+        console.error('세션 연장 오류:', error);
+        alert('세션 연장에 실패했습니다.');
     }
 }
 
