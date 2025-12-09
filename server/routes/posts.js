@@ -50,13 +50,20 @@ router.get('/', optionalAuth, async (req, res) => {
       limit = 20,
       sort = 'latest', // latest, popular
       searchType = 'both',
-      keyword = ''
+      keyword = '',
+      authorId = '',
+      filterType = 'posts'
     } = req.query;
     
     const query = { 
       boardType, 
       isDeleted: false 
     };
+    
+    // 작성자 필터링
+    if (authorId) {
+      query.author = authorId;
+    }
     
     // 검색 조건 추가
     if (keyword && keyword.trim()) {
@@ -508,6 +515,44 @@ router.post('/:postId/comments/:commentId/like', authMember, async (req, res) =>
   } catch (error) {
     console.error('댓글 좋아요 오류:', error);
     res.status(500).json({ success: false, message: '좋아요 처리에 실패했습니다' });
+  }
+});
+
+// ===== 특정 회원의 댓글 목록 =====
+router.get('/member/:memberId/comments', optionalAuth, async (req, res) => {
+  try {
+    const { memberId } = req.params;
+    const { page = 1, limit = 20 } = req.query;
+    
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    const [comments, total] = await Promise.all([
+      Comment.find({ author: memberId, isDeleted: false })
+        .populate('post', 'title')
+        .populate('author', 'nickname profileImage memberType')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(parseInt(limit))
+        .lean(),
+      Comment.countDocuments({ author: memberId, isDeleted: false })
+    ]);
+    
+    res.json({
+      success: true,
+      data: {
+        comments,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          totalPages: Math.ceil(total / parseInt(limit))
+        }
+      }
+    });
+    
+  } catch (error) {
+    console.error('회원 댓글 목록 조회 오류:', error);
+    res.status(500).json({ success: false, message: '댓글 목록을 불러올 수 없습니다' });
   }
 });
 
