@@ -72,8 +72,8 @@ router.get('/timeline', authMember, async (req, res) => {
     const { page = 1, limit = 20 } = req.query;
     
     // 내가 팔로우하는 사람들 + 나
-    const me = await Member.findById(req.memberId).select('following');
-    const userIds = [...(me.following || []), req.memberId];
+    const me = await Member.findById(req.member._id).select('following');
+    const userIds = [...(me.following || []), req.member._id];
     
     const skip = (parseInt(page) - 1) * parseInt(limit);
     
@@ -91,7 +91,7 @@ router.get('/timeline', authMember, async (req, res) => {
     const feedsWithLikeStatus = feeds.map(feed => ({
       ...feed,
       likeCount: feed.likes?.length || 0,
-      isLiked: feed.likes?.some(l => l.toString() === req.memberId.toString())
+      isLiked: feed.likes?.some(l => l.toString() === req.member._id.toString())
     }));
     
     res.json({
@@ -127,7 +127,7 @@ router.post('/', authMember, async (req, res) => {
     }
     
     const feed = new Feed({
-      author: req.memberId,
+      author: req.member._id,
       content: content.trim()
     });
     
@@ -160,7 +160,7 @@ router.delete('/:id', authMember, async (req, res) => {
       return res.status(404).json({ success: false, message: '피드를 찾을 수 없습니다' });
     }
     
-    if (feed.author.toString() !== req.memberId.toString()) {
+    if (feed.author.toString() !== req.member._id.toString()) {
       return res.status(403).json({ success: false, message: '삭제 권한이 없습니다' });
     }
     
@@ -184,13 +184,13 @@ router.post('/:id/like', authMember, async (req, res) => {
       return res.status(404).json({ success: false, message: '피드를 찾을 수 없습니다' });
     }
     
-    const memberIdStr = req.memberId.toString();
+    const memberIdStr = req.member._id.toString();
     const likeIndex = feed.likes.findIndex(id => id.toString() === memberIdStr);
     
     if (likeIndex > -1) {
       feed.likes.splice(likeIndex, 1);
     } else {
-      feed.likes.push(req.memberId);
+      feed.likes.push(req.member._id);
     }
     
     await feed.save();
