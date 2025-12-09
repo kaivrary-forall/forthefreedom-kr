@@ -535,13 +535,27 @@ function checkLoginStatus() {
         if (mobileNavNickname) mobileNavNickname.textContent = memberInfo.nickname + '님';
         
         // 일수 카운터 - 회원가입일 기준
-        if (dayCounterText && dayCounterNumber && memberInfo.appliedAt) {
-            const joinDate = new Date(memberInfo.appliedAt);
-            const today = new Date();
-            const diffTime = today - joinDate;
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-            dayCounterText.textContent = '자유와혁신과 함께한 지';
-            dayCounterNumber.textContent = diffDays.toLocaleString();
+        if (dayCounterText && dayCounterNumber) {
+            if (memberInfo.appliedAt) {
+                const joinDate = new Date(memberInfo.appliedAt);
+                const today = new Date();
+                const diffTime = today - joinDate;
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                dayCounterText.textContent = '자유와혁신과 함께한 지';
+                dayCounterNumber.textContent = diffDays.toLocaleString();
+            } else {
+                // appliedAt이 없으면 창당일 기준
+                const foundingDate = new Date('2025-07-12');
+                const today = new Date();
+                const diffTime = today - foundingDate;
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                dayCounterText.textContent = '자유와혁신과 함께한 지';
+                if (diffDays <= 0) {
+                    dayCounterNumber.textContent = 'D' + diffDays;
+                } else {
+                    dayCounterNumber.textContent = diffDays.toLocaleString();
+                }
+            }
         }
     } else {
         // 비로그인 상태
