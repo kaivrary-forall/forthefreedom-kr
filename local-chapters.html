@@ -225,13 +225,306 @@
             }
         };
 
-        // API에서 가져온 데이터
-        let chaptersData = [];
+        // 서울 당협위원회 데이터
+        const seoulChapters = [
+            {
+                name: "강남 갑",
+                dongs: ["신사동", "논현1동", "논현2동", "압구정동", "청담동", "역삼1동", "역삼2동"],
+                kakaoLink: "https://invite.kakao.com/tc/Q8wb5DlMvv",
+                chairman: null
+            },
+            {
+                name: "강남 을",
+                dongs: ["개포1동", "개포2동", "개포4동", "세곡동", "일원본동", "일원1동", "일원2동", "수서동"],
+                kakaoLink: "https://invite.kakao.com/tc/S4LzmhDFK8",
+                chairman: null
+            },
+            {
+                name: "강남 병",
+                dongs: ["삼성1동", "삼성2동", "대치1동", "대치2동", "대치4동", "도곡1동", "도곡2동"],
+                kakaoLink: "https://invite.kakao.com/tc/x6dqGoh3rh",
+                chairman: null
+            },
+            {
+                name: "강동 갑",
+                dongs: ["암사1동", "암사2동", "암사3동", "명일1동", "명일2동", "고덕1동", "고덕2동", "강일동", "상일동"],
+                kakaoLink: "https://invite.kakao.com/tc/FcT9mRIBrN",
+                chairman: null
+            },
+            {
+                name: "강동 을",
+                dongs: ["천호1동", "천호2동", "천호3동", "성내1동", "성내2동", "성내3동", "둔촌1동", "둔촌2동", "길동"],
+                kakaoLink: "https://invite.kakao.com/tc/ssYGTEfE9Z",
+                chairman: null
+            },
+            {
+                name: "강북 갑",
+                dongs: ["번1동", "번2동", "우이동", "인수동", "수유1동", "수유2동", "수유3동"],
+                kakaoLink: "https://invite.kakao.com/tc/uXwwzfwwxH",
+                chairman: null
+            },
+            {
+                name: "강북 을",
+                dongs: ["번3동", "삼양동", "미아동", "송중동", "송천동", "삼각산동"],
+                kakaoLink: "https://invite.kakao.com/tc/wv1NiWfyvm",
+                chairman: null
+            },
+            {
+                name: "강서 갑",
+                dongs: ["발산1동", "우장산동", "화곡1동", "화곡2동", "화곡3동", "화곡8동"],
+                kakaoLink: "https://invite.kakao.com/tc/wErhlclI9J",
+                chairman: null
+            },
+            {
+                name: "강서 을",
+                dongs: ["가양1동", "가양2동", "등촌3동", "공항동", "방화1동", "방화2동", "방화3동"],
+                kakaoLink: "https://invite.kakao.com/tc/VYfa9v0bOv",
+                chairman: null
+            },
+            {
+                name: "강서 병",
+                dongs: ["등촌1동", "등촌2동", "가양3동", "염창동", "화곡4동", "화곡6동", "화곡본동"],
+                kakaoLink: "https://invite.kakao.com/tc/Gdp6xnhlj3",
+                chairman: null
+            },
+            {
+                name: "구로 갑",
+                dongs: ["개봉1동", "개봉2동", "개봉3동", "고척1동", "고척2동", "오류1동", "오류2동", "수궁동", "항동"],
+                kakaoLink: "https://invite.kakao.com/tc/Grmew30A5t",
+                chairman: null
+            },
+            {
+                name: "구로 을",
+                dongs: ["구로1동", "구로2동", "구로3동", "구로4동", "구로5동", "신도림동", "가리봉동"],
+                kakaoLink: "https://invite.kakao.com/tc/I726mhYDub",
+                chairman: null
+            },
+            {
+                name: "금천",
+                dongs: ["가산동", "독산1동", "독산2동", "독산3동", "독산4동", "시흥1동", "시흥2동", "시흥3동", "시흥4동", "시흥5동"],
+                kakaoLink: "https://invite.kakao.com/tc/w16GSt7hM3",
+                chairman: null
+            },
+            {
+                name: "관악 갑",
+                dongs: ["보라매동", "은천동", "성현동", "중앙동", "청림동", "행운동", "청룡동", "낙성대동", "인헌동", "남현동", "신림동"],
+                kakaoLink: "https://invite.kakao.com/tc/N4ktmdyDsu",
+                chairman: null
+            },
+            {
+                name: "관악 을",
+                dongs: ["신사동", "조원동", "미성동", "난곡동", "난향동", "서원동", "신원동", "서림동", "삼성동", "대학동"],
+                kakaoLink: "https://invite.kakao.com/tc/fcjfBmwKhU",
+                chairman: null
+            },
+            {
+                name: "광진 갑",
+                dongs: ["중곡1동", "중곡2동", "중곡3동", "중곡4동", "구의2동", "군자동", "광장동", "능동"],
+                kakaoLink: "https://invite.kakao.com/tc/r8sPIxP2Ic",
+                chairman: null
+            },
+            {
+                name: "광진 을",
+                dongs: ["자양1동", "자양2동", "자양3동", "자양4동", "구의1동", "구의3동", "화양동"],
+                kakaoLink: "https://invite.kakao.com/tc/klUmEYr6R5",
+                chairman: null
+            },
+            {
+                name: "노원 갑",
+                dongs: ["월계1동", "월계2동", "월계3동", "공릉1동", "공릉2동", "하계1동", "하계2동", "중계본동", "중계2·3동"],
+                kakaoLink: "https://invite.kakao.com/tc/DkaUzITz8M",
+                chairman: null
+            },
+            {
+                name: "노원 을",
+                dongs: ["중계1동", "중계4동", "상계1동", "상계2동", "상계3·4동", "상계5동", "상계6·7동", "상계8동", "상계9동", "상계10동"],
+                kakaoLink: "https://invite.kakao.com/tc/WKKZQElR61",
+                chairman: null
+            },
+            {
+                name: "도봉 갑",
+                dongs: ["쌍문1동", "쌍문3동", "창1동", "창2동", "창3동", "창4동", "창5동"],
+                kakaoLink: "https://invite.kakao.com/tc/AHsy504VSN",
+                chairman: null
+            },
+            {
+                name: "도봉 을",
+                dongs: ["쌍문2동", "쌍문4동", "방학1동", "방학2동", "방학3동", "도봉1동", "도봉2동"],
+                kakaoLink: "https://invite.kakao.com/tc/YWWlpiWiyP",
+                chairman: null
+            },
+            {
+                name: "동대문 갑",
+                dongs: ["휘경1동", "휘경2동", "이문1동", "이문2동", "청량리동", "용신동", "제기동", "회기동"],
+                kakaoLink: "https://invite.kakao.com/tc/TN2TrcPwuz",
+                chairman: null
+            },
+            {
+                name: "동대문 을",
+                dongs: ["전농1동", "전농2동", "장안1동", "장안2동", "답십리1동", "답십리2동"],
+                kakaoLink: "https://invite.kakao.com/tc/TXG50mNKB5",
+                chairman: null
+            },
+            {
+                name: "동작 갑",
+                dongs: ["대방동", "상도2동", "상도3동", "상도4동", "노량진1동", "노량진2동", "신대방1동", "신대방2동"],
+                kakaoLink: "https://invite.kakao.com/tc/0nADJCg2rZ",
+                chairman: null
+            },
+            {
+                name: "동작 을",
+                dongs: ["흑석동", "상도1동", "사당1동", "사당2동", "사당3동", "사당4동", "사당5동"],
+                kakaoLink: "https://invite.kakao.com/tc/GSC2GXAsje",
+                chairman: null
+            },
+            {
+                name: "마포 갑",
+                dongs: ["공덕동", "아현동", "도화동", "용강동", "대흥동", "염리동", "신수동"],
+                kakaoLink: "https://invite.kakao.com/tc/PqCdf56vor",
+                chairman: null
+            },
+            {
+                name: "마포 을",
+                dongs: ["서강동", "서교동", "합정동", "망원1동", "망원2동", "연남동", "성산1동", "성산2동", "상암동"],
+                kakaoLink: "https://invite.kakao.com/tc/nfAJ6PPiB8",
+                chairman: null
+            },
+            {
+                name: "서초 갑",
+                dongs: ["잠원동", "반포본동", "반포1동", "반포2동", "반포3동", "반포4동", "방배본동", "방배1동", "방배4동"],
+                kakaoLink: "https://invite.kakao.com/tc/XdLoR2RbAz",
+                chairman: null
+            },
+            {
+                name: "서초 을",
+                dongs: ["서초1동", "서초2동", "서초3동", "서초4동", "방배2동", "방배3동", "양재1동", "양재2동", "내곡동"],
+                kakaoLink: "https://invite.kakao.com/tc/EUABKmafwi",
+                chairman: null
+            },
+            {
+                name: "서대문 갑",
+                dongs: ["홍제1동", "홍제2동", "북아현동", "천연동", "충현동", "신촌동", "연희동"],
+                kakaoLink: "https://invite.kakao.com/tc/06h4F8WWAo",
+                chairman: null
+            },
+            {
+                name: "서대문 을",
+                dongs: ["홍은1동", "홍은2동", "홍제3동", "남가좌1동", "남가좌2동", "북가좌1동", "북가좌2동"],
+                kakaoLink: "https://invite.kakao.com/tc/7nr9xEqDTL",
+                chairman: null
+            },
+            {
+                name: "성북 갑",
+                dongs: ["길음1동", "돈암2동", "안암동", "보문동", "정릉1동", "정릉2동", "정릉3동", "정릉4동", "성북동", "삼선동", "동선동"],
+                kakaoLink: "https://invite.kakao.com/tc/O9tfteKLJH",
+                chairman: null
+            },
+            {
+                name: "성북 을",
+                dongs: ["돈암1동", "길음2동", "종암동", "석관동", "장위1동", "장위2동", "장위3동", "월곡1동", "월곡2동"],
+                kakaoLink: "https://invite.kakao.com/tc/k2oQly2OBf",
+                chairman: null
+            },
+            {
+                name: "송파 갑",
+                dongs: ["풍납1동", "풍납2동", "방이1동", "방이2동", "오륜동", "송파1동", "송파2동", "잠실4동", "잠실6동"],
+                kakaoLink: "https://invite.kakao.com/tc/IJ6cVgFYnz",
+                chairman: null
+            },
+            {
+                name: "송파 을",
+                dongs: ["석촌동", "삼전동", "가락1동", "문정2동", "잠실본동", "잠실2동", "잠실3동", "잠실7동"],
+                kakaoLink: "https://invite.kakao.com/tc/nvfOMcNioq",
+                chairman: null
+            },
+            {
+                name: "송파 병",
+                dongs: ["거여1동", "거여2동", "마천1동", "마천2동", "오금동", "가락본동", "가락2동", "문정1동", "장지동", "위례동"],
+                kakaoLink: "https://invite.kakao.com/tc/eu0aGBXRPr",
+                chairman: null
+            },
+            {
+                name: "양천 갑",
+                dongs: ["목1동", "목2동", "목3동", "목4동", "목5동", "신정1동", "신정2동", "신정6동", "신정7동"],
+                kakaoLink: "https://invite.kakao.com/tc/C7H1vPh9Pg",
+                chairman: null
+            },
+            {
+                name: "양천 을",
+                dongs: ["신월1동", "신월2동", "신월3동", "신월4동", "신월5동", "신월6동", "신월7동", "신정3동", "신정4동"],
+                kakaoLink: "https://invite.kakao.com/tc/WRQQzVfmF8",
+                chairman: null
+            },
+            {
+                name: "영등포 갑",
+                dongs: ["신길3동", "당산1동", "당산2동", "양평1동", "양평2동", "문래동", "영등포동", "영등포본동", "도림동"],
+                kakaoLink: "https://invite.kakao.com/tc/x5ceRq3oE9",
+                chairman: null
+            },
+            {
+                name: "영등포 을",
+                dongs: ["신길1동", "신길4동", "신길5동", "신길6동", "신길7동", "여의동", "대림1동", "대림2동", "대림3동"],
+                kakaoLink: "https://invite.kakao.com/tc/q4hFQbBpD9",
+                chairman: null
+            },
+            {
+                name: "용산",
+                dongs: ["후암동", "용산2가동", "남영동", "청파동", "원효로1동", "원효로2동", "효창동", "용문동", "한강로동", "이촌1동", "이촌2동", "이태원1동", "이태원2동", "한남동", "서빙고동", "보광동"],
+                kakaoLink: "https://invite.kakao.com/tc/YcmlIpCTb6",
+                chairman: null
+            },
+            {
+                name: "은평 갑",
+                dongs: ["녹번동", "역촌동", "증산동", "신사1동", "신사2동", "응암1동", "응암2동", "응암3동", "수색동"],
+                kakaoLink: "https://invite.kakao.com/tc/n9yxNBceDv",
+                chairman: null
+            },
+            {
+                name: "은평 을",
+                dongs: ["구산동", "대조동", "진관동", "갈현1동", "갈현2동", "불광1동", "불광2동"],
+                kakaoLink: "https://invite.kakao.com/tc/7WeyD9KkWP",
+                chairman: null
+            },
+            {
+                name: "중랑 갑",
+                dongs: ["상봉2동", "망우3동", "면목본동", "면목2동", "면목4동", "면목5동", "면목3·8동", "면목7동"],
+                kakaoLink: "https://invite.kakao.com/tc/YMpTN9y6Yg",
+                chairman: null
+            },
+            {
+                name: "중랑 을",
+                dongs: ["상봉1동", "망우본동", "중화1동", "중화2동", "신내1동", "신내2동", "묵1동", "묵2동"],
+                kakaoLink: "https://invite.kakao.com/tc/WKuJmQUz54",
+                chairman: null
+            },
+            {
+                name: "중성동 갑",
+                dongs: ["마장동", "사근동", "응봉동", "송정동", "용답동", "행당1동", "행당2동", "성수1가1동", "성수1가2동", "성수2가1동", "성수2가3동", "왕십리·도선동", "왕십리2동"],
+                kakaoLink: "https://invite.kakao.com/tc/6yYTIR5SkZ",
+                note: "성동구"
+            },
+            {
+                name: "중성동 을",
+                dongs: ["소공동", "회현동", "명동", "필동", "장충동", "광희동", "을지로동", "신당동", "다산동", "약수동", "청구동", "동화동", "황학동", "중림동", "금호1가동", "금호2·3가동", "금호4가동", "옥수동"],
+                kakaoLink: "https://invite.kakao.com/tc/Wl4H4R4eAX",
+                note: "중구 전 지역 + 성동구 일부"
+            },
+            {
+                name: "종로",
+                dongs: ["청운효자동", "사직동", "삼청동", "부암동", "평창동", "무악동", "교남동", "가회동", "종로1·2·3·4가동", "종로5·6가동", "이화동", "혜화동", "창신1동", "창신2동", "창신3동", "숭인1동", "숭인2동"],
+                kakaoLink: "https://invite.kakao.com/tc/wC6aK7wKad",
+                chairman: null
+            }
+        ];
+
+        // API에서 가져온 데이터 (로드 후 채워짐)
+        let apiChapters = null;
 
         // 현재 활성화된 당협 데이터 가져오기
         function getChapters() {
             if (currentProvince === 'seoul') {
-                return chaptersData;
+                // API 데이터가 있으면 사용, 없으면 하드코딩 데이터 사용
+                return apiChapters || seoulChapters;
             }
             return [];
         }
@@ -245,9 +538,9 @@
                 
                 if (result.success && result.data.length > 0) {
                     // API 데이터를 프론트엔드 형식으로 변환
-                    chaptersData = result.data.map(chapter => ({
+                    apiChapters = result.data.map(chapter => ({
                         name: chapter.name,
-                        dongs: chapter.dongs || [],
+                        dongs: chapter.dongs,
                         kakaoLink: chapter.kakaoLink,
                         note: chapter.note || null,
                         chairman: chapter.chairmanName ? {
@@ -262,12 +555,10 @@
                             memberId: chapter.chairmanMemberId
                         } : null
                     }));
-                    console.log('✅ API에서 지역구 데이터 로드:', chaptersData.length, '개');
-                } else {
-                    console.log('⚠️ 지역구 데이터 없음 - 관리자 페이지에서 시드 데이터를 생성하세요');
+                    console.log('✅ API에서 지역구 데이터 로드:', apiChapters.length, '개');
                 }
             } catch (error) {
-                console.error('❌ API 로드 실패:', error.message);
+                console.log('⚠️ API 로드 실패, 하드코딩 데이터 사용:', error.message);
             }
         }
 
@@ -533,17 +824,15 @@
                         </div>
                     `;
                 } else {
-                    // 공석 - 지원 이메일 연결
-                    const emailSubject = encodeURIComponent(`당협위원장 지원 (${chapter.name})`);
-                    const emailBody = encodeURIComponent(`성명:\n연락처:\n지원동기:\n`);
+                    // 공석 - 지원하기 버튼
                     chairmanHtml = `
                         <div class="mt-4 pt-4 border-t border-gray-200">
                             <div class="text-xs text-gray-500 mb-1">당협위원장</div>
-                            <a href="mailto:seoul@freeinno.kr?subject=${emailSubject}&body=${emailBody}" 
-                               class="flex items-center gap-2 text-red-600 hover:text-red-700 transition-colors">
+                            <button onclick="handleApplyClick('${chapter.name}', 'seoul')" 
+                               class="flex items-center gap-2 text-red-600 hover:text-red-700 transition-colors cursor-pointer bg-transparent border-none p-0">
                                 <i class="fas fa-paper-plane"></i>
                                 <span class="font-medium">지원하기 →</span>
-                            </a>
+                            </button>
                             <div class="text-xs text-gray-400 mt-1">(공석 - 역량있는 분들의 많은 지원 바랍니다!)</div>
                         </div>
                     `;
@@ -626,6 +915,292 @@
                 renderChapters();
             }
         }
+
+        // ========== 지원하기 기능 ==========
+        const API_BASE = window.API_BASE || 'https://forthefreedom-kr-production.up.railway.app/api';
+        let currentApplyDistrict = '';
+        let currentApplyProvince = '';
+
+        // 지원하기 버튼 클릭 핸들러
+        function handleApplyClick(districtName, province) {
+            currentApplyDistrict = districtName;
+            currentApplyProvince = province;
+
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+
+            if (!token || !user) {
+                // 비로그인 → 로그인 모달
+                showLoginModal();
+            } else if (user.memberType === 'general') {
+                // 일반회원 → 당원 가입 안내
+                showPartyJoinModal();
+            } else {
+                // 당원/혁신당원 → 지원 폼 모달
+                showApplicationModal(user);
+            }
+        }
+
+        // 로그인 모달 표시
+        function showLoginModal() {
+            document.getElementById('loginRequiredModal').classList.remove('hidden');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginRequiredModal').classList.add('hidden');
+        }
+
+        function goToLogin() {
+            // 현재 페이지 URL 저장 후 로그인 페이지로 이동
+            sessionStorage.setItem('redirectAfterLogin', window.location.href);
+            window.location.href = '/login.html';
+        }
+
+        // 당원 가입 안내 모달
+        function showPartyJoinModal() {
+            document.getElementById('partyJoinModal').classList.remove('hidden');
+        }
+
+        function closePartyJoinModal() {
+            document.getElementById('partyJoinModal').classList.add('hidden');
+        }
+
+        // 지원 폼 모달
+        function showApplicationModal(user) {
+            document.getElementById('applyDistrictName').textContent = currentApplyDistrict;
+            document.getElementById('applyDistrictInput').value = currentApplyDistrict;
+            document.getElementById('applyProvinceInput').value = currentApplyProvince;
+            document.getElementById('applicantName').value = user.name || '';
+            document.getElementById('applicantEmail').value = user.email || '';
+            document.getElementById('applicantPhone').value = user.phone || '';
+            document.getElementById('applicantMemberId').value = user._id || '';
+            document.getElementById('applicationModal').classList.remove('hidden');
+        }
+
+        function closeApplicationModal() {
+            document.getElementById('applicationModal').classList.add('hidden');
+            document.getElementById('applicationForm').reset();
+        }
+
+        // 지원서 제출
+        async function submitApplication(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitApplicationBtn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>제출 중...';
+
+            try {
+                const formData = new FormData();
+                formData.append('districtName', document.getElementById('applyDistrictInput').value);
+                formData.append('province', document.getElementById('applyProvinceInput').value);
+                formData.append('applicantName', document.getElementById('applicantName').value);
+                formData.append('applicantEmail', document.getElementById('applicantEmail').value);
+                formData.append('applicantPhone', document.getElementById('applicantPhone').value);
+                formData.append('memberId', document.getElementById('applicantMemberId').value);
+                formData.append('motivation', document.getElementById('applicantMotivation').value);
+
+                const resumeFile = document.getElementById('resumeFile').files[0];
+                const coverLetterFile = document.getElementById('coverLetterFile').files[0];
+
+                if (resumeFile) formData.append('resume', resumeFile);
+                if (coverLetterFile) formData.append('coverLetter', coverLetterFile);
+
+                if (!resumeFile && !coverLetterFile) {
+                    alert('이력서 또는 자기소개서를 최소 1개 이상 첨부해주세요.');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                    return;
+                }
+
+                const response = await fetch(`${API_BASE}/applications/chapter-chairman`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    closeApplicationModal();
+                    showSuccessModal();
+                } else {
+                    alert(result.message || '지원서 제출에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('지원서 제출 오류:', error);
+                alert('지원서 제출 중 오류가 발생했습니다.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        }
+
+        // 성공 모달
+        function showSuccessModal() {
+            document.getElementById('successModal').classList.remove('hidden');
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.add('hidden');
+        }
+
+        // 파일 선택 시 파일명 표시
+        function updateFileName(inputId, displayId) {
+            const input = document.getElementById(inputId);
+            const display = document.getElementById(displayId);
+            if (input.files.length > 0) {
+                display.textContent = input.files[0].name;
+                display.classList.remove('text-gray-400');
+                display.classList.add('text-gray-700');
+            } else {
+                display.textContent = '파일을 선택하세요 (PDF, DOC, HWP)';
+                display.classList.add('text-gray-400');
+                display.classList.remove('text-gray-700');
+            }
+        }
     </script>
+
+    <!-- 로그인 필요 모달 -->
+    <div id="loginRequiredModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-8 max-w-md w-full mx-4 shadow-2xl">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-user-lock text-red-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">로그인이 필요합니다</h3>
+                <p class="text-gray-600 mb-6">당협위원장 지원을 위해서는<br>먼저 로그인해주세요.</p>
+                <div class="flex gap-3">
+                    <button onclick="closeLoginModal()" class="flex-1 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                        취소
+                    </button>
+                    <button onclick="goToLogin()" class="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                        로그인하기
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 당원 가입 안내 모달 -->
+    <div id="partyJoinModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-8 max-w-md w-full mx-4 shadow-2xl">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-id-card text-yellow-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">당원만 지원 가능합니다</h3>
+                <p class="text-gray-600 mb-6">당협위원장 지원은 당원만 가능합니다.<br>먼저 당원으로 가입해주세요.</p>
+                <div class="flex gap-3">
+                    <button onclick="closePartyJoinModal()" class="flex-1 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                        취소
+                    </button>
+                    <a href="https://www.ihappynanum.com/Nanum/api/screen/F7FCRIO2E3" target="_blank" 
+                       class="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-center">
+                        당원 가입하기
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 지원 폼 모달 -->
+    <div id="applicationModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
+        <div class="bg-white rounded-xl p-8 max-w-lg w-full mx-4 my-8 shadow-2xl">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-gray-900">
+                    <i class="fas fa-file-alt text-red-600 mr-2"></i>당협위원장 지원
+                </h3>
+                <button onclick="closeApplicationModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <div class="text-sm text-gray-600">지원 지역구</div>
+                <div class="text-lg font-bold text-red-600" id="applyDistrictName"></div>
+            </div>
+
+            <form id="applicationForm" onsubmit="submitApplication(event)">
+                <input type="hidden" id="applyDistrictInput">
+                <input type="hidden" id="applyProvinceInput">
+                <input type="hidden" id="applicantMemberId">
+
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">성명</label>
+                            <input type="text" id="applicantName" required readonly
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">연락처</label>
+                            <input type="text" id="applicantPhone" required readonly
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+                        <input type="email" id="applicantEmail" required readonly
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">지원 동기 <span class="text-red-500">*</span></label>
+                        <textarea id="applicantMotivation" rows="4" required placeholder="간단한 지원 동기를 작성해주세요."
+                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">이력서 (자율양식) <span class="text-red-500">*</span></label>
+                        <label class="flex items-center gap-3 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-red-400 transition-colors">
+                            <i class="fas fa-upload text-gray-400"></i>
+                            <span id="resumeFileName" class="text-gray-400 text-sm">파일을 선택하세요 (PDF, DOC, HWP)</span>
+                            <input type="file" id="resumeFile" accept=".pdf,.doc,.docx,.hwp" class="hidden" onchange="updateFileName('resumeFile', 'resumeFileName')">
+                        </label>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">자기소개서 (자율양식) <span class="text-red-500">*</span></label>
+                        <label class="flex items-center gap-3 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-red-400 transition-colors">
+                            <i class="fas fa-upload text-gray-400"></i>
+                            <span id="coverLetterFileName" class="text-gray-400 text-sm">파일을 선택하세요 (PDF, DOC, HWP)</span>
+                            <input type="file" id="coverLetterFile" accept=".pdf,.doc,.docx,.hwp" class="hidden" onchange="updateFileName('coverLetterFile', 'coverLetterFileName')">
+                        </label>
+                    </div>
+
+                    <p class="text-xs text-gray-500">* 이력서와 자기소개서 중 최소 1개 이상 첨부해주세요. (각 10MB 이하)</p>
+                </div>
+
+                <div class="flex gap-3 mt-6">
+                    <button type="button" onclick="closeApplicationModal()" 
+                            class="flex-1 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                        취소
+                    </button>
+                    <button type="submit" id="submitApplicationBtn"
+                            class="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                        <i class="fas fa-paper-plane mr-2"></i>지원서 제출
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 성공 모달 -->
+    <div id="successModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-8 max-w-md w-full mx-4 shadow-2xl">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check text-green-600 text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">지원서가 접수되었습니다</h3>
+                <p class="text-gray-600 mb-6">서류 검토 후 담당자가<br>연락 드리도록 하겠습니다.</p>
+                <button onclick="closeSuccessModal()" class="w-full px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                    확인
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
