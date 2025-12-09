@@ -1147,7 +1147,6 @@ function createMypageModal() {
         .mp-btn-group .mp-btn-danger:hover { background: #b91c1c; }
         .mp-error { color: #dc2626; font-size: 0.8rem; margin-top: 6px; }
         .mp-success { color: #059669; font-size: 0.8rem; margin-top: 6px; }
-        .hidden { display: none !important; }
         
         /* 정보 박스 */
         .mp-info-box { background: #eff6ff; border-radius: 8px; padding: 14px; margin-bottom: 18px; font-size: 0.875rem; color: #1e40af; }
