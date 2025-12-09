@@ -26,7 +26,13 @@ app.use(helmet({
 
 // CORS 설정 - 임시로 모든 도메인 허용 (문제 해결 후 제한)
 app.use(cors({
-  origin: true, // 임시로 모든 origin 허용
+  origin: [
+    'https://freeinno.kr',
+    'https://www.freeinno.kr',
+    'http://localhost:3000',
+    'http://localhost:5500',
+    'http://127.0.0.1:5500'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
