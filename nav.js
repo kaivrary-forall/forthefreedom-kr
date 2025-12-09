@@ -598,137 +598,636 @@ function navLogout() {
 }
 
 
-// ========== 마이페이지 모달 ==========
+// ========== 마이페이지 모달 시스템 ==========
+let mypageMemberData = null;
+let mypageNicknameChecked = false;
+let pendingNewEmail = '';
+
 function openMypageModal() {
     if (!document.getElementById('mypageModal')) {
         createMypageModal();
     }
     document.getElementById('mypageModal').classList.add('active');
     document.body.style.overflow = 'hidden';
-    loadMypageData();
+    loadMypageInfo();
 }
 
 function closeMypageModal() {
-    document.getElementById('mypageModal').classList.remove('active');
-    document.body.style.overflow = '';
+    const modal = document.getElementById('mypageModal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
 }
 
 function createMypageModal() {
     const modalHTML = `
-    <div id="mypageModal" class="mypage-modal">
-        <div class="mypage-modal-overlay" onclick="closeMypageModal()"></div>
-        <div class="mypage-modal-content">
-            <div class="mypage-modal-header">
+    <div id="mypageModal" class="mp-modal">
+        <div class="mp-modal-overlay" onclick="closeMypageModal()"></div>
+        <div class="mp-modal-container">
+            <div class="mp-modal-header">
                 <h2>마이페이지</h2>
-                <button onclick="closeMypageModal()" class="mypage-close-btn">&times;</button>
+                <button onclick="closeMypageModal()" class="mp-close-btn">&times;</button>
             </div>
-            <div class="mypage-modal-body" id="mypageModalBody">
-                <div class="mypage-loading">
+            <div class="mp-modal-body" id="mypageModalBody">
+                <div class="mp-loading">
                     <i class="fas fa-spinner fa-spin"></i>
                     <p>정보를 불러오는 중...</p>
                 </div>
             </div>
         </div>
     </div>
-    <style>
-        .mypage-modal {
+    
+    <!-- 정보 수정 서브모달 -->
+    <div id="mpEditModal" class="mp-submodal">
+        <div class="mp-submodal-overlay" onclick="closeMpSubModal('mpEditModal')"></div>
+        <div class="mp-submodal-content">
+            <div class="mp-submodal-header">
+                <h3>기본 정보 수정</h3>
+                <button onclick="closeMpSubModal('mpEditModal')" class="mp-close-btn">&times;</button>
+            </div>
+            <div class="mp-submodal-body">
+                <form id="mpEditForm" onsubmit="mpSaveInfo(event)">
+                    <div class="mp-form-group">
+                        <label>이름 <span class="mp-hint">(변경 불가)</span></label>
+                        <input type="text" id="mpEditName" class="mp-input" readonly style="background:#f3f4f6;color:#6b7280;">
+                    </div>
+                    <div class="mp-form-group">
+                        <label>이메일 <span class="mp-hint">(별도 인증 필요)</span></label>
+                        <div class="mp-input-row">
+                            <input type="email" id="mpEditEmail" class="mp-input" readonly style="background:#f3f4f6;color:#6b7280;">
+                            <button type="button" onclick="openMpEmailModal()" class="mp-btn-sm">변경</button>
+                        </div>
+                    </div>
+                    <div class="mp-form-group">
+                        <label>연락처</label>
+                        <input type="tel" id="mpEditPhone" class="mp-input" required>
+                    </div>
+                    <div class="mp-form-group">
+                        <label>주소</label>
+                        <div class="mp-input-row">
+                            <input type="text" id="mpEditZipCode" class="mp-input" style="width:100px;" placeholder="우편번호" readonly>
+                            <button type="button" onclick="mpSearchAddress()" class="mp-btn-sm">주소검색</button>
+                        </div>
+                        <input type="text" id="mpEditAddress" class="mp-input" placeholder="기본주소" readonly style="margin-top:8px;">
+                        <input type="hidden" id="mpEditAddressDong">
+                        <input type="text" id="mpEditAddressDetail" class="mp-input" placeholder="상세주소" style="margin-top:8px;">
+                    </div>
+                    <div class="mp-btn-group">
+                        <button type="button" onclick="closeMpSubModal('mpEditModal')" class="mp-btn-secondary">취소</button>
+                        <button type="submit" class="mp-btn-primary">저장</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 닉네임 변경 서브모달 -->
+    <div id="mpNicknameModal" class="mp-submodal">
+        <div class="mp-submodal-overlay" onclick="closeMpSubModal('mpNicknameModal')"></div>
+        <div class="mp-submodal-content">
+            <div class="mp-submodal-header">
+                <h3>닉네임 변경</h3>
+                <button onclick="closeMpSubModal('mpNicknameModal')" class="mp-close-btn">&times;</button>
+            </div>
+            <div class="mp-submodal-body">
+                <div id="mpNicknameStatus" class="mp-info-box"></div>
+                <form id="mpNicknameForm" onsubmit="mpChangeNickname(event)">
+                    <div class="mp-form-group">
+                        <label>새 닉네임</label>
+                        <div class="mp-input-row">
+                            <input type="text" id="mpNewNickname" class="mp-input" placeholder="2~20자" required>
+                            <button type="button" onclick="mpCheckNickname()" class="mp-btn-sm">중복확인</button>
+                        </div>
+                        <p id="mpNicknameError" class="mp-error hidden"></p>
+                        <p id="mpNicknameSuccess" class="mp-success hidden"></p>
+                    </div>
+                    <div class="mp-btn-group">
+                        <button type="button" onclick="closeMpSubModal('mpNicknameModal')" class="mp-btn-secondary">취소</button>
+                        <button type="submit" id="mpNicknameSubmitBtn" class="mp-btn-primary" disabled>변경</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 이메일 변경 서브모달 -->
+    <div id="mpEmailModal" class="mp-submodal">
+        <div class="mp-submodal-overlay" onclick="closeMpSubModal('mpEmailModal')"></div>
+        <div class="mp-submodal-content">
+            <div class="mp-submodal-header">
+                <h3>이메일 변경</h3>
+                <button onclick="closeMpSubModal('mpEmailModal')" class="mp-close-btn">&times;</button>
+            </div>
+            <div class="mp-submodal-body">
+                <div id="mpEmailStep1">
+                    <p class="mp-desc">새 이메일 주소로 인증 코드가 발송됩니다.</p>
+                    <div class="mp-form-group">
+                        <label>현재 이메일</label>
+                        <input type="email" id="mpCurrentEmail" class="mp-input" readonly style="background:#f3f4f6;">
+                    </div>
+                    <div class="mp-form-group">
+                        <label>새 이메일</label>
+                        <input type="email" id="mpNewEmailInput" class="mp-input" placeholder="새 이메일 주소" required>
+                        <p id="mpEmailRequestError" class="mp-error hidden"></p>
+                    </div>
+                    <div class="mp-btn-group">
+                        <button type="button" onclick="closeMpSubModal('mpEmailModal')" class="mp-btn-secondary">취소</button>
+                        <button type="button" onclick="mpRequestEmailCode()" class="mp-btn-primary">인증 코드 발송</button>
+                    </div>
+                </div>
+                <div id="mpEmailStep2" class="hidden">
+                    <div class="mp-info-box mp-info-blue">
+                        <p>📧 <strong id="mpSentEmailDisplay"></strong>으로 인증 코드를 발송했습니다.</p>
+                        <p class="mp-hint">10분 내로 입력해주세요.</p>
+                    </div>
+                    <div class="mp-form-group">
+                        <label>인증 코드 (6자리)</label>
+                        <input type="text" id="mpEmailVerifyCode" class="mp-input mp-code-input" placeholder="000000" maxlength="6">
+                        <p id="mpEmailVerifyError" class="mp-error hidden"></p>
+                    </div>
+                    <div class="mp-btn-group">
+                        <button type="button" onclick="mpBackToEmailStep1()" class="mp-btn-secondary">뒤로</button>
+                        <button type="button" onclick="mpVerifyEmailCode()" class="mp-btn-primary">확인</button>
+                    </div>
+                    <button type="button" onclick="mpRequestEmailCode()" class="mp-link-btn">인증 코드 재발송</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 비밀번호 변경 서브모달 -->
+    <div id="mpPasswordModal" class="mp-submodal">
+        <div class="mp-submodal-overlay" onclick="closeMpSubModal('mpPasswordModal')"></div>
+        <div class="mp-submodal-content">
+            <div class="mp-submodal-header">
+                <h3>비밀번호 변경</h3>
+                <button onclick="closeMpSubModal('mpPasswordModal')" class="mp-close-btn">&times;</button>
+            </div>
+            <div class="mp-submodal-body">
+                <form id="mpPasswordForm" onsubmit="mpChangePassword(event)">
+                    <div class="mp-form-group">
+                        <label>현재 비밀번호</label>
+                        <input type="password" id="mpCurrentPassword" class="mp-input" required>
+                    </div>
+                    <div class="mp-form-group">
+                        <label>새 비밀번호</label>
+                        <input type="password" id="mpNewPassword" class="mp-input" placeholder="8자 이상" required>
+                    </div>
+                    <div class="mp-form-group">
+                        <label>새 비밀번호 확인</label>
+                        <input type="password" id="mpNewPasswordConfirm" class="mp-input" required>
+                    </div>
+                    <p id="mpPasswordError" class="mp-error hidden"></p>
+                    <div class="mp-btn-group">
+                        <button type="button" onclick="closeMpSubModal('mpPasswordModal')" class="mp-btn-secondary">취소</button>
+                        <button type="submit" class="mp-btn-primary">변경</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 회원 탈퇴 서브모달 -->
+    <div id="mpWithdrawModal" class="mp-submodal">
+        <div class="mp-submodal-overlay" onclick="closeMpSubModal('mpWithdrawModal')"></div>
+        <div class="mp-submodal-content">
+            <div class="mp-submodal-header">
+                <h3 style="color:#dc2626;"><i class="fas fa-exclamation-triangle"></i> 회원 탈퇴</h3>
+                <button onclick="closeMpSubModal('mpWithdrawModal')" class="mp-close-btn">&times;</button>
+            </div>
+            <div class="mp-submodal-body">
+                <div class="mp-warning-box">
+                    <p><strong>탈퇴 전 확인사항</strong></p>
+                    <ul>
+                        <li>혁신 당원인 경우 당비 납부가 자동 해지됩니다</li>
+                        <li>후원/구매 내역은 법적 보관 기간 동안 유지됩니다</li>
+                        <li>탈퇴 후에도 재가입이 가능합니다</li>
+                    </ul>
+                </div>
+                <form id="mpWithdrawForm" onsubmit="mpWithdraw(event)">
+                    <div class="mp-form-group">
+                        <label>탈퇴 사유 (선택)</label>
+                        <textarea id="mpWithdrawReason" class="mp-input" rows="3" placeholder="탈퇴 사유를 입력해주세요"></textarea>
+                    </div>
+                    <div class="mp-form-group">
+                        <label>비밀번호 확인</label>
+                        <input type="password" id="mpWithdrawPassword" class="mp-input" placeholder="본인 확인을 위해 비밀번호 입력" required>
+                    </div>
+                    <div class="mp-btn-group">
+                        <button type="button" onclick="closeMpSubModal('mpWithdrawModal')" class="mp-btn-secondary">취소</button>
+                        <button type="submit" class="mp-btn-danger">탈퇴하기</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 프로필 이미지 서브모달 -->
+    <div id="mpProfileImageModal" class="mp-submodal">
+        <div class="mp-submodal-overlay" onclick="closeMpSubModal('mpProfileImageModal')"></div>
+        <div class="mp-submodal-content" style="max-width:500px;">
+            <div class="mp-submodal-header">
+                <h3>프로필 이미지 변경</h3>
+                <button onclick="closeMpSubModal('mpProfileImageModal')" class="mp-close-btn">&times;</button>
+            </div>
+            <div class="mp-submodal-body">
+                <div class="mp-profile-upload">
+                    <div class="mp-current-avatar" id="mpCurrentAvatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="mp-upload-area" onclick="document.getElementById('mpProfileInput').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>이미지를 클릭하여 업로드</p>
+                        <span class="mp-hint">JPG, PNG, GIF (최대 30MB)</span>
+                        <input type="file" id="mpProfileInput" accept="image/*" class="hidden" onchange="mpHandleProfileSelect(this)">
+                    </div>
+                </div>
+                <div id="mpUploadProgress" class="mp-progress hidden">
+                    <i class="fas fa-spinner fa-spin"></i> 업로드 중...
+                </div>
+                <div class="mp-btn-group">
+                    <button type="button" onclick="closeMpSubModal('mpProfileImageModal')" class="mp-btn-secondary">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 성공 모달 -->
+    <div id="mpSuccessModal" class="mp-submodal">
+        <div class="mp-submodal-overlay" onclick="closeMpSubModal('mpSuccessModal')"></div>
+        <div class="mp-submodal-content" style="max-width:350px;text-align:center;">
+            <div class="mp-submodal-body" style="padding:40px 30px;">
+                <div class="mp-success-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                <p id="mpSuccessMessage" style="font-size:1rem;color:#333;margin:20px 0;"></p>
+                <button onclick="closeMpSubModal('mpSuccessModal')" class="mp-btn-primary" style="width:100%;">확인</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 주소검색 모달 -->
+    <div id="mpAddressModal" class="mp-submodal" style="z-index:10001;">
+        <div class="mp-submodal-overlay" onclick="closeMpSubModal('mpAddressModal')"></div>
+        <div class="mp-submodal-content" style="max-width:500px;">
+            <div class="mp-submodal-header">
+                <h3>주소 검색</h3>
+                <button onclick="closeMpSubModal('mpAddressModal')" class="mp-close-btn">&times;</button>
+            </div>
+            <div class="mp-submodal-body" style="padding:0;">
+                <div id="mpAddressSearchWrap" style="width:100%;height:400px;"></div>
+            </div>
+        </div>
+    </div>
+    `;
+    
+    const styleHTML = `
+    <style id="mypageModalStyles">
+        .mp-modal {
             display: none;
             position: fixed;
             inset: 0;
-            z-index: 9999;
-            align-items: flex-start;
-            justify-content: center;
+            z-index: 9998;
             padding: 20px;
             overflow-y: auto;
         }
-        .mypage-modal.active { display: flex; }
-        .mypage-modal-overlay {
+        .mp-modal.active { display: flex; align-items: flex-start; justify-content: center; }
+        .mp-modal-overlay {
             position: fixed;
             inset: 0;
             background: rgba(0,0,0,0.5);
         }
-        .mypage-modal-content {
+        .mp-modal-container {
             position: relative;
             background: white;
             border-radius: 16px;
             width: 100%;
-            max-width: 500px;
-            margin: 40px auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 800px;
+            margin: 20px auto;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.3);
         }
-        .mypage-modal-header {
+        .mp-modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 24px;
+            padding: 20px 28px;
             border-bottom: 1px solid #e5e7eb;
         }
-        .mypage-modal-header h2 { font-size: 1.25rem; font-weight: 700; color: #111; margin: 0; }
-        .mypage-close-btn {
-            width: 32px; height: 32px; border: none; background: #f3f4f6;
-            border-radius: 50%; font-size: 20px; cursor: pointer;
+        .mp-modal-header h2 { font-size: 1.375rem; font-weight: 700; color: #111; margin: 0; }
+        .mp-close-btn {
+            width: 36px; height: 36px; border: none; background: #f3f4f6;
+            border-radius: 50%; font-size: 22px; cursor: pointer;
             display: flex; align-items: center; justify-content: center; color: #666;
+            transition: all 0.2s;
         }
-        .mypage-close-btn:hover { background: #e5e7eb; }
-        .mypage-modal-body { padding: 24px; max-height: calc(100vh - 200px); overflow-y: auto; }
-        .mypage-loading { text-align: center; padding: 40px; color: #6b7280; }
-        .mypage-loading i { font-size: 2rem; margin-bottom: 10px; display: block; }
-        .mypage-section { margin-bottom: 20px; }
-        .mypage-section:last-child { margin-bottom: 0; }
-        .mypage-profile-card {
+        .mp-close-btn:hover { background: #e5e7eb; color: #333; }
+        .mp-modal-body { padding: 28px; max-height: calc(100vh - 140px); overflow-y: auto; }
+        .mp-loading { text-align: center; padding: 60px; color: #6b7280; }
+        .mp-loading i { font-size: 2.5rem; margin-bottom: 12px; display: block; color: #A50034; }
+        
+        /* 섹션 카드 */
+        .mp-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #f0f0f0;
+        }
+        .mp-section:last-child { margin-bottom: 0; }
+        .mp-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .mp-section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .mp-section-title i { color: #A50034; }
+        .mp-edit-link {
+            color: #A50034;
+            font-size: 0.875rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .mp-edit-link:hover { text-decoration: underline; }
+        
+        /* 프로필 카드 */
+        .mp-profile-card {
             background: linear-gradient(135deg, #A50034 0%, #c41e3a 100%);
-            color: white; border-radius: 12px; padding: 20px;
-            display: flex; align-items: center; gap: 16px;
+            color: white;
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
         }
-        .mypage-avatar {
-            width: 56px; height: 56px; background: rgba(255,255,255,0.2);
-            border-radius: 50%; display: flex; align-items: center;
-            justify-content: center; font-size: 1.25rem; overflow: hidden; flex-shrink: 0;
+        .mp-avatar {
+            width: 72px; height: 72px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.75rem;
+            overflow: hidden;
+            flex-shrink: 0;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
         }
-        .mypage-avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .mypage-profile-info h3 { font-size: 1.125rem; font-weight: 700; margin: 0 0 4px 0; }
-        .mypage-profile-info p { opacity: 0.8; font-size: 0.875rem; margin: 0; }
-        .mypage-badge {
-            display: inline-block; padding: 2px 8px; border-radius: 4px;
-            font-size: 0.7rem; font-weight: 600; margin-left: 8px; vertical-align: middle;
+        .mp-avatar:hover { background: rgba(255,255,255,0.3); }
+        .mp-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .mp-avatar-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
         }
-        .mypage-badge.general { background: rgba(255,255,255,0.2); color: white; }
-        .mypage-badge.member { background: #dbeafe; color: #1d4ed8; }
-        .mypage-badge.innovation { background: #fef3c7; color: #b45309; }
-        .mypage-info-card { background: #f9fafb; border-radius: 12px; padding: 16px; }
-        .mypage-info-row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 0; border-bottom: 1px solid #e5e7eb;
+        .mp-avatar:hover .mp-avatar-overlay { opacity: 1; }
+        .mp-profile-info h3 { font-size: 1.25rem; font-weight: 700; margin: 0 0 6px 0; }
+        .mp-profile-info p { opacity: 0.85; font-size: 0.9rem; margin: 0; }
+        .mp-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 10px;
+            vertical-align: middle;
         }
-        .mypage-info-row:last-child { border-bottom: none; }
-        .mypage-info-label { color: #6b7280; font-size: 0.875rem; }
-        .mypage-info-value { color: #111; font-size: 0.875rem; font-weight: 500; text-align: right; max-width: 60%; }
-        .mypage-btn-group { display: flex; flex-wrap: wrap; gap: 8px; }
-        .mypage-btn {
-            padding: 10px 16px; border-radius: 8px; font-size: 0.875rem;
-            font-weight: 500; cursor: pointer; border: none; transition: all 0.2s;
-            text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+        .mp-badge.general { background: rgba(255,255,255,0.2); color: white; }
+        .mp-badge.member { background: #dbeafe; color: #1d4ed8; }
+        .mp-badge.innovation { background: #fef3c7; color: #b45309; }
+        
+        /* 정보 행 */
+        .mp-info-row {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #f3f4f6;
         }
-        .mypage-btn-primary { background: #A50034; color: white; }
-        .mypage-btn-primary:hover { background: #8B002C; }
-        .mypage-btn-secondary { background: #f3f4f6; color: #374151; }
-        .mypage-btn-secondary:hover { background: #e5e7eb; }
-        .mypage-btn-link { background: transparent; color: #6b7280; padding: 10px 12px; }
-        .mypage-btn-link:hover { color: #A50034; }
-        .mypage-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .mypage-stat-card { background: #f9fafb; border-radius: 8px; padding: 16px; text-align: center; }
-        .mypage-stat-label { font-size: 0.75rem; color: #6b7280; margin-bottom: 4px; }
-        .mypage-stat-value { font-size: 1.125rem; font-weight: 700; color: #111; }
-        .mypage-section-title {
-            font-size: 0.8rem; font-weight: 600; color: #6b7280;
-            margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;
+        .mp-info-row:last-child { border-bottom: none; }
+        .mp-info-label { width: 100px; color: #6b7280; font-size: 0.875rem; flex-shrink: 0; }
+        .mp-info-value { flex: 1; color: #1f2937; font-size: 0.875rem; }
+        .mp-info-value button {
+            margin-left: 8px;
+            color: #A50034;
+            background: none;
+            border: none;
+            font-size: 0.75rem;
+            cursor: pointer;
         }
+        .mp-info-value button:hover { text-decoration: underline; }
+        
+        /* 통계 */
+        .mp-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .mp-stat-card {
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        .mp-stat-label { font-size: 0.8rem; color: #6b7280; margin-bottom: 6px; }
+        .mp-stat-value { font-size: 1.25rem; font-weight: 700; color: #111; }
+        
+        /* 버튼 그룹 */
+        .mp-btn-wrap { display: flex; flex-wrap: wrap; gap: 10px; }
+        .mp-btn {
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .mp-btn-primary { background: #A50034; color: white; }
+        .mp-btn-primary:hover { background: #8B002C; }
+        .mp-btn-secondary { background: #f3f4f6; color: #374151; }
+        .mp-btn-secondary:hover { background: #e5e7eb; }
+        .mp-btn-outline { background: transparent; color: #dc2626; }
+        .mp-btn-outline:hover { background: #fef2f2; }
+        
+        /* 서브모달 */
+        .mp-submodal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            padding: 20px;
+            overflow-y: auto;
+            align-items: flex-start;
+            justify-content: center;
+        }
+        .mp-submodal.active { display: flex; }
+        .mp-submodal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+        }
+        .mp-submodal-content {
+            position: relative;
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 420px;
+            margin: 60px auto;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.35);
+        }
+        .mp-submodal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .mp-submodal-header h3 { font-size: 1.125rem; font-weight: 700; color: #111; margin: 0; }
+        .mp-submodal-body { padding: 24px; }
+        
+        /* 폼 요소 */
+        .mp-form-group { margin-bottom: 18px; }
+        .mp-form-group label { display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 6px; }
+        .mp-hint { font-size: 0.75rem; color: #9ca3af; font-weight: 400; }
+        .mp-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+        .mp-input:focus { outline: none; border-color: #A50034; box-shadow: 0 0 0 3px rgba(165,0,52,0.1); }
+        .mp-input-row { display: flex; gap: 8px; }
+        .mp-input-row .mp-input { flex: 1; }
+        .mp-btn-sm {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            background: #f3f4f6;
+            color: #374151;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .mp-btn-sm:hover { background: #e5e7eb; }
+        .mp-btn-group { display: flex; gap: 10px; margin-top: 24px; }
+        .mp-btn-group button { flex: 1; padding: 12px; border-radius: 8px; font-size: 0.875rem; font-weight: 500; cursor: pointer; border: none; }
+        .mp-btn-group .mp-btn-secondary { background: #f3f4f6; color: #374151; }
+        .mp-btn-group .mp-btn-secondary:hover { background: #e5e7eb; }
+        .mp-btn-group .mp-btn-primary { background: #A50034; color: white; }
+        .mp-btn-group .mp-btn-primary:hover { background: #8B002C; }
+        .mp-btn-group .mp-btn-danger { background: #dc2626; color: white; }
+        .mp-btn-group .mp-btn-danger:hover { background: #b91c1c; }
+        .mp-error { color: #dc2626; font-size: 0.8rem; margin-top: 6px; }
+        .mp-success { color: #059669; font-size: 0.8rem; margin-top: 6px; }
+        .hidden { display: none !important; }
+        
+        /* 정보 박스 */
+        .mp-info-box { background: #eff6ff; border-radius: 8px; padding: 14px; margin-bottom: 18px; font-size: 0.875rem; color: #1e40af; }
+        .mp-info-blue { background: #eff6ff; color: #1e40af; }
+        .mp-warning-box { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 14px; margin-bottom: 18px; font-size: 0.8rem; color: #991b1b; }
+        .mp-warning-box ul { margin: 8px 0 0 0; padding-left: 18px; }
+        .mp-warning-box li { margin-bottom: 4px; }
+        .mp-desc { font-size: 0.875rem; color: #6b7280; margin-bottom: 18px; }
+        .mp-code-input { text-align: center; font-size: 1.5rem; letter-spacing: 0.5em; font-weight: 600; }
+        .mp-link-btn { width: 100%; margin-top: 12px; background: none; border: none; color: #6b7280; font-size: 0.8rem; cursor: pointer; }
+        .mp-link-btn:hover { color: #A50034; }
+        
+        /* 프로필 업로드 */
+        .mp-profile-upload { display: flex; gap: 24px; align-items: center; margin-bottom: 20px; }
+        .mp-current-avatar {
+            width: 100px; height: 100px;
+            background: #f3f4f6;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; color: #9ca3af;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .mp-current-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .mp-upload-area {
+            flex: 1;
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .mp-upload-area:hover { border-color: #A50034; background: rgba(165,0,52,0.03); }
+        .mp-upload-area i { font-size: 2rem; color: #9ca3af; margin-bottom: 8px; }
+        .mp-upload-area p { font-size: 0.875rem; color: #374151; margin: 0; }
+        .mp-progress { text-align: center; padding: 16px; color: #A50034; }
+        
+        /* 성공 아이콘 */
+        .mp-success-icon {
+            width: 70px; height: 70px;
+            background: #10b981;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto;
+        }
+        .mp-success-icon i { color: white; font-size: 32px; }
+        
+        /* 당원 정보 */
+        .mp-party-info { background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 10px; padding: 16px; }
+        .mp-party-header { display: flex; align-items: center; gap: 8px; color: #059669; font-weight: 600; margin-bottom: 12px; }
+        .mp-party-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .mp-party-item span:first-child { display: block; font-size: 0.75rem; color: #6b7280; }
+        .mp-party-item span:last-child { font-size: 0.875rem; font-weight: 500; color: #1f2937; }
+        .mp-general-box { background: #f9fafb; border-radius: 10px; padding: 20px; text-align: center; }
+        .mp-general-box p { color: #6b7280; margin-bottom: 12px; }
+        .mp-general-box a {
+            display: inline-block;
+            background: #A50034;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+        .mp-general-box a:hover { background: #8B002C; }
     </style>
     `;
+    
+    document.head.insertAdjacentHTML('beforeend', styleHTML);
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
 
-async function loadMypageData() {
+function closeMpSubModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
+
+function showMpSuccess(message) {
+    document.getElementById('mpSuccessMessage').textContent = message;
+    document.getElementById('mpSuccessModal').classList.add('active');
+}
+
+// ===== 마이페이지 데이터 로드 =====
+async function loadMypageInfo() {
     const token = localStorage.getItem('memberToken');
     const API_BASE = window.API_BASE || 'https://forthefreedom-kr-production.up.railway.app/api';
     const body = document.getElementById('mypageModalBody');
@@ -750,102 +1249,545 @@ async function loadMypageData() {
         }
         
         const result = await response.json();
-        const data = result.data;
-        
-        const memberTypeText = {
-            'general': '일반회원',
-            'party_member': '당원',
-            'innovation_member': '혁신당원'
-        };
-        const memberTypeClass = {
-            'general': 'general',
-            'party_member': 'member',
-            'innovation_member': 'innovation'
-        };
-        
-        const avatarHtml = data.profileImage 
-            ? '<img src="' + data.profileImage + '" alt="프로필">' 
-            : '<i class="fas fa-user"></i>';
-        
-        const badgeClass = memberTypeClass[data.memberType] || 'general';
-        const badgeText = memberTypeText[data.memberType] || '일반회원';
-        
-        body.innerHTML = 
-            '<div class="mypage-section">' +
-                '<div class="mypage-profile-card">' +
-                    '<div class="mypage-avatar">' + avatarHtml + '</div>' +
-                    '<div class="mypage-profile-info">' +
-                        '<h3>' + (data.nickname || '닉네임 없음') +
-                            '<span class="mypage-badge ' + badgeClass + '">' + badgeText + '</span>' +
-                        '</h3>' +
-                        '<p>' + data.userId + '</p>' +
-                    '</div>' +
-                '</div>' +
-            '</div>' +
-            
-            '<div class="mypage-section">' +
-                '<div class="mypage-section-title">기본 정보</div>' +
-                '<div class="mypage-info-card">' +
-                    '<div class="mypage-info-row">' +
-                        '<span class="mypage-info-label">이름</span>' +
-                        '<span class="mypage-info-value">' + (data.name || '-') + '</span>' +
-                    '</div>' +
-                    '<div class="mypage-info-row">' +
-                        '<span class="mypage-info-label">이메일</span>' +
-                        '<span class="mypage-info-value">' + (data.email || '-') + '</span>' +
-                    '</div>' +
-                    '<div class="mypage-info-row">' +
-                        '<span class="mypage-info-label">연락처</span>' +
-                        '<span class="mypage-info-value">' + (data.phone || '-') + '</span>' +
-                    '</div>' +
-                    '<div class="mypage-info-row">' +
-                        '<span class="mypage-info-label">주소</span>' +
-                        '<span class="mypage-info-value">' + (data.address || '-') + '</span>' +
-                    '</div>' +
-                '</div>' +
-            '</div>' +
-            
-            '<div class="mypage-section">' +
-                '<div class="mypage-section-title">후원/구매 내역</div>' +
-                '<div class="mypage-stats">' +
-                    '<div class="mypage-stat-card">' +
-                        '<div class="mypage-stat-label">총 후원금</div>' +
-                        '<div class="mypage-stat-value">' + (data.totalDonation || 0).toLocaleString() + '원</div>' +
-                    '</div>' +
-                    '<div class="mypage-stat-card">' +
-                        '<div class="mypage-stat-label">총 구매금</div>' +
-                        '<div class="mypage-stat-value">' + (data.totalPurchase || 0).toLocaleString() + '원</div>' +
-                    '</div>' +
-                '</div>' +
-            '</div>' +
-            
-            '<div class="mypage-section">' +
-                '<div class="mypage-btn-group">' +
-                    '<a href="mypage.html" class="mypage-btn mypage-btn-primary" onclick="closeMypageModal()">' +
-                        '<i class="fas fa-cog"></i> 정보 수정' +
-                    '</a>' +
-                    '<button onclick="closeMypageModal(); navLogout();" class="mypage-btn mypage-btn-link">' +
-                        '<i class="fas fa-sign-out-alt"></i> 로그아웃' +
-                    '</button>' +
-                '</div>' +
-            '</div>';
+        mypageMemberData = result.data;
+        renderMypageContent();
         
     } catch (error) {
         console.error('마이페이지 로드 오류:', error);
-        body.innerHTML = '<div class="mypage-loading"><p>정보를 불러올 수 없습니다.</p></div>';
+        body.innerHTML = '<div class="mp-loading"><p>정보를 불러올 수 없습니다.</p></div>';
     }
 }
 
-// 전역 함수로 등록
+function renderMypageContent() {
+    const data = mypageMemberData;
+    const body = document.getElementById('mypageModalBody');
+    
+    const memberTypeText = { 'general': '일반회원', 'party_member': '당원', 'innovation_member': '혁신당원' };
+    const memberTypeClass = { 'general': 'general', 'party_member': 'member', 'innovation_member': 'innovation' };
+    
+    const avatarHtml = data.profileImage 
+        ? '<img src="' + data.profileImage + '" alt="프로필">' 
+        : '<i class="fas fa-user"></i>';
+    
+    const badgeClass = memberTypeClass[data.memberType] || 'general';
+    const badgeText = memberTypeText[data.memberType] || '일반회원';
+    
+    // 당원 정보 섹션
+    let partyInfoHtml = '';
+    if (data.memberType === 'general') {
+        partyInfoHtml = '<div class="mp-general-box"><p>아직 혁신 당원이 아니십니다</p><a href="https://www.ihappynanum.com/Nanum/api/screen/F7FCRIO2E3" target="_blank"><i class="fas fa-user-plus"></i> 당원 가입하기</a></div>';
+    } else {
+        partyInfoHtml = '<div class="mp-party-info"><div class="mp-party-header"><i class="fas fa-check-circle"></i> 혁신 당원 (당비 납부 중)</div><div class="mp-party-grid"><div class="mp-party-item"><span>납부 시작일</span><span>' + (data.partyFeeStartDate || '-') + '</span></div><div class="mp-party-item"><span>월 납부액</span><span>' + (data.partyFeeMonthly || '-') + '</span></div><div class="mp-party-item"><span>총 납부 금액</span><span>' + (data.partyFeeTotalPaid || '-') + '</span></div><div class="mp-party-item"><span>최근 납부일</span><span>' + (data.partyFeeLastPayment || '-') + '</span></div></div></div>';
+    }
+    
+    body.innerHTML = 
+        '<div class="mp-section" style="padding:0;border:none;box-shadow:none;">' +
+            '<div class="mp-profile-card">' +
+                '<div class="mp-avatar" onclick="openMpProfileModal()">' + avatarHtml + '<div class="mp-avatar-overlay"><i class="fas fa-camera"></i></div></div>' +
+                '<div class="mp-profile-info">' +
+                    '<h3>' + (data.nickname || '닉네임 없음') + '<span class="mp-badge ' + badgeClass + '">' + badgeText + '</span></h3>' +
+                    '<p>' + data.userId + '</p>' +
+                '</div>' +
+            '</div>' +
+        '</div>' +
+        
+        '<div class="mp-section">' +
+            '<div class="mp-section-header">' +
+                '<div class="mp-section-title"><i class="fas fa-user"></i> 기본 정보</div>' +
+                '<button class="mp-edit-link" onclick="openMpEditModal()"><i class="fas fa-edit"></i> 수정</button>' +
+            '</div>' +
+            '<div class="mp-info-row"><span class="mp-info-label">아이디</span><span class="mp-info-value">' + data.userId + '</span></div>' +
+            '<div class="mp-info-row"><span class="mp-info-label">닉네임</span><span class="mp-info-value">' + (data.nickname || '-') + '<button onclick="openMpNicknameModal()">변경</button></span></div>' +
+            '<div class="mp-info-row"><span class="mp-info-label">이름</span><span class="mp-info-value">' + (data.name || '-') + '</span></div>' +
+            '<div class="mp-info-row"><span class="mp-info-label">이메일</span><span class="mp-info-value">' + (data.email || '-') + '</span></div>' +
+            '<div class="mp-info-row"><span class="mp-info-label">연락처</span><span class="mp-info-value">' + (data.phone || '-') + '</span></div>' +
+            '<div class="mp-info-row"><span class="mp-info-label">도로명 주소</span><span class="mp-info-value">' + (data.address || '-') + '</span></div>' +
+            '<div class="mp-info-row"><span class="mp-info-label">행정동 주소</span><span class="mp-info-value">' + (data.addressDong || '-') + '</span></div>' +
+        '</div>' +
+        
+        '<div class="mp-section">' +
+            '<div class="mp-section-title"><i class="fas fa-id-card"></i> 당원 정보</div>' +
+            partyInfoHtml +
+        '</div>' +
+        
+        '<div class="mp-section">' +
+            '<div class="mp-section-title"><i class="fas fa-heart"></i> 후원/구매 내역</div>' +
+            '<div class="mp-stats">' +
+                '<div class="mp-stat-card"><div class="mp-stat-label">총 후원금</div><div class="mp-stat-value">' + (data.totalDonation || 0).toLocaleString() + '원</div></div>' +
+                '<div class="mp-stat-card"><div class="mp-stat-label">총 구매금</div><div class="mp-stat-value">' + (data.totalPurchase || 0).toLocaleString() + '원</div></div>' +
+            '</div>' +
+        '</div>' +
+        
+        '<div class="mp-section">' +
+            '<div class="mp-section-title"><i class="fas fa-cog"></i> 계정 관리</div>' +
+            '<div class="mp-btn-wrap">' +
+                '<button onclick="openMpPasswordModal()" class="mp-btn mp-btn-secondary"><i class="fas fa-key"></i> 비밀번호 변경</button>' +
+                '<button onclick="openMpWithdrawModal()" class="mp-btn mp-btn-outline"><i class="fas fa-user-times"></i> 회원 탈퇴</button>' +
+            '</div>' +
+        '</div>';
+}
+
+// ===== 기본 정보 수정 =====
+function openMpEditModal() {
+    const data = mypageMemberData;
+    document.getElementById('mpEditName').value = data.name || '';
+    document.getElementById('mpEditEmail').value = data.email || '';
+    document.getElementById('mpEditPhone').value = data.phone || '';
+    document.getElementById('mpEditZipCode').value = data.zipCode || '';
+    document.getElementById('mpEditAddress').value = data.address || '';
+    document.getElementById('mpEditAddressDong').value = data.addressDong || '';
+    document.getElementById('mpEditAddressDetail').value = data.addressDetail || '';
+    document.getElementById('mpEditModal').classList.add('active');
+}
+
+async function mpSaveInfo(event) {
+    event.preventDefault();
+    const token = localStorage.getItem('memberToken');
+    const API_BASE = window.API_BASE || 'https://forthefreedom-kr-production.up.railway.app/api';
+    
+    try {
+        const response = await fetch(API_BASE + '/members/me', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({
+                phone: document.getElementById('mpEditPhone').value,
+                zipCode: document.getElementById('mpEditZipCode').value,
+                address: document.getElementById('mpEditAddress').value,
+                addressDong: document.getElementById('mpEditAddressDong').value,
+                addressDetail: document.getElementById('mpEditAddressDetail').value
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            closeMpSubModal('mpEditModal');
+            showMpSuccess('정보가 수정되었습니다');
+            loadMypageInfo();
+        } else {
+            alert(result.message || '수정에 실패했습니다');
+        }
+    } catch (error) {
+        console.error('정보 수정 오류:', error);
+        alert('수정 중 오류가 발생했습니다');
+    }
+}
+
+function mpSearchAddress() {
+    document.getElementById('mpAddressModal').classList.add('active');
+    new daum.Postcode({
+        oncomplete: function(data) {
+            document.getElementById('mpEditZipCode').value = data.zonecode;
+            document.getElementById('mpEditAddress').value = data.roadAddress;
+            
+            let dongAddress = '';
+            if (data.sido) dongAddress += data.sido;
+            if (data.sigungu) dongAddress += ' ' + data.sigungu;
+            if (data.bname) dongAddress += ' ' + data.bname;
+            document.getElementById('mpEditAddressDong').value = dongAddress;
+            
+            closeMpSubModal('mpAddressModal');
+            document.getElementById('mpEditAddressDetail').focus();
+        },
+        width: '100%',
+        height: '100%'
+    }).embed(document.getElementById('mpAddressSearchWrap'));
+}
+
+// ===== 닉네임 변경 =====
+async function openMpNicknameModal() {
+    const token = localStorage.getItem('memberToken');
+    const API_BASE = window.API_BASE || 'https://forthefreedom-kr-production.up.railway.app/api';
+    
+    try {
+        const response = await fetch(API_BASE + '/members/me/nickname-status', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const result = await response.json();
+        
+        const statusEl = document.getElementById('mpNicknameStatus');
+        if (result.data.canChange) {
+            statusEl.innerHTML = '<i class="fas fa-check-circle"></i> 닉네임 변경이 가능합니다';
+            statusEl.style.background = '#ecfdf5';
+            statusEl.style.color = '#059669';
+        } else {
+            const nextDate = new Date(result.data.nextChangeDate).toLocaleDateString('ko-KR');
+            statusEl.innerHTML = '<i class="fas fa-clock"></i> ' + nextDate + ' 이후 변경 가능합니다';
+            statusEl.style.background = '#fef3c7';
+            statusEl.style.color = '#b45309';
+        }
+    } catch (error) {
+        console.error('닉네임 상태 확인 오류:', error);
+    }
+    
+    document.getElementById('mpNewNickname').value = '';
+    document.getElementById('mpNicknameError').classList.add('hidden');
+    document.getElementById('mpNicknameSuccess').classList.add('hidden');
+    document.getElementById('mpNicknameSubmitBtn').disabled = true;
+    mypageNicknameChecked = false;
+    document.getElementById('mpNicknameModal').classList.add('active');
+}
+
+async function mpCheckNickname() {
+    const nickname = document.getElementById('mpNewNickname').value.trim();
+    const errorEl = document.getElementById('mpNicknameError');
+    const successEl = document.getElementById('mpNicknameSuccess');
+    const API_BASE = window.API_BASE || 'https://forthefreedom-kr-production.up.railway.app/api';
+    
+    errorEl.classList.add('hidden');
+    successEl.classList.add('hidden');
+    
+    if (nickname.length < 2 || nickname.length > 20) {
+        errorEl.textContent = '닉네임은 2~20자여야 합니다';
+        errorEl.classList.remove('hidden');
+        return;
+    }
+    
+    try {
+        const response = await fetch(API_BASE + '/members/check-nickname?nickname=' + encodeURIComponent(nickname));
+        const result = await response.json();
+        
+        if (result.available) {
+            successEl.textContent = '사용 가능한 닉네임입니다';
+            successEl.classList.remove('hidden');
+            document.getElementById('mpNicknameSubmitBtn').disabled = false;
+            mypageNicknameChecked = true;
+        } else {
+            errorEl.textContent = result.message || '이미 사용 중인 닉네임입니다';
+            errorEl.classList.remove('hidden');
+            document.getElementById('mpNicknameSubmitBtn').disabled = true;
+        }
+    } catch (error) {
+        errorEl.textContent = '확인 중 오류가 발생했습니다';
+        errorEl.classList.remove('hidden');
+    }
+}
+
+async function mpChangeNickname(event) {
+    event.preventDefault();
+    if (!mypageNicknameChecked) {
+        alert('닉네임 중복확인을 해주세요');
+        return;
+    }
+    
+    const token = localStorage.getItem('memberToken');
+    const API_BASE = window.API_BASE || 'https://forthefreedom-kr-production.up.railway.app/api';
+    const nickname = document.getElementById('mpNewNickname').value.trim();
+    
+    try {
+        const response = await fetch(API_BASE + '/members/me/nickname', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ nickname })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            closeMpSubModal('mpNicknameModal');
+            showMpSuccess(result.message || '닉네임이 변경되었습니다');
+            loadMypageInfo();
+            // localStorage 업데이트
+            const memberInfo = JSON.parse(localStorage.getItem('memberInfo') || '{}');
+            memberInfo.nickname = nickname;
+            localStorage.setItem('memberInfo', JSON.stringify(memberInfo));
+            checkLoginStatus();
+        } else {
+            alert(result.message || '닉네임 변경에 실패했습니다');
+        }
+    } catch (error) {
+        alert('변경 중 오류가 발생했습니다');
+    }
+}
+
+// ===== 이메일 변경 =====
+function openMpEmailModal() {
+    document.getElementById('mpCurrentEmail').value = mypageMemberData.email || '';
+    document.getElementById('mpNewEmailInput').value = '';
+    document.getElementById('mpEmailRequestError').classList.add('hidden');
+    document.getElementById('mpEmailStep1').classList.remove('hidden');
+    document.getElementById('mpEmailStep2').classList.add('hidden');
+    document.getElementById('mpEmailModal').classList.add('active');
+}
+
+async function mpRequestEmailCode() {
+    const newEmail = document.getElementById('mpNewEmailInput').value.trim();
+    const errorEl = document.getElementById('mpEmailRequestError');
+    const token = localStorage.getItem('memberToken');
+    const API_BASE = window.API_BASE || 'https://forthefreedom-kr-production.up.railway.app/api';
+    
+    errorEl.classList.add('hidden');
+    
+    if (!newEmail || !newEmail.includes('@')) {
+        errorEl.textContent = '올바른 이메일 주소를 입력해주세요';
+        errorEl.classList.remove('hidden');
+        return;
+    }
+    
+    try {
+        const response = await fetch(API_BASE + '/members/me/email/request', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ newEmail })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            pendingNewEmail = newEmail;
+            document.getElementById('mpSentEmailDisplay').textContent = newEmail;
+            document.getElementById('mpEmailStep1').classList.add('hidden');
+            document.getElementById('mpEmailStep2').classList.remove('hidden');
+            document.getElementById('mpEmailVerifyCode').value = '';
+            document.getElementById('mpEmailVerifyError').classList.add('hidden');
+        } else {
+            errorEl.textContent = result.message || '인증 코드 발송에 실패했습니다';
+            errorEl.classList.remove('hidden');
+        }
+    } catch (error) {
+        errorEl.textContent = '요청 중 오류가 발생했습니다';
+        errorEl.classList.remove('hidden');
+    }
+}
+
+function mpBackToEmailStep1() {
+    document.getElementById('mpEmailStep1').classList.remove('hidden');
+    document.getElementById('mpEmailStep2').classList.add('hidden');
+}
+
+async function mpVerifyEmailCode() {
+    const code = document.getElementById('mpEmailVerifyCode').value.trim();
+    const errorEl = document.getElementById('mpEmailVerifyError');
+    const token = localStorage.getItem('memberToken');
+    const API_BASE = window.API_BASE || 'https://forthefreedom-kr-production.up.railway.app/api';
+    
+    errorEl.classList.add('hidden');
+    
+    if (code.length !== 6) {
+        errorEl.textContent = '6자리 인증 코드를 입력해주세요';
+        errorEl.classList.remove('hidden');
+        return;
+    }
+    
+    try {
+        const response = await fetch(API_BASE + '/members/me/email/verify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ newEmail: pendingNewEmail, code })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            closeMpSubModal('mpEmailModal');
+            closeMpSubModal('mpEditModal');
+            showMpSuccess('이메일이 성공적으로 변경되었습니다!');
+            loadMypageInfo();
+        } else {
+            errorEl.textContent = result.message || '인증에 실패했습니다';
+            errorEl.classList.remove('hidden');
+        }
+    } catch (error) {
+        errorEl.textContent = '인증 중 오류가 발생했습니다';
+        errorEl.classList.remove('hidden');
+    }
+}
+
+// ===== 비밀번호 변경 =====
+function openMpPasswordModal() {
+    document.getElementById('mpPasswordForm').reset();
+    document.getElementById('mpPasswordError').classList.add('hidden');
+    document.getElementById('mpPasswordModal').classList.add('active');
+}
+
+async function mpChangePassword(event) {
+    event.preventDefault();
+    const token = localStorage.getItem('memberToken');
+    const API_BASE = window.API_BASE || 'https://forthefreedom-kr-production.up.railway.app/api';
+    const errorEl = document.getElementById('mpPasswordError');
+    
+    const currentPassword = document.getElementById('mpCurrentPassword').value;
+    const newPassword = document.getElementById('mpNewPassword').value;
+    const newPasswordConfirm = document.getElementById('mpNewPasswordConfirm').value;
+    
+    errorEl.classList.add('hidden');
+    
+    if (newPassword.length < 8) {
+        errorEl.textContent = '새 비밀번호는 8자 이상이어야 합니다';
+        errorEl.classList.remove('hidden');
+        return;
+    }
+    
+    if (newPassword !== newPasswordConfirm) {
+        errorEl.textContent = '새 비밀번호가 일치하지 않습니다';
+        errorEl.classList.remove('hidden');
+        return;
+    }
+    
+    try {
+        const response = await fetch(API_BASE + '/members/me/password', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ currentPassword, newPassword })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            closeMpSubModal('mpPasswordModal');
+            showMpSuccess('비밀번호가 변경되었습니다');
+        } else {
+            errorEl.textContent = result.message || '비밀번호 변경에 실패했습니다';
+            errorEl.classList.remove('hidden');
+        }
+    } catch (error) {
+        errorEl.textContent = '변경 중 오류가 발생했습니다';
+        errorEl.classList.remove('hidden');
+    }
+}
+
+// ===== 회원 탈퇴 =====
+function openMpWithdrawModal() {
+    document.getElementById('mpWithdrawForm').reset();
+    document.getElementById('mpWithdrawModal').classList.add('active');
+}
+
+async function mpWithdraw(event) {
+    event.preventDefault();
+    
+    if (!confirm('정말로 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+        return;
+    }
+    
+    const token = localStorage.getItem('memberToken');
+    const API_BASE = window.API_BASE || 'https://forthefreedom-kr-production.up.railway.app/api';
+    
+    try {
+        const response = await fetch(API_BASE + '/members/me/withdraw', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({
+                reason: document.getElementById('mpWithdrawReason').value,
+                password: document.getElementById('mpWithdrawPassword').value
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('탈퇴 처리가 완료되었습니다.\n\n그동안 자유와혁신과 함께해주셔서 감사합니다.');
+            localStorage.removeItem('memberToken');
+            localStorage.removeItem('memberInfo');
+            window.location.href = '/';
+        } else {
+            alert(result.message || '탈퇴 처리에 실패했습니다');
+        }
+    } catch (error) {
+        alert('탈퇴 처리 중 오류가 발생했습니다');
+    }
+}
+
+// ===== 프로필 이미지 =====
+function openMpProfileModal() {
+    const avatar = document.getElementById('mpCurrentAvatar');
+    if (mypageMemberData.profileImage) {
+        avatar.innerHTML = '<img src="' + mypageMemberData.profileImage + '" alt="프로필">';
+    } else {
+        avatar.innerHTML = '<i class="fas fa-user"></i>';
+    }
+    document.getElementById('mpUploadProgress').classList.add('hidden');
+    document.getElementById('mpProfileInput').value = '';
+    document.getElementById('mpProfileImageModal').classList.add('active');
+}
+
+async function mpHandleProfileSelect(input) {
+    const file = input.files[0];
+    if (!file) return;
+    
+    if (!file.type.startsWith('image/')) {
+        alert('이미지 파일만 업로드 가능합니다');
+        return;
+    }
+    
+    if (file.size > 30 * 1024 * 1024) {
+        alert('이미지 크기는 30MB 이하만 가능합니다');
+        return;
+    }
+    
+    const token = localStorage.getItem('memberToken');
+    const API_BASE = window.API_BASE || 'https://forthefreedom-kr-production.up.railway.app/api';
+    const progressEl = document.getElementById('mpUploadProgress');
+    
+    progressEl.classList.remove('hidden');
+    
+    try {
+        const formData = new FormData();
+        formData.append('profileImage', file);
+        
+        const response = await fetch(API_BASE + '/members/me/profile-image', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token },
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            closeMpSubModal('mpProfileImageModal');
+            showMpSuccess('프로필 이미지가 변경되었습니다!');
+            loadMypageInfo();
+        } else {
+            alert(result.message || '이미지 업로드에 실패했습니다');
+        }
+    } catch (error) {
+        alert('이미지 업로드 중 오류가 발생했습니다');
+    } finally {
+        progressEl.classList.add('hidden');
+    }
+}
+
+// 전역 함수 등록
 window.checkLoginStatus = checkLoginStatus;
 window.navLogout = navLogout;
 window.openMypageModal = openMypageModal;
 window.closeMypageModal = closeMypageModal;
+window.closeMpSubModal = closeMpSubModal;
+window.openMpEditModal = openMpEditModal;
+window.mpSaveInfo = mpSaveInfo;
+window.mpSearchAddress = mpSearchAddress;
+window.openMpNicknameModal = openMpNicknameModal;
+window.mpCheckNickname = mpCheckNickname;
+window.mpChangeNickname = mpChangeNickname;
+window.openMpEmailModal = openMpEmailModal;
+window.mpRequestEmailCode = mpRequestEmailCode;
+window.mpBackToEmailStep1 = mpBackToEmailStep1;
+window.mpVerifyEmailCode = mpVerifyEmailCode;
+window.openMpPasswordModal = openMpPasswordModal;
+window.mpChangePassword = mpChangePassword;
+window.openMpWithdrawModal = openMpWithdrawModal;
+window.mpWithdraw = mpWithdraw;
+window.openMpProfileModal = openMpProfileModal;
+window.mpHandleProfileSelect = mpHandleProfileSelect;
 
 // 페이지 로드 시 이벤트 리스너 추가
 document.addEventListener('DOMContentLoaded', function() {
-    // 네비게이션 자동 로드
     loadNavigation();
-    
-    // onclick 속성이 이미 설정되어 있으므로 추가 이벤트 리스너는 불필요
 });
