@@ -83,9 +83,10 @@
             font-size: 0.7rem;
             font-weight: 500;
         }
-        .grade-general { background: #f3f4f6; color: #6b7280; }
-        .grade-party { background: #dbeafe; color: #1d4ed8; }
-        .grade-innovation { background: #fef3c7; color: #d97706; }
+        .grade-general { background: #F6D219; color: #000; }
+        .grade-party { background: #051C4C; color: #fff; }
+        .grade-innovation { background: #A50033; color: #fff; }
+        .grade-position { background: #000003; color: #fff; }
         .post-stats {
             margin-left: auto;
             display: flex;
@@ -839,6 +840,8 @@
                     return { text: '당원', class: 'grade-party' };
                 case 'innovation_member':
                     return { text: '혁신당원', class: 'grade-innovation' };
+                case 'position_member':
+                    return { text: '직분당원', class: 'grade-position' };
                 default:
                     return { text: '일반', class: 'grade-general' };
             }
