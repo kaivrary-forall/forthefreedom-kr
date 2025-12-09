@@ -36,6 +36,12 @@ const postSchema = new mongoose.Schema({
     default: 0
   },
   
+  // 조회한 회원 목록 (중복 카운트 방지)
+  viewedBy: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Member'
+  }],
+  
   // 좋아요 (회원 ID 배열)
   likes: [{
     type: mongoose.Schema.Types.ObjectId,
