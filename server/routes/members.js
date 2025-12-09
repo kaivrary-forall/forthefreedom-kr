@@ -361,7 +361,8 @@ router.post('/login', async (req, res) => {
           nickname: member.nickname,
           name: member.name,
           memberType: member.memberType,
-          status: member.status
+          status: member.status,
+          appliedAt: member.appliedAt
         }
       }
     });
