@@ -4,6 +4,10 @@ const bcrypt = require('bcryptjs');
 const Member = require('../models/Member');
 const { generateToken, authMember } = require('../middleware/authMember');
 const { ADMIN_CREDENTIALS } = require('./auth');
+const { sendVerificationCode } = require('../utils/email');
+
+// 이메일 인증 코드 임시 저장소 (메모리)
+const emailVerificationCodes = new Map(); // email -> { code, memberId, expiresAt }
 
 // ===== 회원가입 =====
 router.post('/register', async (req, res) => {
@@ -648,6 +652,166 @@ router.get('/me/nickname-status', authMember, async (req, res) => {
     res.status(500).json({
       success: false,
       message: '조회 중 오류가 발생했습니다'
+    });
+  }
+});
+
+// ===== 이메일 변경 - 인증 코드 요청 =====
+router.post('/me/email/request', authMember, async (req, res) => {
+  try {
+    const { newEmail } = req.body;
+    const memberId = req.member._id;
+
+    if (!newEmail) {
+      return res.status(400).json({
+        success: false,
+        message: '새 이메일 주소를 입력해주세요.'
+      });
+    }
+
+    // 이메일 형식 검증
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newEmail)) {
+      return res.status(400).json({
+        success: false,
+        message: '올바른 이메일 형식이 아닙니다.'
+      });
+    }
+
+    // 현재 회원 정보 조회
+    const member = await Member.findById(memberId);
+    if (!member) {
+      return res.status(404).json({
+        success: false,
+        message: '회원 정보를 찾을 수 없습니다.'
+      });
+    }
+
+    // 현재 이메일과 같은지 확인
+    if (member.email === newEmail) {
+      return res.status(400).json({
+        success: false,
+        message: '현재 사용 중인 이메일과 동일합니다.'
+      });
+    }
+
+    // 다른 회원이 사용 중인지 확인
+    const existingMember = await Member.findOne({ email: newEmail, _id: { $ne: memberId } });
+    if (existingMember) {
+      return res.status(400).json({
+        success: false,
+        message: '이미 사용 중인 이메일입니다.'
+      });
+    }
+
+    // 6자리 인증 코드 생성
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + 10 * 60 * 1000; // 10분 후 만료
+
+    // 인증 코드 저장
+    emailVerificationCodes.set(newEmail, {
+      code,
+      memberId: memberId.toString(),
+      expiresAt
+    });
+
+    // 이메일 발송
+    const result = await sendVerificationCode({
+      toEmail: newEmail,
+      code,
+      name: member.name
+    });
+
+    if (!result.success) {
+      return res.status(500).json({
+        success: false,
+        message: '인증 코드 발송에 실패했습니다.'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: '인증 코드가 발송되었습니다.'
+    });
+
+  } catch (error) {
+    console.error('이메일 인증 요청 오류:', error);
+    res.status(500).json({
+      success: false,
+      message: '인증 코드 발송 중 오류가 발생했습니다.'
+    });
+  }
+});
+
+// ===== 이메일 변경 - 인증 코드 확인 =====
+router.post('/me/email/verify', authMember, async (req, res) => {
+  try {
+    const { newEmail, code } = req.body;
+    const memberId = req.member._id;
+
+    if (!newEmail || !code) {
+      return res.status(400).json({
+        success: false,
+        message: '이메일과 인증 코드를 입력해주세요.'
+      });
+    }
+
+    // 저장된 인증 코드 확인
+    const stored = emailVerificationCodes.get(newEmail);
+    
+    if (!stored) {
+      return res.status(400).json({
+        success: false,
+        message: '인증 코드가 존재하지 않습니다. 다시 요청해주세요.'
+      });
+    }
+
+    // 만료 확인
+    if (Date.now() > stored.expiresAt) {
+      emailVerificationCodes.delete(newEmail);
+      return res.status(400).json({
+        success: false,
+        message: '인증 코드가 만료되었습니다. 다시 요청해주세요.'
+      });
+    }
+
+    // 회원 ID 일치 확인
+    if (stored.memberId !== memberId.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: '잘못된 인증 요청입니다.'
+      });
+    }
+
+    // 코드 일치 확인
+    if (stored.code !== code) {
+      return res.status(400).json({
+        success: false,
+        message: '인증 코드가 일치하지 않습니다.'
+      });
+    }
+
+    // 이메일 업데이트
+    const member = await Member.findByIdAndUpdate(
+      memberId,
+      { email: newEmail },
+      { new: true }
+    );
+
+    // 인증 코드 삭제
+    emailVerificationCodes.delete(newEmail);
+
+    res.json({
+      success: true,
+      message: '이메일이 변경되었습니다.',
+      email: member.email
+    });
+
+  } catch (error) {
+    console.error('이메일 인증 확인 오류:', error);
+    res.status(500).json({
+      success: false,
+      message: '이메일 변경 중 오류가 발생했습니다.'
     });
   }
 });
