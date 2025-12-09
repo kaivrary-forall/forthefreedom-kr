@@ -169,7 +169,7 @@ function loadNavigation() {
                         <!-- 로그인 상태 -->
                         <div id="nav-member" class="hidden flex items-center gap-4">
                             <span id="nav-nickname" class="text-[#212121] text-sm font-medium"></span>
-                            <a href="${pathPrefix}mypage.html" class="text-[#a50034] hover:underline text-sm font-medium">
+                            <a href="#" onclick="openMypageModal(); return false;" class="text-[#a50034] hover:underline text-sm font-medium">
                                 마이페이지
                             </a>
                             <button onclick="navLogout()" class="text-gray-500 hover:text-gray-700 text-sm">
@@ -283,7 +283,7 @@ function loadNavigation() {
                                     <span id="mobile-nav-nickname" class="font-medium text-gray-900"></span>
                                     <button onclick="navLogout()" class="text-sm text-gray-500 hover:text-red-600">로그아웃</button>
                                 </div>
-                                <a href="${pathPrefix}mypage.html" class="block w-full bg-[#a50034] text-white text-center py-3 rounded-lg font-bold hover:bg-[#8B002C] transition-colors">
+                                <a href="#" onclick="openMypageModal(); toggleMobileMenu(); return false;" class="block w-full bg-[#a50034] text-white text-center py-3 rounded-lg font-bold hover:bg-[#8B002C] transition-colors">
                                     마이페이지
                                 </a>
                             </div>
@@ -597,9 +597,246 @@ function navLogout() {
     }
 }
 
+// ========== 마이페이지 모달 ==========
+function openMypageModal() {
+    if (!document.getElementById('mypageModal')) {
+        createMypageModal();
+    }
+    document.getElementById('mypageModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    loadMypageData();
+}
+
+function closeMypageModal() {
+    document.getElementById('mypageModal').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function createMypageModal() {
+    const modalHTML = `
+    <div id="mypageModal" class="mypage-modal">
+        <div class="mypage-modal-overlay" onclick="closeMypageModal()"></div>
+        <div class="mypage-modal-content">
+            <div class="mypage-modal-header">
+                <h2>마이페이지</h2>
+                <button onclick="closeMypageModal()" class="mypage-close-btn">&times;</button>
+            </div>
+            <div class="mypage-modal-body" id="mypageModalBody">
+                <div class="mypage-loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>정보를 불러오는 중...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        .mypage-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .mypage-modal.active { display: flex; }
+        .mypage-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+        }
+        .mypage-modal-content {
+            position: relative;
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 500px;
+            margin: 40px auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .mypage-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .mypage-modal-header h2 { font-size: 1.25rem; font-weight: 700; color: #111; margin: 0; }
+        .mypage-close-btn {
+            width: 32px; height: 32px; border: none; background: #f3f4f6;
+            border-radius: 50%; font-size: 20px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; color: #666;
+        }
+        .mypage-close-btn:hover { background: #e5e7eb; }
+        .mypage-modal-body { padding: 24px; max-height: calc(100vh - 200px); overflow-y: auto; }
+        .mypage-loading { text-align: center; padding: 40px; color: #6b7280; }
+        .mypage-loading i { font-size: 2rem; margin-bottom: 10px; display: block; }
+        .mypage-section { margin-bottom: 20px; }
+        .mypage-section:last-child { margin-bottom: 0; }
+        .mypage-profile-card {
+            background: linear-gradient(135deg, #A50034 0%, #c41e3a 100%);
+            color: white; border-radius: 12px; padding: 20px;
+            display: flex; align-items: center; gap: 16px;
+        }
+        .mypage-avatar {
+            width: 56px; height: 56px; background: rgba(255,255,255,0.2);
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 1.25rem; overflow: hidden; flex-shrink: 0;
+        }
+        .mypage-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .mypage-profile-info h3 { font-size: 1.125rem; font-weight: 700; margin: 0 0 4px 0; }
+        .mypage-profile-info p { opacity: 0.8; font-size: 0.875rem; margin: 0; }
+        .mypage-badge {
+            display: inline-block; padding: 2px 8px; border-radius: 4px;
+            font-size: 0.7rem; font-weight: 600; margin-left: 8px; vertical-align: middle;
+        }
+        .mypage-badge.general { background: rgba(255,255,255,0.2); color: white; }
+        .mypage-badge.member { background: #dbeafe; color: #1d4ed8; }
+        .mypage-badge.innovation { background: #fef3c7; color: #b45309; }
+        .mypage-info-card { background: #f9fafb; border-radius: 12px; padding: 16px; }
+        .mypage-info-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0; border-bottom: 1px solid #e5e7eb;
+        }
+        .mypage-info-row:last-child { border-bottom: none; }
+        .mypage-info-label { color: #6b7280; font-size: 0.875rem; }
+        .mypage-info-value { color: #111; font-size: 0.875rem; font-weight: 500; text-align: right; max-width: 60%; }
+        .mypage-btn-group { display: flex; flex-wrap: wrap; gap: 8px; }
+        .mypage-btn {
+            padding: 10px 16px; border-radius: 8px; font-size: 0.875rem;
+            font-weight: 500; cursor: pointer; border: none; transition: all 0.2s;
+        }
+        .mypage-btn-primary { background: #A50034; color: white; }
+        .mypage-btn-primary:hover { background: #8B002C; }
+        .mypage-btn-secondary { background: #f3f4f6; color: #374151; }
+        .mypage-btn-secondary:hover { background: #e5e7eb; }
+        .mypage-btn-link { background: transparent; color: #6b7280; padding: 10px 12px; }
+        .mypage-btn-link:hover { color: #A50034; }
+        .mypage-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .mypage-stat-card { background: #f9fafb; border-radius: 8px; padding: 16px; text-align: center; }
+        .mypage-stat-label { font-size: 0.75rem; color: #6b7280; margin-bottom: 4px; }
+        .mypage-stat-value { font-size: 1.125rem; font-weight: 700; color: #111; }
+        .mypage-section-title {
+            font-size: 0.8rem; font-weight: 600; color: #6b7280;
+            margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+    </style>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+async function loadMypageData() {
+    const token = localStorage.getItem('memberToken');
+    const API_BASE = window.API_BASE || 'https://forthefreedom-kr-production.up.railway.app/api';
+    const body = document.getElementById('mypageModalBody');
+    
+    try {
+        const response = await fetch(API_BASE + '/members/me', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        
+        if (!response.ok) {
+            if (response.status === 401) {
+                closeMypageModal();
+                localStorage.removeItem('memberToken');
+                localStorage.removeItem('memberInfo');
+                alert('로그인이 필요합니다.');
+                return;
+            }
+            throw new Error('정보 조회 실패');
+        }
+        
+        const result = await response.json();
+        const data = result.data;
+        
+        const memberTypeText = {
+            'general': '일반회원',
+            'party_member': '당원',
+            'innovation_member': '혁신당원'
+        };
+        const memberTypeClass = {
+            'general': 'general',
+            'party_member': 'member',
+            'innovation_member': 'innovation'
+        };
+        
+        body.innerHTML = \`
+            <div class="mypage-section">
+                <div class="mypage-profile-card">
+                    <div class="mypage-avatar">
+                        \${data.profileImage 
+                            ? '<img src="' + data.profileImage + '" alt="프로필">' 
+                            : '<i class="fas fa-user"></i>'}
+                    </div>
+                    <div class="mypage-profile-info">
+                        <h3>\${data.nickname || '닉네임 없음'}
+                            <span class="mypage-badge \${memberTypeClass[data.memberType] || 'general'}">\${memberTypeText[data.memberType] || '일반회원'}</span>
+                        </h3>
+                        <p>\${data.userId}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mypage-section">
+                <div class="mypage-section-title">기본 정보</div>
+                <div class="mypage-info-card">
+                    <div class="mypage-info-row">
+                        <span class="mypage-info-label">이름</span>
+                        <span class="mypage-info-value">\${data.name || '-'}</span>
+                    </div>
+                    <div class="mypage-info-row">
+                        <span class="mypage-info-label">이메일</span>
+                        <span class="mypage-info-value">\${data.email || '-'}</span>
+                    </div>
+                    <div class="mypage-info-row">
+                        <span class="mypage-info-label">연락처</span>
+                        <span class="mypage-info-value">\${data.phone || '-'}</span>
+                    </div>
+                    <div class="mypage-info-row">
+                        <span class="mypage-info-label">주소</span>
+                        <span class="mypage-info-value">\${data.address || '-'}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mypage-section">
+                <div class="mypage-section-title">후원/구매 내역</div>
+                <div class="mypage-stats">
+                    <div class="mypage-stat-card">
+                        <div class="mypage-stat-label">총 후원금</div>
+                        <div class="mypage-stat-value">\${(data.totalDonation || 0).toLocaleString()}원</div>
+                    </div>
+                    <div class="mypage-stat-card">
+                        <div class="mypage-stat-label">총 구매금</div>
+                        <div class="mypage-stat-value">\${(data.totalPurchase || 0).toLocaleString()}원</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mypage-section">
+                <div class="mypage-btn-group">
+                    <a href="mypage.html" class="mypage-btn mypage-btn-primary" onclick="closeMypageModal()">
+                        <i class="fas fa-cog"></i> 정보 수정
+                    </a>
+                    <button onclick="closeMypageModal(); navLogout();" class="mypage-btn mypage-btn-link">
+                        <i class="fas fa-sign-out-alt"></i> 로그아웃
+                    </button>
+                </div>
+            </div>
+        \`;
+        
+    } catch (error) {
+        console.error('마이페이지 로드 오류:', error);
+        body.innerHTML = '<div class="mypage-loading"><p>정보를 불러올 수 없습니다.</p></div>';
+    }
+}
+
 // 전역 함수로 등록
 window.checkLoginStatus = checkLoginStatus;
 window.navLogout = navLogout;
+window.openMypageModal = openMypageModal;
+window.closeMypageModal = closeMypageModal;
 
 // 페이지 로드 시 이벤트 리스너 추가
 document.addEventListener('DOMContentLoaded', function() {
