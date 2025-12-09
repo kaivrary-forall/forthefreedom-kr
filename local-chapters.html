@@ -955,9 +955,9 @@
         }
 
         function goToLogin() {
-            // 현재 페이지 URL 저장 후 로그인 페이지로 이동
-            sessionStorage.setItem('redirectAfterLogin', window.location.href);
-            window.location.href = '/login.html';
+            // 현재 페이지 URL을 파라미터로 전달
+            const returnUrl = encodeURIComponent(window.location.href);
+            window.location.href = `/login.html?return=${returnUrl}`;
         }
 
         // 당원 가입 안내 모달
