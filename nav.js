@@ -106,6 +106,11 @@ function loadNavigation() {
                                 아고라
                             </a>
                             
+                            <!-- FAIN -->
+                            <a href="#" onclick="goToFain(); return false;" class="text-[#212121] hover:text-[#a50034] font-medium py-2 transition-colors duration-200 text-lg tracking-tight">
+                                FAIN
+                            </a>
+                            
                             <!-- 3. 당원 -->
                             <div class="relative group">
                                 <a href="${pathPrefix}members/join.html" class="text-[#212121] hover:text-[#a50034] font-medium py-2 transition-colors duration-200 text-lg tracking-tight">
@@ -241,6 +246,13 @@ function loadNavigation() {
                         <div class="mobile-menu-item">
                             <a href="${pathPrefix}board.html" class="w-full flex items-center px-3 py-2 text-lg text-gray-700 hover:bg-gray-50 hover:text-red-600 font-bold">
                                 아고라
+                            </a>
+                        </div>
+                        
+                        <!-- FAIN 메뉴 -->
+                        <div class="mobile-menu-item">
+                            <a href="#" onclick="goToFain(); return false;" class="w-full flex items-center px-3 py-2 text-lg text-gray-700 hover:bg-gray-50 hover:text-red-600 font-bold">
+                                FAIN
                             </a>
                         </div>
                         
@@ -468,6 +480,35 @@ function loadNavigation() {
 }
 
 // 모바일 메뉴 토글 기능
+// FAIN으로 이동
+function goToFain() {
+    const token = localStorage.getItem('memberToken');
+    if (!token) {
+        alert('로그인이 필요합니다');
+        return;
+    }
+    
+    try {
+        // 토큰에서 memberId 추출
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const memberId = payload.memberId || payload.id;
+        
+        // 경로 prefix 확인
+        const pathPrefix = window.location.pathname.includes('/news/') || 
+                          window.location.pathname.includes('/about/') ||
+                          window.location.pathname.includes('/members/') ||
+                          window.location.pathname.includes('/org/') ||
+                          window.location.pathname.includes('/community/') ||
+                          window.location.pathname.includes('/admin/')
+                          ? '../' : '';
+        
+        location.href = pathPrefix + 'profile.html?id=' + memberId;
+    } catch (e) {
+        console.error('토큰 파싱 오류:', e);
+        alert('로그인 정보를 확인할 수 없습니다');
+    }
+}
+
 function toggleMobileMenu() {
     const mobileMenu = document.getElementById('mobile-menu');
     const menuButton = document.getElementById('mobile-menu-button');
