@@ -268,6 +268,9 @@ app.use('/api/personnel', require('./routes/personnel'));
 // 지원(당협위원장 등) 라우트
 app.use('/api/applications', require('./routes/applications'));
 
+// 게시판 라우트
+app.use('/api/posts', require('./routes/posts'));
+
 // 404 에러 핸들링
 app.use('*', (req, res) => {
   res.status(404).json({
