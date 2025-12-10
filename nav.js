@@ -475,10 +475,10 @@ function loadNavigation() {
             
             // 초기 상태 설정
             updateFloatingButtons();
-            
-            // 한줄 공지 바 로드
-            loadAnnouncementBar();
         }
+        
+        // 한줄 공지 바 로드
+        loadAnnouncementBar();
     }
 }
 
