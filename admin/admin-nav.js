@@ -204,8 +204,7 @@ function updateSessionCountdown(expTime) {
     // 만료 시 로그아웃
     if (remaining <= 0) {
         clearInterval(sessionTimerInterval);
-        alert('세션이 만료되었습니다. 다시 로그인해주세요.');
-        logout();
+        logout(true);
     }
 }
 
@@ -252,8 +251,8 @@ async function extendSession() {
 }
 
 // 로그아웃
-async function logout() {
-    if (confirm('정말 로그아웃하시겠습니까?')) {
+async function logout(force = false) {
+    if (force || confirm('정말 로그아웃하시겠습니까?')) {
         try {
             const token = localStorage.getItem('adminToken');
             const refreshToken = localStorage.getItem('adminRefreshToken');
@@ -285,7 +284,9 @@ async function logout() {
         sessionStorage.clear();
         
         console.log('🚪 완전 로그아웃 완료');
-        alert('로그아웃되었습니다.');
+        if (!force) {
+            alert('로그아웃되었습니다.');
+        }
         
         // 로그인 페이지로 강제 이동
         window.location.href = 'index.html';
