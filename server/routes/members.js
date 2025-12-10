@@ -397,6 +397,14 @@ router.post('/login', async (req, res) => {
 // ===== 내 정보 조회 =====
 router.get('/me', authMember, async (req, res) => {
   try {
+    // 관리자인 경우 DB 조회 없이 반환
+    if (req.member.isAdmin) {
+      return res.json({
+        success: true,
+        data: req.member
+      });
+    }
+    
     const member = await Member.findById(req.member._id);
     
     res.json({
