@@ -1929,10 +1929,8 @@ window.closeAnnouncementBar = closeAnnouncementBar;
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
         loadNavigation();
-        loadAnnouncementBar();
     });
 } else {
     // 이미 로드 완료됨
     loadNavigation();
-    loadAnnouncementBar();
 }
