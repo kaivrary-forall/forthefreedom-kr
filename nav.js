@@ -1877,15 +1877,11 @@ async function loadAnnouncementBar() {
                     padding: 10px 20px;
                     text-align: center;
                     font-size: 14px;
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    z-index: 51;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     gap: 8px;
+                    position: relative;
                 ">
                     <span>${ann.text}</span>
                     ${ann.link ? `<a href="${ann.link}" style="color: ${ann.textColor || '#ffffff'}; text-decoration: underline; opacity: 0.9;">${ann.linkText || '자세히 알아보기'} ›</a>` : ''}
@@ -1905,18 +1901,11 @@ async function loadAnnouncementBar() {
                 </div>
             `;
             
-            // body 맨 앞에 삽입
-            document.body.insertAdjacentHTML('afterbegin', barHTML);
-            
-            // nav 위치 조정
-            const nav = document.querySelector('nav');
-            if (nav) {
-                nav.style.top = '38px';
+            // main 태그 맨 앞에 삽입
+            const main = document.querySelector('main');
+            if (main) {
+                main.insertAdjacentHTML('afterbegin', barHTML);
             }
-            
-            // body padding-top 조정
-            const currentPadding = parseInt(getComputedStyle(document.body).paddingTop) || 0;
-            document.body.style.paddingTop = (currentPadding + 38) + 'px';
         }
     } catch (error) {
         console.log('공지 로드 실패:', error);
@@ -1931,17 +1920,6 @@ function closeAnnouncementBar() {
         bar.style.height = '0';
         bar.style.padding = '0';
         bar.style.overflow = 'hidden';
-        
-        // nav와 body 스타일 복원
-        const nav = document.querySelector('nav');
-        if (nav) {
-            nav.style.transition = 'top 0.3s ease';
-            nav.style.top = '0';
-        }
-        const currentPadding = parseInt(getComputedStyle(document.body).paddingTop) || 0;
-        document.body.style.transition = 'padding-top 0.3s ease';
-        document.body.style.paddingTop = Math.max(0, currentPadding - 38) + 'px';
-        
         setTimeout(() => bar.remove(), 300);
     }
     sessionStorage.setItem('announcementClosed', 'true');
