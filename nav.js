@@ -1874,7 +1874,7 @@ async function loadAnnouncementBar() {
                 <div id="announcement-bar" style="
                     background: ${ann.bgColor || '#000000'};
                     color: ${ann.textColor || '#ffffff'};
-                    padding: 12px 20px;
+                    padding: 8px 20px;
                     text-align: center;
                     font-size: 14px;
                     position: relative;
