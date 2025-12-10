@@ -1856,6 +1856,9 @@ window.mpHandleProfileSelect = mpHandleProfileSelect;
 
 // ===== 한줄 공지 바 =====
 async function loadAnnouncementBar() {
+    // 이미 공지 바가 있으면 중복 생성 방지
+    if (document.getElementById('announcement-bar')) return;
+    
     // 세션에서 닫기 상태 확인
     if (sessionStorage.getItem('announcementClosed')) return;
     

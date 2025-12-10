@@ -1547,5 +1547,13 @@
             }
         }
     </style>
+    <script>
+        // 공지 바 강제 로드
+        window.addEventListener('load', function() {
+            if (typeof loadAnnouncementBar === 'function') {
+                loadAnnouncementBar();
+            }
+        });
+    </script>
 </body>
 </html>
