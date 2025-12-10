@@ -5,7 +5,9 @@ const Announcement = require('../models/Announcement');
 // ===== 공지 조회 (공개) =====
 router.get('/', async (req, res) => {
   try {
+    console.log('📢 공지 조회 API 호출됨');
     const announcement = await Announcement.findOne({ isActive: true }).sort({ createdAt: -1 });
+    console.log('📢 조회 결과:', announcement ? announcement.text : 'null');
     
     res.json({
       success: true,
