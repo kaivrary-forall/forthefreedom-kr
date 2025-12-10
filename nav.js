@@ -329,9 +329,6 @@ function loadNavigation() {
     if (navigationContainer) {
         navigationContainer.innerHTML = navigationHTML;
         
-        // 한줄 공지 바 로드
-        loadAnnouncementBar();
-        
         // 로그인 상태 체크
         checkLoginStatus();
         
@@ -1927,4 +1924,5 @@ window.closeAnnouncementBar = closeAnnouncementBar;
 // 페이지 로드 시 이벤트 리스너 추가
 document.addEventListener('DOMContentLoaded', function() {
     loadNavigation();
+    loadAnnouncementBar();
 });
