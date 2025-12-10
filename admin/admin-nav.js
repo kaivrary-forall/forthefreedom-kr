@@ -39,7 +39,7 @@ function loadAdminNav(currentPage) {
                         
                         <!-- 콘텐츠 관리 드롭다운 -->
                         <div class="relative group">
-                            <button class="px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center ${pages.content || pages.banners ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}">
+                            <button class="px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center ${pages.content || pages.banners || pages.announcement ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}">
                                 <i class="fas fa-newspaper mr-1"></i> 콘텐츠 관리
                                 <i class="fas fa-chevron-down ml-1 text-xs"></i>
                             </button>
@@ -49,6 +49,9 @@ function loadAdminNav(currentPage) {
                                 </a>
                                 <a href="banners.html" class="block px-4 py-2 text-sm ${pages.banners ? 'text-primary bg-primary/5' : 'text-gray-700 hover:bg-gray-50'}">
                                     <i class="fas fa-images mr-2"></i> 배너 관리
+                                </a>
+                                <a href="announcement.html" class="block px-4 py-2 text-sm ${pages.announcement ? 'text-primary bg-primary/5' : 'text-gray-700 hover:bg-gray-50'}">
+                                    <i class="fas fa-bullhorn mr-2"></i> 한줄 공지
                                 </a>
                             </div>
                         </div>
@@ -109,6 +112,9 @@ function loadAdminNav(currentPage) {
                     </a>
                     <a href="banners.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.banners ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
                         <i class="fas fa-images mr-2"></i> 배너 관리
+                    </a>
+                    <a href="announcement.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.announcement ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
+                        <i class="fas fa-bullhorn mr-2"></i> 한줄 공지
                     </a>
                 </div>
                 <div class="border-t border-gray-100 my-2 pt-2">

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한줄 공지 관리 - 관리자</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#A50034',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div id="admin-nav"></div>
+    <script src="admin-nav.js"></script>
+    
+    <main class="max-w-4xl mx-auto px-4 py-8 mt-16">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">
+            <i class="fas fa-bullhorn text-primary mr-2"></i>한줄 공지 관리
+        </h1>
+        
+        <!-- 미리보기 -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <h2 class="text-lg font-semibold mb-4">미리보기</h2>
+            <div id="preview" class="rounded-lg overflow-hidden">
+                <div id="preview-bar" style="background: #000; color: #fff; padding: 12px 20px; text-align: center; font-size: 14px;">
+                    <span id="preview-text">공지 내용을 입력하세요</span>
+                    <a id="preview-link" href="#" style="color: #fff; text-decoration: underline; margin-left: 8px; display: none;">자세히 알아보기 ›</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 설정 폼 -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <h2 class="text-lg font-semibold mb-4">공지 설정</h2>
+            
+            <div class="space-y-4">
+                <!-- 공지 내용 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">공지 내용 (최대 100자)</label>
+                    <input type="text" id="annText" maxlength="100" 
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                        placeholder="예: 12월 15일 창당대회가 개최됩니다!"
+                        oninput="updatePreview()">
+                    <p class="text-xs text-gray-500 mt-1"><span id="charCount">0</span>/100</p>
+                </div>
+                
+                <!-- 링크 URL -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">링크 URL (선택)</label>
+                    <input type="url" id="annLink" 
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                        placeholder="https://example.com"
+                        oninput="updatePreview()">
+                </div>
+                
+                <!-- 링크 텍스트 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">링크 텍스트</label>
+                    <input type="text" id="annLinkText" 
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                        placeholder="자세히 알아보기"
+                        value="자세히 알아보기"
+                        oninput="updatePreview()">
+                </div>
+                
+                <!-- 색상 설정 -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">배경색</label>
+                        <div class="flex gap-2">
+                            <input type="color" id="annBgColor" value="#000000" 
+                                class="w-12 h-10 rounded cursor-pointer"
+                                oninput="updatePreview()">
+                            <input type="text" id="annBgColorText" value="#000000" 
+                                class="flex-1 px-4 py-2 border rounded-lg"
+                                oninput="syncColor('bg')">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">글자색</label>
+                        <div class="flex gap-2">
+                            <input type="color" id="annTextColor" value="#ffffff" 
+                                class="w-12 h-10 rounded cursor-pointer"
+                                oninput="updatePreview()">
+                            <input type="text" id="annTextColorText" value="#ffffff" 
+                                class="flex-1 px-4 py-2 border rounded-lg"
+                                oninput="syncColor('text')">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 프리셋 색상 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">빠른 색상 선택</label>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="setPreset('#000000', '#ffffff')" class="px-3 py-1 rounded text-sm bg-black text-white">기본 (검정)</button>
+                        <button onclick="setPreset('#A50034', '#ffffff')" class="px-3 py-1 rounded text-sm bg-[#A50034] text-white">브랜드 (빨강)</button>
+                        <button onclick="setPreset('#051C4C', '#ffffff')" class="px-3 py-1 rounded text-sm bg-[#051C4C] text-white">네이비</button>
+                        <button onclick="setPreset('#1d4ed8', '#ffffff')" class="px-3 py-1 rounded text-sm bg-blue-700 text-white">파랑</button>
+                        <button onclick="setPreset('#047857', '#ffffff')" class="px-3 py-1 rounded text-sm bg-green-700 text-white">초록</button>
+                        <button onclick="setPreset('#fbbf24', '#000000')" class="px-3 py-1 rounded text-sm bg-yellow-400 text-black">노랑</button>
+                    </div>
+                </div>
+                
+                <!-- 활성화 -->
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="annActive" checked class="w-5 h-5 text-primary rounded">
+                    <label for="annActive" class="text-sm font-medium text-gray-700">공지 활성화</label>
+                </div>
+            </div>
+            
+            <!-- 버튼 -->
+            <div class="flex gap-3 mt-6">
+                <button onclick="saveAnnouncement()" 
+                    class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition">
+                    <i class="fas fa-save mr-2"></i>저장
+                </button>
+                <button onclick="deleteAnnouncement()" 
+                    class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">
+                    <i class="fas fa-trash mr-2"></i>공지 끄기
+                </button>
+            </div>
+        </div>
+        
+        <!-- 현재 공지 상태 -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h2 class="text-lg font-semibold mb-4">현재 공지 상태</h2>
+            <div id="currentStatus" class="text-gray-600">
+                로딩 중...
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        const API_BASE = 'https://forthefreedom-kr-production.up.railway.app/api';
+        let currentAnnouncementId = null;
+        
+        // 페이지 로드 시
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCurrentAnnouncement();
+        });
+        
+        // 현재 공지 로드
+        async function loadCurrentAnnouncement() {
+            try {
+                const response = await fetch(`${API_BASE}/announcement`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    const ann = result.data;
+                    currentAnnouncementId = ann._id;
+                    
+                    document.getElementById('annText').value = ann.text;
+                    document.getElementById('annLink').value = ann.link || '';
+                    document.getElementById('annLinkText').value = ann.linkText || '자세히 알아보기';
+                    document.getElementById('annBgColor').value = ann.bgColor || '#000000';
+                    document.getElementById('annBgColorText').value = ann.bgColor || '#000000';
+                    document.getElementById('annTextColor').value = ann.textColor || '#ffffff';
+                    document.getElementById('annTextColorText').value = ann.textColor || '#ffffff';
+                    document.getElementById('annActive').checked = ann.isActive;
+                    
+                    updatePreview();
+                    
+                    document.getElementById('currentStatus').innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <span class="inline-block w-3 h-3 rounded-full ${ann.isActive ? 'bg-green-500' : 'bg-gray-400'}"></span>
+                            <span>${ann.isActive ? '공지 활성화됨' : '공지 비활성화됨'}</span>
+                        </div>
+                        <p class="mt-2 text-sm">"${ann.text}"</p>
+                        <p class="text-xs text-gray-400 mt-1">마지막 수정: ${new Date(ann.updatedAt).toLocaleString('ko-KR')}</p>
+                    `;
+                } else {
+                    document.getElementById('currentStatus').innerHTML = `
+                        <div class="text-gray-500">
+                            <i class="fas fa-info-circle mr-2"></i>등록된 공지가 없습니다
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('공지 로드 오류:', error);
+                document.getElementById('currentStatus').innerHTML = `
+                    <div class="text-red-500">
+                        <i class="fas fa-exclamation-circle mr-2"></i>공지를 불러올 수 없습니다
+                    </div>
+                `;
+            }
+        }
+        
+        // 미리보기 업데이트
+        function updatePreview() {
+            const text = document.getElementById('annText').value || '공지 내용을 입력하세요';
+            const link = document.getElementById('annLink').value;
+            const linkText = document.getElementById('annLinkText').value || '자세히 알아보기';
+            const bgColor = document.getElementById('annBgColor').value;
+            const textColor = document.getElementById('annTextColor').value;
+            
+            const bar = document.getElementById('preview-bar');
+            bar.style.background = bgColor;
+            bar.style.color = textColor;
+            
+            document.getElementById('preview-text').textContent = text;
+            document.getElementById('charCount').textContent = text.length;
+            
+            const linkEl = document.getElementById('preview-link');
+            if (link) {
+                linkEl.style.display = 'inline';
+                linkEl.style.color = textColor;
+                linkEl.textContent = linkText + ' ›';
+            } else {
+                linkEl.style.display = 'none';
+            }
+        }
+        
+        // 색상 동기화
+        function syncColor(type) {
+            if (type === 'bg') {
+                document.getElementById('annBgColor').value = document.getElementById('annBgColorText').value;
+            } else {
+                document.getElementById('annTextColor').value = document.getElementById('annTextColorText').value;
+            }
+            updatePreview();
+        }
+        
+        // 프리셋 적용
+        function setPreset(bg, text) {
+            document.getElementById('annBgColor').value = bg;
+            document.getElementById('annBgColorText').value = bg;
+            document.getElementById('annTextColor').value = text;
+            document.getElementById('annTextColorText').value = text;
+            updatePreview();
+        }
+        
+        // 공지 저장
+        async function saveAnnouncement() {
+            const token = localStorage.getItem('adminToken');
+            if (!token) {
+                alert('로그인이 필요합니다');
+                return;
+            }
+            
+            const text = document.getElementById('annText').value.trim();
+            if (!text) {
+                alert('공지 내용을 입력해주세요');
+                return;
+            }
+            
+            const data = {
+                text,
+                link: document.getElementById('annLink').value.trim(),
+                linkText: document.getElementById('annLinkText').value.trim() || '자세히 알아보기',
+                bgColor: document.getElementById('annBgColor').value,
+                textColor: document.getElementById('annTextColor').value,
+                isActive: document.getElementById('annActive').checked
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/announcement`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('공지가 저장되었습니다');
+                    loadCurrentAnnouncement();
+                } else {
+                    alert(result.message || '저장 실패');
+                }
+            } catch (error) {
+                console.error('저장 오류:', error);
+                alert('저장에 실패했습니다');
+            }
+        }
+        
+        // 공지 삭제 (비활성화)
+        async function deleteAnnouncement() {
+            if (!currentAnnouncementId) {
+                alert('삭제할 공지가 없습니다');
+                return;
+            }
+            
+            if (!confirm('공지를 끄시겠습니까?')) return;
+            
+            const token = localStorage.getItem('adminToken');
+            
+            try {
+                const response = await fetch(`${API_BASE}/announcement/${currentAnnouncementId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('공지가 비활성화되었습니다');
+                    loadCurrentAnnouncement();
+                } else {
+                    alert(result.message || '삭제 실패');
+                }
+            } catch (error) {
+                console.error('삭제 오류:', error);
+                alert('삭제에 실패했습니다');
+            }
+        }
+    </script>
+</body>
+</html>
