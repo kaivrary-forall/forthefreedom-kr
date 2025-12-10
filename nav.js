@@ -1922,7 +1922,14 @@ function closeAnnouncementBar() {
 window.closeAnnouncementBar = closeAnnouncementBar;
 
 // 페이지 로드 시 이벤트 리스너 추가
-document.addEventListener('DOMContentLoaded', function() {
+// 페이지 로드 시 실행
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        loadNavigation();
+        loadAnnouncementBar();
+    });
+} else {
+    // 이미 로드 완료됨
     loadNavigation();
     loadAnnouncementBar();
-});
+}
