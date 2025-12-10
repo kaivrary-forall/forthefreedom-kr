@@ -329,6 +329,9 @@ function loadNavigation() {
     if (navigationContainer) {
         navigationContainer.innerHTML = navigationHTML;
         
+        // 한줄 공지 바 로드
+        loadAnnouncementBar();
+        
         // 로그인 상태 체크
         checkLoginStatus();
         
@@ -1850,6 +1853,76 @@ window.openMpWithdrawModal = openMpWithdrawModal;
 window.mpWithdraw = mpWithdraw;
 window.openMpProfileModal = openMpProfileModal;
 window.mpHandleProfileSelect = mpHandleProfileSelect;
+
+// ===== 한줄 공지 바 =====
+async function loadAnnouncementBar() {
+    // 세션에서 닫기 상태 확인
+    if (sessionStorage.getItem('announcementClosed')) return;
+    
+    try {
+        const response = await fetch('https://forthefreedom-kr-production.up.railway.app/api/announcement');
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+            const ann = result.data;
+            
+            // 공지 바 HTML 생성
+            const barHTML = `
+                <div id="announcement-bar" style="
+                    background: ${ann.bgColor || '#000000'};
+                    color: ${ann.textColor || '#ffffff'};
+                    padding: 12px 20px;
+                    text-align: center;
+                    font-size: 14px;
+                    position: relative;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                ">
+                    <span>${ann.text}</span>
+                    ${ann.link ? `<a href="${ann.link}" style="color: ${ann.textColor || '#ffffff'}; text-decoration: underline; opacity: 0.9;">${ann.linkText || '자세히 알아보기'} ›</a>` : ''}
+                    <button onclick="closeAnnouncementBar()" style="
+                        position: absolute;
+                        right: 16px;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        background: none;
+                        border: none;
+                        color: ${ann.textColor || '#ffffff'};
+                        cursor: pointer;
+                        font-size: 18px;
+                        opacity: 0.7;
+                        padding: 4px 8px;
+                    " aria-label="닫기">×</button>
+                </div>
+            `;
+            
+            // nav 태그 뒤에 삽입
+            const nav = document.querySelector('nav');
+            if (nav) {
+                nav.insertAdjacentHTML('afterend', barHTML);
+            }
+        }
+    } catch (error) {
+        console.log('공지 로드 실패:', error);
+    }
+}
+
+function closeAnnouncementBar() {
+    const bar = document.getElementById('announcement-bar');
+    if (bar) {
+        bar.style.transition = 'all 0.3s ease';
+        bar.style.opacity = '0';
+        bar.style.height = '0';
+        bar.style.padding = '0';
+        bar.style.overflow = 'hidden';
+        setTimeout(() => bar.remove(), 300);
+    }
+    sessionStorage.setItem('announcementClosed', 'true');
+}
+
+window.closeAnnouncementBar = closeAnnouncementBar;
 
 // 페이지 로드 시 이벤트 리스너 추가
 document.addEventListener('DOMContentLoaded', function() {
