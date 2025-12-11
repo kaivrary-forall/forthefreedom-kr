@@ -479,6 +479,9 @@ function loadNavigation() {
         
         // 한줄 공지 바 로드
         loadAnnouncementBar();
+        
+        // 팝업 모달 로드
+        loadPopupModal();
     }
 }
 
@@ -2030,6 +2033,211 @@ function closeAnnouncementBar() {
 
 window.closeAnnouncementBar = closeAnnouncementBar;
 window.loadAnnouncementBar = loadAnnouncementBar;
+
+// ===== 팝업 모달 =====
+let popupLoading = false;
+
+async function loadPopupModal() {
+    // 이미 팝업이 있으면 중복 생성 방지
+    if (document.getElementById('popup-modal')) return;
+    
+    // 이미 로딩 중이면 중복 실행 방지
+    if (popupLoading) return;
+    popupLoading = true;
+    
+    // 관리자 페이지에서는 팝업 표시 안 함
+    if (window.location.pathname.includes('/admin')) {
+        popupLoading = false;
+        return;
+    }
+    
+    // 오늘 하루 보지 않기 체크 확인
+    const hideUntil = localStorage.getItem('popupHideUntil');
+    if (hideUntil) {
+        const hideDate = new Date(hideUntil);
+        const now = new Date();
+        if (now < hideDate) {
+            popupLoading = false;
+            return;
+        } else {
+            localStorage.removeItem('popupHideUntil');
+        }
+    }
+    
+    try {
+        const response = await fetch('https://forthefreedom-kr-production.up.railway.app/api/popup');
+        const result = await response.json();
+        
+        if (document.getElementById('popup-modal')) {
+            popupLoading = false;
+            return;
+        }
+        
+        if (result.success && result.data) {
+            const popup = result.data;
+            
+            const modalHTML = `
+                <div id="popup-modal" style="
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 9999;
+                    opacity: 0;
+                    transition: all 0.5s ease;
+                ">
+                    <div id="popup-content" style="
+                        text-align: center;
+                        color: ${popup.textColor || '#ffffff'};
+                        max-width: 90%;
+                        transform: scale(0.9);
+                        opacity: 0;
+                        transition: all 0.5s ease;
+                    ">
+                        <h1 style="
+                            font-size: clamp(2rem, 6vw, 4rem);
+                            font-weight: 800;
+                            margin-bottom: 1rem;
+                            text-shadow: 2px 2px 20px rgba(0,0,0,0.5);
+                            line-height: 1.2;
+                        ">${popup.title}</h1>
+                        ${popup.subtitle ? `
+                            <p style="
+                                font-size: clamp(1rem, 2.5vw, 1.5rem);
+                                opacity: 0.9;
+                                margin-bottom: 2rem;
+                                text-shadow: 1px 1px 10px rgba(0,0,0,0.5);
+                            ">${popup.subtitle}</p>
+                        ` : ''}
+                        ${popup.link ? `
+                            <a href="${popup.link}" style="
+                                display: inline-block;
+                                padding: 12px 32px;
+                                border: 2px solid ${popup.textColor || '#ffffff'};
+                                color: ${popup.textColor || '#ffffff'};
+                                text-decoration: none;
+                                font-size: 1rem;
+                                font-weight: 600;
+                                border-radius: 50px;
+                                transition: all 0.3s ease;
+                                margin-bottom: 2rem;
+                            " onmouseover="this.style.background='${popup.textColor || '#ffffff'}'; this.style.color='#000';" 
+                               onmouseout="this.style.background='transparent'; this.style.color='${popup.textColor || '#ffffff'}';">
+                                ${popup.linkText || '자세히 보기'}
+                            </a>
+                        ` : ''}
+                        
+                        <div style="margin-top: 2rem;">
+                            <label style="
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                gap: 8px;
+                                font-size: 0.9rem;
+                                opacity: 0.8;
+                                cursor: pointer;
+                                margin-bottom: 1rem;
+                            ">
+                                <input type="checkbox" id="popup-hide-today" style="
+                                    width: 16px;
+                                    height: 16px;
+                                    cursor: pointer;
+                                ">
+                                오늘 하루 보지 않기
+                            </label>
+                            <button onclick="closePopupModal()" style="
+                                background: transparent;
+                                border: 1px solid ${popup.textColor || '#ffffff'};
+                                color: ${popup.textColor || '#ffffff'};
+                                padding: 8px 24px;
+                                font-size: 0.9rem;
+                                cursor: pointer;
+                                border-radius: 4px;
+                                opacity: 0.8;
+                                transition: opacity 0.3s ease;
+                            " onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">
+                                닫기
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button onclick="closePopupModal()" style="
+                        position: absolute;
+                        top: 20px;
+                        right: 20px;
+                        background: none;
+                        border: none;
+                        color: ${popup.textColor || '#ffffff'};
+                        font-size: 2rem;
+                        cursor: pointer;
+                        opacity: 0.7;
+                        transition: opacity 0.3s ease;
+                        width: 48px;
+                        height: 48px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    " onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'" aria-label="닫기">
+                        ✕
+                    </button>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            document.body.style.overflow = 'hidden';
+            
+            // 애니메이션 시작
+            requestAnimationFrame(() => {
+                const modal = document.getElementById('popup-modal');
+                const content = document.getElementById('popup-content');
+                if (modal && content) {
+                    modal.style.background = 'rgba(0, 0, 0, 0.85)';
+                    modal.style.opacity = '1';
+                    content.style.transform = 'scale(1)';
+                    content.style.opacity = '1';
+                }
+            });
+        }
+    } catch (error) {
+        console.log('팝업 로드 실패:', error);
+    } finally {
+        popupLoading = false;
+    }
+}
+
+function closePopupModal() {
+    const modal = document.getElementById('popup-modal');
+    const hideToday = document.getElementById('popup-hide-today');
+    
+    if (hideToday && hideToday.checked) {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0);
+        localStorage.setItem('popupHideUntil', tomorrow.toISOString());
+    }
+    
+    if (modal) {
+        const content = document.getElementById('popup-content');
+        modal.style.background = 'rgba(0, 0, 0, 0)';
+        modal.style.opacity = '0';
+        if (content) {
+            content.style.transform = 'scale(0.9)';
+            content.style.opacity = '0';
+        }
+        
+        document.body.style.overflow = '';
+        
+        setTimeout(() => modal.remove(), 500);
+    }
+}
+
+window.closePopupModal = closePopupModal;
+window.loadPopupModal = loadPopupModal;
 
 // 페이지 로드 시 이벤트 리스너 추가
 // 페이지 로드 시 실행
