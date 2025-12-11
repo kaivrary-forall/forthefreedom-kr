@@ -1865,10 +1865,18 @@ async function loadAnnouncementBar() {
     if (announcementLoading) return;
     announcementLoading = true;
     
-    // 세션에서 닫기 상태 확인
-    if (sessionStorage.getItem('announcementClosed')) {
-        announcementLoading = false;
-        return;
+    // 오늘 하루 보지 않기 체크 확인
+    const hideUntil = localStorage.getItem('announcementHideUntil');
+    if (hideUntil) {
+        const hideDate = new Date(hideUntil);
+        const now = new Date();
+        if (now < hideDate) {
+            announcementLoading = false;
+            return;
+        } else {
+            // 기한 지났으면 삭제
+            localStorage.removeItem('announcementHideUntil');
+        }
     }
     
     try {
@@ -1899,7 +1907,7 @@ async function loadAnnouncementBar() {
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    gap: 8px;
+                    gap: 12px;
                     position: fixed;
                     top: ${navHeight}px;
                     left: 0;
@@ -1908,6 +1916,20 @@ async function loadAnnouncementBar() {
                 ">
                     <span>${ann.text}</span>
                     ${ann.link ? `<a href="${ann.link}" style="color: ${ann.textColor || '#ffffff'}; text-decoration: underline; opacity: 0.9;">${ann.linkText || '자세히 알아보기'} ›</a>` : ''}
+                    
+                    <label style="
+                        display: flex;
+                        align-items: center;
+                        gap: 4px;
+                        font-size: 12px;
+                        opacity: 0.8;
+                        cursor: pointer;
+                        margin-left: 8px;
+                    ">
+                        <input type="checkbox" id="announcement-hide-today" style="cursor: pointer;">
+                        오늘 하루 보지 않기
+                    </label>
+                    
                     <button onclick="closeAnnouncementBar()" style="
                         position: absolute;
                         right: 16px;
@@ -1943,6 +1965,16 @@ async function loadAnnouncementBar() {
 
 function closeAnnouncementBar() {
     const bar = document.getElementById('announcement-bar');
+    const hideToday = document.getElementById('announcement-hide-today');
+    
+    // 오늘 하루 보지 않기 체크되어 있으면 localStorage에 저장
+    if (hideToday && hideToday.checked) {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0); // 내일 자정
+        localStorage.setItem('announcementHideUntil', tomorrow.toISOString());
+    }
+    
     if (bar) {
         bar.style.transition = 'all 0.3s ease';
         bar.style.opacity = '0';
@@ -1956,7 +1988,6 @@ function closeAnnouncementBar() {
         
         setTimeout(() => bar.remove(), 300);
     }
-    sessionStorage.setItem('announcementClosed', 'true');
 }
 
 window.closeAnnouncementBar = closeAnnouncementBar;
