@@ -1855,21 +1855,36 @@ window.openMpProfileModal = openMpProfileModal;
 window.mpHandleProfileSelect = mpHandleProfileSelect;
 
 // ===== 한줄 공지 바 =====
+let announcementLoading = false; // 중복 호출 방지 플래그
+
 async function loadAnnouncementBar() {
     // 이미 공지 바가 있으면 중복 생성 방지
     if (document.getElementById('announcement-bar')) return;
     
+    // 이미 로딩 중이면 중복 실행 방지
+    if (announcementLoading) return;
+    announcementLoading = true;
+    
     // 세션에서 닫기 상태 확인
-    if (sessionStorage.getItem('announcementClosed')) return;
+    if (sessionStorage.getItem('announcementClosed')) {
+        announcementLoading = false;
+        return;
+    }
     
     try {
         const response = await fetch('https://forthefreedom-kr-production.up.railway.app/api/announcement');
         const result = await response.json();
         
+        // 다시 한번 중복 체크 (비동기 실행 중 생성되었을 수 있음)
+        if (document.getElementById('announcement-bar')) {
+            announcementLoading = false;
+            return;
+        }
+        
         if (result.success && result.data) {
             const ann = result.data;
             
-            // 공지 바 HTML 생성
+            // 공지 바 HTML 생성 - nav 아래 고정 위치
             const barHTML = `
                 <div id="announcement-bar" style="
                     background: ${ann.bgColor || '#000000'};
@@ -1881,7 +1896,11 @@ async function loadAnnouncementBar() {
                     align-items: center;
                     justify-content: center;
                     gap: 8px;
-                    position: relative;
+                    position: fixed;
+                    top: 76px;
+                    left: 0;
+                    right: 0;
+                    z-index: 49;
                 ">
                     <span>${ann.text}</span>
                     ${ann.link ? `<a href="${ann.link}" style="color: ${ann.textColor || '#ffffff'}; text-decoration: underline; opacity: 0.9;">${ann.linkText || '자세히 알아보기'} ›</a>` : ''}
@@ -1901,14 +1920,13 @@ async function loadAnnouncementBar() {
                 </div>
             `;
             
-            // main 태그 맨 앞에 삽입
-            const main = document.querySelector('main');
-            if (main) {
-                main.insertAdjacentHTML('afterbegin', barHTML);
-            }
+            // body에 직접 삽입 (nav와 독립적으로 fixed 위치)
+            document.body.insertAdjacentHTML('beforeend', barHTML);
         }
     } catch (error) {
         console.log('공지 로드 실패:', error);
+    } finally {
+        announcementLoading = false;
     }
 }
 
@@ -1926,7 +1944,6 @@ function closeAnnouncementBar() {
 }
 
 window.closeAnnouncementBar = closeAnnouncementBar;
-window.loadAnnouncementBar = loadAnnouncementBar;
 window.loadAnnouncementBar = loadAnnouncementBar;
 
 // 페이지 로드 시 이벤트 리스너 추가
