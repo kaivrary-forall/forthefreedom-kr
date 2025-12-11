@@ -1917,32 +1917,37 @@ async function loadAnnouncementBar() {
                     <span>${ann.text}</span>
                     ${ann.link ? `<a href="${ann.link}" style="color: ${ann.textColor || '#ffffff'}; text-decoration: underline; opacity: 0.9;">${ann.linkText || '자세히 알아보기'} ›</a>` : ''}
                     
-                    <label style="
-                        display: flex;
-                        align-items: center;
-                        gap: 4px;
-                        font-size: 12px;
-                        opacity: 0.8;
-                        cursor: pointer;
-                        margin-left: 8px;
-                    ">
-                        <input type="checkbox" id="announcement-hide-today" style="cursor: pointer;">
-                        오늘 하루 보지 않기
-                    </label>
-                    
-                    <button onclick="closeAnnouncementBar()" style="
+                    <div style="
                         position: absolute;
-                        right: 16px;
+                        right: 40px;
                         top: 50%;
                         transform: translateY(-50%);
-                        background: none;
-                        border: none;
-                        color: ${ann.textColor || '#ffffff'};
-                        cursor: pointer;
-                        font-size: 18px;
-                        opacity: 0.7;
-                        padding: 4px 8px;
-                    " aria-label="닫기">×</button>
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                    ">
+                        <label style="
+                            display: flex;
+                            align-items: center;
+                            gap: 4px;
+                            font-size: 12px;
+                            opacity: 0.8;
+                            cursor: pointer;
+                        ">
+                            <input type="checkbox" id="announcement-hide-today" style="cursor: pointer;">
+                            오늘 하루 보지 않기
+                        </label>
+                        
+                        <button onclick="closeAnnouncementBar()" style="
+                            background: none;
+                            border: none;
+                            color: ${ann.textColor || '#ffffff'};
+                            cursor: pointer;
+                            font-size: 18px;
+                            opacity: 0.7;
+                            padding: 4px 8px;
+                        " aria-label="닫기">×</button>
+                    </div>
                 </div>
             `;
             
