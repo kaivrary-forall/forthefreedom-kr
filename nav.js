@@ -1970,8 +1970,8 @@ async function loadAnnouncementBar() {
                     const currentMargin = parseInt(window.getComputedStyle(targetElement).marginTop) || 0;
                     targetElement.dataset.originalMarginTop = currentMargin;
                     
-                    // 새 margin-top 적용
-                    targetElement.style.marginTop = (currentMargin + barHeight) + 'px';
+                    // 새 margin-top 적용 (!important로 CSS 덮어쓰기)
+                    targetElement.style.setProperty('margin-top', (currentMargin + barHeight) + 'px', 'important');
                 }
             }
         }
@@ -2003,8 +2003,8 @@ function closeAnnouncementBar() {
         
         if (targetElement) {
             const originalMargin = targetElement.dataset.originalMarginTop || '0';
-            targetElement.style.transition = 'margin-top 0.3s ease';
-            targetElement.style.marginTop = originalMargin + 'px';
+            targetElement.style.setProperty('transition', 'margin-top 0.3s ease');
+            targetElement.style.setProperty('margin-top', originalMargin + 'px', 'important');
         }
         
         // 공지 바 애니메이션
