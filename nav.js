@@ -1970,8 +1970,18 @@ async function loadAnnouncementBar() {
                     const currentMargin = parseInt(window.getComputedStyle(targetElement).marginTop) || 0;
                     targetElement.dataset.originalMarginTop = currentMargin;
                     
-                    // 새 margin-top 적용 (!important로 CSS 덮어쓰기)
-                    targetElement.style.setProperty('margin-top', (currentMargin + barHeight) + 'px', 'important');
+                    // 애니메이션을 위해 초기 상태 설정
+                    announcementBar.style.opacity = '0';
+                    announcementBar.style.transform = 'translateY(-100%)';
+                    targetElement.style.setProperty('transition', 'margin-top 0.4s ease');
+                    
+                    // 다음 프레임에서 애니메이션 시작
+                    requestAnimationFrame(() => {
+                        announcementBar.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+                        announcementBar.style.opacity = '1';
+                        announcementBar.style.transform = 'translateY(0)';
+                        targetElement.style.setProperty('margin-top', (currentMargin + barHeight) + 'px', 'important');
+                    });
                 }
             }
         }
