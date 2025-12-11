@@ -2051,7 +2051,7 @@ async function loadPopupModal() {
         return;
     }
     
-    // 오늘 하루 보지 않기 체크 확인
+    // 12시간 단위 팝업 표시 체크 (00-12, 12-24)
     const hideUntil = localStorage.getItem('popupHideUntil');
     if (hideUntil) {
         const hideDate = new Date(hideUntil);
@@ -2075,6 +2075,13 @@ async function loadPopupModal() {
         
         if (result.success && result.data) {
             const popup = result.data;
+            const defaultColor = popup.defaultTextColor || '#ffffff';
+            const titleLineHeight = popup.titleLineHeight || 1.2;
+            const subtitleLineHeight = popup.subtitleLineHeight || 1.6;
+            
+            // HTML 콘텐츠 사용 (없으면 일반 텍스트)
+            const titleContent = popup.titleHtml || popup.title.replace(/\n/g, '<br>');
+            const subtitleContent = popup.subtitleHtml || (popup.subtitle ? popup.subtitle.replace(/\n/g, '<br>') : '');
             
             const modalHTML = `
                 <div id="popup-modal" style="
@@ -2093,7 +2100,6 @@ async function loadPopupModal() {
                 ">
                     <div id="popup-content" style="
                         text-align: center;
-                        color: ${popup.textColor || '#ffffff'};
                         max-width: 90%;
                         transform: scale(0.9);
                         opacity: 0;
@@ -2104,67 +2110,36 @@ async function loadPopupModal() {
                             font-weight: 800;
                             margin-bottom: 1rem;
                             text-shadow: 2px 2px 20px rgba(0,0,0,0.5);
-                            line-height: 1.2;
-                        ">${popup.title.replace(/\n/g, '<br>')}</h1>
-                        ${popup.subtitle ? `
+                            line-height: ${titleLineHeight};
+                            color: ${defaultColor};
+                        ">${titleContent}</h1>
+                        ${subtitleContent ? `
                             <p style="
                                 font-size: clamp(1rem, 2.5vw, 1.5rem);
                                 opacity: 0.9;
                                 margin-bottom: 2rem;
                                 text-shadow: 1px 1px 10px rgba(0,0,0,0.5);
-                                line-height: 1.6;
-                            ">${popup.subtitle.replace(/\n/g, '<br>')}</p>
+                                line-height: ${subtitleLineHeight};
+                                color: ${defaultColor};
+                            ">${subtitleContent}</p>
                         ` : ''}
                         ${popup.link ? `
                             <a href="${popup.link}" style="
                                 display: inline-block;
                                 padding: 12px 32px;
-                                border: 2px solid ${popup.textColor || '#ffffff'};
-                                color: ${popup.textColor || '#ffffff'};
+                                border: 2px solid ${defaultColor};
+                                color: ${defaultColor};
                                 text-decoration: none;
                                 font-size: 1rem;
                                 font-weight: 600;
                                 border-radius: 50px;
                                 transition: all 0.3s ease;
                                 margin-bottom: 2rem;
-                            " onmouseover="this.style.background='${popup.textColor || '#ffffff'}'; this.style.color='#000';" 
-                               onmouseout="this.style.background='transparent'; this.style.color='${popup.textColor || '#ffffff'}';">
+                            " onmouseover="this.style.background='${defaultColor}'; this.style.color='#000';" 
+                               onmouseout="this.style.background='transparent'; this.style.color='${defaultColor}';">
                                 ${popup.linkText || '자세히 보기'}
                             </a>
                         ` : ''}
-                        
-                        <div style="margin-top: 2rem;">
-                            <label style="
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                gap: 8px;
-                                font-size: 0.9rem;
-                                opacity: 0.8;
-                                cursor: pointer;
-                                margin-bottom: 1rem;
-                            ">
-                                <input type="checkbox" id="popup-hide-today" style="
-                                    width: 16px;
-                                    height: 16px;
-                                    cursor: pointer;
-                                ">
-                                오늘 하루 보지 않기
-                            </label>
-                            <button onclick="closePopupModal()" style="
-                                background: transparent;
-                                border: 1px solid ${popup.textColor || '#ffffff'};
-                                color: ${popup.textColor || '#ffffff'};
-                                padding: 8px 24px;
-                                font-size: 0.9rem;
-                                cursor: pointer;
-                                border-radius: 4px;
-                                opacity: 0.8;
-                                transition: opacity 0.3s ease;
-                            " onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">
-                                닫기
-                            </button>
-                        </div>
                     </div>
                     
                     <button onclick="closePopupModal()" style="
@@ -2173,7 +2148,7 @@ async function loadPopupModal() {
                         right: 20px;
                         background: none;
                         border: none;
-                        color: ${popup.textColor || '#ffffff'};
+                        color: ${defaultColor};
                         font-size: 2rem;
                         cursor: pointer;
                         opacity: 0.7;
@@ -2213,14 +2188,21 @@ async function loadPopupModal() {
 
 function closePopupModal() {
     const modal = document.getElementById('popup-modal');
-    const hideToday = document.getElementById('popup-hide-today');
     
-    if (hideToday && hideToday.checked) {
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        tomorrow.setHours(0, 0, 0, 0);
-        localStorage.setItem('popupHideUntil', tomorrow.toISOString());
+    // 12시간 단위로 다음 팝업 표시 시간 설정 (00-12, 12-24)
+    const now = new Date();
+    const currentHour = now.getHours();
+    const nextShowTime = new Date();
+    
+    if (currentHour < 12) {
+        // 00:00 ~ 11:59 → 오늘 12:00까지 숨김
+        nextShowTime.setHours(12, 0, 0, 0);
+    } else {
+        // 12:00 ~ 23:59 → 내일 00:00까지 숨김
+        nextShowTime.setDate(nextShowTime.getDate() + 1);
+        nextShowTime.setHours(0, 0, 0, 0);
     }
+    localStorage.setItem('popupHideUntil', nextShowTime.toISOString());
     
     if (modal) {
         const content = document.getElementById('popup-content');
