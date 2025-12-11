@@ -1926,6 +1926,13 @@ async function loadAnnouncementBar() {
             
             // body에 직접 삽입 (nav와 독립적으로 fixed 위치)
             document.body.insertAdjacentHTML('beforeend', barHTML);
+            
+            // 공지 바 높이만큼 body에 padding-top 추가
+            const announcementBar = document.getElementById('announcement-bar');
+            if (announcementBar) {
+                const barHeight = announcementBar.offsetHeight;
+                document.body.style.paddingTop = barHeight + 'px';
+            }
         }
     } catch (error) {
         console.log('공지 로드 실패:', error);
@@ -1942,6 +1949,11 @@ function closeAnnouncementBar() {
         bar.style.height = '0';
         bar.style.padding = '0';
         bar.style.overflow = 'hidden';
+        
+        // body padding도 함께 제거 (애니메이션)
+        document.body.style.transition = 'padding-top 0.3s ease';
+        document.body.style.paddingTop = '0';
+        
         setTimeout(() => bar.remove(), 300);
     }
     sessionStorage.setItem('announcementClosed', 'true');
