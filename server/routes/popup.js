@@ -5,7 +5,7 @@ const Popup = require('../models/Popup');
 // 활성화된 팝업 조회 (공개) / 관리자는 모든 팝업 조회
 router.get('/', async (req, res) => {
     try {
-        console.log('📢 팝업 조회 API 호출됨');
+        console.log('📢 팝업 조회 API 호출됨, admin:', req.query.admin);
         
         // admin=true 파라미터가 있으면 모든 팝업 조회 (관리자용)
         let popup;
@@ -16,7 +16,10 @@ router.get('/', async (req, res) => {
         }
         
         if (popup) {
-            console.log('📢 팝업 조회 결과:', popup.title, 'titleHtml:', popup.titleHtml ? '있음' : '없음');
+            console.log('📢 팝업 조회 결과:', popup.title);
+            console.log('📢 titleHtml 조회:', popup.titleHtml);
+            console.log('📢 subtitleHtml 조회:', popup.subtitleHtml);
+            console.log('📢 전체 팝업 데이터:', JSON.stringify(popup, null, 2));
         } else {
             console.log('📢 팝업 없음');
         }
@@ -39,6 +42,8 @@ router.post('/', async (req, res) => {
     try {
         const { title, titleHtml, subtitle, subtitleHtml, defaultTextColor, titleLineHeight, subtitleLineHeight, link, linkText, isActive } = req.body;
         
+        console.log('📢 팝업 저장 요청:', { title, titleHtml: titleHtml ? '있음' : '없음', subtitleHtml: subtitleHtml ? '있음' : '없음' });
+        
         if (!title) {
             return res.status(400).json({
                 success: false,
@@ -46,10 +51,11 @@ router.post('/', async (req, res) => {
             });
         }
         
-        // 기존 팝업이 있으면 수정, 없으면 생성
-        let popup = await Popup.findOne();
+        // 기존 팝업이 있으면 수정, 없으면 생성 (최근 수정된 것 기준)
+        let popup = await Popup.findOne().sort({ updatedAt: -1 });
         
         if (popup) {
+            console.log('📢 기존 팝업 수정:', popup._id);
             popup.title = title;
             popup.titleHtml = titleHtml || title;
             popup.subtitle = subtitle || '';
@@ -62,6 +68,7 @@ router.post('/', async (req, res) => {
             popup.isActive = isActive !== undefined ? isActive : true;
             await popup.save();
         } else {
+            console.log('📢 새 팝업 생성');
             popup = await Popup.create({
                 title,
                 titleHtml: titleHtml || title,
@@ -77,6 +84,8 @@ router.post('/', async (req, res) => {
         }
         
         console.log('📢 팝업 저장됨:', popup.title);
+        console.log('📢 titleHtml 저장됨:', popup.titleHtml);
+        console.log('📢 subtitleHtml 저장됨:', popup.subtitleHtml);
         
         res.json({
             success: true,
