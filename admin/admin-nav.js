@@ -9,10 +9,10 @@ function loadAdminNav(currentPage) {
     // 현재 페이지 체크
     const pages = {
         dashboard: currentPage === 'dashboard',
-        content: currentPage === 'content',
-        banners: currentPage === 'banners',
-        announcement: currentPage === 'announcement',
         members: currentPage === 'members',
+        announcement: currentPage === 'announcement',
+        banners: currentPage === 'banners',
+        content: currentPage === 'content',
         chapters: currentPage === 'chapters'
     };
 
@@ -38,33 +38,37 @@ function loadAdminNav(currentPage) {
                             <i class="fas fa-home mr-1"></i> 대시보드
                         </a>
                         
-                        <!-- 콘텐츠 관리 드롭다운 -->
-                        <div class="relative group">
-                            <button class="px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center ${pages.content || pages.banners || pages.announcement ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}">
-                                <i class="fas fa-newspaper mr-1"></i> 콘텐츠 관리
-                                <i class="fas fa-chevron-down ml-1 text-xs"></i>
-                            </button>
-                            <div class="absolute left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                                <a href="content.html" class="block px-4 py-2 text-sm ${pages.content ? 'text-primary bg-primary/5' : 'text-gray-700 hover:bg-gray-50'}">
-                                    <i class="fas fa-list mr-2"></i> 콘텐츠 목록
-                                </a>
-                                <a href="banners.html" class="block px-4 py-2 text-sm ${pages.banners ? 'text-primary bg-primary/5' : 'text-gray-700 hover:bg-gray-50'}">
-                                    <i class="fas fa-images mr-2"></i> 배너 관리
-                                </a>
-                                <a href="announcement.html" class="block px-4 py-2 text-sm ${pages.announcement ? 'text-primary bg-primary/5' : 'text-gray-700 hover:bg-gray-50'}">
-                                    <i class="fas fa-bullhorn mr-2"></i> 한줄 공지
-                                </a>
-                            </div>
-                        </div>
-                        
                         <!-- 회원관리 -->
                         <a href="members.html" class="px-3 py-2 text-sm font-medium rounded-md transition-colors ${pages.members ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}">
                             <i class="fas fa-users mr-1"></i> 회원관리
                         </a>
                         
-                        <!-- 당협 관리 -->
+                        <!-- 공지 -->
+                        <a href="announcement.html" class="px-3 py-2 text-sm font-medium rounded-md transition-colors ${pages.announcement ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}">
+                            <i class="fas fa-bullhorn mr-1"></i> 공지
+                        </a>
+                        
+                        <!-- 배너 관리 드롭다운 -->
+                        <div class="relative group">
+                            <button class="px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center ${pages.banners ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}">
+                                <i class="fas fa-images mr-1"></i> 배너 관리
+                                <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                            </button>
+                            <div class="absolute left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                <a href="banners.html" class="block px-4 py-2 text-sm ${pages.banners ? 'text-primary bg-primary/5' : 'text-gray-700 hover:bg-gray-50'}">
+                                    <i class="fas fa-desktop mr-2"></i> 히어로 섹션
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- 콘텐츠 관리 -->
+                        <a href="content.html" class="px-3 py-2 text-sm font-medium rounded-md transition-colors ${pages.content ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}">
+                            <i class="fas fa-newspaper mr-1"></i> 콘텐츠 관리
+                        </a>
+                        
+                        <!-- 시도당/당협 관리 -->
                         <a href="chapters.html" class="px-3 py-2 text-sm font-medium rounded-md transition-colors ${pages.chapters ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}">
-                            <i class="fas fa-map-marker-alt mr-1"></i> 당협관리
+                            <i class="fas fa-map-marker-alt mr-1"></i> 시도당/당협
                         </a>
                     </div>
                 </div>
@@ -106,26 +110,24 @@ function loadAdminNav(currentPage) {
                 <a href="dashboard.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.dashboard ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
                     <i class="fas fa-home mr-2"></i> 대시보드
                 </a>
+                <a href="members.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.members ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
+                    <i class="fas fa-users mr-2"></i> 회원관리
+                </a>
+                <a href="announcement.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.announcement ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
+                    <i class="fas fa-bullhorn mr-2"></i> 공지
+                </a>
                 <div class="border-t border-gray-100 my-2 pt-2">
-                    <div class="px-3 py-1 text-xs font-semibold text-gray-400 uppercase">콘텐츠 관리</div>
-                    <a href="content.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.content ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
-                        <i class="fas fa-list mr-2"></i> 콘텐츠 목록
-                    </a>
+                    <div class="px-3 py-1 text-xs font-semibold text-gray-400 uppercase">배너 관리</div>
                     <a href="banners.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.banners ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
-                        <i class="fas fa-images mr-2"></i> 배너 관리
-                    </a>
-                    <a href="announcement.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.announcement ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
-                        <i class="fas fa-bullhorn mr-2"></i> 한줄 공지
+                        <i class="fas fa-desktop mr-2"></i> 히어로 섹션
                     </a>
                 </div>
-                <div class="border-t border-gray-100 my-2 pt-2">
-                    <a href="members.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.members ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
-                        <i class="fas fa-users mr-2"></i> 회원관리
-                    </a>
-                    <a href="chapters.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.chapters ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
-                        <i class="fas fa-map-marker-alt mr-2"></i> 당협관리
-                    </a>
-                </div>
+                <a href="content.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.content ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
+                    <i class="fas fa-newspaper mr-2"></i> 콘텐츠 관리
+                </a>
+                <a href="chapters.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.chapters ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
+                    <i class="fas fa-map-marker-alt mr-2"></i> 시도당/당협
+                </a>
                 <!-- 모바일 세션 타이머 -->
                 <div class="border-t border-gray-100 my-2 pt-2 px-3">
                     <span class="text-xs text-gray-500">
