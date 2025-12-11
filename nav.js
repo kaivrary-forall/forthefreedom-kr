@@ -1959,10 +1959,11 @@ async function loadAnnouncementBar() {
             if (announcementBar) {
                 const barHeight = announcementBar.offsetHeight;
                 
-                // hero-wrapper 또는 main 요소 찾기
+                // hero-wrapper, hero-section, 또는 main 요소 찾기 (우선순위대로)
                 const heroWrapper = document.querySelector('.hero-wrapper');
+                const heroSection = document.querySelector('.hero-section');
                 const main = document.querySelector('main');
-                const targetElement = heroWrapper || main;
+                const targetElement = heroWrapper || heroSection || main;
                 
                 if (targetElement) {
                     // 기존 margin-top 값 저장
@@ -1996,8 +1997,9 @@ function closeAnnouncementBar() {
     if (bar) {
         // margin-top 복원
         const heroWrapper = document.querySelector('.hero-wrapper');
+        const heroSection = document.querySelector('.hero-section');
         const main = document.querySelector('main');
-        const targetElement = heroWrapper || main;
+        const targetElement = heroWrapper || heroSection || main;
         
         if (targetElement) {
             const originalMargin = targetElement.dataset.originalMarginTop || '0';
