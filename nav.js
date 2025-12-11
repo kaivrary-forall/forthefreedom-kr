@@ -1884,6 +1884,10 @@ async function loadAnnouncementBar() {
         if (result.success && result.data) {
             const ann = result.data;
             
+            // 네비게이션 바 높이 계산
+            const nav = document.querySelector('nav');
+            const navHeight = nav ? nav.offsetHeight : 80;
+            
             // 공지 바 HTML 생성 - nav 아래 고정 위치
             const barHTML = `
                 <div id="announcement-bar" style="
@@ -1897,7 +1901,7 @@ async function loadAnnouncementBar() {
                     justify-content: center;
                     gap: 8px;
                     position: fixed;
-                    top: 76px;
+                    top: ${navHeight}px;
                     left: 0;
                     right: 0;
                     z-index: 49;
