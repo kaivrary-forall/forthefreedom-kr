@@ -2,16 +2,23 @@ const express = require('express');
 const router = express.Router();
 const Popup = require('../models/Popup');
 
-// 활성화된 팝업 조회 (공개)
+// 활성화된 팝업 조회 (공개) / 관리자는 모든 팝업 조회
 router.get('/', async (req, res) => {
     try {
         console.log('📢 팝업 조회 API 호출됨');
-        const popup = await Popup.findOne({ isActive: true }).sort({ updatedAt: -1 });
+        
+        // admin=true 파라미터가 있으면 모든 팝업 조회 (관리자용)
+        let popup;
+        if (req.query.admin === 'true') {
+            popup = await Popup.findOne().sort({ updatedAt: -1 });
+        } else {
+            popup = await Popup.findOne({ isActive: true }).sort({ updatedAt: -1 });
+        }
         
         if (popup) {
-            console.log('📢 팝업 조회 결과:', popup.title);
+            console.log('📢 팝업 조회 결과:', popup.title, 'titleHtml:', popup.titleHtml ? '있음' : '없음');
         } else {
-            console.log('📢 활성화된 팝업 없음');
+            console.log('📢 팝업 없음');
         }
         
         res.json({
@@ -30,7 +37,7 @@ router.get('/', async (req, res) => {
 // 팝업 생성/수정 (관리자)
 router.post('/', async (req, res) => {
     try {
-        const { title, subtitle, textColor, link, linkText, isActive } = req.body;
+        const { title, titleHtml, subtitle, subtitleHtml, defaultTextColor, titleLineHeight, subtitleLineHeight, link, linkText, isActive } = req.body;
         
         if (!title) {
             return res.status(400).json({
@@ -44,8 +51,12 @@ router.post('/', async (req, res) => {
         
         if (popup) {
             popup.title = title;
+            popup.titleHtml = titleHtml || title;
             popup.subtitle = subtitle || '';
-            popup.textColor = textColor || '#ffffff';
+            popup.subtitleHtml = subtitleHtml || subtitle || '';
+            popup.defaultTextColor = defaultTextColor || '#ffffff';
+            popup.titleLineHeight = titleLineHeight || 1.2;
+            popup.subtitleLineHeight = subtitleLineHeight || 1.6;
             popup.link = link || '';
             popup.linkText = linkText || '자세히 보기';
             popup.isActive = isActive !== undefined ? isActive : true;
@@ -53,8 +64,12 @@ router.post('/', async (req, res) => {
         } else {
             popup = await Popup.create({
                 title,
+                titleHtml: titleHtml || title,
                 subtitle: subtitle || '',
-                textColor: textColor || '#ffffff',
+                subtitleHtml: subtitleHtml || subtitle || '',
+                defaultTextColor: defaultTextColor || '#ffffff',
+                titleLineHeight: titleLineHeight || 1.2,
+                subtitleLineHeight: subtitleLineHeight || 1.6,
                 link: link || '',
                 linkText: linkText || '자세히 보기',
                 isActive: isActive !== undefined ? isActive : true
