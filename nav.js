@@ -1954,11 +1954,24 @@ async function loadAnnouncementBar() {
             // body에 직접 삽입 (nav와 독립적으로 fixed 위치)
             document.body.insertAdjacentHTML('beforeend', barHTML);
             
-            // 공지 바 높이만큼 body에 padding-top 추가
+            // 공지 바 높이만큼 콘텐츠 영역 margin-top 추가
             const announcementBar = document.getElementById('announcement-bar');
             if (announcementBar) {
                 const barHeight = announcementBar.offsetHeight;
-                document.body.style.paddingTop = barHeight + 'px';
+                
+                // hero-wrapper 또는 main 요소 찾기
+                const heroWrapper = document.querySelector('.hero-wrapper');
+                const main = document.querySelector('main');
+                const targetElement = heroWrapper || main;
+                
+                if (targetElement) {
+                    // 기존 margin-top 값 저장
+                    const currentMargin = parseInt(window.getComputedStyle(targetElement).marginTop) || 0;
+                    targetElement.dataset.originalMarginTop = currentMargin;
+                    
+                    // 새 margin-top 적용
+                    targetElement.style.marginTop = (currentMargin + barHeight) + 'px';
+                }
             }
         }
     } catch (error) {
@@ -1981,15 +1994,23 @@ function closeAnnouncementBar() {
     }
     
     if (bar) {
+        // margin-top 복원
+        const heroWrapper = document.querySelector('.hero-wrapper');
+        const main = document.querySelector('main');
+        const targetElement = heroWrapper || main;
+        
+        if (targetElement) {
+            const originalMargin = targetElement.dataset.originalMarginTop || '0';
+            targetElement.style.transition = 'margin-top 0.3s ease';
+            targetElement.style.marginTop = originalMargin + 'px';
+        }
+        
+        // 공지 바 애니메이션
         bar.style.transition = 'all 0.3s ease';
         bar.style.opacity = '0';
         bar.style.height = '0';
         bar.style.padding = '0';
         bar.style.overflow = 'hidden';
-        
-        // body padding도 함께 제거 (애니메이션)
-        document.body.style.transition = 'padding-top 0.3s ease';
-        document.body.style.paddingTop = '0';
         
         setTimeout(() => bar.remove(), 300);
     }
