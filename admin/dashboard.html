@@ -261,23 +261,47 @@
                 <div class="mb-8 animate-slide-up">
                     <h3 class="text-2xl font-semibold text-gray-900 mb-6">📢 공지</h3>
                     
-                    <div class="content-card p-6" style="border: 2px solid #f59e0b;">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center space-x-3">
-                                <i class="fas fa-bullhorn text-2xl text-yellow-500"></i>
-                                <div>
-                                    <h4 class="text-lg font-semibold text-gray-900">한줄 공지</h4>
-                                    <p class="text-gray-600 text-sm">사이트 상단 공지 바 관리</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- 한줄 공지 -->
+                        <div class="content-card p-6" style="border: 2px solid #f59e0b;">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-bullhorn text-2xl text-yellow-500"></i>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">한줄 공지</h4>
+                                        <p class="text-gray-600 text-sm">사이트 상단 공지 바</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-semibold text-yellow-600" id="announcement-status">확인 중...</div>
                                 </div>
                             </div>
-                            <div class="text-right">
-                                <div class="text-sm font-semibold text-yellow-600" id="announcement-status">확인 중...</div>
+                            <div class="flex space-x-2">
+                                <a href="announcement.html" class="flex-1 action-btn py-2 px-3 text-center text-sm" style="background: #f59e0b; color: white;">
+                                    <i class="fas fa-edit mr-2"></i>관리
+                                </a>
                             </div>
                         </div>
-                        <div class="flex space-x-2">
-                            <a href="announcement.html" class="flex-1 action-btn py-2 px-3 text-center text-sm" style="background: #f59e0b; color: white;">
-                                <i class="fas fa-edit mr-2"></i>공지 관리
-                            </a>
+                        
+                        <!-- 팝업 -->
+                        <div class="content-card p-6" style="border: 2px solid #8b5cf6;">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-window-maximize text-2xl text-purple-500"></i>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">팝업</h4>
+                                        <p class="text-gray-600 text-sm">첫 방문 시 팝업 모달</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-semibold text-purple-600" id="popup-status">확인 중...</div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <a href="popup.html" class="flex-1 action-btn py-2 px-3 text-center text-sm" style="background: #8b5cf6; color: white;">
+                                    <i class="fas fa-edit mr-2"></i>관리
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -772,6 +796,31 @@
                 } catch (e) {
                     console.warn('공지 상태 로드 실패:', e);
                     const statusEl = document.getElementById('announcement-status');
+                    if (statusEl) {
+                        statusEl.textContent = '확인 불가';
+                        statusEl.className = 'text-sm font-semibold text-red-400';
+                    }
+                }
+                
+                // 팝업 상태 로드
+                try {
+                    const popupResponse = await fetch(`${API_BASE}/popup`);
+                    if (popupResponse.ok) {
+                        const popupData = await popupResponse.json();
+                        const statusEl = document.getElementById('popup-status');
+                        if (statusEl) {
+                            if (popupData.success && popupData.data && popupData.data.isActive) {
+                                statusEl.textContent = '활성화됨';
+                                statusEl.className = 'text-sm font-semibold text-green-600';
+                            } else {
+                                statusEl.textContent = '비활성화';
+                                statusEl.className = 'text-sm font-semibold text-gray-400';
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.warn('팝업 상태 로드 실패:', e);
+                    const statusEl = document.getElementById('popup-status');
                     if (statusEl) {
                         statusEl.textContent = '확인 불가';
                         statusEl.className = 'text-sm font-semibold text-red-400';
