@@ -17,6 +17,35 @@
         }
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .toolbar-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            border: 1px solid #d1d5db;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .toolbar-btn:hover {
+            background: #e5e7eb;
+        }
+        .toolbar-btn:active {
+            background: #d1d5db;
+        }
+        [contenteditable]:empty:before {
+            content: attr(data-placeholder);
+            color: #9ca3af;
+            pointer-events: none;
+        }
+        [contenteditable]:focus {
+            border-color: #A50034;
+            box-shadow: 0 0 0 2px rgba(165, 0, 52, 0.2);
+        }
+    </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
     <div id="admin-nav-container"></div>
@@ -45,24 +74,102 @@
             <h2 class="text-lg font-semibold mb-4">팝업 설정</h2>
             
             <div class="space-y-4">
-                <!-- 제목 -->
+                <!-- 제목 에디터 -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">제목 (메인 캐치프레이즈)</label>
-                    <textarea id="popupTitle" maxlength="100" rows="2"
-                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary resize-none"
-                        placeholder="예: 자유와 혁신으로&#10;대한민국을 새롭게"
-                        oninput="updatePreview()"></textarea>
-                    <p class="text-xs text-gray-500 mt-1"><span id="titleCount">0</span>/100 (Enter로 줄바꿈)</p>
+                    <!-- 툴바 -->
+                    <div class="flex flex-wrap items-center gap-1 p-2 bg-gray-100 border border-b-0 rounded-t-lg">
+                        <button type="button" onclick="execCmd('bold', 'title')" class="toolbar-btn" title="굵게">
+                            <i class="fas fa-bold"></i>
+                        </button>
+                        <button type="button" onclick="execCmd('italic', 'title')" class="toolbar-btn" title="기울임">
+                            <i class="fas fa-italic"></i>
+                        </button>
+                        <button type="button" onclick="execCmd('underline', 'title')" class="toolbar-btn" title="밑줄">
+                            <i class="fas fa-underline"></i>
+                        </button>
+                        <span class="border-l border-gray-300 mx-1 h-6"></span>
+                        <input type="color" id="titleTextColor" value="#ffffff" class="w-8 h-8 rounded cursor-pointer border" 
+                            onchange="applyColor('title', this.value)" title="글자색">
+                        <span class="border-l border-gray-300 mx-1 h-6"></span>
+                        <button type="button" onclick="execCmd('removeFormat', 'title')" class="toolbar-btn" title="서식 제거">
+                            <i class="fas fa-eraser"></i>
+                        </button>
+                        <span class="border-l border-gray-300 mx-1 h-6"></span>
+                        <div class="flex items-center gap-1">
+                            <i class="fas fa-text-height text-gray-500 text-sm" title="줄간격"></i>
+                            <input type="range" id="titleLineHeight" min="1" max="3" step="0.1" value="1.2"
+                                class="w-16" oninput="syncLineHeight('title')">
+                            <input type="number" id="titleLineHeightNum" min="1" max="3" step="0.1" value="1.2"
+                                class="w-14 px-1 py-0.5 border rounded text-sm text-center"
+                                oninput="syncLineHeightFromNum('title')">
+                        </div>
+                    </div>
+                    <!-- 에디터 -->
+                    <div id="titleEditor" contenteditable="true" 
+                        class="w-full px-4 py-3 border rounded-b-lg focus:ring-2 focus:ring-primary focus:border-primary min-h-[80px] bg-white"
+                        style="outline: none;"
+                        oninput="updatePreview()"
+                        data-placeholder="제목을 입력하세요 (Enter로 줄바꿈)"></div>
+                    <p class="text-xs text-gray-500 mt-1">드래그로 텍스트 선택 후 스타일 적용</p>
                 </div>
                 
-                <!-- 부제목 -->
+                <!-- 부제목 에디터 -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">부제목 (선택)</label>
-                    <textarea id="popupSubtitle" maxlength="200" rows="2"
-                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary resize-none"
-                        placeholder="예: 국민과 함께하는 정치&#10;자유와혁신이 시작합니다"
-                        oninput="updatePreview()"></textarea>
-                    <p class="text-xs text-gray-500 mt-1"><span id="subtitleCount">0</span>/200 (Enter로 줄바꿈)</p>
+                    <!-- 툴바 -->
+                    <div class="flex flex-wrap items-center gap-1 p-2 bg-gray-100 border border-b-0 rounded-t-lg">
+                        <button type="button" onclick="execCmd('bold', 'subtitle')" class="toolbar-btn" title="굵게">
+                            <i class="fas fa-bold"></i>
+                        </button>
+                        <button type="button" onclick="execCmd('italic', 'subtitle')" class="toolbar-btn" title="기울임">
+                            <i class="fas fa-italic"></i>
+                        </button>
+                        <button type="button" onclick="execCmd('underline', 'subtitle')" class="toolbar-btn" title="밑줄">
+                            <i class="fas fa-underline"></i>
+                        </button>
+                        <span class="border-l border-gray-300 mx-1 h-6"></span>
+                        <input type="color" id="subtitleTextColor" value="#ffffff" class="w-8 h-8 rounded cursor-pointer border" 
+                            onchange="applyColor('subtitle', this.value)" title="글자색">
+                        <span class="border-l border-gray-300 mx-1 h-6"></span>
+                        <button type="button" onclick="execCmd('removeFormat', 'subtitle')" class="toolbar-btn" title="서식 제거">
+                            <i class="fas fa-eraser"></i>
+                        </button>
+                        <span class="border-l border-gray-300 mx-1 h-6"></span>
+                        <div class="flex items-center gap-1">
+                            <i class="fas fa-text-height text-gray-500 text-sm" title="줄간격"></i>
+                            <input type="range" id="subtitleLineHeight" min="1" max="3" step="0.1" value="1.6"
+                                class="w-16" oninput="syncLineHeight('subtitle')">
+                            <input type="number" id="subtitleLineHeightNum" min="1" max="3" step="0.1" value="1.6"
+                                class="w-14 px-1 py-0.5 border rounded text-sm text-center"
+                                oninput="syncLineHeightFromNum('subtitle')">
+                        </div>
+                    </div>
+                    <!-- 에디터 -->
+                    <div id="subtitleEditor" contenteditable="true" 
+                        class="w-full px-4 py-3 border rounded-b-lg focus:ring-2 focus:ring-primary focus:border-primary min-h-[80px] bg-white"
+                        style="outline: none;"
+                        oninput="updatePreview()"
+                        data-placeholder="부제목을 입력하세요 (선택사항)"></div>
+                    <p class="text-xs text-gray-500 mt-1">드래그로 텍스트 선택 후 스타일 적용</p>
+                </div>
+                
+                <!-- 기본 글자색 (서식 없는 부분) -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">기본 글자색 (서식 없는 텍스트)</label>
+                    <div class="flex gap-2 items-center">
+                        <input type="color" id="defaultTextColor" value="#ffffff" 
+                            class="w-10 h-10 rounded cursor-pointer border"
+                            oninput="updatePreview()">
+                        <input type="text" id="defaultTextColorText" value="#ffffff" 
+                            class="w-24 px-3 py-2 border rounded-lg text-sm"
+                            oninput="document.getElementById('defaultTextColor').value = this.value; updatePreview()">
+                        <div class="flex gap-1 ml-2">
+                            <button type="button" onclick="setDefaultColor('#ffffff')" class="px-2 py-1 rounded text-xs bg-gray-800 text-white border border-white">흰색</button>
+                            <button type="button" onclick="setDefaultColor('#fbbf24')" class="px-2 py-1 rounded text-xs bg-gray-800 text-yellow-400">노랑</button>
+                            <button type="button" onclick="setDefaultColor('#f87171')" class="px-2 py-1 rounded text-xs bg-gray-800 text-red-400">빨강</button>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- 링크 URL -->
@@ -82,31 +189,6 @@
                         placeholder="자세히 보기"
                         value="자세히 보기"
                         oninput="updatePreview()">
-                </div>
-                
-                <!-- 글자색 설정 -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">글자색</label>
-                    <div class="flex gap-2">
-                        <input type="color" id="popupTextColor" value="#ffffff" 
-                            class="w-12 h-10 rounded cursor-pointer"
-                            oninput="updatePreview()">
-                        <input type="text" id="popupTextColorText" value="#ffffff" 
-                            class="flex-1 px-4 py-2 border rounded-lg"
-                            oninput="syncColor()">
-                    </div>
-                </div>
-                
-                <!-- 프리셋 색상 -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">빠른 색상 선택</label>
-                    <div class="flex flex-wrap gap-2">
-                        <button onclick="setPreset('#ffffff')" class="px-3 py-1 rounded text-sm bg-gray-800 text-white border border-white">흰색</button>
-                        <button onclick="setPreset('#fbbf24')" class="px-3 py-1 rounded text-sm bg-gray-800 text-yellow-400">노랑</button>
-                        <button onclick="setPreset('#f87171')" class="px-3 py-1 rounded text-sm bg-gray-800 text-red-400">빨강</button>
-                        <button onclick="setPreset('#60a5fa')" class="px-3 py-1 rounded text-sm bg-gray-800 text-blue-400">파랑</button>
-                        <button onclick="setPreset('#4ade80')" class="px-3 py-1 rounded text-sm bg-gray-800 text-green-400">초록</button>
-                    </div>
                 </div>
                 
                 <!-- 활성화 -->
@@ -141,11 +223,58 @@
     <script>
         const API_BASE = 'https://forthefreedom-kr-production.up.railway.app/api';
         let currentPopupId = null;
+        let currentEditor = null;
         
         // 페이지 로드 시
         document.addEventListener('DOMContentLoaded', () => {
             loadCurrentPopup();
+            
+            // 에디터 포커스 추적
+            document.getElementById('titleEditor').addEventListener('focus', () => currentEditor = 'title');
+            document.getElementById('subtitleEditor').addEventListener('focus', () => currentEditor = 'subtitle');
         });
+        
+        // execCommand 실행
+        function execCmd(command, editor) {
+            const editorEl = document.getElementById(editor + 'Editor');
+            editorEl.focus();
+            document.execCommand(command, false, null);
+            updatePreview();
+        }
+        
+        // 색상 적용
+        function applyColor(editor, color) {
+            const editorEl = document.getElementById(editor + 'Editor');
+            editorEl.focus();
+            document.execCommand('foreColor', false, color);
+            updatePreview();
+        }
+        
+        // 줄간격 슬라이더 → 숫자 동기화
+        function syncLineHeight(type) {
+            const slider = document.getElementById(type + 'LineHeight');
+            const num = document.getElementById(type + 'LineHeightNum');
+            num.value = slider.value;
+            updatePreview();
+        }
+        
+        // 줄간격 숫자 → 슬라이더 동기화
+        function syncLineHeightFromNum(type) {
+            const slider = document.getElementById(type + 'LineHeight');
+            const num = document.getElementById(type + 'LineHeightNum');
+            let val = parseFloat(num.value);
+            if (val < 1) val = 1;
+            if (val > 3) val = 3;
+            slider.value = val;
+            updatePreview();
+        }
+        
+        // 기본 글자색 설정
+        function setDefaultColor(color) {
+            document.getElementById('defaultTextColor').value = color;
+            document.getElementById('defaultTextColorText').value = color;
+            updatePreview();
+        }
         
         // 현재 팝업 로드
         async function loadCurrentPopup() {
@@ -157,12 +286,21 @@
                     const popup = result.data;
                     currentPopupId = popup._id;
                     
-                    document.getElementById('popupTitle').value = popup.title;
-                    document.getElementById('popupSubtitle').value = popup.subtitle || '';
+                    // HTML 내용 로드
+                    document.getElementById('titleEditor').innerHTML = popup.titleHtml || popup.title || '';
+                    document.getElementById('subtitleEditor').innerHTML = popup.subtitleHtml || popup.subtitle || '';
+                    
                     document.getElementById('popupLink').value = popup.link || '';
                     document.getElementById('popupLinkText').value = popup.linkText || '자세히 보기';
-                    document.getElementById('popupTextColor').value = popup.textColor || '#ffffff';
-                    document.getElementById('popupTextColorText').value = popup.textColor || '#ffffff';
+                    
+                    // 스타일 설정
+                    document.getElementById('defaultTextColor').value = popup.defaultTextColor || '#ffffff';
+                    document.getElementById('defaultTextColorText').value = popup.defaultTextColor || '#ffffff';
+                    document.getElementById('titleLineHeight').value = popup.titleLineHeight || 1.2;
+                    document.getElementById('titleLineHeightNum').value = popup.titleLineHeight || 1.2;
+                    document.getElementById('subtitleLineHeight').value = popup.subtitleLineHeight || 1.6;
+                    document.getElementById('subtitleLineHeightNum').value = popup.subtitleLineHeight || 1.6;
+                    
                     document.getElementById('popupActive').checked = popup.isActive;
                     
                     updatePreview();
@@ -172,8 +310,7 @@
                             <span class="inline-block w-3 h-3 rounded-full ${popup.isActive ? 'bg-green-500' : 'bg-gray-400'}"></span>
                             <span>${popup.isActive ? '팝업 활성화됨' : '팝업 비활성화됨'}</span>
                         </div>
-                        <p class="mt-2 text-sm font-semibold">"${popup.title}"</p>
-                        ${popup.subtitle ? `<p class="text-sm text-gray-500">${popup.subtitle}</p>` : ''}
+                        <p class="mt-2 text-sm font-semibold">"${(popup.title || '').replace(/\n/g, ' ').substring(0, 50)}..."</p>
                         <p class="text-xs text-gray-400 mt-1">마지막 수정: ${new Date(popup.updatedAt).toLocaleString('ko-KR')}</p>
                     `;
                 } else {
@@ -195,47 +332,35 @@
         
         // 미리보기 업데이트
         function updatePreview() {
-            const title = document.getElementById('popupTitle').value || '제목을 입력하세요';
-            const subtitle = document.getElementById('popupSubtitle').value;
+            const titleHtml = document.getElementById('titleEditor').innerHTML || '<span style="opacity:0.5">제목을 입력하세요</span>';
+            const subtitleHtml = document.getElementById('subtitleEditor').innerHTML;
             const link = document.getElementById('popupLink').value;
             const linkText = document.getElementById('popupLinkText').value || '자세히 보기';
-            const textColor = document.getElementById('popupTextColor').value;
+            const defaultColor = document.getElementById('defaultTextColor').value;
+            const titleLineHeight = document.getElementById('titleLineHeight').value;
+            const subtitleLineHeight = document.getElementById('subtitleLineHeight').value;
             
-            const content = document.getElementById('preview-content');
-            content.style.color = textColor;
-            
-            // 줄바꿈을 <br>로 변환
-            document.getElementById('preview-title').innerHTML = title.replace(/\n/g, '<br>');
-            document.getElementById('preview-title').style.color = textColor;
-            document.getElementById('titleCount').textContent = title.length;
+            // 미리보기 업데이트
+            const titleEl = document.getElementById('preview-title');
+            titleEl.innerHTML = titleHtml;
+            titleEl.style.color = defaultColor;
+            titleEl.style.lineHeight = titleLineHeight;
             
             const subtitleEl = document.getElementById('preview-subtitle');
-            subtitleEl.innerHTML = subtitle.replace(/\n/g, '<br>');
-            subtitleEl.style.color = textColor;
-            document.getElementById('subtitleCount').textContent = subtitle.length;
+            subtitleEl.innerHTML = subtitleHtml;
+            subtitleEl.style.color = defaultColor;
+            subtitleEl.style.lineHeight = subtitleLineHeight;
             
+            // 링크 버튼
             const linkEl = document.getElementById('preview-link');
             if (link) {
                 linkEl.style.display = 'inline-block';
-                linkEl.style.borderColor = textColor;
-                linkEl.style.color = textColor;
+                linkEl.style.borderColor = defaultColor;
+                linkEl.style.color = defaultColor;
                 linkEl.textContent = linkText;
             } else {
                 linkEl.style.display = 'none';
             }
-        }
-        
-        // 색상 동기화
-        function syncColor() {
-            document.getElementById('popupTextColor').value = document.getElementById('popupTextColorText').value;
-            updatePreview();
-        }
-        
-        // 프리셋 적용
-        function setPreset(color) {
-            document.getElementById('popupTextColor').value = color;
-            document.getElementById('popupTextColorText').value = color;
-            updatePreview();
         }
         
         // 팝업 저장
@@ -246,18 +371,27 @@
                 return;
             }
             
-            const title = document.getElementById('popupTitle').value.trim();
-            if (!title) {
+            const titleEditor = document.getElementById('titleEditor');
+            const subtitleEditor = document.getElementById('subtitleEditor');
+            
+            const titleHtml = titleEditor.innerHTML.trim();
+            const titleText = titleEditor.innerText.trim();
+            
+            if (!titleText) {
                 alert('제목을 입력해주세요');
                 return;
             }
             
             const data = {
-                title,
-                subtitle: document.getElementById('popupSubtitle').value.trim(),
+                title: titleText,
+                titleHtml: titleHtml,
+                subtitle: subtitleEditor.innerText.trim(),
+                subtitleHtml: subtitleEditor.innerHTML.trim(),
                 link: document.getElementById('popupLink').value.trim(),
                 linkText: document.getElementById('popupLinkText').value.trim() || '자세히 보기',
-                textColor: document.getElementById('popupTextColor').value,
+                defaultTextColor: document.getElementById('defaultTextColor').value,
+                titleLineHeight: parseFloat(document.getElementById('titleLineHeight').value),
+                subtitleLineHeight: parseFloat(document.getElementById('subtitleLineHeight').value),
                 isActive: document.getElementById('popupActive').checked
             };
             
