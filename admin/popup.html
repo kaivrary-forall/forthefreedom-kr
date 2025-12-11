@@ -286,12 +286,17 @@
         // 현재 팝업 로드
         async function loadCurrentPopup() {
             try {
-                const response = await fetch(`${API_BASE}/popup`);
+                const response = await fetch(`${API_BASE}/popup?admin=true`);
                 const result = await response.json();
+                
+                console.log('[게이트팝업] API 응답:', result);
                 
                 if (result.success && result.data) {
                     const popup = result.data;
                     currentPopupId = popup._id;
+                    
+                    console.log('[게이트팝업] titleHtml:', popup.titleHtml);
+                    console.log('[게이트팝업] subtitleHtml:', popup.subtitleHtml);
                     
                     // HTML 내용 로드
                     document.getElementById('titleEditor').innerHTML = popup.titleHtml || popup.title || '';
@@ -401,6 +406,10 @@
                 subtitleLineHeight: parseFloat(document.getElementById('subtitleLineHeight').value),
                 isActive: document.getElementById('popupActive').checked
             };
+            
+            console.log('[게이트팝업] 저장 데이터:', data);
+            console.log('[게이트팝업] titleHtml 저장:', titleHtml);
+            console.log('[게이트팝업] subtitleHtml 저장:', subtitleEditor.innerHTML.trim());
             
             try {
                 const response = await fetch(`${API_BASE}/popup`, {
