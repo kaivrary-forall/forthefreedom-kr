@@ -115,8 +115,9 @@
                     <!-- 에디터 -->
                     <div id="titleEditor" contenteditable="true" 
                         class="w-full px-4 py-3 border rounded-b-lg focus:ring-2 focus:ring-primary focus:border-primary min-h-[80px] bg-white"
-                        style="outline: none;"
+                        style="outline: none; white-space: pre-wrap;"
                         oninput="updatePreview()"
+                        onkeydown="handleEnter(event)"
                         data-placeholder="제목을 입력하세요 (Enter로 줄바꿈)"></div>
                     <p class="text-xs text-gray-500 mt-1">드래그로 텍스트 선택 후 스타일 적용</p>
                 </div>
@@ -155,8 +156,9 @@
                     <!-- 에디터 -->
                     <div id="subtitleEditor" contenteditable="true" 
                         class="w-full px-4 py-3 border rounded-b-lg focus:ring-2 focus:ring-primary focus:border-primary min-h-[80px] bg-white"
-                        style="outline: none;"
+                        style="outline: none; white-space: pre-wrap;"
                         oninput="updatePreview()"
+                        onkeydown="handleEnter(event)"
                         data-placeholder="부제목을 입력하세요 (선택사항)"></div>
                     <p class="text-xs text-gray-500 mt-1">드래그로 텍스트 선택 후 스타일 적용</p>
                 </div>
@@ -247,6 +249,15 @@
             editorEl.focus();
             document.execCommand(command, false, null);
             updatePreview();
+        }
+        
+        // Enter 키 처리 - <br> 태그로 통일
+        function handleEnter(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                document.execCommand('insertLineBreak');
+                updatePreview();
+            }
         }
         
         // 색상 적용
