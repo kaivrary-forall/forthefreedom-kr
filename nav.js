@@ -2105,14 +2105,15 @@ async function loadPopupModal() {
                             margin-bottom: 1rem;
                             text-shadow: 2px 2px 20px rgba(0,0,0,0.5);
                             line-height: 1.2;
-                        ">${popup.title}</h1>
+                        ">${popup.title.replace(/\n/g, '<br>')}</h1>
                         ${popup.subtitle ? `
                             <p style="
                                 font-size: clamp(1rem, 2.5vw, 1.5rem);
                                 opacity: 0.9;
                                 margin-bottom: 2rem;
                                 text-shadow: 1px 1px 10px rgba(0,0,0,0.5);
-                            ">${popup.subtitle}</p>
+                                line-height: 1.6;
+                            ">${popup.subtitle.replace(/\n/g, '<br>')}</p>
                         ` : ''}
                         ${popup.link ? `
                             <a href="${popup.link}" style="
