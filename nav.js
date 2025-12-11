@@ -2038,35 +2038,50 @@ window.loadAnnouncementBar = loadAnnouncementBar;
 let popupLoading = false;
 
 async function loadPopupModal() {
+    console.log('[팝업] loadPopupModal 시작');
+    
     // 이미 팝업이 있으면 중복 생성 방지
-    if (document.getElementById('popup-modal')) return;
+    if (document.getElementById('popup-modal')) {
+        console.log('[팝업] 이미 팝업 존재, 종료');
+        return;
+    }
     
     // 이미 로딩 중이면 중복 실행 방지
-    if (popupLoading) return;
+    if (popupLoading) {
+        console.log('[팝업] 이미 로딩 중, 종료');
+        return;
+    }
     popupLoading = true;
     
     // 관리자 페이지에서는 팝업 표시 안 함
     if (window.location.pathname.includes('/admin')) {
+        console.log('[팝업] 관리자 페이지, 종료');
         popupLoading = false;
         return;
     }
     
     // 12시간 단위 팝업 표시 체크 (00-12, 12-24)
     const hideUntil = localStorage.getItem('popupHideUntil');
+    console.log('[팝업] hideUntil:', hideUntil);
     if (hideUntil) {
         const hideDate = new Date(hideUntil);
         const now = new Date();
+        console.log('[팝업] hideDate:', hideDate, 'now:', now);
         if (now < hideDate) {
+            console.log('[팝업] 아직 숨김 기간, 종료');
             popupLoading = false;
             return;
         } else {
+            console.log('[팝업] 숨김 기간 만료, 제거');
             localStorage.removeItem('popupHideUntil');
         }
     }
     
     try {
+        console.log('[팝업] API 호출 시작');
         const response = await fetch('https://forthefreedom-kr-production.up.railway.app/api/popup');
         const result = await response.json();
+        console.log('[팝업] API 응답:', result);
         
         if (document.getElementById('popup-modal')) {
             popupLoading = false;
@@ -2074,6 +2089,7 @@ async function loadPopupModal() {
         }
         
         if (result.success && result.data) {
+            console.log('[팝업] 팝업 데이터 존재, 모달 생성');
             const popup = result.data;
             const defaultColor = popup.defaultTextColor || '#ffffff';
             const titleLineHeight = popup.titleLineHeight || 1.2;
@@ -2112,6 +2128,7 @@ async function loadPopupModal() {
                             text-shadow: 2px 2px 20px rgba(0,0,0,0.5);
                             line-height: ${titleLineHeight};
                             color: ${defaultColor};
+                            white-space: pre-wrap;
                         ">${titleContent}</h1>
                         ${subtitleContent ? `
                             <p style="
@@ -2121,6 +2138,7 @@ async function loadPopupModal() {
                                 text-shadow: 1px 1px 10px rgba(0,0,0,0.5);
                                 line-height: ${subtitleLineHeight};
                                 color: ${defaultColor};
+                                white-space: pre-wrap;
                             ">${subtitleContent}</p>
                         ` : ''}
                         ${popup.link ? `
