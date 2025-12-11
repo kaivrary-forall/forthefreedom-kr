@@ -282,6 +282,7 @@ app.use('/api/posts', require('./routes/posts'));
 // 피드 라우트
 app.use('/api/feed', require('./routes/feed'));
 app.use('/api/announcement', require('./routes/announcement'));
+app.use('/api/popup', require('./routes/popup'));
 
 // 404 에러 핸들링
 app.use('*', (req, res) => {
