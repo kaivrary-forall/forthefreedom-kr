@@ -4,15 +4,31 @@ const popupSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true,
-        maxlength: 100
+        maxlength: 500
+    },
+    titleHtml: {
+        type: String,
+        maxlength: 2000
     },
     subtitle: {
         type: String,
-        maxlength: 200
+        maxlength: 500
     },
-    textColor: {
+    subtitleHtml: {
+        type: String,
+        maxlength: 2000
+    },
+    defaultTextColor: {
         type: String,
         default: '#ffffff'
+    },
+    titleLineHeight: {
+        type: Number,
+        default: 1.2
+    },
+    subtitleLineHeight: {
+        type: Number,
+        default: 1.6
     },
     link: {
         type: String
