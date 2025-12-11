@@ -101,6 +101,25 @@ router.post('/', async (req, res) => {
     }
 });
 
+// 모든 팝업 완전 삭제 (관리자) - DB 정리용
+router.delete('/all/clear', async (req, res) => {
+    try {
+        const result = await Popup.deleteMany({});
+        console.log('📢 모든 팝업 삭제됨:', result.deletedCount, '개');
+        
+        res.json({
+            success: true,
+            message: `${result.deletedCount}개의 팝업이 삭제되었습니다.`
+        });
+    } catch (error) {
+        console.error('팝업 삭제 오류:', error);
+        res.status(500).json({
+            success: false,
+            message: '팝업 삭제에 실패했습니다.'
+        });
+    }
+});
+
 // 팝업 비활성화 (관리자)
 router.delete('/:id', async (req, res) => {
     try {
