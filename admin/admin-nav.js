@@ -11,6 +11,7 @@ function loadAdminNav(currentPage) {
         dashboard: currentPage === 'dashboard',
         content: currentPage === 'content',
         banners: currentPage === 'banners',
+        announcement: currentPage === 'announcement',
         members: currentPage === 'members',
         chapters: currentPage === 'chapters'
     };
