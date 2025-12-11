@@ -1927,6 +1927,7 @@ function closeAnnouncementBar() {
 
 window.closeAnnouncementBar = closeAnnouncementBar;
 window.loadAnnouncementBar = loadAnnouncementBar;
+window.loadAnnouncementBar = loadAnnouncementBar;
 
 // 페이지 로드 시 이벤트 리스너 추가
 // 페이지 로드 시 실행
