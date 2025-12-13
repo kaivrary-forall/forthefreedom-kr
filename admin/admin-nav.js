@@ -289,3 +289,4 @@ async function logout(force = false) {
         window.location.href = 'index.html';
     }
 }
+// v2
