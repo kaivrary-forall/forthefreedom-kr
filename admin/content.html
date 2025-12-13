@@ -22,6 +22,22 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
     <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
     
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#A50034',
+                        'primary-dark': '#8B002C',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="../style.css">
+    
     <style>
         * {
             margin: 0;
@@ -785,18 +801,11 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="header-left">
-            <a href="dashboard.html" class="back-btn">← 대시보드</a>
-            <h1 id="pageTitle">콘텐츠 관리</h1>
-        </div>
-        <div class="user-info">
-            <span id="userName">관리자</span>
-            <button class="logout-btn" onclick="logout()">로그아웃</button>
-        </div>
-    </div>
+    <div id="admin-nav-container"></div>
+    <script src="admin-nav.js"></script>
+    <script>loadAdminNav('content');</script>
 
-    <div class="container">
+    <div class="container" style="padding-top: 6rem;">
         <div id="errorMessage" class="error" style="display: none;"></div>
 
         <div class="content-header">
