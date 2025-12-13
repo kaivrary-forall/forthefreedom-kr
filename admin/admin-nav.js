@@ -236,9 +236,9 @@ async function extendSession() {
             // 갱신 성공 알림
             const btn = document.querySelector('[onclick="extendSession()"]');
             if (btn) {
-                btn.innerHTML = '<i class="fas fa-check"></i>';
+                btn.innerHTML = '✓';
                 setTimeout(() => {
-                    btn.innerHTML = '<i class="fas fa-sync-alt"></i>';
+                    btn.innerHTML = '연장';
                 }, 1000);
             }
         } else {
