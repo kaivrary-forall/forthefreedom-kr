@@ -39,17 +39,15 @@
     <script>loadAdminNav('chapters');</script>
     
     <main class="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div class="mb-8 flex items-center justify-between flex-wrap gap-4">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900">당협 관리</h1>
-                <p class="text-gray-600 mt-2" id="provinceDescription">서울특별시당 지역구를 카드 형태로 관리합니다.</p>
-            </div>
-            <div class="flex items-center gap-2">
-                <label class="text-sm text-gray-600">시도당 선택:</label>
-                <select id="provinceSelect" onchange="changeProvince()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
-                    <option value="seoul">서울특별시당</option>
-                    <option value="busan">부산광역시당</option>
-                </select>
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-900">당협 관리</h1>
+            <p class="text-gray-600 mt-2" id="provinceDescription">서울특별시당 지역구를 카드 형태로 관리합니다.</p>
+        </div>
+        
+        <!-- 시도당 탭 -->
+        <div class="mb-8">
+            <div id="provinceTabs" class="flex flex-wrap gap-2">
+                <!-- 탭 버튼들이 여기 렌더링됨 -->
             </div>
         </div>
 
@@ -266,21 +264,55 @@
         let draggedItem = null;
         let currentProvince = 'seoul';
         
-        const provinceNames = {
-            'seoul': '서울특별시당',
-            'busan': '부산광역시당'
-        };
+        const provinces = [
+            { id: 'seoul', name: '서울특별시당', hasData: true },
+            { id: 'busan', name: '부산광역시당', hasData: true },
+            { id: 'daegu', name: '대구광역시당', hasData: false },
+            { id: 'incheon', name: '인천광역시당', hasData: false },
+            { id: 'gwangju', name: '광주광역시당', hasData: false },
+            { id: 'daejeon', name: '대전광역시당', hasData: false },
+            { id: 'ulsan', name: '울산광역시당', hasData: false },
+            { id: 'sejong', name: '세종특별자치시당', hasData: false },
+            { id: 'gyeonggi', name: '경기도당', hasData: false },
+            { id: 'gangwon', name: '강원특별자치도당', hasData: false },
+            { id: 'chungbuk', name: '충청북도당', hasData: false },
+            { id: 'chungnam', name: '충청남도당', hasData: false },
+            { id: 'jeonbuk', name: '전북특별자치도당', hasData: false },
+            { id: 'jeonnam', name: '전라남도당', hasData: false },
+            { id: 'gyeongbuk', name: '경상북도당', hasData: false },
+            { id: 'gyeongnam', name: '경상남도당', hasData: false },
+            { id: 'jeju', name: '제주특별자치도당', hasData: false }
+        ];
+        
+        // 탭 렌더링
+        function renderTabs() {
+            const container = document.getElementById('provinceTabs');
+            container.innerHTML = provinces.map(province => {
+                let btnClass = 'px-4 py-2 rounded-lg text-sm font-medium transition-all ';
+                if (province.id === currentProvince) {
+                    btnClass += 'bg-red-600 text-white shadow-md';
+                } else if (province.hasData) {
+                    btnClass += 'bg-white border-2 border-red-600 text-red-600 hover:bg-red-50';
+                } else {
+                    btnClass += 'bg-gray-100 text-gray-400 border border-gray-200';
+                }
+                return `<button class="${btnClass}" onclick="switchProvince('${province.id}')">${province.name}</button>`;
+            }).join('');
+        }
         
         // 시도당 변경
-        function changeProvince() {
-            currentProvince = document.getElementById('provinceSelect').value;
+        function switchProvince(provinceId) {
+            currentProvince = provinceId;
+            const province = provinces.find(p => p.id === provinceId);
             document.getElementById('provinceDescription').textContent = 
-                provinceNames[currentProvince] + ' 지역구를 카드 형태로 관리합니다.';
+                province.name + ' 지역구를 카드 형태로 관리합니다.';
+            renderTabs();
             loadChapters();
         }
 
         // 초기화
         document.addEventListener('DOMContentLoaded', () => {
+            renderTabs();
             loadChapters();
             
             // 검색 & 필터
