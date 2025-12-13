@@ -130,7 +130,7 @@ router.post('/', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'mobileI
             });
         }
         
-        const { title, subtitle, linkUrl, linkText, source, order, isActive, imageActive, mobileImageActive } = req.body;
+        const { title, subtitle, linkUrl, linkText, source, sourceColor, order, isActive, imageActive, mobileImageActive } = req.body;
         
         // 이미지 URL 생성 (Railway 환경 대응)
         const baseUrl = process.env.NODE_ENV === 'production' 
@@ -143,6 +143,7 @@ router.post('/', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'mobileI
             linkUrl: linkUrl || '',
             linkText: linkText || '자세히 보기',
             source: source || '',
+            sourceColor: sourceColor || 'white',
             order: parseInt(order) || 0,
             isActive: isActive !== 'false',
             imageActive: imageActive !== 'false',
@@ -184,7 +185,7 @@ router.post('/', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'mobileI
 // 배너 수정
 router.put('/:id', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'mobileImage', maxCount: 1 }]), async (req, res) => {
     try {
-        const { title, subtitle, linkUrl, linkText, source, order, isActive, imageActive, mobileImageActive, removeImage, removeMobileImage } = req.body;
+        const { title, subtitle, linkUrl, linkText, source, sourceColor, order, isActive, imageActive, mobileImageActive, removeImage, removeMobileImage } = req.body;
         
         const existingBanner = await Banner.findById(req.params.id);
         if (!existingBanner) {
@@ -200,6 +201,7 @@ router.put('/:id', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'mobil
             linkUrl: linkUrl !== undefined ? linkUrl : existingBanner.linkUrl,
             linkText: linkText || existingBanner.linkText,
             source: source !== undefined ? source : existingBanner.source,
+            sourceColor: sourceColor || existingBanner.sourceColor || 'white',
             order: order !== undefined ? parseInt(order) : existingBanner.order,
             isActive: isActive !== undefined ? isActive !== 'false' : existingBanner.isActive,
             imageActive: imageActive !== undefined ? imageActive !== 'false' : existingBanner.imageActive,
