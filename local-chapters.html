@@ -182,7 +182,7 @@
             { id: 'seoul', name: '서울', hasData: true },
             { id: 'gyeonggi', name: '경기', hasData: false },
             { id: 'incheon', name: '인천', hasData: false },
-            { id: 'busan', name: '부산', hasData: false },
+            { id: 'busan', name: '부산', hasData: true },
             { id: 'daegu', name: '대구', hasData: false },
             { id: 'daejeon', name: '대전', hasData: false },
             { id: 'gwangju', name: '광주', hasData: false },
@@ -221,6 +221,28 @@
                     { name: '정책분과', kakaoLink: 'https://invite.kakao.com/tc/V5Sw3TgOcl' },
                     { name: '투쟁분과', kakaoLink: 'https://invite.kakao.com/tc/HhMLfyDGMb' },
                     { name: '자원봉사단', kakaoLink: 'https://invite.kakao.com/tc/zeFFJuImTP' }
+                ]
+            },
+            busan: {
+                title: '자유와혁신 부산광역시당 공식채널',
+                committeeTitle: '부산광역시당 분과위원회 채팅방',
+                chatTitle: '부산광역시당 당협위원회별 채팅방',
+                channels: [
+                    { name: '공식 문의 e-mail', value: 'busan@freeinno.kr', type: 'email', icon: 'fas fa-envelope' },
+                    { name: '네이버 블로그', value: '공개 예정', type: 'text', icon: 'fas fa-blog' },
+                    { name: '인스타그램', value: '공개 예정', type: 'text', icon: 'fab fa-instagram' },
+                    { name: '스레드', value: '공개 예정', type: 'text', icon: 'fas fa-at' },
+                    { name: '엑스(구 트위터)', value: '공개 예정', type: 'text', icon: 'fab fa-x-twitter' },
+                    { name: '페이스북', value: '공개 예정', type: 'text', icon: 'fab fa-facebook' },
+                    { name: '유튜브 채널', value: '공개 예정', type: 'text', icon: 'fab fa-youtube' },
+                    { name: '디스코드(온라인 당사)', value: '공개 예정', type: 'text', icon: 'fab fa-discord' }
+                ],
+                committees: [
+                    { name: '홍보분과', kakaoLink: null },
+                    { name: '조직강화분과', kakaoLink: null },
+                    { name: '정책분과', kakaoLink: null },
+                    { name: '투쟁분과', kakaoLink: null },
+                    { name: '자원봉사단', kakaoLink: null }
                 ]
             }
         };
@@ -517,14 +539,18 @@
             }
         ];
 
+        // 부산 당협위원회 데이터
+        const busanChapters = [];
+
         // API에서 가져온 데이터 (로드 후 채워짐)
         let apiChapters = null;
 
         // 현재 활성화된 당협 데이터 가져오기
         function getChapters() {
             if (currentProvince === 'seoul') {
-                // API 데이터가 있으면 사용, 없으면 하드코딩 데이터 사용
                 return apiChapters || seoulChapters;
+            } else if (currentProvince === 'busan') {
+                return apiChapters || busanChapters;
             }
             return [];
         }
@@ -533,7 +559,7 @@
         async function loadChaptersFromAPI() {
             try {
                 const apiBase = (typeof window.API_BASE !== 'undefined' ? window.API_BASE : 'https://forthefreedom-kr-production.up.railway.app/api');
-                const response = await fetch(`${apiBase}/chapters?province=seoul`);
+                const response = await fetch(`${apiBase}/chapters?province=${currentProvince}`);
                 const result = await response.json();
                 
                 if (result.success && result.data.length > 0) {
@@ -601,6 +627,9 @@
             currentProvince = provinceId;
             const province = provinces.find(p => p.id === provinceId);
             
+            // API 데이터 초기화
+            apiChapters = null;
+            
             // 탭 스타일 업데이트
             provinces.forEach(p => {
                 const tabEl = document.getElementById(`tab-${p.id}`);
@@ -626,7 +655,11 @@
                 // 공식 채널 렌더링
                 renderOfficialChannels(provinceId);
                 renderCommittees(provinceId);
-                renderChapters();
+                
+                // API에서 당협 데이터 로드
+                loadChaptersFromAPI().then(() => {
+                    renderChapters();
+                });
             } else {
                 // 준비 중인 시도당
                 document.getElementById('officialChannelSection').classList.add('hidden');
@@ -728,25 +761,57 @@
             document.getElementById('committeeTitle').textContent = channelData.committeeTitle;
             
             const grid = document.getElementById('committeeGrid');
-            grid.innerHTML = channelData.committees.map(committee => `
-                <a href="${committee.kakaoLink}" target="_blank" rel="noopener noreferrer" class="block">
-                    <div class="bg-white rounded-xl p-4 border border-gray-200 transition-all h-20 flex items-center hover:shadow-md hover:border-yellow-400 cursor-pointer">
-                        <div class="flex items-center gap-3 w-full">
-                            <svg class="w-6 h-6 flex-shrink-0" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M128 36C70.562 36 24 72.713 24 118c0 29.279 19.466 54.97 48.748 69.477-1.593 5.494-10.237 35.344-10.581 37.689 0 0-.207 1.762.934 2.434s2.483.15 2.483.15c3.272-.457 37.943-24.811 43.944-29.03 5.995.849 12.168 1.28 18.472 1.28 57.438 0 104-36.712 104-82 0-45.287-46.562-82-104-82z" fill="#3C1E1E"/>
-                            </svg>
-                            <span class="font-medium text-gray-800">${committee.name}</span>
-                            <i class="fas fa-external-link-alt text-gray-400 text-xs ml-auto flex-shrink-0"></i>
+            grid.innerHTML = channelData.committees.map(committee => {
+                if (committee.kakaoLink) {
+                    return `
+                        <a href="${committee.kakaoLink}" target="_blank" rel="noopener noreferrer" class="block">
+                            <div class="bg-white rounded-xl p-4 border border-gray-200 transition-all h-20 flex items-center hover:shadow-md hover:border-yellow-400 cursor-pointer">
+                                <div class="flex items-center gap-3 w-full">
+                                    <svg class="w-6 h-6 flex-shrink-0" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M128 36C70.562 36 24 72.713 24 118c0 29.279 19.466 54.97 48.748 69.477-1.593 5.494-10.237 35.344-10.581 37.689 0 0-.207 1.762.934 2.434s2.483.15 2.483.15c3.272-.457 37.943-24.811 43.944-29.03 5.995.849 12.168 1.28 18.472 1.28 57.438 0 104-36.712 104-82 0-45.287-46.562-82-104-82z" fill="#3C1E1E"/>
+                                    </svg>
+                                    <span class="font-medium text-gray-800">${committee.name}</span>
+                                    <i class="fas fa-external-link-alt text-gray-400 text-xs ml-auto flex-shrink-0"></i>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                } else {
+                    return `
+                        <div class="block">
+                            <div class="bg-gray-100 rounded-xl p-4 border border-gray-200 h-20 flex items-center opacity-60">
+                                <div class="flex items-center gap-3 w-full">
+                                    <svg class="w-6 h-6 flex-shrink-0" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M128 36C70.562 36 24 72.713 24 118c0 29.279 19.466 54.97 48.748 69.477-1.593 5.494-10.237 35.344-10.581 37.689 0 0-.207 1.762.934 2.434s2.483.15 2.483.15c3.272-.457 37.943-24.811 43.944-29.03 5.995.849 12.168 1.28 18.472 1.28 57.438 0 104-36.712 104-82 0-45.287-46.562-82-104-82z" fill="#9CA3AF"/>
+                                    </svg>
+                                    <div class="flex flex-col">
+                                        <span class="font-medium text-gray-500">${committee.name}</span>
+                                        <span class="text-xs text-gray-400">공개 예정</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </a>
-            `).join('');
+                    `;
+                }
+            }).join('');
         }
 
         // 카드 렌더링
         function renderChapters(highlightTerm = null) {
             const container = document.getElementById('chaptersContainer');
             const chapters = getChapters();
+            
+            // 당협 데이터가 없는 경우
+            if (chapters.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <i class="fas fa-users text-gray-300 text-5xl mb-4"></i>
+                        <p class="text-gray-500 text-lg">당협위원회 구성 준비 중입니다.</p>
+                        <p class="text-gray-400 text-sm mt-2">빠른 시일 내에 안내드리겠습니다.</p>
+                    </div>
+                `;
+                return;
+            }
             
             container.innerHTML = chapters.map((chapter, index) => {
                 // 하이라이트 여부 체크 (동 + 구 모두)
