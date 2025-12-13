@@ -9,10 +9,11 @@ function loadAdminNav(currentPage) {
     // 현재 페이지 체크
     const pages = {
         dashboard: currentPage === 'dashboard',
-        content: currentPage === 'content',
+        announcement: currentPage === 'announcement',
         banners: currentPage === 'banners',
-        members: currentPage === 'members',
-        chapters: currentPage === 'chapters'
+        content: currentPage === 'content',
+        chapters: currentPage === 'chapters',
+        members: currentPage === 'members'
     };
 
     // 관리자 정보 가져오기
@@ -36,32 +37,34 @@ function loadAdminNav(currentPage) {
                             대시보드
                         </a>
                         
-                        <!-- 콘텐츠 관리 드롭다운 -->
+                        <!-- 공지/배너 드롭다운 -->
                         <div class="relative group">
-                            <button class="px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center ${pages.content || pages.banners || pages.announcement ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}">
-                                콘텐츠 관리 ▾
+                            <button class="px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center ${pages.announcement || pages.banners ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}">
+                                공지/배너 ▾
                             </button>
-                            <div class="absolute left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                                <a href="content.html" class="block px-4 py-2 text-sm ${pages.content ? 'text-primary bg-primary/5' : 'text-gray-700 hover:bg-gray-50'}">
-                                    콘텐츠 목록
+                            <div class="absolute left-0 mt-1 w-40 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                <a href="announcement.html" class="block px-4 py-2 text-sm ${pages.announcement ? 'text-primary bg-primary/5' : 'text-gray-700 hover:bg-gray-50'}">
+                                    한줄 공지
                                 </a>
                                 <a href="banners.html" class="block px-4 py-2 text-sm ${pages.banners ? 'text-primary bg-primary/5' : 'text-gray-700 hover:bg-gray-50'}">
                                     배너 관리
                                 </a>
-                                <a href="announcement.html" class="block px-4 py-2 text-sm ${pages.announcement ? 'text-primary bg-primary/5' : 'text-gray-700 hover:bg-gray-50'}">
-                                    한줄 공지
-                                </a>
                             </div>
                         </div>
                         
-                        <!-- 회원관리 -->
-                        <a href="members.html" class="px-3 py-2 text-sm font-medium rounded-md transition-colors ${pages.members ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}">
-                            회원관리
+                        <!-- 콘텐츠 -->
+                        <a href="content.html" class="px-3 py-2 text-sm font-medium rounded-md transition-colors ${pages.content ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}">
+                            콘텐츠
                         </a>
                         
                         <!-- 당협 관리 -->
                         <a href="chapters.html" class="px-3 py-2 text-sm font-medium rounded-md transition-colors ${pages.chapters ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}">
-                            당협관리
+                            당협 관리
+                        </a>
+                        
+                        <!-- 회원 관리 -->
+                        <a href="members.html" class="px-3 py-2 text-sm font-medium rounded-md transition-colors ${pages.members ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}">
+                            회원 관리
                         </a>
                     </div>
                 </div>
@@ -100,23 +103,23 @@ function loadAdminNav(currentPage) {
                     대시보드
                 </a>
                 <div class="border-t border-gray-100 my-2 pt-2">
-                    <div class="px-3 py-1 text-xs font-semibold text-gray-400 uppercase">콘텐츠 관리</div>
-                    <a href="content.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.content ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
-                        콘텐츠 목록
+                    <div class="px-3 py-1 text-xs font-semibold text-gray-400 uppercase">공지/배너</div>
+                    <a href="announcement.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.announcement ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
+                        한줄 공지
                     </a>
                     <a href="banners.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.banners ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
                         배너 관리
                     </a>
-                    <a href="announcement.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.announcement ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
-                        한줄 공지
-                    </a>
                 </div>
                 <div class="border-t border-gray-100 my-2 pt-2">
-                    <a href="members.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.members ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
-                        회원관리
+                    <a href="content.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.content ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
+                        콘텐츠
                     </a>
                     <a href="chapters.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.chapters ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
-                        당협관리
+                        당협 관리
+                    </a>
+                    <a href="members.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.members ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
+                        회원 관리
                     </a>
                 </div>
                 <!-- 모바일 세션 타이머 -->
@@ -156,7 +159,7 @@ function initSessionTimer() {
     // JWT 토큰에서 만료 시간 추출
     try {
         const payload = JSON.parse(atob(token.split('.')[1]));
-        const expTime = payload.exp * 1000; // 초 → 밀리초
+        const expTime = payload.exp * 1000;
         
         // 즉시 업데이트
         updateSessionCountdown(expTime);
@@ -225,15 +228,12 @@ async function extendSession() {
         });
         
         const result = await response.json();
-        
-        // accessToken 또는 token 필드 확인
         const newToken = result.accessToken || result.token;
         
         if (result.success && newToken) {
             localStorage.setItem('adminToken', newToken);
-            initSessionTimer(); // 타이머 재시작
+            initSessionTimer();
             
-            // 갱신 성공 알림
             const btn = document.querySelector('[onclick="extendSession()"]');
             if (btn) {
                 btn.innerHTML = '✓';
@@ -257,7 +257,6 @@ async function logout(force = false) {
             const token = localStorage.getItem('adminToken');
             const refreshToken = localStorage.getItem('adminRefreshToken');
             
-            // 서버에 로그아웃 API 호출
             if (token && window.API_BASE) {
                 await fetch(`${window.API_BASE}/auth/logout`, {
                     method: 'POST',
@@ -269,26 +268,21 @@ async function logout(force = false) {
                 });
             }
         } catch (error) {
-            console.log('서버 로그아웃 호출 실패 (무시):', error);
+            console.log('서버 로그아웃 호출 실패:', error);
         }
         
-        // 모든 토큰 정보 완전 삭제
         localStorage.removeItem('adminToken');
         localStorage.removeItem('adminRefreshToken');
         localStorage.removeItem('adminUser');
         localStorage.removeItem('adminInfo');
         localStorage.removeItem('tokenExpiry');
         localStorage.removeItem('authToken');
-        
-        // 세션 스토리지도 정리
         sessionStorage.clear();
         
-        console.log('🚪 완전 로그아웃 완료');
         if (!force) {
             alert('로그아웃되었습니다.');
         }
         
-        // 로그인 페이지로 강제 이동
         window.location.href = 'index.html';
     }
 }
