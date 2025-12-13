@@ -608,18 +608,29 @@
         // 탭 렌더링
         function renderTabs() {
             const container = document.getElementById('tabContainer');
-            container.innerHTML = provinces.map(province => `
-                <button onclick="switchProvince('${province.id}')" 
-                        id="tab-${province.id}"
-                        class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-all
-                               ${province.id === currentProvince 
-                                   ? 'bg-red-600 text-white' 
-                                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}
-                               ${!province.hasData ? 'opacity-70' : ''}">
-                    ${province.name}
-                    ${!province.hasData ? '<span class="text-xs ml-1">(준비중)</span>' : ''}
-                </button>
-            `).join('');
+            container.innerHTML = provinces.map(province => {
+                let btnClass = 'tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-all ';
+                
+                if (province.id === currentProvince) {
+                    // 현재 선택됨
+                    btnClass += 'bg-red-600 text-white shadow-md';
+                } else if (province.hasData) {
+                    // 데이터 있음 (활성화)
+                    btnClass += 'bg-white border-2 border-red-600 text-red-600 hover:bg-red-50';
+                } else {
+                    // 준비중
+                    btnClass += 'bg-gray-100 text-gray-400 border border-gray-200';
+                }
+                
+                return `
+                    <button onclick="switchProvince('${province.id}')" 
+                            id="tab-${province.id}"
+                            class="${btnClass}">
+                        ${province.name}
+                        ${!province.hasData ? '<span class="text-xs ml-1 opacity-60">(준비중)</span>' : ''}
+                    </button>
+                `;
+            }).join('');
         }
 
         // 시도당 전환
@@ -631,16 +642,7 @@
             apiChapters = null;
             
             // 탭 스타일 업데이트
-            provinces.forEach(p => {
-                const tabEl = document.getElementById(`tab-${p.id}`);
-                if (p.id === provinceId) {
-                    tabEl.classList.remove('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
-                    tabEl.classList.add('bg-red-600', 'text-white');
-                } else {
-                    tabEl.classList.remove('bg-red-600', 'text-white');
-                    tabEl.classList.add('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
-                }
-            });
+            renderTabs();
             
             // 검색 초기화
             document.getElementById('searchInput').value = '';
