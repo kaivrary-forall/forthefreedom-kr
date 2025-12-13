@@ -39,6 +39,11 @@
     <link rel="stylesheet" href="../style.css">
     
     <style>
+        .nav-bar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
         * {
             margin: 0;
             padding: 0;
@@ -1497,25 +1502,12 @@
                 return false;
             }
 
-            if (user) {
-                const userData = JSON.parse(user);
-                document.getElementById('userName').textContent = userData.username || '관리자';
-            }
-
             return token;
-        }
-
-        // 로그아웃
-        function logout() {
-            localStorage.removeItem('adminToken');
-            localStorage.removeItem('adminUser');
-            window.location.href = '/admin/index.html';
         }
 
         // 페이지 초기화
         function initializePage() {
             const config = contentTypes[currentContentType];
-            document.getElementById('pageTitle').textContent = `${config.title} 관리`;
             document.getElementById('contentIcon').textContent = config.icon;
             document.getElementById('contentTitle').textContent = config.title;
             document.title = `자유와혁신 - ${config.title} 관리`;
