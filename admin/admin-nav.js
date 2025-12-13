@@ -9,11 +9,9 @@ function loadAdminNav(currentPage) {
     // 현재 페이지 체크
     const pages = {
         dashboard: currentPage === 'dashboard',
-        members: currentPage === 'members',
-        announcement: currentPage === 'announcement',
-        popup: currentPage === 'popup',
-        banners: currentPage === 'banners',
         content: currentPage === 'content',
+        banners: currentPage === 'banners',
+        members: currentPage === 'members',
         chapters: currentPage === 'chapters'
     };
 
@@ -27,7 +25,7 @@ function loadAdminNav(currentPage) {
             <div class="flex items-center justify-between h-16">
                 <!-- 왼쪽: 로고 + 메뉴 -->
                 <div class="flex items-center space-x-8">
-                    <a href="dashboard.html" class="flex items-center space-x-2">
+                    <a href="dashboard.html" class="flex items-center">
                         <img src="../images/logo.png" alt="자유와혁신" class="h-8">
                     </a>
                     
@@ -38,20 +36,17 @@ function loadAdminNav(currentPage) {
                             대시보드
                         </a>
                         
-                        <!-- 회원관리 -->
-                        <a href="members.html" class="px-3 py-2 text-sm font-medium rounded-md transition-colors ${pages.members ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}">
-                            회원관리
-                        </a>
-                        
-                        <!-- 공지 드롭다운 -->
+                        <!-- 콘텐츠 관리 드롭다운 -->
                         <div class="relative group">
-                            <button class="px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center ${pages.announcement || pages.popup ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}">
-                                공지
-                                <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                            <button class="px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center ${pages.content || pages.banners || pages.announcement ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}">
+                                콘텐츠 관리 ▾
                             </button>
                             <div class="absolute left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                                <a href="popup.html" class="block px-4 py-2 text-sm ${pages.popup ? 'text-primary bg-primary/5' : 'text-gray-700 hover:bg-gray-50'}">
-                                    게이트 팝업
+                                <a href="content.html" class="block px-4 py-2 text-sm ${pages.content ? 'text-primary bg-primary/5' : 'text-gray-700 hover:bg-gray-50'}">
+                                    콘텐츠 목록
+                                </a>
+                                <a href="banners.html" class="block px-4 py-2 text-sm ${pages.banners ? 'text-primary bg-primary/5' : 'text-gray-700 hover:bg-gray-50'}">
+                                    배너 관리
                                 </a>
                                 <a href="announcement.html" class="block px-4 py-2 text-sm ${pages.announcement ? 'text-primary bg-primary/5' : 'text-gray-700 hover:bg-gray-50'}">
                                     한줄 공지
@@ -59,27 +54,14 @@ function loadAdminNav(currentPage) {
                             </div>
                         </div>
                         
-                        <!-- 배너 관리 드롭다운 -->
-                        <div class="relative group">
-                            <button class="px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center ${pages.banners ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}">
-                                배너 관리
-                                <i class="fas fa-chevron-down ml-1 text-xs"></i>
-                            </button>
-                            <div class="absolute left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                                <a href="banners.html" class="block px-4 py-2 text-sm ${pages.banners ? 'text-primary bg-primary/5' : 'text-gray-700 hover:bg-gray-50'}">
-                                    히어로 섹션
-                                </a>
-                            </div>
-                        </div>
-                        
-                        <!-- 콘텐츠 관리 -->
-                        <a href="content.html" class="px-3 py-2 text-sm font-medium rounded-md transition-colors ${pages.content ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}">
-                            콘텐츠 관리
+                        <!-- 회원관리 -->
+                        <a href="members.html" class="px-3 py-2 text-sm font-medium rounded-md transition-colors ${pages.members ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}">
+                            회원관리
                         </a>
                         
-                        <!-- 시도당/당협 관리 -->
+                        <!-- 당협 관리 -->
                         <a href="chapters.html" class="px-3 py-2 text-sm font-medium rounded-md transition-colors ${pages.chapters ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}">
-                            시도당/당협
+                            당협관리
                         </a>
                     </div>
                 </div>
@@ -89,27 +71,23 @@ function loadAdminNav(currentPage) {
                     <!-- 세션 타이머 -->
                     <div class="hidden sm:flex items-center space-x-2 text-sm">
                         <span id="sessionCountdown" class="text-gray-500">
-                            <i class="fas fa-clock mr-1"></i>
                             <span id="countdownText">--:--</span>
                         </span>
                         <button onclick="extendSession()" class="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200" title="세션 연장">
-                            <i class="fas fa-sync-alt"></i>
+                            연장
                         </button>
                     </div>
                     
-                    <div class="hidden sm:flex items-center space-x-2">
-                        <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                            <i class="fas fa-user text-white text-sm"></i>
-                        </div>
+                    <div class="hidden sm:flex items-center">
                         <span class="text-sm font-medium text-gray-700">${adminName}</span>
                     </div>
                     <button onclick="logout()" class="btn btn-secondary text-sm">
-                        <i class="fas fa-sign-out-alt mr-1"></i> 로그아웃
+                        로그아웃
                     </button>
                     
                     <!-- 모바일 메뉴 버튼 -->
                     <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100">
-                        <i class="fas fa-bars text-lg"></i>
+                        ☰
                     </button>
                 </div>
             </div>
@@ -121,34 +99,30 @@ function loadAdminNav(currentPage) {
                 <a href="dashboard.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.dashboard ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
                     대시보드
                 </a>
-                <a href="members.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.members ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
-                    회원관리
-                </a>
                 <div class="border-t border-gray-100 my-2 pt-2">
-                    <div class="px-3 py-1 text-xs font-semibold text-gray-400 uppercase">공지</div>
-                    <a href="popup.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.popup ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
-                        게이트 팝업
+                    <div class="px-3 py-1 text-xs font-semibold text-gray-400 uppercase">콘텐츠 관리</div>
+                    <a href="content.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.content ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
+                        콘텐츠 목록
+                    </a>
+                    <a href="banners.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.banners ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
+                        배너 관리
                     </a>
                     <a href="announcement.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.announcement ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
                         한줄 공지
                     </a>
                 </div>
                 <div class="border-t border-gray-100 my-2 pt-2">
-                    <div class="px-3 py-1 text-xs font-semibold text-gray-400 uppercase">배너 관리</div>
-                    <a href="banners.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.banners ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
-                        히어로 섹션
+                    <a href="members.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.members ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
+                        회원관리
+                    </a>
+                    <a href="chapters.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.chapters ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
+                        당협관리
                     </a>
                 </div>
-                <a href="content.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.content ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
-                    콘텐츠 관리
-                </a>
-                <a href="chapters.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.chapters ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
-                    시도당/당협
-                </a>
                 <!-- 모바일 세션 타이머 -->
                 <div class="border-t border-gray-100 my-2 pt-2 px-3">
                     <span class="text-xs text-gray-500">
-                        <i class="fas fa-clock mr-1"></i> 남은 시간: <span id="mobileCountdownText">--:--</span>
+                        남은 시간: <span id="mobileCountdownText">--:--</span>
                     </span>
                 </div>
             </div>
