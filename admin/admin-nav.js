@@ -77,11 +77,14 @@ function loadAdminNav(currentPage) {
                             <span id="countdownText">--:--</span>
                         </span>
                         <button onclick="extendSession()" class="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200" title="세션 연장">
-                            연장
+                            <i class="fas fa-sync-alt"></i>
                         </button>
                     </div>
                     
-                    <div class="hidden sm:flex items-center">
+                    <div class="hidden sm:flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-white text-sm"></i>
+                        </div>
                         <span class="text-sm font-medium text-gray-700">${adminName}</span>
                     </div>
                     <button onclick="logout()" class="btn btn-secondary text-sm">
@@ -236,9 +239,9 @@ async function extendSession() {
             
             const btn = document.querySelector('[onclick="extendSession()"]');
             if (btn) {
-                btn.innerHTML = '✓';
+                btn.innerHTML = '<i class="fas fa-check"></i>';
                 setTimeout(() => {
-                    btn.innerHTML = '연장';
+                    btn.innerHTML = '<i class="fas fa-sync-alt"></i>';
                 }, 1000);
             }
         } else {
