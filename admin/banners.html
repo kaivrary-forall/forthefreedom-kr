@@ -634,6 +634,24 @@
                     </div>
 
                     <div class="form-group">
+                        <label>출처 텍스트 색상</label>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 0.5rem;">
+                            <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                <input type="radio" name="sourceColor" value="white" checked>
+                                <span style="padding: 4px 12px; background: #333; color: white; border-radius: 4px; font-size: 12px;">흰색</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                <input type="radio" name="sourceColor" value="black">
+                                <span style="padding: 4px 12px; background: #f0f0f0; color: black; border-radius: 4px; font-size: 12px;">검정</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                <input type="radio" name="sourceColor" value="gray">
+                                <span style="padding: 4px 12px; background: #e0e0e0; color: #666; border-radius: 4px; font-size: 12px;">회색</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label>
                             <input type="checkbox" id="bannerActive" checked>
                             활성화 (메인 페이지에 표시)
@@ -814,6 +832,7 @@
             document.getElementById('bannerForm').reset();
             document.getElementById('bannerLinkText').value = '자세히 보기';
             document.getElementById('bannerSource').value = '';
+            document.querySelector('input[name="sourceColor"][value="white"]').checked = true;
             document.getElementById('bannerActive').checked = true;
             
             // PC 이미지 초기화
@@ -862,6 +881,8 @@
             document.getElementById('bannerLinkUrl').value = banner.linkUrl || '';
             document.getElementById('bannerLinkText').value = banner.linkText || '자세히 보기';
             document.getElementById('bannerSource').value = banner.source || '';
+            const sourceColor = banner.sourceColor || 'white';
+            document.querySelector(`input[name="sourceColor"][value="${sourceColor}"]`).checked = true;
             document.getElementById('bannerActive').checked = banner.isActive;
 
             // PC 이미지 표시
@@ -973,6 +994,7 @@
             const linkUrl = document.getElementById('bannerLinkUrl').value;
             const linkText = document.getElementById('bannerLinkText').value;
             const source = document.getElementById('bannerSource').value;
+            const sourceColor = document.querySelector('input[name="sourceColor"]:checked').value;
             const isActive = document.getElementById('bannerActive').checked;
             const imageActive = document.getElementById('imageActiveCheckbox').checked;
             const mobileImageActive = document.getElementById('mobileImageActiveCheckbox').checked;
@@ -1006,6 +1028,7 @@
             formData.append('linkUrl', linkUrl);
             formData.append('linkText', linkText);
             formData.append('source', source);
+            formData.append('sourceColor', sourceColor);
             formData.append('isActive', isActive);
             formData.append('imageActive', imageActive);
             formData.append('mobileImageActive', mobileImageActive);
