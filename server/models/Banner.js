@@ -45,6 +45,11 @@ const bannerSchema = new mongoose.Schema({
     trim: true,
     default: ''
   },
+  sourceColor: {
+    type: String,
+    enum: ['white', 'black', 'gray'],
+    default: 'white'
+  },
   order: {
     type: Number,
     default: 0
