@@ -115,7 +115,7 @@
 
                 <!-- 공식 채널 섹션 -->
                 <div id="officialChannelSection" class="mb-16">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-red-600 pl-4">서울특별시당 공식 채널</h2>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-red-600 pl-4" id="officialChannelTitle">서울특별시당 공식 채널</h2>
                     
                     <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4" id="officialChannelGrid">
                         <!-- 동적으로 생성됨 -->
@@ -676,6 +676,9 @@
             const channelData = officialChannels[provinceId];
             if (!channelData) return;
             
+            // 모든 제목 업데이트
+            document.getElementById('officialChannelTitle').textContent = channelData.title;
+            document.getElementById('committeeTitle').textContent = channelData.committeeTitle;
             document.getElementById('chatRoomTitle').textContent = channelData.chatTitle;
             
             const grid = document.getElementById('officialChannelGrid');
