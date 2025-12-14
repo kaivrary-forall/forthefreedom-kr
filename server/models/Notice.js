@@ -12,8 +12,7 @@ const noticeSchema = new mongoose.Schema({
   },
   excerpt: {
     type: String,
-    required: true,
-    maxlength: 200
+    maxlength: 500
   },
   category: {
     type: String,
@@ -29,6 +28,14 @@ const noticeSchema = new mongoose.Schema({
     required: true,
     default: '관리자'
   },
+  isImportant: {
+    type: Boolean,
+    default: false
+  },
+  tags: [{
+    type: String,
+    trim: true
+  }],
   attachments: [{
     filename: String,
     originalName: String,
@@ -40,6 +47,10 @@ const noticeSchema = new mongoose.Schema({
     type: String,
     enum: ['draft', 'published'],
     default: 'published'
+  },
+  publishDate: {
+    type: Date,
+    default: Date.now
   },
   views: {
     type: Number,
