@@ -186,47 +186,32 @@
     </style>
 </head>
 <body class="bg-gray-50">
-    <!-- 헤더 -->
-    <header class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <img src="../images/logo.png" alt="자유와혁신" class="h-8">
-                    <div class="hidden md:flex items-center space-x-6">
-                        <a href="../index.html" class="text-gray-700 hover:text-red-600">홈</a>
-                        <a href="../about.html" class="text-gray-700 hover:text-red-600">당 소개</a>
-                        <a href="../news.html" class="text-red-600 font-medium">소식</a>
-                        <a href="../policy.html" class="text-gray-700 hover:text-red-600">정책</a>
-                        <a href="../members.html" class="text-gray-700 hover:text-red-600">당원</a>
-                        <a href="../resources.html" class="text-gray-700 hover:text-red-600">자료실</a>
-                        <a href="../support.html" class="text-gray-700 hover:text-red-600">후원</a>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <button class="md:hidden">
-                        <i class="fas fa-bars text-xl"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </header>
+    <div id="navigation-container"></div>
 
     <!-- 브레드크럼 -->
-    <nav class="bg-gray-100 py-3">
+    <div class="bg-gray-100 py-3">
         <div class="container mx-auto px-4">
-            <div class="flex items-center space-x-2 text-sm text-gray-600">
-                <a href="../index.html" class="hover:text-red-600">홈</a>
-                <i class="fas fa-chevron-right text-xs"></i>
-                <a href="../news.html" class="hover:text-red-600">소식</a>
-                <i class="fas fa-chevron-right text-xs"></i>
-                <a href="gallery.html" class="hover:text-red-600">포토갤러리</a>
-                <i class="fas fa-chevron-right text-xs"></i>
-                <span class="text-gray-900">상세보기</span>
-            </div>
+            <nav class="text-sm">
+                <ol class="list-none p-0 inline-flex space-x-2">
+                    <li class="flex items-center">
+                        <a href="../index.html" class="text-gray-500 hover:text-red-600">홈</a>
+                        <i class="fas fa-chevron-right mx-2 text-gray-400"></i>
+                    </li>
+                    <li class="flex items-center">
+                        <a href="../news.html" class="text-gray-500 hover:text-red-600">소식</a>
+                        <i class="fas fa-chevron-right mx-2 text-gray-400"></i>
+                    </li>
+                    <li class="flex items-center">
+                        <a href="gallery.html" class="text-gray-500 hover:text-red-600">포토갤러리</a>
+                        <i class="fas fa-chevron-right mx-2 text-gray-400"></i>
+                    </li>
+                    <li class="text-gray-900">상세보기</li>
+                </ol>
+            </nav>
         </div>
-    </nav>
+    </div>
 
-    <main class="container mx-auto px-4 py-8 pt-20">
+    <main class="container mx-auto px-4 py-8">
         <!-- 로딩 상태 -->
         <div id="loading" class="flex flex-col items-center justify-center py-16">
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600 mb-4"></div>
