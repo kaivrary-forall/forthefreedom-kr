@@ -1873,7 +1873,7 @@ async function loadAnnouncementBar() {
             const nav = document.querySelector('nav');
             const navHeight = nav ? nav.offsetHeight : 56;
             
-            // 공지 바 HTML - nav 아래 fixed
+            // 공지 바 HTML - 처음에 height: 0
             const barHTML = `
                 <div id="announcement-bar" style="
                     background: ${ann.bgColor || '#000000'};
@@ -1889,8 +1889,10 @@ async function loadAnnouncementBar() {
                     left: 0;
                     right: 0;
                     z-index: 49;
-                    height: 40px;
-                    padding: 10px 20px;
+                    overflow: hidden;
+                    height: 0;
+                    padding: 0 20px;
+                    transition: height 0.4s ease, padding 0.4s ease;
                 ">
                     <span>${ann.text}</span>
                     ${ann.link ? `<a href="${ann.link}" style="color: ${ann.textColor || '#ffffff'}; text-decoration: underline; opacity: 0.9;">${ann.linkText || '자세히 알아보기'} ›</a>` : ''}
@@ -1912,6 +1914,15 @@ async function loadAnnouncementBar() {
             
             // body 맨 앞에 삽입
             document.body.insertAdjacentHTML('afterbegin', barHTML);
+            
+            // 스르륵 펼치기
+            requestAnimationFrame(() => {
+                const bar = document.getElementById('announcement-bar');
+                if (bar) {
+                    bar.style.height = '40px';
+                    bar.style.padding = '10px 20px';
+                }
+            });
         }
     } catch (error) {
         console.log('공지 로드 실패:', error);
@@ -1921,7 +1932,9 @@ async function loadAnnouncementBar() {
 function closeAnnouncementBar() {
     const bar = document.getElementById('announcement-bar');
     if (bar) {
-        bar.remove();
+        bar.style.height = '0';
+        bar.style.padding = '0 20px';
+        setTimeout(() => bar.remove(), 400);
     }
     sessionStorage.setItem('announcementClosed', 'true');
 }
