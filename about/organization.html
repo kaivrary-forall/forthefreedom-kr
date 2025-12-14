@@ -287,6 +287,13 @@
         
         // 조직도 렌더링
         function renderOrgChart(data) {
+            // 전체 탭 (grouped 데이터)
+            if (data.grouped && data.categories) {
+                renderGroupedOrgChart(data.categories);
+                return;
+            }
+            
+            // 개별 카테고리 탭
             const { independentPositions, organizations } = data;
             const hasData = (independentPositions && independentPositions.length > 0) || 
                            (organizations && organizations.length > 0);
@@ -331,6 +338,49 @@
             } else {
                 document.getElementById('organizations').innerHTML = '';
             }
+        }
+        
+        // 전체 탭 - 카테고리별 그룹 렌더링
+        function renderGroupedOrgChart(categories) {
+            document.getElementById('emptyState').classList.add('hidden');
+            document.getElementById('independentPositions').classList.add('hidden');
+            document.getElementById('connectionLine').classList.add('hidden');
+            
+            const container = document.getElementById('organizations');
+            container.classList.remove('hidden');
+            
+            if (categories.length === 0) {
+                document.getElementById('emptyState').classList.remove('hidden');
+                container.innerHTML = '';
+                return;
+            }
+            
+            container.innerHTML = categories.map(cat => `
+                <div class="w-full mb-12">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="h-px bg-red-200 flex-1"></div>
+                        <h3 class="text-xl font-bold text-red-600 px-4">${cat.categoryName}</h3>
+                        <div class="h-px bg-red-200 flex-1"></div>
+                    </div>
+                    
+                    ${cat.independentPositions && cat.independentPositions.length > 0 ? `
+                        <div class="flex justify-center flex-wrap gap-6 mb-8">
+                            ${cat.independentPositions.map(pos => renderPositionCard(pos, true)).join('')}
+                        </div>
+                        ${cat.organizations && cat.organizations.length > 0 ? `
+                            <div class="flex justify-center mb-8">
+                                <div class="org-line-vertical h-12"></div>
+                            </div>
+                        ` : ''}
+                    ` : ''}
+                    
+                    ${cat.organizations && cat.organizations.length > 0 ? `
+                        <div class="flex flex-col lg:flex-row justify-center items-start gap-8 flex-wrap">
+                            ${cat.organizations.map(org => renderOrganization(org)).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
         }
         
         // 조직 박스 렌더링
