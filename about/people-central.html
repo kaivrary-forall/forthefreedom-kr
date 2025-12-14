@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>주요 인물 - 자유와혁신</title>
+    <title>중앙당 조직도 - 자유와혁신</title>
     
     <!-- 파비콘 설정 -->
     <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon.png">
@@ -12,6 +12,7 @@
     <link rel="shortcut icon" type="image/png" href="../images/favicon.png">
     <link rel="icon" href="../images/favicon.png">
     
+    <script src="/config.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -32,288 +33,344 @@
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/style.css">
+    <style>
+        .org-card {
+            transition: all 0.3s ease;
+        }
+        .org-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(165, 0, 52, 0.15);
+        }
+        .org-card-leader {
+            border: 3px solid #A50034;
+        }
+        .org-line-vertical {
+            width: 2px;
+            background: #A50034;
+        }
+        .badge-red { background: #FEE2E2; color: #DC2626; }
+        .badge-blue { background: #DBEAFE; color: #2563EB; }
+        .badge-green { background: #D1FAE5; color: #059669; }
+        .badge-purple { background: #EDE9FE; color: #7C3AED; }
+        .badge-orange { background: #FFEDD5; color: #EA580C; }
+        .badge-gray { background: #F3F4F6; color: #6B7280; }
+        .border-org-red { border-color: #FCA5A5; }
+        .border-org-blue { border-color: #93C5FD; }
+        .border-org-green { border-color: #6EE7B7; }
+        .border-org-purple { border-color: #C4B5FD; }
+        .border-org-orange { border-color: #FDBA74; }
+        .border-org-gray { border-color: #D1D5DB; }
+        .text-title-red { color: #DC2626; }
+        .text-title-blue { color: #2563EB; }
+        .text-title-green { color: #059669; }
+        .text-title-purple { color: #7C3AED; }
+        .text-title-orange { color: #EA580C; }
+        .text-title-gray { color: #6B7280; }
+    </style>
 </head>
 <body>
     <div id="navigation-container"></div>
     
     <!-- Hero Section -->
-    <section class="hero-section hero-bg-night-sub" style="position:relative; height:60vh; display:flex; align-items:center; justify-content:center;">
+    <section class="hero-section hero-bg-night-sub" style="position:relative; height:50vh; display:flex; align-items:center; justify-content:center;">
         <div class="hero-overlay" style="position:absolute; top:0; left:0; right:0; bottom:0; background:linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.2)); z-index:1;"></div>
         <div class="hero-content" style="position:relative; z-index:2; color:#fff; text-align:center;">
-            <h1 style="font-size:3.5rem; font-weight:bold; margin:0; text-shadow:2px 2px 4px rgba(0,0,0,0.5);">자유와혁신 일꾼들</h1>
-            <p class="text-xl mt-4 text-white opacity-90">변화를 이끄는 리더들</p>
+            <h1 style="font-size:3.5rem; font-weight:bold; margin:0; text-shadow:2px 2px 4px rgba(0,0,0,0.5);">중앙당 조직도</h1>
+            <p class="text-xl mt-4 text-white opacity-90">자유와혁신의 리더십</p>
         </div>
     </section>
 
     <main style="position:relative; z-index:1; background:#fff;">
-
-
-        <!-- 당 대표 Section -->
-        <section class="py-20 bg-gradient-to-br from-red-50 to-red-100">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-16">
-                    <h2 class="text-4xl font-bold text-gray-900 mb-6">당 대표</h2>
-                    <div class="w-20 h-1 bg-red-600 mx-auto"></div>
+        
+        <!-- 조직도 Section -->
+        <section class="py-16 bg-gradient-to-b from-gray-50 to-white">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <!-- 로딩 -->
+                <div id="loadingSpinner" class="flex justify-center items-center py-20">
+                    <div class="animate-spin rounded-full h-12 w-12 border-4 border-red-600 border-t-transparent"></div>
                 </div>
-
-                <!-- 황교안 대표 프로필 -->
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden max-w-4xl mx-auto">
-                    <!-- 프로필 이미지 섹션 -->
-                    <div class="bg-gray-50 p-8 text-center">
-                        <div class="w-80 h-52 mx-auto mb-6 rounded-lg overflow-hidden shadow-md">
-                            <img src="../images/hero_bg.png" alt="황교안 대표" class="w-full h-full object-contain bg-gray-100" loading="lazy" decoding="async">
-                        </div>
-                        <div class="bg-red-600 text-white px-4 py-2 rounded inline-block mb-4">
-                            당 대표
-                        </div>
-                        <div class="mb-4">
-                            <h3 class="text-3xl font-bold text-gray-900 mb-2">황교안 (黃敎安)</h3>
-                            <p class="text-red-600 text-xl font-semibold mb-2">제44대 국무총리</p>
-                            <p class="text-gray-600 text-lg">1957년 4월 15일 (만 67세), 서울특별시</p>
-                        </div>
+                
+                <!-- 조직도 컨테이너 -->
+                <div id="orgchartContainer" class="hidden">
+                    <!-- 독립 직책들 -->
+                    <div id="independentPositions" class="mb-8"></div>
+                    
+                    <!-- 연결선 -->
+                    <div id="connectionLine" class="hidden justify-center mb-8">
+                        <div class="org-line-vertical h-12"></div>
                     </div>
                     
-                    <!-- 프로필 정보 섹션 -->
-                    <div class="p-8">
-                        <div class="grid md:grid-cols-2 gap-8">
-                            <!-- 학력 -->
-                            <div>
-                                <h4 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                                    <i class="fas fa-graduation-cap text-red-600 mr-3"></i>학력
-                                </h4>
-                                <div class="space-y-2 text-gray-700">
-                                    <p>• 경기고등학교 졸업</p>
-                                    <p>• 성균관대학교 법학과 학사</p>
-                                    <p>• 성균관대학교 법학과 석사</p>
-                                </div>
-                            </div>
-                            
-                            <!-- 주요 경력 -->
-                            <div>
-                                <h4 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                                    <i class="fas fa-briefcase text-red-600 mr-3"></i>주요 경력
-                                </h4>
-                                <div class="space-y-2 text-gray-700">
-                                    <p>• 제23회 사법시험 합격</p>
-                                    <p>• 제13기 사법연수원 수료</p>
-                                    <p>• 사법연수원 교수</p>
-                                    <p>• 제25대 창원지방검찰청 검사장</p>
-                                    <p>• 제41대 대구고등검찰청 검사장</p>
-                                    <p>• 제24대 부산고등검찰청 검사장</p>
-                                    <p>• 제63대 법무부장관</p>
-                                    <p>• 제44대 국무총리</p>
-                                    <p>• 대통령 권한대행</p>
-                                    <p>• 제2대 자유한국당 대표</p>
-                                    <p>• 제24대 여의도연구원 이사장</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- 조직들 -->
+                    <div id="organizations" class="flex flex-col lg:flex-row justify-center items-start gap-8 flex-wrap"></div>
                 </div>
+                
             </div>
         </section>
 
-        <!-- 상임고문 Section -->
-        <section class="py-20 bg-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-16">
-                    <h2 class="text-4xl font-bold text-gray-900 mb-6">상임고문</h2>
-                    <div class="w-20 h-1 bg-red-600 mx-auto"></div>
-                </div>
-
-                <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                    <!-- 신창민 -->
-                    <div class="bg-gray-50 p-8 rounded-lg text-center">
-                        <div class="w-24 h-24 bg-gray-300 rounded-full mx-auto mb-4 flex items-center justify-center">
-                            <i class="fas fa-user text-gray-500 text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">신창민</h3>
-                        <p class="text-red-600 font-semibold">상임고문</p>
-                    </div>
-                    
-                    <!-- 진동은 -->
-                    <div class="bg-gray-50 p-8 rounded-lg text-center">
-                        <div class="w-24 h-24 bg-gray-300 rounded-full mx-auto mb-4 flex items-center justify-center">
-                            <i class="fas fa-user text-gray-500 text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">진동은</h3>
-                        <p class="text-red-600 font-semibold">상임고문</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 최고위원 Section -->
-        <section class="py-20 bg-gray-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-16">
-                    <h2 class="text-4xl font-bold text-gray-900 mb-6">최고위원</h2>
-                    <div class="w-20 h-1 bg-red-600 mx-auto"></div>
-                </div>
-
-                <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                    <!-- 주은숙 -->
-                    <div class="bg-white p-8 rounded-lg shadow-lg text-center">
-                        <div class="w-24 h-24 bg-gray-300 rounded-full mx-auto mb-4 flex items-center justify-center">
-                            <i class="fas fa-user text-gray-500 text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">주은숙</h3>
-                        <p class="text-red-600 font-semibold">최고위원</p>
-                    </div>
-                    
-                    <!-- 김상현 -->
-                    <div class="bg-white p-8 rounded-lg shadow-lg text-center">
-                        <div class="w-24 h-24 bg-gray-300 rounded-full mx-auto mb-4 flex items-center justify-center">
-                            <i class="fas fa-user text-gray-500 text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">김상현</h3>
-                        <p class="text-red-600 font-semibold">최고위원</p>
-                    </div>
-                    
-                    <!-- 김진일 -->
-                    <div class="bg-white p-8 rounded-lg shadow-lg text-center">
-                        <div class="w-24 h-24 bg-gray-300 rounded-full mx-auto mb-4 flex items-center justify-center">
-                            <i class="fas fa-user text-gray-500 text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">김진일</h3>
-                        <p class="text-red-600 font-semibold">최고위원</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 정책위의장/반국가세력척결위원회 위원장 Section -->
-        <section class="py-20 bg-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-16">
-                    <h2 class="text-4xl font-bold text-gray-900 mb-6">정책위의장/반국가세력척결위원회 위원장</h2>
-                    <div class="w-20 h-1 bg-red-600 mx-auto"></div>
-                </div>
-
-                <div class="max-w-md mx-auto">
-                    <!-- 강익현 -->
-                    <div class="bg-gray-50 p-8 rounded-lg text-center">
-                        <div class="w-24 h-24 bg-gray-300 rounded-full mx-auto mb-4 flex items-center justify-center">
-                            <i class="fas fa-user text-gray-500 text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">강익현</h3>
-                        <p class="text-red-600 font-semibold">정책위의장</p>
-                        <p class="text-red-600 font-semibold">반국가세력척결위원회 위원장</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 부정선거개혁위원회 위원장 Section -->
-        <section class="py-20 bg-gray-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-16">
-                    <h2 class="text-4xl font-bold text-gray-900 mb-6">부정선거개혁위원회 위원장</h2>
-                    <div class="w-20 h-1 bg-red-600 mx-auto"></div>
-                </div>
-
-                <div class="max-w-md mx-auto">
-                    <!-- 위금숙 -->
-                    <div class="bg-white p-8 rounded-lg shadow-lg text-center">
-                        <div class="w-24 h-24 bg-gray-300 rounded-full mx-auto mb-4 flex items-center justify-center">
-                            <i class="fas fa-user text-gray-500 text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">위금숙</h3>
-                        <p class="text-red-600 font-semibold">부정선거개혁위원회 위원장</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 청년위원장 Section -->
-        <section class="py-20 bg-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-16">
-                    <h2 class="text-4xl font-bold text-gray-900 mb-6">청년위원장</h2>
-                    <div class="w-20 h-1 bg-red-600 mx-auto"></div>
-                </div>
-
-                <div class="max-w-md mx-auto">
-                    <!-- 김의현 -->
-                    <div class="bg-gray-50 p-8 rounded-lg text-center">
-                        <div class="w-24 h-24 bg-gray-300 rounded-full mx-auto mb-4 flex items-center justify-center">
-                            <i class="fas fa-user text-gray-500 text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">김의현</h3>
-                        <p class="text-red-600 font-semibold">청년위원장</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 홍보위원장 Section -->
-        <section class="py-20 bg-gray-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-16">
-                    <h2 class="text-4xl font-bold text-gray-900 mb-6">홍보위원장</h2>
-                    <div class="w-20 h-1 bg-red-600 mx-auto"></div>
-                </div>
-
-                <!-- 공석 안내 -->
-                <div class="bg-white p-12 rounded-lg shadow-lg text-center max-w-md mx-auto">
-                    <div class="w-16 h-16 bg-gray-400 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-bullhorn text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4">공석</h3>
-                    <p class="text-gray-600 text-lg">
-                        홍보위원장 자리가 공석입니다.
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <!-- 조직위원장 Section -->
-        <section class="py-20 bg-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-16">
-                    <h2 class="text-4xl font-bold text-gray-900 mb-6">조직위원장</h2>
-                    <div class="w-20 h-1 bg-red-600 mx-auto"></div>
-                </div>
-
-                <!-- 공석 안내 -->
-                <div class="bg-gray-50 p-12 rounded-lg text-center max-w-md mx-auto">
-                    <div class="w-16 h-16 bg-gray-400 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-sitemap text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4">공석</h3>
-                    <p class="text-gray-600 text-lg">
-                        조직위원장 자리가 공석입니다.
-                    </p>
-                </div>
-            </div>
-        </section>
-
-     
         <!-- Call to Action Section -->
-        <section class="py-20 bg-gradient-to-r from-red-600 to-red-700 text-white">
+        <section class="py-16 bg-gradient-to-r from-red-600 to-red-700 text-white">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <h2 class="text-4xl font-bold mb-6">함께할 <span class="underline decoration-4 decoration-white/70">인재</span>를 찾습니다</h2>
-                <p class="text-xl mb-8 leading-relaxed opacity-90">
+                <h2 class="text-3xl font-bold mb-4">함께할 <span class="underline decoration-4 decoration-white/70">인재</span>를 찾습니다</h2>
+                <p class="text-lg mb-8 opacity-90">
                     자유와혁신과 함께 대한민국의 미래를 만들어갈<br>
                     유능하고 열정적인 인재를 기다리고 있습니다.
                 </p>
                 
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="../members/join.html" class="bg-white text-red-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors shadow-lg">
+                    <a href="../members/join.html" class="bg-white text-red-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors shadow-lg">
                         당원가입
-                    </a>
-                    <a href="#" onclick="alert('현재는 인재 지원 기간이 아닙니다.')" class="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-red-600 transition-colors">
-                        인재 지원하기
                     </a>
                 </div>
             </div>
         </section>
     </main>
 
+    <!-- 프로필 모달 -->
+    <div id="profileModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div class="p-6">
+                <!-- 모달 헤더 -->
+                <div class="flex justify-between items-start mb-6">
+                    <div class="flex items-center gap-4">
+                        <div id="modalImage" class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                            <i class="fas fa-user text-gray-400 text-2xl"></i>
+                        </div>
+                        <div>
+                            <span id="modalBadge" class="inline-block text-xs px-3 py-1 rounded-full mb-1"></span>
+                            <h3 id="modalName" class="text-2xl font-bold text-gray-900"></h3>
+                            <p id="modalSubtitle" class="text-gray-500"></p>
+                        </div>
+                    </div>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+                </div>
+                
+                <!-- 약력 -->
+                <div id="modalBiography" class="mb-6 hidden">
+                    <h4 class="font-bold text-gray-900 mb-2 flex items-center">
+                        <i class="fas fa-user-tie text-red-600 mr-2"></i>약력
+                    </h4>
+                    <div id="biographyContent" class="text-gray-600 whitespace-pre-line"></div>
+                </div>
+                
+                <!-- 프로필 링크 -->
+                <div id="modalProfileLink" class="hidden">
+                    <a id="profileLinkBtn" href="#" class="block w-full py-3 bg-red-600 text-white text-center rounded-lg font-semibold hover:bg-red-700 transition-colors">
+                        <i class="fas fa-user mr-2"></i>프로필 보기
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="../nav.js"></script>
     <script>
         loadNavigation();
+        
+        const API_BASE = window.API_BASE || 'https://forthefreedom-kr-production.up.railway.app/api';
+        
+        // 조직도 데이터 로드
+        async function loadOrgChart() {
+            try {
+                const response = await fetch(`${API_BASE}/orgchart`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    renderOrgChart(result.data);
+                }
+            } catch (error) {
+                console.error('조직도 로드 실패:', error);
+            } finally {
+                document.getElementById('loadingSpinner').classList.add('hidden');
+                document.getElementById('orgchartContainer').classList.remove('hidden');
+            }
+        }
+        
+        // 조직도 렌더링
+        function renderOrgChart(data) {
+            const { independentPositions, organizations } = data;
+            
+            // 독립 직책 렌더링
+            if (independentPositions && independentPositions.length > 0) {
+                const container = document.getElementById('independentPositions');
+                container.innerHTML = `
+                    <div class="flex justify-center flex-wrap gap-6">
+                        ${independentPositions.map(pos => renderPositionCard(pos, true)).join('')}
+                    </div>
+                `;
+                
+                // 조직이 있으면 연결선 표시
+                if (organizations && organizations.length > 0) {
+                    document.getElementById('connectionLine').classList.remove('hidden');
+                    document.getElementById('connectionLine').classList.add('flex');
+                }
+            }
+            
+            // 조직들 렌더링
+            if (organizations && organizations.length > 0) {
+                const container = document.getElementById('organizations');
+                container.innerHTML = organizations.map(org => renderOrganization(org)).join('');
+            }
+        }
+        
+        // 조직 박스 렌더링
+        function renderOrganization(org) {
+            const colorClass = org.color || 'red';
+            
+            return `
+                <div class="bg-white rounded-2xl shadow-lg p-6 border-2 border-org-${colorClass}">
+                    <h4 class="text-center text-lg font-bold text-title-${colorClass} mb-6 pb-3 border-b-2 border-org-${colorClass}/30">
+                        ${org.name}
+                    </h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        ${org.positions ? org.positions.map(pos => renderPositionCard(pos, false)).join('') : ''}
+                    </div>
+                    ${org.children && org.children.length > 0 ? `
+                        <div class="mt-6 pt-4 border-t border-gray-200 space-y-4">
+                            ${org.children.map(child => renderSubOrganization(child)).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+        
+        // 하위 조직 렌더링
+        function renderSubOrganization(org) {
+            const colorClass = org.color || 'gray';
+            
+            return `
+                <div class="bg-gray-50 rounded-xl p-4 border border-org-${colorClass}">
+                    <h5 class="text-center text-sm font-bold text-title-${colorClass} mb-4">${org.name}</h5>
+                    <div class="grid grid-cols-2 gap-3">
+                        ${org.positions ? org.positions.map(pos => renderPositionCard(pos, false, true)).join('') : ''}
+                    </div>
+                    ${org.children && org.children.length > 0 ? `
+                        <div class="mt-4 space-y-3">
+                            ${org.children.map(child => renderSubOrganization(child)).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+        
+        // 직책 카드 렌더링
+        function renderPositionCard(position, isLeader = false, isSmall = false) {
+            const name = position.memberId?.name || position.displayName || '공석';
+            const username = position.memberId?.username;
+            const profileImage = position.memberId?.profileImage || position.profileImage;
+            const badgeColor = position.badgeColor || 'red';
+            const isVacant = !position.memberId && !position.displayName;
+            
+            const cardClass = isLeader 
+                ? 'org-card org-card-leader bg-white rounded-xl shadow-lg p-6 text-center cursor-pointer'
+                : isSmall 
+                    ? 'org-card bg-white rounded-lg p-3 text-center cursor-pointer'
+                    : 'org-card bg-gray-50 rounded-xl p-4 text-center cursor-pointer';
+            
+            const imageSize = isLeader ? 'w-20 h-20' : isSmall ? 'w-10 h-10' : 'w-14 h-14';
+            const nameSize = isLeader ? 'text-xl' : isSmall ? 'text-sm' : 'text-base';
+            
+            const positionData = encodeURIComponent(JSON.stringify(position));
+            
+            return `
+                <div class="${cardClass}" onclick="openModal(decodeURIComponent('${positionData}'))" style="${isLeader ? 'min-width: 200px;' : ''}">
+                    <div class="${imageSize} mx-auto mb-2 rounded-full ${isVacant ? 'bg-gray-300' : 'bg-gray-200'} flex items-center justify-center overflow-hidden ${isLeader ? 'border-4 border-red-600' : ''}">
+                        ${profileImage 
+                            ? `<img src="${profileImage}" alt="${name}" class="w-full h-full object-cover">`
+                            : `<i class="fas fa-user text-gray-400 ${isLeader ? 'text-xl' : isSmall ? 'text-sm' : 'text-lg'}"></i>`
+                        }
+                    </div>
+                    <span class="inline-block badge-${badgeColor} text-xs px-2 py-1 rounded-full mb-1">${position.name}</span>
+                    <h3 class="${nameSize} font-bold ${isVacant ? 'text-gray-400' : 'text-gray-900'}">
+                        ${username 
+                            ? `<a href="/members/profile/@${username}" onclick="event.stopPropagation();" class="hover:text-red-600 hover:underline">${name}</a>`
+                            : name
+                        }
+                    </h3>
+                    ${position.subtitle && isLeader ? `<p class="text-sm text-gray-500 mt-1">${position.subtitle}</p>` : ''}
+                </div>
+            `;
+        }
+        
+        // 모달 열기
+        function openModal(positionData) {
+            const position = typeof positionData === 'string' ? JSON.parse(positionData) : positionData;
+            
+            const name = position.memberId?.name || position.displayName || '공석';
+            const username = position.memberId?.username;
+            const profileImage = position.memberId?.profileImage || position.profileImage;
+            const badgeColor = position.badgeColor || 'red';
+            
+            // 이미지
+            const modalImage = document.getElementById('modalImage');
+            if (profileImage) {
+                modalImage.innerHTML = `<img src="${profileImage}" class="w-full h-full object-cover">`;
+            } else {
+                modalImage.innerHTML = `<i class="fas fa-user text-gray-400 text-2xl"></i>`;
+            }
+            
+            // 뱃지
+            const modalBadge = document.getElementById('modalBadge');
+            modalBadge.textContent = position.name;
+            modalBadge.className = `inline-block text-xs px-3 py-1 rounded-full mb-1 badge-${badgeColor}`;
+            
+            // 이름
+            document.getElementById('modalName').textContent = name;
+            
+            // 부제
+            const subtitle = document.getElementById('modalSubtitle');
+            subtitle.textContent = position.subtitle || '';
+            subtitle.classList.toggle('hidden', !position.subtitle);
+            
+            // 약력
+            const biographySection = document.getElementById('modalBiography');
+            const biographyContent = document.getElementById('biographyContent');
+            if (position.biography) {
+                biographyContent.textContent = position.biography;
+                biographySection.classList.remove('hidden');
+            } else {
+                biographySection.classList.add('hidden');
+            }
+            
+            // 프로필 링크
+            const profileLinkSection = document.getElementById('modalProfileLink');
+            const profileLinkBtn = document.getElementById('profileLinkBtn');
+            if (username) {
+                profileLinkBtn.href = `/members/profile/@${username}`;
+                profileLinkSection.classList.remove('hidden');
+            } else {
+                profileLinkSection.classList.add('hidden');
+            }
+            
+            // 모달 표시
+            const modal = document.getElementById('profileModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+        
+        // 모달 닫기
+        function closeModal() {
+            const modal = document.getElementById('profileModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+        
+        // 모달 외부 클릭 시 닫기
+        document.getElementById('profileModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+        
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+        
+        // 초기 로드
+        loadOrgChart();
     </script>
 </body>
-</html> 
-
+</html>
