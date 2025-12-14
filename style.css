@@ -127,6 +127,7 @@ html {
 body {
     margin: 0 !important;
     padding: 0 !important;
+    padding-top: 56px !important; /* nav 높이 - setupPageLayout()에서 동적 조정 */
     line-height: 1;
     overflow-x: hidden;
 }
