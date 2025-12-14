@@ -1869,14 +1869,10 @@ async function loadAnnouncementBar() {
         if (result.success && result.data) {
             const ann = result.data;
             
-            // nav 높이 가져오기
-            const nav = document.querySelector('nav');
-            const navHeight = nav ? nav.offsetHeight : 60;
-            
             // 공지 바 높이
             const announcementBarHeight = 40;
             
-            // 공지 바 HTML 생성
+            // 공지 바 HTML - 최상단에 fixed
             const barHTML = `
                 <div id="announcement-bar" style="
                     background: ${ann.bgColor || '#000000'};
@@ -1888,10 +1884,10 @@ async function loadAnnouncementBar() {
                     justify-content: center;
                     gap: 8px;
                     position: fixed;
-                    top: ${navHeight}px;
+                    top: 0;
                     left: 0;
                     right: 0;
-                    z-index: 49;
+                    z-index: 51;
                     overflow: hidden;
                     height: 0;
                     padding: 0 20px;
@@ -1915,10 +1911,17 @@ async function loadAnnouncementBar() {
                 </div>
             `;
             
-            // body에 삽입
+            // body 맨 앞에 삽입
             document.body.insertAdjacentHTML('afterbegin', barHTML);
             
-            // body의 padding-top 저장 및 조정
+            // nav를 공지바 높이만큼 아래로 이동
+            const nav = document.querySelector('nav');
+            if (nav) {
+                nav.style.transition = 'top 0.4s ease';
+                nav.style.top = announcementBarHeight + 'px';
+            }
+            
+            // body padding-top도 추가 (전체 콘텐츠 밀기)
             const currentBodyPadding = parseInt(getComputedStyle(document.body).paddingTop) || 0;
             document.body.dataset.originalPadding = currentBodyPadding;
             document.body.style.transition = 'padding-top 0.4s ease';
@@ -1946,7 +1949,14 @@ function closeAnnouncementBar() {
         bar.style.padding = '0 20px';
         bar.style.overflow = 'hidden';
         
-        // body의 padding-top 복원
+        // nav 원위치
+        const nav = document.querySelector('nav');
+        if (nav) {
+            nav.style.transition = 'top 0.3s ease';
+            nav.style.top = '0';
+        }
+        
+        // body padding-top 복원
         if (document.body.dataset.originalPadding !== undefined) {
             document.body.style.transition = 'padding-top 0.3s ease';
             document.body.style.paddingTop = document.body.dataset.originalPadding + 'px';
