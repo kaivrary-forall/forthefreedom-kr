@@ -1954,12 +1954,14 @@ function closeAnnouncementBar() {
 
 // ===== 페이지 콘텐츠 margin-top 설정 =====
 function setupPageLayout() {
-    // nav 높이 가져오기
-    const nav = document.querySelector('nav');
-    const navHeight = nav ? nav.offsetHeight : 56;
-    
-    // body에 padding-top 설정 (nav 높이만큼) - !important로 강제 적용
-    document.body.style.setProperty('padding-top', navHeight + 'px', 'important');
+    // 렌더링 완료 후 실행
+    requestAnimationFrame(() => {
+        const nav = document.querySelector('nav');
+        const navHeight = nav ? nav.offsetHeight : 56;
+        
+        // body에 padding-top 설정 (nav 높이만큼) - !important로 강제 적용
+        document.body.style.setProperty('padding-top', navHeight + 'px', 'important');
+    });
 }
 
 window.closeAnnouncementBar = closeAnnouncementBar;
