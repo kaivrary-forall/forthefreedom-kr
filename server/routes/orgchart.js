@@ -7,13 +7,20 @@ const Member = require('../models/Member');
 // ============================================
 // 조직도 전체 조회 (트리 구조)
 // GET /api/orgchart
+// GET /api/orgchart?category=central
 // ============================================
 router.get('/', async (req, res) => {
   try {
+    const { category } = req.query;
+    
+    // 카테고리 필터 (없으면 전체)
+    const categoryFilter = category ? { category } : {};
+    
     // 독립 직책들 (조직에 속하지 않은)
     const independentPositions = await Position.find({ 
       organizationId: null,
-      isActive: true 
+      isActive: true,
+      ...categoryFilter
     })
     .populate('memberId', 'name username profileImage')
     .sort({ order: 1 });
@@ -21,7 +28,8 @@ router.get('/', async (req, res) => {
     // 최상위 조직들
     const topOrganizations = await Organization.find({ 
       parentId: null,
-      isActive: true 
+      isActive: true,
+      ...categoryFilter
     }).sort({ order: 1 });
     
     // 재귀적으로 하위 조직과 직책 가져오기
@@ -334,24 +342,35 @@ router.post('/seed', async (req, res) => {
       });
     }
     
-    // 최고위원회 생성
+    // 최고위원회 생성 (중앙당)
     const supreme = await Organization.create({
       name: '최고위원회',
+      category: 'central',
       order: 0,
       color: 'red'
     });
     
-    // 부정선거척결위원회 생성
+    // 부정선거척결위원회 생성 (중앙당)
     const election = await Organization.create({
       name: '부정선거척결위원회',
+      category: 'central',
       order: 1,
       color: 'purple'
     });
     
+    // 직능위원회들 생성
+    const committees = await Organization.create([
+      { name: '국제위원회', category: 'committee', order: 0, color: 'blue' },
+      { name: '홍보위원회', category: 'committee', order: 1, color: 'orange' },
+      { name: '정책위원회', category: 'committee', order: 2, color: 'green' },
+      { name: '교육위원회', category: 'committee', order: 3, color: 'purple' },
+      { name: '장애인위원회', category: 'committee', order: 4, color: 'blue' }
+    ]);
+    
     // 직책들 생성
     await Position.create([
-      // 독립 직책
-      { name: '당 대표', organizationId: null, order: 0, level: 1, badgeColor: 'red', displayName: '황교안', subtitle: '제44대 국무총리' },
+      // 독립 직책 (중앙당)
+      { name: '당 대표', category: 'central', organizationId: null, order: 0, level: 1, badgeColor: 'red', displayName: '황교안', subtitle: '제44대 국무총리' },
       
       // 최고위원회
       { name: '최고위원', organizationId: supreme._id, order: 0, level: 2, badgeColor: 'red', displayName: '김상현' },
@@ -360,13 +379,80 @@ router.post('/seed', async (req, res) => {
       { name: '사무총장', organizationId: supreme._id, order: 3, level: 2, badgeColor: 'green', displayName: '허진경' },
       
       // 부정선거척결위원회
-      { name: '위원장', organizationId: election._id, order: 0, level: 2, badgeColor: 'purple', displayName: '위금숙' }
+      { name: '위원장', organizationId: election._id, order: 0, level: 2, badgeColor: 'purple', displayName: '위금숙' },
+      
+      // 직능위원회 위원장들
+      { name: '위원장', organizationId: committees[0]._id, order: 0, level: 2, badgeColor: 'blue' }, // 국제위원회 - 공석
+      { name: '위원장', organizationId: committees[1]._id, order: 0, level: 2, badgeColor: 'orange' }, // 홍보위원회 - 공석
+      { name: '위원장', organizationId: committees[2]._id, order: 0, level: 2, badgeColor: 'green' }, // 정책위원회 - 공석
+      { name: '위원장', organizationId: committees[3]._id, order: 0, level: 2, badgeColor: 'purple' }, // 교육위원회 - 공석
+      { name: '위원장', organizationId: committees[4]._id, order: 0, level: 2, badgeColor: 'blue' } // 장애인위원회 - 공석
     ]);
     
     res.json({ success: true, message: '시드 데이터가 생성되었습니다.' });
   } catch (error) {
     console.error('시드 생성 오류:', error);
     res.status(500).json({ success: false, error: '시드 생성에 실패했습니다.' });
+  }
+});
+
+// 시드 데이터 리셋 (기존 데이터 삭제 후 재생성)
+router.post('/seed/reset', async (req, res) => {
+  try {
+    await Organization.deleteMany({});
+    await Position.deleteMany({});
+    
+    // 최고위원회 생성 (중앙당)
+    const supreme = await Organization.create({
+      name: '최고위원회',
+      category: 'central',
+      order: 0,
+      color: 'red'
+    });
+    
+    // 부정선거척결위원회 생성 (중앙당)
+    const election = await Organization.create({
+      name: '부정선거척결위원회',
+      category: 'central',
+      order: 1,
+      color: 'purple'
+    });
+    
+    // 직능위원회들 생성
+    const committees = await Organization.create([
+      { name: '국제위원회', category: 'committee', order: 0, color: 'blue' },
+      { name: '홍보위원회', category: 'committee', order: 1, color: 'orange' },
+      { name: '정책위원회', category: 'committee', order: 2, color: 'green' },
+      { name: '교육위원회', category: 'committee', order: 3, color: 'purple' },
+      { name: '장애인위원회', category: 'committee', order: 4, color: 'blue' }
+    ]);
+    
+    // 직책들 생성
+    await Position.create([
+      // 독립 직책 (중앙당)
+      { name: '당 대표', category: 'central', organizationId: null, order: 0, level: 1, badgeColor: 'red', displayName: '황교안', subtitle: '제44대 국무총리' },
+      
+      // 최고위원회
+      { name: '최고위원', organizationId: supreme._id, order: 0, level: 2, badgeColor: 'red', displayName: '김상현' },
+      { name: '최고위원', organizationId: supreme._id, order: 1, level: 2, badgeColor: 'red', displayName: '김진일' },
+      { name: '정책위의장', organizationId: supreme._id, order: 2, level: 2, badgeColor: 'blue', displayName: '강익현' },
+      { name: '사무총장', organizationId: supreme._id, order: 3, level: 2, badgeColor: 'green', displayName: '허진경' },
+      
+      // 부정선거척결위원회
+      { name: '위원장', organizationId: election._id, order: 0, level: 2, badgeColor: 'purple', displayName: '위금숙' },
+      
+      // 직능위원회 위원장들
+      { name: '위원장', organizationId: committees[0]._id, order: 0, level: 2, badgeColor: 'blue' },
+      { name: '위원장', organizationId: committees[1]._id, order: 0, level: 2, badgeColor: 'orange' },
+      { name: '위원장', organizationId: committees[2]._id, order: 0, level: 2, badgeColor: 'green' },
+      { name: '위원장', organizationId: committees[3]._id, order: 0, level: 2, badgeColor: 'purple' },
+      { name: '위원장', organizationId: committees[4]._id, order: 0, level: 2, badgeColor: 'blue' }
+    ]);
+    
+    res.json({ success: true, message: '시드 데이터가 리셋되었습니다.' });
+  } catch (error) {
+    console.error('시드 리셋 오류:', error);
+    res.status(500).json({ success: false, error: '시드 리셋에 실패했습니다.' });
   }
 });
 
