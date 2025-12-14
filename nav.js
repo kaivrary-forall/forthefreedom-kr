@@ -12,7 +12,7 @@ function loadNavigation() {
     
     const navigationHTML = `
         <nav class="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
-            <div class="max-w-[1280px] mx-auto pl-4 pr-12 py-5">
+            <div class="max-w-[1280px] mx-auto pl-4 pr-12 py-3">
                 <div class="flex justify-between items-center">
                     <!-- 왼쪽: 로고 + 메뉴 -->
                     <div class="flex items-center gap-8">
