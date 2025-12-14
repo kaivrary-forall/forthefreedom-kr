@@ -477,9 +477,6 @@ function loadNavigation() {
             updateFloatingButtons();
         }
         
-        // 페이지 구조 통일 (콘텐츠 wrapper로 감싸기)
-        wrapPageContent();
-        
         // 한줄 공지 바 로드
         loadAnnouncementBar();
     }
@@ -1872,7 +1869,11 @@ async function loadAnnouncementBar() {
         if (result.success && result.data) {
             const ann = result.data;
             
-            // 공지 바 HTML
+            // nav 높이 가져오기
+            const nav = document.querySelector('nav');
+            const navHeight = nav ? nav.offsetHeight : 56;
+            
+            // 공지 바 HTML - nav 아래 fixed
             const barHTML = `
                 <div id="announcement-bar" style="
                     background: ${ann.bgColor || '#000000'};
@@ -1883,11 +1884,13 @@ async function loadAnnouncementBar() {
                     align-items: center;
                     justify-content: center;
                     gap: 8px;
-                    position: relative;
-                    overflow: hidden;
-                    height: 0;
-                    padding: 0 20px;
-                    transition: all 0.4s ease;
+                    position: fixed;
+                    top: ${navHeight}px;
+                    left: 0;
+                    right: 0;
+                    z-index: 49;
+                    height: 40px;
+                    padding: 10px 20px;
                 ">
                     <span>${ann.text}</span>
                     ${ann.link ? `<a href="${ann.link}" style="color: ${ann.textColor || '#ffffff'}; text-decoration: underline; opacity: 0.9;">${ann.linkText || '자세히 알아보기'} ›</a>` : ''}
@@ -1907,20 +1910,8 @@ async function loadAnnouncementBar() {
                 </div>
             `;
             
-            // page-content 앞에 삽입
-            const pageContent = document.getElementById('page-content');
-            if (pageContent) {
-                pageContent.insertAdjacentHTML('beforebegin', barHTML);
-            }
-            
-            // 공지 바 펼치기
-            requestAnimationFrame(() => {
-                const bar = document.getElementById('announcement-bar');
-                if (bar) {
-                    bar.style.height = '40px';
-                    bar.style.padding = '10px 20px';
-                }
-            });
+            // body 맨 앞에 삽입
+            document.body.insertAdjacentHTML('afterbegin', barHTML);
         }
     } catch (error) {
         console.log('공지 로드 실패:', error);
@@ -1930,62 +1921,9 @@ async function loadAnnouncementBar() {
 function closeAnnouncementBar() {
     const bar = document.getElementById('announcement-bar');
     if (bar) {
-        bar.style.transition = 'all 0.3s ease';
-        bar.style.height = '0';
-        bar.style.padding = '0 20px';
-        bar.style.overflow = 'hidden';
-        
-        setTimeout(() => bar.remove(), 300);
+        bar.remove();
     }
     sessionStorage.setItem('announcementClosed', 'true');
-}
-
-// ===== 페이지 구조 통일 =====
-function wrapPageContent() {
-    // 이미 감싸져 있으면 스킵
-    if (document.getElementById('page-content')) return;
-    
-    const navContainer = document.getElementById('navigation-container');
-    if (!navContainer) return;
-    
-    // navigation-container를 제외한 body의 모든 자식 요소 수집
-    const bodyChildren = Array.from(document.body.children);
-    const contentElements = bodyChildren.filter(el => 
-        el.id !== 'navigation-container' && 
-        el.id !== 'announcement-bar' &&
-        el.tagName !== 'SCRIPT' &&
-        el.tagName !== 'NOSCRIPT'
-    );
-    
-    if (contentElements.length === 0) return;
-    
-    // wrapper div 생성
-    const wrapper = document.createElement('div');
-    wrapper.id = 'page-content';
-    
-    // nav 높이 가져오기
-    const nav = document.querySelector('nav');
-    const navHeight = nav ? nav.offsetHeight : 56;
-    
-    // wrapper 스타일 - nav 높이만큼 margin-top
-    wrapper.style.marginTop = navHeight + 'px';
-    
-    // navigation-container 다음에 wrapper 삽입
-    navContainer.after(wrapper);
-    
-    // 콘텐츠 요소들을 wrapper 안으로 이동
-    contentElements.forEach(el => {
-        // 기존 margin-top 제거 (nav 높이 보정용이었던 것들)
-        const computedMargin = parseInt(getComputedStyle(el).marginTop) || 0;
-        if (computedMargin >= navHeight - 10) {
-            // nav 높이와 비슷한 margin-top은 제거 (이제 wrapper가 처리)
-            el.style.marginTop = (computedMargin - navHeight) + 'px';
-            if (computedMargin - navHeight <= 0) {
-                el.style.marginTop = '0';
-            }
-        }
-        wrapper.appendChild(el);
-    });
 }
 
 window.closeAnnouncementBar = closeAnnouncementBar;
