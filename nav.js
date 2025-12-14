@@ -477,6 +477,9 @@ function loadNavigation() {
             updateFloatingButtons();
         }
         
+        // 페이지 레이아웃 설정 (body padding-top)
+        setupPageLayout();
+        
         // 한줄 공지 바 로드
         loadAnnouncementBar();
     }
@@ -1915,6 +1918,11 @@ async function loadAnnouncementBar() {
             // body 맨 앞에 삽입
             document.body.insertAdjacentHTML('afterbegin', barHTML);
             
+            // body padding-top 증가 (콘텐츠 밀어내기)
+            document.body.style.transition = 'padding-top 0.4s ease';
+            const currentPadding = parseInt(getComputedStyle(document.body).paddingTop) || 0;
+            document.body.style.paddingTop = (currentPadding + 40) + 'px';
+            
             // 스르륵 펼치기
             requestAnimationFrame(() => {
                 const bar = document.getElementById('announcement-bar');
@@ -1934,9 +1942,27 @@ function closeAnnouncementBar() {
     if (bar) {
         bar.style.height = '0';
         bar.style.padding = '0 20px';
+        
+        // body padding-top 감소
+        const currentPadding = parseInt(getComputedStyle(document.body).paddingTop) || 0;
+        document.body.style.paddingTop = Math.max(0, currentPadding - 40) + 'px';
+        
         setTimeout(() => bar.remove(), 400);
     }
     sessionStorage.setItem('announcementClosed', 'true');
+}
+
+// ===== 페이지 콘텐츠 margin-top 설정 =====
+function setupPageLayout() {
+    // nav 높이 가져오기
+    const nav = document.querySelector('nav');
+    const navHeight = nav ? nav.offsetHeight : 56;
+    
+    // body에 padding-top 설정 (nav 높이만큼)
+    const currentPadding = parseInt(getComputedStyle(document.body).paddingTop) || 0;
+    if (currentPadding < navHeight) {
+        document.body.style.paddingTop = navHeight + 'px';
+    }
 }
 
 window.closeAnnouncementBar = closeAnnouncementBar;
