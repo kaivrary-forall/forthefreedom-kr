@@ -8,6 +8,13 @@ const organizationSchema = new mongoose.Schema({
     trim: true
   },
   
+  // 분류 (탭 구분용)
+  category: {
+    type: String,
+    enum: ['central', 'committee', 'seoul', 'busan', 'daegu', 'incheon', 'gwangju', 'daejeon', 'ulsan', 'sejong', 'gyeonggi', 'gangwon', 'chungbuk', 'chungnam', 'jeonbuk', 'jeonnam', 'gyeongbuk', 'gyeongnam', 'jeju'],
+    default: 'central'
+  },
+  
   // 상위 조직 (없으면 최상위 조직)
   parentId: {
     type: mongoose.Schema.Types.ObjectId,
