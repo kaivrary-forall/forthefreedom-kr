@@ -64,13 +64,30 @@ router.post('/', upload.array('attachments'), async (req, res) => {
         // 첨부파일 정보 처리 (한글 파일명 자동 복원)
         const attachments = createAttachmentsInfo(req.files);
 
+        // tags 처리 - 배열이면 그대로, 문자열이면 split
+        let parsedTags = [];
+        if (tags) {
+            if (Array.isArray(tags)) {
+                parsedTags = tags;
+            } else if (typeof tags === 'string') {
+                try {
+                    // JSON 배열 문자열인 경우 파싱
+                    const parsed = JSON.parse(tags);
+                    parsedTags = Array.isArray(parsed) ? parsed : [tags];
+                } catch (e) {
+                    // 일반 콤마 구분 문자열
+                    parsedTags = tags.split(',').map(tag => tag.trim()).filter(t => t);
+                }
+            }
+        }
+
         const noticeData = {
             title,
             content,
             category,
             author: author || '관리자',
-            excerpt,
-            tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
+            excerpt: excerpt || '',
+            tags: parsedTags,
             isImportant: isImportant === 'true' || isImportant === true,
             attachments,
             status: 'published',
@@ -100,13 +117,30 @@ router.put('/:id', upload.array('attachments'), async (req, res) => {
     try {
         const { title, content, category, author, excerpt, tags, isImportant, existingAttachments } = req.body;
 
+        // tags 처리 - 배열이면 그대로, 문자열이면 split
+        let parsedTags = [];
+        if (tags) {
+            if (Array.isArray(tags)) {
+                parsedTags = tags;
+            } else if (typeof tags === 'string') {
+                try {
+                    // JSON 배열 문자열인 경우 파싱
+                    const parsed = JSON.parse(tags);
+                    parsedTags = Array.isArray(parsed) ? parsed : [tags];
+                } catch (e) {
+                    // 일반 콤마 구분 문자열
+                    parsedTags = tags.split(',').map(tag => tag.trim()).filter(t => t);
+                }
+            }
+        }
+
         const updateData = {
             title,
             content,
             category,
             author: author || '관리자',
-            excerpt,
-            tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
+            excerpt: excerpt || '',
+            tags: parsedTags,
             isImportant: isImportant === 'true' || isImportant === true,
             updatedAt: new Date()
         };
