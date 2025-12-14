@@ -1873,10 +1873,10 @@ async function loadAnnouncementBar() {
             const nav = document.querySelector('nav');
             const navHeight = nav ? nav.offsetHeight : 60;
             
-            // 공지 바 높이 (padding 10px * 2 + line-height 약 20px)
+            // 공지 바 높이
             const announcementBarHeight = 40;
             
-            // 공지 바 HTML 생성 - nav 바로 아래 fixed 위치
+            // 공지 바 HTML 생성
             const barHTML = `
                 <div id="announcement-bar" style="
                     background: ${ann.bgColor || '#000000'};
@@ -1918,16 +1918,13 @@ async function loadAnnouncementBar() {
             // body에 삽입
             document.body.insertAdjacentHTML('afterbegin', barHTML);
             
-            // main 태그의 padding-top 먼저 조정 (동시 애니메이션)
-            const main = document.querySelector('main');
-            if (main) {
-                const currentPadding = parseInt(getComputedStyle(main).paddingTop) || 0;
-                main.dataset.originalPadding = currentPadding;
-                main.style.transition = 'padding-top 0.4s ease';
-                main.style.paddingTop = (currentPadding + announcementBarHeight) + 'px';
-            }
+            // body의 padding-top 저장 및 조정
+            const currentBodyPadding = parseInt(getComputedStyle(document.body).paddingTop) || 0;
+            document.body.dataset.originalPadding = currentBodyPadding;
+            document.body.style.transition = 'padding-top 0.4s ease';
+            document.body.style.paddingTop = (currentBodyPadding + announcementBarHeight) + 'px';
             
-            // 공지 바 펼치기 (동시에)
+            // 공지 바 펼치기
             requestAnimationFrame(() => {
                 const bar = document.getElementById('announcement-bar');
                 if (bar) {
@@ -1949,11 +1946,10 @@ function closeAnnouncementBar() {
         bar.style.padding = '0 20px';
         bar.style.overflow = 'hidden';
         
-        // main 태그의 padding-top 복원
-        const main = document.querySelector('main');
-        if (main && main.dataset.originalPadding !== undefined) {
-            main.style.transition = 'padding-top 0.3s ease';
-            main.style.paddingTop = main.dataset.originalPadding + 'px';
+        // body의 padding-top 복원
+        if (document.body.dataset.originalPadding !== undefined) {
+            document.body.style.transition = 'padding-top 0.3s ease';
+            document.body.style.paddingTop = document.body.dataset.originalPadding + 'px';
         }
         
         setTimeout(() => bar.remove(), 300);
