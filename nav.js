@@ -1873,6 +1873,9 @@ async function loadAnnouncementBar() {
             const nav = document.querySelector('nav');
             const navHeight = nav ? nav.offsetHeight : 60;
             
+            // 공지 바 높이 (padding 10px * 2 + line-height 약 20px)
+            const announcementBarHeight = 40;
+            
             // 공지 바 HTML 생성 - nav 바로 아래 fixed 위치
             const barHTML = `
                 <div id="announcement-bar" style="
@@ -1915,23 +1918,21 @@ async function loadAnnouncementBar() {
             // body에 삽입
             document.body.insertAdjacentHTML('afterbegin', barHTML);
             
-            // 스르륵 펼쳐지는 애니메이션 + main padding 조정
+            // main 태그의 padding-top 먼저 조정 (동시 애니메이션)
+            const main = document.querySelector('main');
+            if (main) {
+                const currentPadding = parseInt(getComputedStyle(main).paddingTop) || 0;
+                main.dataset.originalPadding = currentPadding;
+                main.style.transition = 'padding-top 0.4s ease';
+                main.style.paddingTop = (currentPadding + announcementBarHeight) + 'px';
+            }
+            
+            // 공지 바 펼치기 (동시에)
             requestAnimationFrame(() => {
                 const bar = document.getElementById('announcement-bar');
                 if (bar) {
-                    bar.style.height = 'auto';
+                    bar.style.height = announcementBarHeight + 'px';
                     bar.style.padding = '10px 20px';
-                    
-                    // main 태그의 padding-top 추가
-                    setTimeout(() => {
-                        const barHeight = bar.offsetHeight;
-                        const main = document.querySelector('main');
-                        if (main) {
-                            const currentPadding = parseInt(getComputedStyle(main).paddingTop) || 0;
-                            main.style.paddingTop = (currentPadding + barHeight) + 'px';
-                            main.dataset.originalPadding = currentPadding;
-                        }
-                    }, 50);
                 }
             });
         }
@@ -1943,7 +1944,6 @@ async function loadAnnouncementBar() {
 function closeAnnouncementBar() {
     const bar = document.getElementById('announcement-bar');
     if (bar) {
-        const barHeight = bar.offsetHeight;
         bar.style.transition = 'all 0.3s ease';
         bar.style.height = '0';
         bar.style.padding = '0 20px';
