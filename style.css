@@ -126,10 +126,7 @@ html {
 
 body {
     margin: 0 !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    padding-bottom: 0 !important;
-    padding-top: 64px;
+    padding: 0 !important;
     line-height: 1;
     overflow-x: hidden;
 }
