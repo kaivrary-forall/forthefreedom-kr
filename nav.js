@@ -1869,19 +1869,27 @@ async function loadAnnouncementBar() {
         if (result.success && result.data) {
             const ann = result.data;
             
-            // 공지 바 HTML 생성
+            // nav 높이 측정
+            const nav = document.querySelector('nav');
+            const navHeight = nav ? nav.offsetHeight : 48;
+            
+            // 공지 바 HTML 생성 - nav 아래 고정
             const barHTML = `
                 <div id="announcement-bar" style="
+                    position: fixed;
+                    top: ${navHeight}px;
+                    left: 0;
+                    right: 0;
+                    z-index: 49;
                     background: ${ann.bgColor || '#000000'};
                     color: ${ann.textColor || '#ffffff'};
-                    padding: 10px 20px;
+                    padding: 8px 20px;
                     text-align: center;
                     font-size: 14px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     gap: 8px;
-                    position: relative;
                 ">
                     <span>${ann.text}</span>
                     ${ann.link ? `<a href="${ann.link}" style="color: ${ann.textColor || '#ffffff'}; text-decoration: underline; opacity: 0.9;">${ann.linkText || '자세히 알아보기'} ›</a>` : ''}
@@ -1901,10 +1909,10 @@ async function loadAnnouncementBar() {
                 </div>
             `;
             
-            // main 태그 맨 앞에 삽입
-            const main = document.querySelector('main');
-            if (main) {
-                main.insertAdjacentHTML('afterbegin', barHTML);
+            // navigation-container 바로 다음에 삽입
+            const navContainer = document.getElementById('navigation-container');
+            if (navContainer) {
+                navContainer.insertAdjacentHTML('afterend', barHTML);
             }
         }
     } catch (error) {
