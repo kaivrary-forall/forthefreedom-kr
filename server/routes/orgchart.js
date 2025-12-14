@@ -13,25 +13,6 @@ router.get('/', async (req, res) => {
   try {
     const { category } = req.query;
     
-    // 카테고리 필터 (없으면 전체)
-    const categoryFilter = category ? { category } : {};
-    
-    // 독립 직책들 (조직에 속하지 않은)
-    const independentPositions = await Position.find({ 
-      organizationId: null,
-      isActive: true,
-      ...categoryFilter
-    })
-    .populate('memberId', 'name username profileImage')
-    .sort({ order: 1 });
-    
-    // 최상위 조직들
-    const topOrganizations = await Organization.find({ 
-      parentId: null,
-      isActive: true,
-      ...categoryFilter
-    }).sort({ order: 1 });
-    
     // 재귀적으로 하위 조직과 직책 가져오기
     const buildTree = async (org) => {
       const children = await Organization.find({ 
@@ -55,13 +36,93 @@ router.get('/', async (req, res) => {
       };
     };
     
-    const organizationTrees = await Promise.all(topOrganizations.map(buildTree));
+    // 카테고리별 조회
+    if (category) {
+      const independentPositions = await Position.find({ 
+        organizationId: null,
+        isActive: true,
+        category
+      })
+      .populate('memberId', 'name username profileImage')
+      .sort({ order: 1 });
+      
+      const topOrganizations = await Organization.find({ 
+        parentId: null,
+        isActive: true,
+        category
+      }).sort({ order: 1 });
+      
+      const organizationTrees = await Promise.all(topOrganizations.map(buildTree));
+      
+      return res.json({
+        success: true,
+        data: {
+          independentPositions,
+          organizations: organizationTrees
+        }
+      });
+    }
+    
+    // 전체 조회 - 카테고리별로 그룹핑
+    const categoryNames = {
+      central: '중앙당',
+      committee: '직능위원회',
+      seoul: '서울특별시당',
+      busan: '부산광역시당',
+      daegu: '대구광역시당',
+      incheon: '인천광역시당',
+      gwangju: '광주광역시당',
+      daejeon: '대전광역시당',
+      ulsan: '울산광역시당',
+      sejong: '세종특별자치시당',
+      gyeonggi: '경기도당',
+      gangwon: '강원특별자치도당',
+      chungbuk: '충청북도당',
+      chungnam: '충청남도당',
+      jeonbuk: '전북특별자치도당',
+      jeonnam: '전라남도당',
+      gyeongbuk: '경상북도당',
+      gyeongnam: '경상남도당',
+      jeju: '제주특별자치도당'
+    };
+    
+    const categoryOrder = ['central', 'committee', 'seoul', 'busan', 'daegu', 'incheon', 'gwangju', 'daejeon', 'ulsan', 'sejong', 'gyeonggi', 'gangwon', 'chungbuk', 'chungnam', 'jeonbuk', 'jeonnam', 'gyeongbuk', 'gyeongnam', 'jeju'];
+    
+    const groupedData = [];
+    
+    for (const cat of categoryOrder) {
+      const independentPositions = await Position.find({ 
+        organizationId: null,
+        isActive: true,
+        category: cat
+      })
+      .populate('memberId', 'name username profileImage')
+      .sort({ order: 1 });
+      
+      const topOrganizations = await Organization.find({ 
+        parentId: null,
+        isActive: true,
+        category: cat
+      }).sort({ order: 1 });
+      
+      const organizationTrees = await Promise.all(topOrganizations.map(buildTree));
+      
+      // 데이터가 있는 카테고리만 포함
+      if (independentPositions.length > 0 || organizationTrees.length > 0) {
+        groupedData.push({
+          category: cat,
+          categoryName: categoryNames[cat],
+          independentPositions,
+          organizations: organizationTrees
+        });
+      }
+    }
     
     res.json({
       success: true,
       data: {
-        independentPositions,
-        organizations: organizationTrees
+        grouped: true,
+        categories: groupedData
       }
     });
   } catch (error) {
