@@ -1869,27 +1869,30 @@ async function loadAnnouncementBar() {
         if (result.success && result.data) {
             const ann = result.data;
             
-            // nav 높이 측정
+            // nav 높이 가져오기
             const nav = document.querySelector('nav');
-            const navHeight = nav ? nav.offsetHeight : 48;
+            const navHeight = nav ? nav.offsetHeight : 60;
             
-            // 공지 바 HTML 생성 - nav 아래 고정
+            // 공지 바 HTML 생성 - nav 바로 아래 fixed 위치
             const barHTML = `
                 <div id="announcement-bar" style="
-                    position: fixed;
-                    top: ${navHeight}px;
-                    left: 0;
-                    right: 0;
-                    z-index: 49;
                     background: ${ann.bgColor || '#000000'};
                     color: ${ann.textColor || '#ffffff'};
-                    padding: 8px 20px;
                     text-align: center;
                     font-size: 14px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     gap: 8px;
+                    position: fixed;
+                    top: ${navHeight}px;
+                    left: 0;
+                    right: 0;
+                    z-index: 49;
+                    overflow: hidden;
+                    height: 0;
+                    padding: 0 20px;
+                    transition: all 0.4s ease;
                 ">
                     <span>${ann.text}</span>
                     ${ann.link ? `<a href="${ann.link}" style="color: ${ann.textColor || '#ffffff'}; text-decoration: underline; opacity: 0.9;">${ann.linkText || '자세히 알아보기'} ›</a>` : ''}
@@ -1909,11 +1912,28 @@ async function loadAnnouncementBar() {
                 </div>
             `;
             
-            // navigation-container 바로 다음에 삽입
-            const navContainer = document.getElementById('navigation-container');
-            if (navContainer) {
-                navContainer.insertAdjacentHTML('afterend', barHTML);
-            }
+            // body에 삽입
+            document.body.insertAdjacentHTML('afterbegin', barHTML);
+            
+            // 스르륵 펼쳐지는 애니메이션 + main padding 조정
+            requestAnimationFrame(() => {
+                const bar = document.getElementById('announcement-bar');
+                if (bar) {
+                    bar.style.height = 'auto';
+                    bar.style.padding = '10px 20px';
+                    
+                    // main 태그의 padding-top 추가
+                    setTimeout(() => {
+                        const barHeight = bar.offsetHeight;
+                        const main = document.querySelector('main');
+                        if (main) {
+                            const currentPadding = parseInt(getComputedStyle(main).paddingTop) || 0;
+                            main.style.paddingTop = (currentPadding + barHeight) + 'px';
+                            main.dataset.originalPadding = currentPadding;
+                        }
+                    }, 50);
+                }
+            });
         }
     } catch (error) {
         console.log('공지 로드 실패:', error);
@@ -1923,11 +1943,19 @@ async function loadAnnouncementBar() {
 function closeAnnouncementBar() {
     const bar = document.getElementById('announcement-bar');
     if (bar) {
+        const barHeight = bar.offsetHeight;
         bar.style.transition = 'all 0.3s ease';
-        bar.style.opacity = '0';
         bar.style.height = '0';
-        bar.style.padding = '0';
+        bar.style.padding = '0 20px';
         bar.style.overflow = 'hidden';
+        
+        // main 태그의 padding-top 복원
+        const main = document.querySelector('main');
+        if (main && main.dataset.originalPadding !== undefined) {
+            main.style.transition = 'padding-top 0.3s ease';
+            main.style.paddingTop = main.dataset.originalPadding + 'px';
+        }
+        
         setTimeout(() => bar.remove(), 300);
     }
     sessionStorage.setItem('announcementClosed', 'true');
