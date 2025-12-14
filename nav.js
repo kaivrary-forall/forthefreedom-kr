@@ -477,6 +477,9 @@ function loadNavigation() {
             updateFloatingButtons();
         }
         
+        // 페이지 구조 통일 (콘텐츠 wrapper로 감싸기)
+        wrapPageContent();
+        
         // 한줄 공지 바 로드
         loadAnnouncementBar();
     }
@@ -1869,14 +1872,7 @@ async function loadAnnouncementBar() {
         if (result.success && result.data) {
             const ann = result.data;
             
-            // nav 높이 가져오기
-            const nav = document.querySelector('nav');
-            const navHeight = nav ? nav.offsetHeight : 56;
-            
-            // 공지 바 높이
-            const announcementBarHeight = 40;
-            
-            // 공지 바 HTML - nav 아래에 fixed
+            // 공지 바 HTML
             const barHTML = `
                 <div id="announcement-bar" style="
                     background: ${ann.bgColor || '#000000'};
@@ -1887,11 +1883,7 @@ async function loadAnnouncementBar() {
                     align-items: center;
                     justify-content: center;
                     gap: 8px;
-                    position: fixed;
-                    top: ${navHeight}px;
-                    left: 0;
-                    right: 0;
-                    z-index: 49;
+                    position: relative;
                     overflow: hidden;
                     height: 0;
                     padding: 0 20px;
@@ -1915,25 +1907,17 @@ async function loadAnnouncementBar() {
                 </div>
             `;
             
-            // nav 다음에 삽입
-            if (nav) {
-                nav.insertAdjacentHTML('afterend', barHTML);
-            }
-            
-            // 첫 번째 콘텐츠 요소 찾아서 margin-top 조정
-            const contentTarget = document.querySelector('.hero-wrapper, main, section:not(nav section)');
-            if (contentTarget) {
-                const currentMargin = parseInt(getComputedStyle(contentTarget).marginTop) || 0;
-                contentTarget.dataset.originalMargin = currentMargin;
-                contentTarget.style.transition = 'margin-top 0.4s ease';
-                contentTarget.style.marginTop = (currentMargin + announcementBarHeight) + 'px';
+            // page-content 앞에 삽입
+            const pageContent = document.getElementById('page-content');
+            if (pageContent) {
+                pageContent.insertAdjacentHTML('beforebegin', barHTML);
             }
             
             // 공지 바 펼치기
             requestAnimationFrame(() => {
                 const bar = document.getElementById('announcement-bar');
                 if (bar) {
-                    bar.style.height = announcementBarHeight + 'px';
+                    bar.style.height = '40px';
                     bar.style.padding = '10px 20px';
                 }
             });
@@ -1951,16 +1935,57 @@ function closeAnnouncementBar() {
         bar.style.padding = '0 20px';
         bar.style.overflow = 'hidden';
         
-        // 콘텐츠 margin-top 복원
-        const contentTarget = document.querySelector('.hero-wrapper, main, section:not(nav section)');
-        if (contentTarget && contentTarget.dataset.originalMargin !== undefined) {
-            contentTarget.style.transition = 'margin-top 0.3s ease';
-            contentTarget.style.marginTop = contentTarget.dataset.originalMargin + 'px';
-        }
-        
         setTimeout(() => bar.remove(), 300);
     }
     sessionStorage.setItem('announcementClosed', 'true');
+}
+
+// ===== 페이지 구조 통일 =====
+function wrapPageContent() {
+    // 이미 감싸져 있으면 스킵
+    if (document.getElementById('page-content')) return;
+    
+    const navContainer = document.getElementById('navigation-container');
+    if (!navContainer) return;
+    
+    // navigation-container를 제외한 body의 모든 자식 요소 수집
+    const bodyChildren = Array.from(document.body.children);
+    const contentElements = bodyChildren.filter(el => 
+        el.id !== 'navigation-container' && 
+        el.id !== 'announcement-bar' &&
+        el.tagName !== 'SCRIPT' &&
+        el.tagName !== 'NOSCRIPT'
+    );
+    
+    if (contentElements.length === 0) return;
+    
+    // wrapper div 생성
+    const wrapper = document.createElement('div');
+    wrapper.id = 'page-content';
+    
+    // nav 높이 가져오기
+    const nav = document.querySelector('nav');
+    const navHeight = nav ? nav.offsetHeight : 56;
+    
+    // wrapper 스타일 - nav 높이만큼 margin-top
+    wrapper.style.marginTop = navHeight + 'px';
+    
+    // navigation-container 다음에 wrapper 삽입
+    navContainer.after(wrapper);
+    
+    // 콘텐츠 요소들을 wrapper 안으로 이동
+    contentElements.forEach(el => {
+        // 기존 margin-top 제거 (nav 높이 보정용이었던 것들)
+        const computedMargin = parseInt(getComputedStyle(el).marginTop) || 0;
+        if (computedMargin >= navHeight - 10) {
+            // nav 높이와 비슷한 margin-top은 제거 (이제 wrapper가 처리)
+            el.style.marginTop = (computedMargin - navHeight) + 'px';
+            if (computedMargin - navHeight <= 0) {
+                el.style.marginTop = '0';
+            }
+        }
+        wrapper.appendChild(el);
+    });
 }
 
 window.closeAnnouncementBar = closeAnnouncementBar;
