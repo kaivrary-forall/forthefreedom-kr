@@ -1959,7 +1959,7 @@ function setupPageLayout() {
         const nav = document.querySelector('nav');
         const navHeight = nav ? nav.offsetHeight : 56;
         
-        // body에 padding-top 설정 (nav 높이만큼) - !important로 강제 적용
+        // 모든 페이지에 body padding-top 적용 (nav 높이만큼)
         document.body.style.setProperty('padding-top', navHeight + 'px', 'important');
     });
 }

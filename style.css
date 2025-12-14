@@ -158,6 +158,11 @@ section.py-24 {
     overflow: hidden;
 }
 
+/* Hero wrapper for index page - CSS에서 margin 안 줌, body padding-top이 처리 */
+.hero-wrapper {
+    /* margin-top은 body padding-top이 처리 */
+}
+
 /* Sub pages hero section */
 .hero-section:not(#home) {
     height: 60vh;
