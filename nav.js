@@ -18,7 +18,7 @@ function loadNavigation() {
                     <div class="flex items-center gap-8">
                         <!-- 로고 -->
                         <a href="${pathPrefix}index.html" class="flex items-center">
-                            <img src="${pathPrefix}images/logo.png" alt="자유와혁신 로고" class="h-10 w-auto">
+                            <img src="${pathPrefix}images/logo-symbol.png" alt="자유와혁신" class="h-8 w-auto">
                         </a>
                         
                         <!-- 데스크톱 메뉴 -->
@@ -479,9 +479,6 @@ function loadNavigation() {
         
         // 한줄 공지 바 로드
         loadAnnouncementBar();
-        
-        // 팝업 모달 로드
-        loadPopupModal();
     }
 }
 
@@ -1858,48 +1855,21 @@ window.openMpProfileModal = openMpProfileModal;
 window.mpHandleProfileSelect = mpHandleProfileSelect;
 
 // ===== 한줄 공지 바 =====
-let announcementLoading = false; // 중복 호출 방지 플래그
-
 async function loadAnnouncementBar() {
     // 이미 공지 바가 있으면 중복 생성 방지
     if (document.getElementById('announcement-bar')) return;
     
-    // 이미 로딩 중이면 중복 실행 방지
-    if (announcementLoading) return;
-    announcementLoading = true;
-    
-    // 오늘 하루 보지 않기 체크 확인
-    const hideUntil = localStorage.getItem('announcementHideUntil');
-    if (hideUntil) {
-        const hideDate = new Date(hideUntil);
-        const now = new Date();
-        if (now < hideDate) {
-            announcementLoading = false;
-            return;
-        } else {
-            // 기한 지났으면 삭제
-            localStorage.removeItem('announcementHideUntil');
-        }
-    }
+    // 세션에서 닫기 상태 확인
+    if (sessionStorage.getItem('announcementClosed')) return;
     
     try {
         const response = await fetch('https://forthefreedom-kr-production.up.railway.app/api/announcement');
         const result = await response.json();
         
-        // 다시 한번 중복 체크 (비동기 실행 중 생성되었을 수 있음)
-        if (document.getElementById('announcement-bar')) {
-            announcementLoading = false;
-            return;
-        }
-        
         if (result.success && result.data) {
             const ann = result.data;
             
-            // 네비게이션 바 높이 계산
-            const nav = document.querySelector('nav');
-            const navHeight = nav ? nav.offsetHeight : 80;
-            
-            // 공지 바 HTML 생성 - nav 아래 고정 위치
+            // 공지 바 HTML 생성
             const barHTML = `
                 <div id="announcement-bar" style="
                     background: ${ann.bgColor || '#000000'};
@@ -1910,335 +1880,52 @@ async function loadAnnouncementBar() {
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    gap: 12px;
-                    position: fixed;
-                    top: ${navHeight}px;
-                    left: 0;
-                    right: 0;
-                    z-index: 49;
+                    gap: 8px;
+                    position: relative;
                 ">
                     <span>${ann.text}</span>
                     ${ann.link ? `<a href="${ann.link}" style="color: ${ann.textColor || '#ffffff'}; text-decoration: underline; opacity: 0.9;">${ann.linkText || '자세히 알아보기'} ›</a>` : ''}
-                    
-                    <div style="
+                    <button onclick="closeAnnouncementBar()" style="
                         position: absolute;
-                        right: 40px;
+                        right: 16px;
                         top: 50%;
                         transform: translateY(-50%);
-                        display: flex;
-                        align-items: center;
-                        gap: 12px;
-                    ">
-                        <label style="
-                            display: flex;
-                            align-items: center;
-                            gap: 4px;
-                            font-size: 12px;
-                            opacity: 0.8;
-                            cursor: pointer;
-                        ">
-                            <input type="checkbox" id="announcement-hide-today" style="cursor: pointer;">
-                            오늘 하루 보지 않기
-                        </label>
-                        
-                        <button onclick="closeAnnouncementBar()" style="
-                            background: none;
-                            border: none;
-                            color: ${ann.textColor || '#ffffff'};
-                            cursor: pointer;
-                            font-size: 18px;
-                            opacity: 0.7;
-                            padding: 4px 8px;
-                        " aria-label="닫기">×</button>
-                    </div>
+                        background: none;
+                        border: none;
+                        color: ${ann.textColor || '#ffffff'};
+                        cursor: pointer;
+                        font-size: 18px;
+                        opacity: 0.7;
+                        padding: 4px 8px;
+                    " aria-label="닫기">×</button>
                 </div>
             `;
             
-            // body에 직접 삽입 (nav와 독립적으로 fixed 위치)
-            document.body.insertAdjacentHTML('beforeend', barHTML);
-            
-            // 공지 바 높이만큼 콘텐츠 영역 margin-top 추가
-            const announcementBar = document.getElementById('announcement-bar');
-            if (announcementBar) {
-                const barHeight = announcementBar.offsetHeight;
-                
-                // hero-wrapper, hero-section, 또는 main 요소 찾기 (우선순위대로)
-                const heroWrapper = document.querySelector('.hero-wrapper');
-                const heroSection = document.querySelector('.hero-section');
-                const main = document.querySelector('main');
-                const targetElement = heroWrapper || heroSection || main;
-                
-                if (targetElement) {
-                    // 기존 margin-top 값 저장
-                    const currentMargin = parseInt(window.getComputedStyle(targetElement).marginTop) || 0;
-                    targetElement.dataset.originalMarginTop = currentMargin;
-                    
-                    // 애니메이션을 위해 초기 상태 설정
-                    announcementBar.style.opacity = '0';
-                    announcementBar.style.transform = 'translateY(-100%)';
-                    targetElement.style.setProperty('transition', 'margin-top 0.4s ease');
-                    
-                    // 다음 프레임에서 애니메이션 시작
-                    requestAnimationFrame(() => {
-                        announcementBar.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-                        announcementBar.style.opacity = '1';
-                        announcementBar.style.transform = 'translateY(0)';
-                        targetElement.style.setProperty('margin-top', (currentMargin + barHeight) + 'px', 'important');
-                    });
-                }
+            // main 태그 맨 앞에 삽입
+            const main = document.querySelector('main');
+            if (main) {
+                main.insertAdjacentHTML('afterbegin', barHTML);
             }
         }
     } catch (error) {
         console.log('공지 로드 실패:', error);
-    } finally {
-        announcementLoading = false;
     }
 }
 
 function closeAnnouncementBar() {
     const bar = document.getElementById('announcement-bar');
-    const hideToday = document.getElementById('announcement-hide-today');
-    
-    // 오늘 하루 보지 않기 체크되어 있으면 localStorage에 저장
-    if (hideToday && hideToday.checked) {
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        tomorrow.setHours(0, 0, 0, 0); // 내일 자정
-        localStorage.setItem('announcementHideUntil', tomorrow.toISOString());
-    }
-    
     if (bar) {
-        // margin-top 복원
-        const heroWrapper = document.querySelector('.hero-wrapper');
-        const heroSection = document.querySelector('.hero-section');
-        const main = document.querySelector('main');
-        const targetElement = heroWrapper || heroSection || main;
-        
-        if (targetElement) {
-            const originalMargin = targetElement.dataset.originalMarginTop || '0';
-            targetElement.style.setProperty('transition', 'margin-top 0.3s ease');
-            targetElement.style.setProperty('margin-top', originalMargin + 'px', 'important');
-        }
-        
-        // 공지 바 애니메이션
         bar.style.transition = 'all 0.3s ease';
         bar.style.opacity = '0';
         bar.style.height = '0';
         bar.style.padding = '0';
         bar.style.overflow = 'hidden';
-        
         setTimeout(() => bar.remove(), 300);
     }
+    sessionStorage.setItem('announcementClosed', 'true');
 }
 
 window.closeAnnouncementBar = closeAnnouncementBar;
-window.loadAnnouncementBar = loadAnnouncementBar;
-
-// ===== 팝업 모달 =====
-let popupLoading = false;
-
-async function loadPopupModal() {
-    console.log('[팝업] loadPopupModal 시작');
-    
-    // 이미 팝업이 있으면 중복 생성 방지
-    if (document.getElementById('popup-modal')) {
-        console.log('[팝업] 이미 팝업 존재, 종료');
-        return;
-    }
-    
-    // 이미 로딩 중이면 중복 실행 방지
-    if (popupLoading) {
-        console.log('[팝업] 이미 로딩 중, 종료');
-        return;
-    }
-    popupLoading = true;
-    
-    // 관리자 페이지에서는 팝업 표시 안 함
-    if (window.location.pathname.includes('/admin')) {
-        console.log('[팝업] 관리자 페이지, 종료');
-        popupLoading = false;
-        return;
-    }
-    
-    // 12시간 단위 팝업 표시 체크 (00-12, 12-24)
-    const hideUntil = localStorage.getItem('popupHideUntil');
-    console.log('[팝업] hideUntil:', hideUntil);
-    if (hideUntil) {
-        const hideDate = new Date(hideUntil);
-        const now = new Date();
-        console.log('[팝업] hideDate:', hideDate, 'now:', now);
-        if (now < hideDate) {
-            console.log('[팝업] 아직 숨김 기간, 종료');
-            popupLoading = false;
-            return;
-        } else {
-            console.log('[팝업] 숨김 기간 만료, 제거');
-            localStorage.removeItem('popupHideUntil');
-        }
-    }
-    
-    try {
-        console.log('[팝업] API 호출 시작');
-        const response = await fetch('https://forthefreedom-kr-production.up.railway.app/api/popup');
-        const result = await response.json();
-        console.log('[팝업] API 응답:', result);
-        
-        if (document.getElementById('popup-modal')) {
-            popupLoading = false;
-            return;
-        }
-        
-        if (result.success && result.data) {
-            console.log('[팝업] 팝업 데이터 존재, 모달 생성');
-            const popup = result.data;
-            const defaultColor = popup.defaultTextColor || '#ffffff';
-            const titleLineHeight = popup.titleLineHeight || 1.2;
-            const subtitleLineHeight = popup.subtitleLineHeight || 1.6;
-            
-            // HTML 콘텐츠 사용 (없으면 일반 텍스트)
-            const titleContent = popup.titleHtml || popup.title.replace(/\n/g, '<br>');
-            const subtitleContent = popup.subtitleHtml || (popup.subtitle ? popup.subtitle.replace(/\n/g, '<br>') : '');
-            
-            const modalHTML = `
-                <div id="popup-modal" style="
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background: rgba(0, 0, 0, 0);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    z-index: 9999;
-                    opacity: 0;
-                    transition: all 0.5s ease;
-                ">
-                    <div id="popup-content" style="
-                        text-align: center;
-                        max-width: 90%;
-                        transform: scale(0.9);
-                        opacity: 0;
-                        transition: all 0.5s ease;
-                    ">
-                        <h1 style="
-                            font-size: clamp(2rem, 6vw, 4rem);
-                            font-weight: 800;
-                            margin-bottom: 1rem;
-                            text-shadow: 2px 2px 20px rgba(0,0,0,0.5);
-                            line-height: ${titleLineHeight};
-                            color: ${defaultColor};
-                            white-space: pre-wrap;
-                        ">${titleContent}</h1>
-                        ${subtitleContent ? `
-                            <p style="
-                                font-size: clamp(1rem, 2.5vw, 1.5rem);
-                                opacity: 0.9;
-                                margin-bottom: 2rem;
-                                text-shadow: 1px 1px 10px rgba(0,0,0,0.5);
-                                line-height: ${subtitleLineHeight};
-                                color: ${defaultColor};
-                                white-space: pre-wrap;
-                            ">${subtitleContent}</p>
-                        ` : ''}
-                        ${popup.link ? `
-                            <a href="${popup.link}" style="
-                                display: inline-block;
-                                padding: 12px 32px;
-                                border: 2px solid ${defaultColor};
-                                color: ${defaultColor};
-                                text-decoration: none;
-                                font-size: 1rem;
-                                font-weight: 600;
-                                border-radius: 50px;
-                                transition: all 0.3s ease;
-                                margin-bottom: 2rem;
-                            " onmouseover="this.style.background='${defaultColor}'; this.style.color='#000';" 
-                               onmouseout="this.style.background='transparent'; this.style.color='${defaultColor}';">
-                                ${popup.linkText || '자세히 보기'}
-                            </a>
-                        ` : ''}
-                    </div>
-                    
-                    <button onclick="closePopupModal()" style="
-                        position: absolute;
-                        top: 20px;
-                        right: 20px;
-                        background: none;
-                        border: none;
-                        color: ${defaultColor};
-                        font-size: 2rem;
-                        cursor: pointer;
-                        opacity: 0.7;
-                        transition: opacity 0.3s ease;
-                        width: 48px;
-                        height: 48px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                    " onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'" aria-label="닫기">
-                        ✕
-                    </button>
-                </div>
-            `;
-            
-            document.body.insertAdjacentHTML('beforeend', modalHTML);
-            document.body.style.overflow = 'hidden';
-            
-            // 애니메이션 시작
-            requestAnimationFrame(() => {
-                const modal = document.getElementById('popup-modal');
-                const content = document.getElementById('popup-content');
-                if (modal && content) {
-                    modal.style.background = 'rgba(0, 0, 0, 0.85)';
-                    modal.style.opacity = '1';
-                    content.style.transform = 'scale(1)';
-                    content.style.opacity = '1';
-                }
-            });
-        }
-    } catch (error) {
-        console.log('팝업 로드 실패:', error);
-    } finally {
-        popupLoading = false;
-    }
-}
-
-function closePopupModal() {
-    const modal = document.getElementById('popup-modal');
-    
-    // 12시간 단위로 다음 팝업 표시 시간 설정 (00-12, 12-24)
-    const now = new Date();
-    const currentHour = now.getHours();
-    const nextShowTime = new Date();
-    
-    if (currentHour < 12) {
-        // 00:00 ~ 11:59 → 오늘 12:00까지 숨김
-        nextShowTime.setHours(12, 0, 0, 0);
-    } else {
-        // 12:00 ~ 23:59 → 내일 00:00까지 숨김
-        nextShowTime.setDate(nextShowTime.getDate() + 1);
-        nextShowTime.setHours(0, 0, 0, 0);
-    }
-    localStorage.setItem('popupHideUntil', nextShowTime.toISOString());
-    
-    if (modal) {
-        const content = document.getElementById('popup-content');
-        modal.style.background = 'rgba(0, 0, 0, 0)';
-        modal.style.opacity = '0';
-        if (content) {
-            content.style.transform = 'scale(0.9)';
-            content.style.opacity = '0';
-        }
-        
-        document.body.style.overflow = '';
-        
-        setTimeout(() => modal.remove(), 500);
-    }
-}
-
-window.closePopupModal = closePopupModal;
-window.loadPopupModal = loadPopupModal;
 
 // 페이지 로드 시 이벤트 리스너 추가
 // 페이지 로드 시 실행
