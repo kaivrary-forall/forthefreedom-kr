@@ -98,7 +98,7 @@ router.post('/', upload.array('attachments'), async (req, res) => {
 // 인사 발령 수정
 router.put('/:id', upload.array('attachments'), async (req, res) => {
     try {
-        const { title, content, category, author, excerpt, tags, isImportant, showOnSideCard, existingAttachments } = req.body;
+        const { title, content, category, author, excerpt, tags, isImportant, showOnSideCard, createdAt, existingAttachments } = req.body;
 
         const updateData = {
             title,
@@ -111,6 +111,11 @@ router.put('/:id', upload.array('attachments'), async (req, res) => {
             showOnSideCard: showOnSideCard === 'true' || showOnSideCard === true,
             updatedAt: new Date()
         };
+        
+        // createdAt 업데이트 (날짜 수정 허용)
+        if (createdAt) {
+            updateData.createdAt = new Date(createdAt);
+        }
 
         // 기존 인사 발령 조회
         const existingPersonnel = await Personnel.findById(req.params.id);

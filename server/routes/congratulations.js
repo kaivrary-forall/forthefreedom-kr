@@ -117,7 +117,7 @@ router.post('/', async (req, res) => {
 // 경조사 수정 (관리자)
 router.put('/:id', async (req, res) => {
     try {
-        const { category, title, content, targetPerson, isActive, showOnSideCard } = req.body;
+        const { category, title, content, targetPerson, isActive, showOnSideCard, createdAt } = req.body;
         
         const updateData = {
             category,
@@ -127,6 +127,11 @@ router.put('/:id', async (req, res) => {
             isActive: isActive !== undefined ? isActive : true,
             showOnSideCard: showOnSideCard !== undefined ? showOnSideCard : true
         };
+        
+        // createdAt 업데이트 (날짜 수정 허용)
+        if (createdAt) {
+            updateData.createdAt = new Date(createdAt);
+        }
         
         const congratulation = await Congratulation.findByIdAndUpdate(
             req.params.id,
