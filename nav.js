@@ -601,17 +601,35 @@ function checkLoginStatus() {
         // 일수 카운터 - 회원가입일 기준
         if (dayCounterText && dayCounterNumber) {
             if (memberInfo.appliedAt) {
+                // 한국 시간 기준으로 날짜만 비교
                 const joinDate = new Date(memberInfo.appliedAt);
                 const today = new Date();
-                const diffTime = today - joinDate;
+                
+                // 한국 시간 기준 날짜 (시간 제외)
+                const joinDateKST = new Date(joinDate.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+                const todayKST = new Date(today.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+                
+                // 날짜만 비교 (시간 제거)
+                joinDateKST.setHours(0, 0, 0, 0);
+                todayKST.setHours(0, 0, 0, 0);
+                
+                const diffTime = todayKST - joinDateKST;
                 const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
                 dayCounterText.textContent = '자유와혁신과 함께한 지';
                 dayCounterNumber.textContent = diffDays.toLocaleString();
             } else {
                 // appliedAt이 없으면 창당일 기준
-                const foundingDate = new Date('2025-07-12');
+                const foundingDate = new Date('2025-07-12T00:00:00+09:00'); // 한국 시간 명시
                 const today = new Date();
-                const diffTime = today - foundingDate;
+                
+                // 한국 시간 기준 오늘 날짜
+                const todayKST = new Date(today.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+                todayKST.setHours(0, 0, 0, 0);
+                
+                const foundingDateKST = new Date(foundingDate.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+                foundingDateKST.setHours(0, 0, 0, 0);
+                
+                const diffTime = todayKST - foundingDateKST;
                 const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
                 dayCounterText.textContent = '자유와혁신과 함께한 지';
                 if (diffDays <= 0) {
@@ -634,9 +652,17 @@ function checkLoginStatus() {
         
         // 일수 카운터 - 창당일(2025.07.12) 기준
         if (dayCounterText && dayCounterNumber) {
-            const foundingDate = new Date('2025-07-12');
+            const foundingDate = new Date('2025-07-12T00:00:00+09:00'); // 한국 시간 명시
             const today = new Date();
-            const diffTime = today - foundingDate;
+            
+            // 한국 시간 기준 오늘 날짜
+            const todayKST = new Date(today.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+            todayKST.setHours(0, 0, 0, 0);
+            
+            const foundingDateKST = new Date(foundingDate.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+            foundingDateKST.setHours(0, 0, 0, 0);
+            
+            const diffTime = todayKST - foundingDateKST;
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
             dayCounterText.textContent = '자유와혁신의 발걸음,';
             // 창당일 전이면 D-day 표시
