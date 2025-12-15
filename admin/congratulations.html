@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>경조사 관리 - 관리자</title>
+    <script src="/config.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#A50034',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .nav-bar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .congrats-card {
+            transition: all 0.2s;
+        }
+        .congrats-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div id="admin-nav-container"></div>
+    <script src="admin-nav-v2.js"></script>
+    <script>loadAdminNav('congratulations');</script>
+    
+    <main class="max-w-6xl mx-auto px-4 py-8 mt-16">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">
+                <i class="fas fa-heart text-primary mr-2"></i>경조사 관리
+            </h1>
+            <button onclick="openModal()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition">
+                <i class="fas fa-plus mr-2"></i>새 경조사 등록
+            </button>
+        </div>
+        
+        <!-- 필터 -->
+        <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+            <div class="flex gap-2">
+                <button onclick="filterList('')" class="filter-btn active px-4 py-2 rounded-lg border">전체</button>
+                <button onclick="filterList('경사')" class="filter-btn px-4 py-2 rounded-lg border">경사</button>
+                <button onclick="filterList('조사')" class="filter-btn px-4 py-2 rounded-lg border">조사</button>
+            </div>
+        </div>
+        
+        <!-- 목록 -->
+        <div class="bg-white rounded-lg shadow-sm">
+            <div id="loading" class="p-8 text-center text-gray-500">
+                <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                <p>불러오는 중...</p>
+            </div>
+            <div id="empty" class="p-8 text-center text-gray-500 hidden">
+                <i class="fas fa-heart text-4xl mb-2 text-gray-300"></i>
+                <p>등록된 경조사가 없습니다</p>
+            </div>
+            <div id="list" class="divide-y hidden">
+                <!-- 동적 생성 -->
+            </div>
+        </div>
+    </main>
+    
+    <!-- 등록/수정 모달 -->
+    <div id="modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4">
+            <div class="p-6 border-b">
+                <h2 id="modalTitle" class="text-xl font-bold">새 경조사 등록</h2>
+            </div>
+            <div class="p-6 space-y-4">
+                <input type="hidden" id="editId">
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">카테고리 *</label>
+                    <select id="category" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary">
+                        <option value="경사">경사</option>
+                        <option value="조사">조사</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">제목 *</label>
+                    <input type="text" id="title" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary" placeholder="예: 홍길동 당원 결혼">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">내용 *</label>
+                    <textarea id="content" rows="4" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary" placeholder="상세 내용을 입력하세요"></textarea>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">대상자</label>
+                    <input type="text" id="targetPerson" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary" placeholder="예: 홍길동 당원">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">등록일 (과거 날짜 입력 가능)</label>
+                    <input type="datetime-local" id="createdAt" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary">
+                </div>
+            </div>
+            <div class="p-6 border-t flex justify-end gap-3">
+                <button onclick="closeModal()" class="px-4 py-2 border rounded-lg hover:bg-gray-50">취소</button>
+                <button onclick="saveItem()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">저장</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = window.CONFIG?.API_BASE || 'https://forthefreedom-kr-production.up.railway.app/api';
+        let currentFilter = '';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadList();
+        });
+        
+        async function loadList() {
+            const loading = document.getElementById('loading');
+            const empty = document.getElementById('empty');
+            const list = document.getElementById('list');
+            
+            loading.classList.remove('hidden');
+            empty.classList.add('hidden');
+            list.classList.add('hidden');
+            
+            try {
+                let url = `${API_BASE}/congratulations?limit=100`;
+                if (currentFilter) url += `&category=${encodeURIComponent(currentFilter)}`;
+                
+                const response = await fetch(url);
+                const result = await response.json();
+                
+                loading.classList.add('hidden');
+                
+                if (result.success && result.data && result.data.length > 0) {
+                    renderList(result.data);
+                    list.classList.remove('hidden');
+                } else {
+                    empty.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('로드 실패:', error);
+                loading.classList.add('hidden');
+                empty.classList.remove('hidden');
+            }
+        }
+        
+        function renderList(items) {
+            const container = document.getElementById('list');
+            container.innerHTML = items.map(item => `
+                <div class="congrats-card p-4 flex items-center justify-between">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="px-2 py-1 text-xs rounded ${item.category === '경사' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'}">${item.category}</span>
+                            <span class="text-sm text-gray-500">${formatDate(item.createdAt)}</span>
+                        </div>
+                        <h3 class="font-semibold text-gray-900">${item.title}</h3>
+                        <p class="text-sm text-gray-600 mt-1">${item.content.substring(0, 100)}${item.content.length > 100 ? '...' : ''}</p>
+                        ${item.targetPerson ? `<p class="text-xs text-gray-500 mt-1">대상: ${item.targetPerson}</p>` : ''}
+                    </div>
+                    <div class="flex gap-2 ml-4">
+                        <button onclick="editItem('${item._id}')" class="p-2 text-blue-600 hover:bg-blue-50 rounded">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteItem('${item._id}')" class="p-2 text-red-600 hover:bg-red-50 rounded">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function formatDate(dateStr) {
+            return new Date(dateStr).toLocaleDateString('ko-KR', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
+        }
+        
+        function filterList(category) {
+            currentFilter = category;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-primary', 'text-white');
+                btn.classList.add('border');
+            });
+            event.target.classList.add('bg-primary', 'text-white');
+            event.target.classList.remove('border');
+            loadList();
+        }
+        
+        function openModal() {
+            document.getElementById('modal').classList.remove('hidden');
+            document.getElementById('modalTitle').textContent = '새 경조사 등록';
+            document.getElementById('editId').value = '';
+            document.getElementById('category').value = '경사';
+            document.getElementById('title').value = '';
+            document.getElementById('content').value = '';
+            document.getElementById('targetPerson').value = '';
+            document.getElementById('createdAt').value = '';
+        }
+        
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+        }
+        
+        async function editItem(id) {
+            try {
+                const response = await fetch(`${API_BASE}/congratulations/${id}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const item = result.data;
+                    document.getElementById('modal').classList.remove('hidden');
+                    document.getElementById('modalTitle').textContent = '경조사 수정';
+                    document.getElementById('editId').value = id;
+                    document.getElementById('category').value = item.category;
+                    document.getElementById('title').value = item.title;
+                    document.getElementById('content').value = item.content;
+                    document.getElementById('targetPerson').value = item.targetPerson || '';
+                }
+            } catch (error) {
+                alert('불러오기 실패');
+            }
+        }
+        
+        async function saveItem() {
+            const token = localStorage.getItem('adminToken');
+            if (!token) {
+                alert('로그인이 필요합니다');
+                return;
+            }
+            
+            const editId = document.getElementById('editId').value;
+            const data = {
+                category: document.getElementById('category').value,
+                title: document.getElementById('title').value,
+                content: document.getElementById('content').value,
+                targetPerson: document.getElementById('targetPerson').value
+            };
+            
+            const createdAt = document.getElementById('createdAt').value;
+            if (createdAt && !editId) {
+                data.createdAt = createdAt;
+            }
+            
+            if (!data.title || !data.content) {
+                alert('제목과 내용은 필수입니다');
+                return;
+            }
+            
+            try {
+                const url = editId ? `${API_BASE}/congratulations/${editId}` : `${API_BASE}/congratulations`;
+                const method = editId ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(editId ? '수정되었습니다' : '등록되었습니다');
+                    closeModal();
+                    loadList();
+                } else {
+                    alert(result.message || '저장 실패');
+                }
+            } catch (error) {
+                alert('저장 중 오류 발생');
+            }
+        }
+        
+        async function deleteItem(id) {
+            if (!confirm('정말 삭제하시겠습니까?')) return;
+            
+            const token = localStorage.getItem('adminToken');
+            if (!token) {
+                alert('로그인이 필요합니다');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/congratulations/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('삭제되었습니다');
+                    loadList();
+                } else {
+                    alert(result.message || '삭제 실패');
+                }
+            } catch (error) {
+                alert('삭제 중 오류 발생');
+            }
+        }
+    </script>
+</body>
+</html>
