@@ -1872,11 +1872,7 @@ async function loadAnnouncementBar() {
         if (result.success && result.data) {
             const ann = result.data;
             
-            // nav 높이 가져오기
-            const nav = document.querySelector('nav');
-            const navHeight = nav ? nav.offsetHeight : 56;
-            
-            // 공지 바 HTML - 처음에 height: 0
+            // 공지 바 HTML - nav 위에 위치, 처음에 height: 0
             const barHTML = `
                 <div id="announcement-bar" style="
                     background: ${ann.bgColor || '#000000'};
@@ -1888,10 +1884,10 @@ async function loadAnnouncementBar() {
                     justify-content: center;
                     gap: 8px;
                     position: fixed;
-                    top: ${navHeight}px;
+                    top: 0;
                     left: 0;
                     right: 0;
-                    z-index: 49;
+                    z-index: 51;
                     overflow: hidden;
                     height: 0;
                     padding: 0 20px;
@@ -1918,18 +1914,26 @@ async function loadAnnouncementBar() {
             // body 맨 앞에 삽입
             document.body.insertAdjacentHTML('afterbegin', barHTML);
             
-            // body padding-top 증가 (콘텐츠 밀어내기)
-            document.body.style.transition = 'padding-top 0.4s ease';
-            const currentPadding = parseInt(getComputedStyle(document.body).paddingTop) || 0;
-            document.body.style.setProperty('padding-top', (currentPadding + 40) + 'px', 'important');
-            
-            // 스르륵 펼치기
+            // 스르륵 펼치기 + nav와 body padding 조정
             requestAnimationFrame(() => {
                 const bar = document.getElementById('announcement-bar');
+                const nav = document.querySelector('nav');
+                
                 if (bar) {
                     bar.style.height = '40px';
                     bar.style.padding = '10px 20px';
                 }
+                
+                // nav를 40px 아래로 이동
+                if (nav) {
+                    nav.style.transition = 'top 0.4s ease';
+                    nav.style.top = '40px';
+                }
+                
+                // body padding-top도 40px 증가
+                document.body.style.transition = 'padding-top 0.4s ease';
+                const currentPadding = parseInt(getComputedStyle(document.body).paddingTop) || 0;
+                document.body.style.setProperty('padding-top', (currentPadding + 40) + 'px', 'important');
             });
         }
     } catch (error) {
@@ -1939,9 +1943,16 @@ async function loadAnnouncementBar() {
 
 function closeAnnouncementBar() {
     const bar = document.getElementById('announcement-bar');
+    const nav = document.querySelector('nav');
+    
     if (bar) {
         bar.style.height = '0';
         bar.style.padding = '0 20px';
+        
+        // nav를 원래 위치로
+        if (nav) {
+            nav.style.top = '0';
+        }
         
         // body padding-top 감소
         const currentPadding = parseInt(getComputedStyle(document.body).paddingTop) || 0;
