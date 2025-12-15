@@ -18,7 +18,7 @@ const sideCardSettingsSchema = new mongoose.Schema({
   pinnedItems: [{
     contentType: {
       type: String,
-      enum: ['notice', 'press', 'event', 'activity', 'media'],
+      enum: ['notice', 'press', 'event', 'activity', 'media', 'personnel'],
       required: true
     },
     contentId: {
@@ -36,7 +36,8 @@ const sideCardSettingsSchema = new mongoose.Schema({
     press: { type: Boolean, default: true },
     event: { type: Boolean, default: true },
     activity: { type: Boolean, default: false },
-    media: { type: Boolean, default: false }
+    media: { type: Boolean, default: false },
+    personnel: { type: Boolean, default: true }
   }
 }, {
   timestamps: true
