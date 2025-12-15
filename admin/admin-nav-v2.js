@@ -51,7 +51,7 @@ function loadAdminNav(currentPage) {
                                     한줄 공지
                                 </a>
                                 <a href="banners.html" class="block px-4 py-2 text-sm ${pages.banners ? 'text-primary bg-primary/5' : 'text-gray-700 hover:bg-gray-50'}">
-                                    배너 관리
+                                    히어로섹션 배너
                                 </a>
                             </div>
                         </div>
@@ -118,7 +118,7 @@ function loadAdminNav(currentPage) {
                         한줄 공지
                     </a>
                     <a href="banners.html" class="block px-3 py-2 rounded-md text-sm font-medium ${pages.banners ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-100'}">
-                        배너 관리
+                        히어로섹션 배너
                     </a>
                 </div>
                 <div class="border-t border-gray-100 my-2 pt-2">
