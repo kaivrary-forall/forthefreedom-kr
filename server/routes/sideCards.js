@@ -6,6 +6,8 @@ const Spokesperson = require('../models/Spokesperson');
 const Events = require('../models/Events');
 const Activity = require('../models/Activity');
 const MediaCoverage = require('../models/MediaCoverage');
+const Personnel = require('../models/Personnel');
+const Congratulation = require('../models/Congratulation');
 
 // 설정 조회
 router.get('/settings', async (req, res) => {
@@ -23,7 +25,9 @@ router.get('/settings', async (req, res) => {
                     press: true,
                     event: true,
                     activity: false,
-                    media: false
+                    media: false,
+                    personnel: true,
+                    congratulations: true
                 }
             });
         }
@@ -90,7 +94,9 @@ router.get('/', async (req, res) => {
                     press: true,
                     event: true,
                     activity: false,
-                    media: false
+                    media: false,
+                    personnel: true,
+                    congratulations: true
                 }
             };
         }
@@ -215,6 +221,32 @@ async function getPinnedItems(pinnedItems) {
                         });
                     }
                     break;
+                case 'personnel':
+                    item = await Personnel.findById(pinned.contentId);
+                    if (item) {
+                        items.push({
+                            category: '인사공고',
+                            title: item.title,
+                            content: item.excerpt || '',
+                            link: `/news/personnel.html`,
+                            date: item.createdAt,
+                            isPinned: true
+                        });
+                    }
+                    break;
+                case 'congratulations':
+                    item = await Congratulation.findById(pinned.contentId);
+                    if (item) {
+                        items.push({
+                            category: '경조사',
+                            title: item.title,
+                            content: item.content ? item.content.substring(0, 60) : '',
+                            link: `/news/congratulations.html`,
+                            date: item.createdAt,
+                            isPinned: true
+                        });
+                    }
+                    break;
             }
         } catch (e) {
             console.log('고정 아이템 조회 실패:', pinned.contentId);
@@ -301,6 +333,36 @@ async function getLatestItems(showCategories, limit, excludeIds = []) {
                     content: item.source || '',
                     link: `/news/media-detail.html?id=${item._id}`,
                     date: item.publishedAt || item.createdAt
+                });
+            });
+        }
+        
+        if (showCategories.personnel) {
+            const personnel = await Personnel.find({ _id: { $nin: excludeIds }, status: 'published' })
+                .sort({ createdAt: -1 })
+                .limit(2);
+            personnel.forEach(item => {
+                items.push({
+                    category: '인사공고',
+                    title: item.title,
+                    content: item.excerpt || '',
+                    link: `/news/personnel.html`,
+                    date: item.createdAt
+                });
+            });
+        }
+        
+        if (showCategories.congratulations) {
+            const congrats = await Congratulation.find({ _id: { $nin: excludeIds }, isActive: true })
+                .sort({ createdAt: -1 })
+                .limit(2);
+            congrats.forEach(item => {
+                items.push({
+                    category: '경조사',
+                    title: item.title,
+                    content: item.content ? item.content.substring(0, 60) : '',
+                    link: `/news/congratulations.html`,
+                    date: item.createdAt
                 });
             });
         }
