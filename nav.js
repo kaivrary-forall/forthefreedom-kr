@@ -97,6 +97,7 @@ function loadNavigation() {
                                             </div>
                                         </div>
                                         <a href="${pathPrefix}resources.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">자료실</a>
+                                        <a href="${pathPrefix}news/personnel.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">인사공고</a>
                                         <a href="${pathPrefix}news/congratulations.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">경조사</a>
                                     </div>
                                 </div>
@@ -239,6 +240,7 @@ function loadNavigation() {
                                 <a href="${pathPrefix}news/card-news.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">카드뉴스</a>
                                 <a href="${pathPrefix}news/gallery.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">포토갤러리</a>
                                 <a href="${pathPrefix}resources.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">자료실</a>
+                                <a href="${pathPrefix}news/personnel.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">인사공고</a>
                                 <a href="${pathPrefix}news/congratulations.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">경조사</a>
                             </div>
                         </div>
