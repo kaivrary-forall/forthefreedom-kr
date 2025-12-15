@@ -288,30 +288,46 @@
     <!-- Navigation Component -->
     <div id="navigation-container"></div>
 
-    <!-- Hero Section Wrapper - 동적 배너 슬라이더 -->
+    <!-- Hero Section Wrapper - 배너 + 사이드 카드 -->
     <div class="hero-wrapper max-w-7xl" style="width: 100%; margin-left: auto; margin-right: auto; padding: 0 24px;">
-        <div id="banner-slider" style="position: relative; width: 100%; aspect-ratio: 21/9; border-radius: 16px; overflow: hidden;">
-            <!-- 배너 슬라이드 컨테이너 -->
-            <div id="banner-slides" style="display: flex; transition: transform 0.5s ease-in-out; height: 100%;">
-                <!-- 로딩 스켈레톤 (DB에서 불러오기 전 표시) -->
-                <div class="banner-slide" style="min-width: 100%; height: 100%; position: relative; background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite;">
+        <div class="hero-layout" style="display: flex; gap: 16px;">
+            <!-- 배너 슬라이더 (70%) -->
+            <div class="banner-area" style="flex: 7; min-width: 0;">
+                <div id="banner-slider" style="position: relative; width: 100%; aspect-ratio: 21/9; border-radius: 16px; overflow: hidden;">
+                    <!-- 배너 슬라이드 컨테이너 -->
+                    <div id="banner-slides" style="display: flex; transition: transform 0.5s ease-in-out; height: 100%;">
+                        <!-- 로딩 스켈레톤 (DB에서 불러오기 전 표시) -->
+                        <div class="banner-slide" style="min-width: 100%; height: 100%; position: relative; background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite;">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 슬라이드 컨트롤 (로딩 중에는 숨김) -->
+                <div id="slide-controls" style="display: none; align-items: center; justify-content: center; gap: 16px; padding: 12px 0;">
+                    <button onclick="prevSlide()" style="background: none; border: none; cursor: pointer; font-size: 20px; color: #666; padding: 8px;">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div id="slide-dots" style="display: flex; gap: 8px; align-items: center;">
+                    </div>
+                    <button onclick="togglePause()" style="background: none; border: none; cursor: pointer; font-size: 18px; color: #666; padding: 8px;">
+                        <i class="fas fa-pause" id="pause-icon"></i>
+                    </button>
+                    <button onclick="nextSlide()" style="background: none; border: none; cursor: pointer; font-size: 20px; color: #666; padding: 8px;">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
                 </div>
             </div>
-        </div>
-        
-        <!-- 슬라이드 컨트롤 (로딩 중에는 숨김) -->
-        <div id="slide-controls" style="display: none; align-items: center; justify-content: center; gap: 16px; padding: 20px 0;">
-            <button onclick="prevSlide()" style="background: none; border: none; cursor: pointer; font-size: 20px; color: #666; padding: 8px;">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <div id="slide-dots" style="display: flex; gap: 8px; align-items: center;">
+            
+            <!-- 사이드 카드 영역 (30%) -->
+            <div class="side-cards-area" style="flex: 3; display: flex; flex-direction: column; gap: 12px; min-width: 0;">
+                <div id="side-cards-container" style="display: flex; flex-direction: column; gap: 12px; height: 100%;">
+                    <!-- 로딩 스켈레톤 -->
+                    <div class="side-card-skeleton" style="flex: 1; background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 12px;"></div>
+                    <div class="side-card-skeleton" style="flex: 1; background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 12px;"></div>
+                    <div class="side-card-skeleton" style="flex: 1; background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 12px;"></div>
+                    <div class="side-card-skeleton" style="flex: 1; background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 12px;"></div>
+                </div>
             </div>
-            <button onclick="togglePause()" style="background: none; border: none; cursor: pointer; font-size: 18px; color: #666; padding: 8px;">
-                <i class="fas fa-pause" id="pause-icon"></i>
-            </button>
-            <button onclick="nextSlide()" style="background: none; border: none; cursor: pointer; font-size: 20px; color: #666; padding: 8px;">
-                <i class="fas fa-chevron-right"></i>
-            </button>
         </div>
     </div>
     
@@ -321,8 +337,61 @@
             100% { background-position: 200% 0; }
         }
         
-        /* 모바일에서 배너 비율 변경 + 여백 제거 */
+        /* 사이드 카드 스타일 */
+        .side-card {
+            flex: 1;
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .side-card:hover {
+            border-color: #A50034;
+            box-shadow: 0 4px 12px rgba(165, 0, 52, 0.15);
+            transform: translateY(-2px);
+        }
+        .side-card-category {
+            font-size: 11px;
+            font-weight: 600;
+            color: #A50034;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+        .side-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            line-height: 1.4;
+            margin-bottom: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .side-card-content {
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        /* 모바일에서 배너 비율 변경 + 세로 배치 */
         @media (max-width: 768px) {
+            .hero-layout {
+                flex-direction: column !important;
+            }
+            .banner-area {
+                flex: none !important;
+            }
             #banner-slider {
                 aspect-ratio: 4/5 !important;
                 border-radius: 0 !important;
@@ -330,6 +399,19 @@
             .hero-wrapper {
                 padding: 0 !important;
                 max-width: 100% !important;
+            }
+            .side-cards-area {
+                flex: none !important;
+                padding: 16px;
+            }
+            #side-cards-container {
+                flex-direction: row !important;
+                flex-wrap: wrap;
+                gap: 8px !important;
+            }
+            .side-card, .side-card-skeleton {
+                flex: 1 1 calc(50% - 4px) !important;
+                min-width: calc(50% - 4px);
             }
         }
     </style>
@@ -506,6 +588,93 @@
         
         // 페이지 로드 시 배너 불러오기
         document.addEventListener('DOMContentLoaded', loadBanners);
+        
+        // ===== 사이드 카드 (공지사항, 보도자료, 일정 등) =====
+        async function loadSideCards() {
+            try {
+                // 여러 API에서 데이터 가져오기
+                const [noticesRes, pressRes, eventsRes] = await Promise.all([
+                    fetch(window.API_BASE + '/notices?limit=2').catch(() => ({ json: () => ({ success: false }) })),
+                    fetch(window.API_BASE + '/spokesperson?limit=2').catch(() => ({ json: () => ({ success: false }) })),
+                    fetch(window.API_BASE + '/events?limit=2').catch(() => ({ json: () => ({ success: false }) }))
+                ]);
+                
+                const [notices, press, events] = await Promise.all([
+                    noticesRes.json ? noticesRes.json() : { success: false },
+                    pressRes.json ? pressRes.json() : { success: false },
+                    eventsRes.json ? eventsRes.json() : { success: false }
+                ]);
+                
+                // 데이터 합치기
+                let allItems = [];
+                
+                if (notices.success && notices.data) {
+                    const noticeItems = (Array.isArray(notices.data) ? notices.data : notices.data.notices || []).slice(0, 2);
+                    noticeItems.forEach(item => {
+                        allItems.push({
+                            category: '공지사항',
+                            title: item.title,
+                            content: item.content ? item.content.replace(/<[^>]*>/g, '').substring(0, 60) : '',
+                            link: 'news/notice-detail.html?id=' + item._id,
+                            date: item.createdAt
+                        });
+                    });
+                }
+                
+                if (press.success && press.data) {
+                    const pressItems = (Array.isArray(press.data) ? press.data : press.data.items || []).slice(0, 1);
+                    pressItems.forEach(item => {
+                        allItems.push({
+                            category: '보도자료',
+                            title: item.title,
+                            content: item.content ? item.content.replace(/<[^>]*>/g, '').substring(0, 60) : '',
+                            link: 'news/press-release-detail.html?id=' + item._id,
+                            date: item.createdAt
+                        });
+                    });
+                }
+                
+                if (events.success && events.data) {
+                    const eventItems = (Array.isArray(events.data) ? events.data : []).slice(0, 1);
+                    eventItems.forEach(item => {
+                        allItems.push({
+                            category: '일정',
+                            title: item.title,
+                            content: item.location || (item.description ? item.description.substring(0, 60) : ''),
+                            link: 'news/event-detail.html?id=' + item._id,
+                            date: item.startDate || item.createdAt
+                        });
+                    });
+                }
+                
+                // 최신순 정렬
+                allItems.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                // 최대 4개
+                allItems = allItems.slice(0, 4);
+                
+                if (allItems.length > 0) {
+                    renderSideCards(allItems);
+                }
+            } catch (error) {
+                console.log('사이드 카드 로드 실패:', error);
+            }
+        }
+        
+        function renderSideCards(items) {
+            const container = document.getElementById('side-cards-container');
+            
+            container.innerHTML = items.map(item => `
+                <a href="${item.link}" class="side-card" style="text-decoration: none;">
+                    <div class="side-card-category">${item.category}</div>
+                    <div class="side-card-title">${item.title}</div>
+                    ${item.content ? `<div class="side-card-content">${item.content}...</div>` : ''}
+                </a>
+            `).join('');
+        }
+        
+        // 페이지 로드 시 사이드 카드 불러오기
+        document.addEventListener('DOMContentLoaded', loadSideCards);
         
         // 터치 스와이프 기능 (모바일)
         let touchStartX = 0;
