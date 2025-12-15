@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게이트 팝업 미리보기</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Pretendard', sans-serif; overflow: hidden; }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+        }
+        
+        @keyframes snowfall {
+            0% { 
+                transform: translateY(0) translateX(0) rotate(0deg); 
+                opacity: 1; 
+            }
+            100% { 
+                transform: translateY(100vh) translateX(20px) rotate(360deg); 
+                opacity: 0.5; 
+            }
+        }
+        
+        @keyframes ornamentGlow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.5); }
+        }
+        
+        @keyframes starPulse {
+            0%, 100% { filter: drop-shadow(0 0 8px #ffd700); }
+            50% { filter: drop-shadow(0 0 12px #ffd700); }
+        }
+        
+        @keyframes gentleSway {
+            0%, 100% { transform: rotate(-0.5deg); }
+            50% { transform: rotate(0.5deg); }
+        }
+        
+        .snowflake {
+            position: absolute;
+            top: -20px;
+            color: white;
+            text-shadow: 0 0 5px rgba(255,255,255,0.5);
+            animation: snowfall linear infinite;
+            pointer-events: none;
+            will-change: transform;
+        }
+        
+        .ornament {
+            animation: ornamentGlow 2s ease-in-out infinite;
+        }
+        
+        .tree-container {
+            animation: gentleSway 6s ease-in-out infinite;
+            transform-origin: bottom center;
+        }
+        
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div id="gate-popup-overlay" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(180deg, rgba(5, 15, 35, 0.97), rgba(15, 30, 60, 0.95), rgba(10, 25, 50, 0.97));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        overflow: hidden;
+    ">
+        <!-- 눈 내리는 효과 -->
+        <div id="snowfall-container" style="position: absolute; top: -30px; left: 0; width: 100%; height: calc(100% + 30px); pointer-events: none; overflow: visible;"></div>
+        
+        <!-- 반짝이는 별 효과 (전체 화면에 랜덤 분포) -->
+        <div id="stars-container" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;"></div>
+        
+        <!-- 바닥에 쌓인 눈 -->
+        <div style="position: absolute; bottom: 0; left: 0; right: 0; pointer-events: none;">
+            <svg width="100%" height="80" viewBox="0 0 1200 80" preserveAspectRatio="none">
+                <path d="M0,80 L0,45 Q50,35 100,42 Q150,50 200,38 Q250,28 300,40 Q350,52 400,35 Q450,20 500,32 Q550,45 600,30 Q650,18 700,35 Q750,48 800,32 Q850,20 900,38 Q950,50 1000,35 Q1050,25 1100,40 Q1150,50 1200,42 L1200,80 Z" fill="white" opacity="0.95"/>
+                <path d="M0,80 L0,55 Q60,48 120,55 Q180,62 240,52 Q300,45 360,55 Q420,65 480,50 Q540,38 600,48 Q660,58 720,45 Q780,35 840,50 Q900,60 960,48 Q1020,40 1080,52 Q1140,60 1200,55 L1200,80 Z" fill="white" opacity="0.7"/>
+            </svg>
+        </div>
+        
+        <!-- 왼쪽 크리스마스 트리 -->
+        <div class="tree-container" style="position: absolute; left: 2%; bottom: 25px; pointer-events: none; opacity: 0.95;">
+            <svg width="220" height="340" viewBox="0 0 220 340">
+                <!-- 별 -->
+                <g style="animation: starPulse 2s ease-in-out infinite;">
+                    <polygon points="110,8 116,24 134,24 120,34 126,50 110,40 94,50 100,34 86,24 104,24" fill="#ffd700"/>
+                    <polygon points="110,14 114,22 123,22 116,27 119,36 110,31 101,36 104,27 97,22 106,22" fill="#fff8dc"/>
+                </g>
+                
+                <!-- 트리 본체 - 더 자연스러운 곡선 -->
+                <!-- 1단 -->
+                <path d="M110,42 C85,70 75,85 65,95 L155,95 C145,85 135,70 110,42" fill="#1e5631"/>
+                <path d="M110,42 C95,60 88,75 78,88 C95,82 110,80 125,82 C142,82 132,75 110,42" fill="#267339"/>
+                <!-- 눈 1단 -->
+                <path d="M65,95 C75,88 90,92 110,88 C130,92 145,88 155,95 L150,100 C135,94 120,97 110,94 C100,97 85,94 70,100 Z" fill="white" opacity="0.92"/>
+                
+                <!-- 2단 -->
+                <path d="M55,95 C40,130 30,155 20,175 L200,175 C190,155 180,130 165,95" fill="#1e5631"/>
+                <path d="M60,100 C48,130 40,150 32,168 C70,155 110,150 150,155 C188,155 172,130 160,100" fill="#267339"/>
+                <!-- 눈 2단 -->
+                <path d="M20,175 C40,165 70,172 110,168 C150,172 180,165 200,175 L195,185 C170,175 140,180 110,177 C80,180 50,175 25,185 Z" fill="white" opacity="0.92"/>
+                
+                <!-- 3단 -->
+                <path d="M15,175 C5,220 0,260 0,290 L220,290 C220,260 215,220 205,175" fill="#1e5631"/>
+                <path d="M20,180 C12,220 8,255 8,285 C60,265 110,260 160,265 C212,265 208,220 200,180" fill="#267339"/>
+                <!-- 눈 3단 -->
+                <path d="M0,290 C30,275 70,283 110,278 C150,283 190,275 220,290 L215,305 C180,290 145,298 110,293 C75,298 40,290 5,305 Z" fill="white" opacity="0.92"/>
+                
+                <!-- 트렁크 -->
+                <rect x="90" y="300" width="40" height="40" rx="3" fill="#5d4037"/>
+                <rect x="95" y="300" width="12" height="40" fill="#6d5047"/>
+                
+                <!-- 오너먼트 - 빨강 (더 입체감 있게) -->
+                <g class="ornament" style="animation-delay: 0s;">
+                    <circle cx="95" cy="75" r="7" fill="#c41e3a"/>
+                    <ellipse cx="93" cy="72" rx="2.5" ry="1.5" fill="#ff8a9a" opacity="0.7"/>
+                </g>
+                <g class="ornament" style="animation-delay: 0.6s;">
+                    <circle cx="55" cy="150" r="9" fill="#c41e3a"/>
+                    <ellipse cx="52" cy="146" rx="3" ry="2" fill="#ff8a9a" opacity="0.7"/>
+                </g>
+                <g class="ornament" style="animation-delay: 1.2s;">
+                    <circle cx="165" cy="230" r="10" fill="#c41e3a"/>
+                    <ellipse cx="161" cy="225" rx="3.5" ry="2" fill="#ff8a9a" opacity="0.7"/>
+                </g>
+                <g class="ornament" style="animation-delay: 0.3s;">
+                    <circle cx="75" cy="265" r="9" fill="#c41e3a"/>
+                    <ellipse cx="72" cy="261" rx="3" ry="2" fill="#ff8a9a" opacity="0.7"/>
+                </g>
+                
+                <!-- 오너먼트 - 금색 -->
+                <g class="ornament" style="animation-delay: 0.8s;">
+                    <circle cx="125" cy="72" r="6" fill="#daa520"/>
+                    <ellipse cx="123" cy="69" rx="2" ry="1.2" fill="#ffe66d" opacity="0.8"/>
+                </g>
+                <g class="ornament" style="animation-delay: 0.2s;">
+                    <circle cx="150" cy="140" r="8" fill="#daa520"/>
+                    <ellipse cx="147" cy="136" rx="2.5" ry="1.5" fill="#ffe66d" opacity="0.8"/>
+                </g>
+                <g class="ornament" style="animation-delay: 1.5s;">
+                    <circle cx="50" cy="240" r="9" fill="#daa520"/>
+                    <ellipse cx="47" cy="236" rx="3" ry="1.8" fill="#ffe66d" opacity="0.8"/>
+                </g>
+                <g class="ornament" style="animation-delay: 0.9s;">
+                    <circle cx="140" cy="275" r="8" fill="#daa520"/>
+                    <ellipse cx="137" cy="271" rx="2.5" ry="1.5" fill="#ffe66d" opacity="0.8"/>
+                </g>
+                
+                <!-- 오너먼트 - 파랑 -->
+                <g class="ornament" style="animation-delay: 0.4s;">
+                    <circle cx="80" cy="130" r="7" fill="#1e90ff"/>
+                    <ellipse cx="78" cy="127" rx="2.5" ry="1.5" fill="#87cefa" opacity="0.7"/>
+                </g>
+                <g class="ornament" style="animation-delay: 1s;">
+                    <circle cx="170" cy="165" r="8" fill="#1e90ff"/>
+                    <ellipse cx="167" cy="161" rx="2.5" ry="1.5" fill="#87cefa" opacity="0.7"/>
+                </g>
+                <g class="ornament" style="animation-delay: 1.8s;">
+                    <circle cx="110" cy="220" r="9" fill="#1e90ff"/>
+                    <ellipse cx="107" cy="216" rx="3" ry="1.8" fill="#87cefa" opacity="0.7"/>
+                </g>
+                <g class="ornament" style="animation-delay: 0.5s;">
+                    <circle cx="180" cy="270" r="8" fill="#1e90ff"/>
+                    <ellipse cx="177" cy="266" rx="2.5" ry="1.5" fill="#87cefa" opacity="0.7"/>
+                </g>
+            </svg>
+        </div>
+        
+        <button onclick="alert('닫기 버튼')" style="
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+            font-size: 28px;
+            padding: 8px;
+            z-index: 10;
+        " onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">✕</button>
+        
+        <div id="gate-popup-content" style="
+            text-align: center;
+            color: #ffffff;
+            max-width: 65%;
+            z-index: 5;
+            margin-left: 10%;
+        ">
+            <div style="
+                font-size: clamp(1.5rem, 5vw, 3rem);
+                font-weight: 800;
+                margin-bottom: 1rem;
+                text-shadow: 2px 2px 20px rgba(0,0,0,0.5);
+                line-height: 1.3;
+                white-space: pre-line;
+            ">부정선거 척결,
+반국가세력 처단으로 청년에게 미래를!</div>
+            <div style="
+                font-size: clamp(0.9rem, 2vw, 1.25rem);
+                opacity: 0.9;
+                margin-bottom: 2rem;
+                text-shadow: 1px 1px 10px rgba(0,0,0,0.5);
+                line-height: 1.6;
+                white-space: pre-line;
+            ">당원 동지 여러분! 끝까지 힘냅시다!</div>
+            <a href="#" style="
+                display: inline-block;
+                background: #A50034;
+                color: white;
+                padding: 12px 32px;
+                border-radius: 8px;
+                text-decoration: none;
+                font-weight: 600;
+                font-size: 1rem;
+                transition: all 0.3s ease;
+            " onmouseover="this.style.background='#8B002C'" onmouseout="this.style.background='#A50034'">자세히 보기</a>
+        </div>
+    </div>
+    
+    <script>
+        // 눈송이 생성 함수
+        function createSnowflakes() {
+            const container = document.getElementById('snowfall-container');
+            if (!container) return;
+            
+            const snowflakes = ['❄', '❅', '❆', '✻', '✼', '❉'];
+            const count = 80;
+            
+            for (let i = 0; i < count; i++) {
+                const flake = document.createElement('div');
+                flake.className = 'snowflake';
+                flake.textContent = snowflakes[Math.floor(Math.random() * snowflakes.length)];
+                flake.style.left = Math.random() * 100 + '%';
+                flake.style.fontSize = (Math.random() * 14 + 10) + 'px';
+                flake.style.opacity = Math.random() * 0.5 + 0.5;
+                
+                const duration = Math.random() * 8 + 6;
+                const delay = Math.random() * 10;
+                flake.style.animationDuration = duration + 's';
+                flake.style.animationDelay = delay + 's';
+                flake.style.animationTimingFunction = 'linear';
+                flake.style.animationIterationCount = 'infinite';
+                
+                container.appendChild(flake);
+            }
+        }
+        
+        // 별 생성 함수 (전체 화면에 랜덤 분포, 가장자리 여백)
+        function createStars() {
+            const container = document.getElementById('stars-container');
+            if (!container) return;
+            
+            const colors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#ffffff', '#ffb6c1'];
+            const count = 40;
+            
+            for (let i = 0; i < count; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 4 + 2;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.background = color;
+                star.style.boxShadow = `0 0 ${size * 3}px ${color}, 0 0 ${size * 6}px ${color}`;
+                // 가장자리에서 8% 안쪽에만 생성
+                star.style.left = (8 + Math.random() * 84) + '%';
+                star.style.top = (8 + Math.random() * 84) + '%';
+                star.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+                star.style.animationDelay = (Math.random() * 3) + 's';
+                
+                container.appendChild(star);
+            }
+        }
+        
+        createSnowflakes();
+        createStars();
+    </script>
+</body>
+</html>

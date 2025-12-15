@@ -1687,8 +1687,16 @@
                         <!-- 반짝이는 별 효과 -->
                         <div id="stars-container" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;"></div>
                         
+                        <!-- 바닥에 쌓인 눈 -->
+                        <div style="position: absolute; bottom: 0; left: 0; right: 0; pointer-events: none;">
+                            <svg width="100%" height="80" viewBox="0 0 1200 80" preserveAspectRatio="none">
+                                <path d="M0,80 L0,45 Q50,35 100,42 Q150,50 200,38 Q250,28 300,40 Q350,52 400,35 Q450,20 500,32 Q550,45 600,30 Q650,18 700,35 Q750,48 800,32 Q850,20 900,38 Q950,50 1000,35 Q1050,25 1100,40 Q1150,50 1200,42 L1200,80 Z" fill="white" opacity="0.95"/>
+                                <path d="M0,80 L0,55 Q60,48 120,55 Q180,62 240,52 Q300,45 360,55 Q420,65 480,50 Q540,38 600,48 Q660,58 720,45 Q780,35 840,50 Q900,60 960,48 Q1020,40 1080,52 Q1140,60 1200,55 L1200,80 Z" fill="white" opacity="0.7"/>
+                            </svg>
+                        </div>
+                        
                         <!-- 크리스마스 트리 -->
-                        <div class="tree-container" style="position: absolute; left: 2%; bottom: -5px; pointer-events: none; opacity: 0.95;">
+                        <div class="tree-container" style="position: absolute; left: 2%; bottom: 25px; pointer-events: none; opacity: 0.95;">
                             <svg width="220" height="340" viewBox="0 0 220 340">
                                 <!-- 별 -->
                                 <g style="animation: starPulse 3s ease-in-out infinite;">
