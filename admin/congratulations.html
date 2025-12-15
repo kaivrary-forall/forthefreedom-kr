@@ -235,11 +235,15 @@
                     document.getElementById('targetPerson').value = item.targetPerson || '';
                     document.getElementById('showOnSideCard').checked = item.showOnSideCard !== false;
                     
-                    // 기존 등록일 로드
+                    // 기존 등록일 로드 (로컬 시간으로 표시)
                     if (item.createdAt) {
                         const date = new Date(item.createdAt);
-                        const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-                        document.getElementById('createdAt').value = localDate.toISOString().slice(0, 16);
+                        const year = date.getFullYear();
+                        const month = String(date.getMonth() + 1).padStart(2, '0');
+                        const day = String(date.getDate()).padStart(2, '0');
+                        const hours = String(date.getHours()).padStart(2, '0');
+                        const minutes = String(date.getMinutes()).padStart(2, '0');
+                        document.getElementById('createdAt').value = `${year}-${month}-${day}T${hours}:${minutes}`;
                     }
                 }
             } catch (error) {
