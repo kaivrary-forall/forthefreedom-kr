@@ -1701,21 +1701,21 @@
                                 opacity: 0;
                                 transition: all 0.5s ease;
                             ">
-                                <h1 style="
+                                <div style="
                                     font-size: clamp(1.5rem, 5vw, 3rem);
                                     font-weight: 800;
                                     margin-bottom: 1rem;
                                     text-shadow: 2px 2px 20px rgba(0,0,0,0.5);
                                     line-height: ${popup.titleLineHeight || 1.2};
-                                ">${popup.titleHtml || popup.title.replace(/\n/g, '<br>')}</h1>
-                                ${popup.subtitle ? `
-                                    <p style="
+                                ">${popup.titleHtml || popup.title.replace(/\n/g, '<br>')}</div>
+                                ${popup.subtitle || popup.subtitleHtml ? `
+                                    <div style="
                                         font-size: clamp(0.9rem, 2vw, 1.25rem);
                                         opacity: 0.9;
                                         margin-bottom: 2rem;
                                         text-shadow: 1px 1px 10px rgba(0,0,0,0.5);
                                         line-height: ${popup.subtitleLineHeight || 1.6};
-                                    ">${popup.subtitleHtml || popup.subtitle.replace(/\n/g, '<br>')}</p>
+                                    ">${popup.subtitleHtml || popup.subtitle.replace(/\n/g, '<br>')}</div>
                                 ` : ''}
                                 ${popup.link ? `
                                     <a href="${popup.link}" style="
@@ -1740,7 +1740,7 @@
                                     cursor: pointer;
                                     font-size: 14px;
                                     padding: 8px 16px;
-                                " onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">닫기</button>
+                                " onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">✕</button>
                             </div>
                         </div>
                     `;
