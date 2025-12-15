@@ -338,7 +338,13 @@ async function getLatestItems(showCategories, limit, excludeIds = []) {
         }
         
         if (showCategories.personnel) {
-            const personnel = await Personnel.find({ _id: { $nin: excludeIds }, status: 'published', showOnSideCard: true })
+            const now = new Date();
+            const personnel = await Personnel.find({ 
+                _id: { $nin: excludeIds }, 
+                status: 'published', 
+                showOnSideCard: true,
+                createdAt: { $lte: now }  // 현재 시간 이전 것만
+            })
                 .sort({ createdAt: -1 })
                 .limit(2);
             personnel.forEach(item => {
@@ -353,7 +359,13 @@ async function getLatestItems(showCategories, limit, excludeIds = []) {
         }
         
         if (showCategories.congratulations) {
-            const congrats = await Congratulation.find({ _id: { $nin: excludeIds }, isActive: true, showOnSideCard: true })
+            const now = new Date();
+            const congrats = await Congratulation.find({ 
+                _id: { $nin: excludeIds }, 
+                isActive: true, 
+                showOnSideCard: true,
+                createdAt: { $lte: now }  // 현재 시간 이전 것만
+            })
                 .sort({ createdAt: -1 })
                 .limit(2);
             congrats.forEach(item => {
