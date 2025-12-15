@@ -2,12 +2,18 @@ const express = require('express');
 const router = express.Router();
 const Congratulation = require('../models/Congratulation');
 
-// 경조사 목록 조회 (공개)
+// 경조사 목록 조회 (공개) - 미래 날짜 예약 발행 지원
 router.get('/', async (req, res) => {
     try {
-        const { page = 1, limit = 10, category, search } = req.query;
+        const { page = 1, limit = 10, category, search, includeScheduled = 'false' } = req.query;
         
         const query = { isActive: true };
+        
+        // 예약 발행: 미래 날짜 게시물 제외 (관리자가 아닌 경우)
+        if (includeScheduled !== 'true') {
+            query.createdAt = { $lte: new Date() };
+        }
+        
         if (category) {
             query.category = category;
         }
