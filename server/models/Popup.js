@@ -40,6 +40,10 @@ const popupSchema = new mongoose.Schema({
     isActive: {
         type: Boolean,
         default: true
+    },
+    christmasMode: {
+        type: Boolean,
+        default: false
     }
 }, {
     timestamps: true
