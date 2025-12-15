@@ -1693,6 +1693,18 @@
                             opacity: 0;
                             transition: opacity 0.5s ease;
                         ">
+                            <button onclick="closeGatePopup()" style="
+                                position: absolute;
+                                top: 20px;
+                                right: 20px;
+                                background: none;
+                                border: none;
+                                color: rgba(255,255,255,0.7);
+                                cursor: pointer;
+                                font-size: 28px;
+                                padding: 8px;
+                                z-index: 10;
+                            " onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">✕</button>
                             <div id="gate-popup-content" style="
                                 text-align: center;
                                 color: ${popup.defaultTextColor || '#ffffff'};
@@ -1707,7 +1719,8 @@
                                     margin-bottom: 1rem;
                                     text-shadow: 2px 2px 20px rgba(0,0,0,0.5);
                                     line-height: ${popup.titleLineHeight || 1.2};
-                                ">${popup.titleHtml || popup.title.replace(/\n/g, '<br>')}</div>
+                                    white-space: pre-line;
+                                ">${popup.titleHtml || popup.title}</div>
                                 ${popup.subtitle || popup.subtitleHtml ? `
                                     <div style="
                                         font-size: clamp(0.9rem, 2vw, 1.25rem);
@@ -1715,7 +1728,8 @@
                                         margin-bottom: 2rem;
                                         text-shadow: 1px 1px 10px rgba(0,0,0,0.5);
                                         line-height: ${popup.subtitleLineHeight || 1.6};
-                                    ">${popup.subtitleHtml || popup.subtitle.replace(/\n/g, '<br>')}</div>
+                                        white-space: pre-line;
+                                    ">${popup.subtitleHtml || popup.subtitle}</div>
                                 ` : ''}
                                 ${popup.link ? `
                                     <a href="${popup.link}" style="
@@ -1728,19 +1742,8 @@
                                         font-weight: 600;
                                         font-size: 1rem;
                                         transition: all 0.3s ease;
-                                        margin-bottom: 1rem;
                                     " onmouseover="this.style.background='#8B002C'" onmouseout="this.style.background='#A50034'">${popup.linkText || '자세히 보기'}</a>
                                 ` : ''}
-                                <button onclick="closeGatePopup()" style="
-                                    display: block;
-                                    margin: 1rem auto 0;
-                                    background: none;
-                                    border: none;
-                                    color: rgba(255,255,255,0.7);
-                                    cursor: pointer;
-                                    font-size: 14px;
-                                    padding: 8px 16px;
-                                " onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">✕</button>
                             </div>
                         </div>
                     `;
