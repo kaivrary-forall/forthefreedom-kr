@@ -140,7 +140,7 @@
             list.classList.add('hidden');
             
             try {
-                let url = `${API_BASE}/congratulations?limit=100`;
+                let url = `${API_BASE}/congratulations?limit=100&includeScheduled=true`;
                 if (currentFilter) url += `&category=${encodeURIComponent(currentFilter)}`;
                 
                 const response = await fetch(url);
@@ -163,11 +163,20 @@
         
         function renderList(items) {
             const container = document.getElementById('list');
-            container.innerHTML = items.map(item => `
-                <div class="congrats-card p-4 flex items-center justify-between">
+            const now = new Date();
+            
+            container.innerHTML = items.map(item => {
+                // 예약 발행 여부 확인
+                const itemDate = new Date(item.createdAt);
+                const isScheduled = itemDate > now;
+                const scheduledBadge = isScheduled ? '<span class="px-2 py-1 text-xs rounded bg-purple-100 text-purple-800">예약</span>' : '';
+                
+                return `
+                <div class="congrats-card p-4 flex items-center justify-between ${isScheduled ? 'opacity-70 bg-purple-50' : ''}">
                     <div class="flex-1">
                         <div class="flex items-center gap-2 mb-1">
                             <span class="px-2 py-1 text-xs rounded ${item.category === '경사' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'}">${item.category}</span>
+                            ${scheduledBadge}
                             <span class="text-sm text-gray-500">${formatDate(item.createdAt)}</span>
                         </div>
                         <h3 class="font-semibold text-gray-900">${item.title}</h3>
@@ -183,7 +192,7 @@
                         </button>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
         
         function formatDate(dateStr) {
