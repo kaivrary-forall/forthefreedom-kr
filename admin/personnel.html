@@ -247,6 +247,13 @@
                     document.getElementById('excerpt').value = item.excerpt || '';
                     document.getElementById('content').value = item.content;
                     document.getElementById('showOnSideCard').checked = item.showOnSideCard !== false;
+                    
+                    // 기존 등록일 로드
+                    if (item.createdAt) {
+                        const date = new Date(item.createdAt);
+                        const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+                        document.getElementById('createdAt').value = localDate.toISOString().slice(0, 16);
+                    }
                 }
             } catch (error) {
                 alert('불러오기 실패');
@@ -271,7 +278,7 @@
             formData.append('showOnSideCard', document.getElementById('showOnSideCard').checked);
             
             const createdAt = document.getElementById('createdAt').value;
-            if (createdAt && !editId) {
+            if (createdAt) {
                 formData.append('createdAt', createdAt);
             }
             
