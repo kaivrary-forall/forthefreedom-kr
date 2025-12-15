@@ -225,30 +225,6 @@ nav a {
     transition: color 0.3s ease;
 }
 
-nav a:hover::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: #dc2626;
-    transform: scaleX(1);
-    transition: transform 0.3s ease;
-}
-
-nav a::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: #dc2626;
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-}
-
 /* Loading Animation for Images */
 .bg-gray-200 {
     background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
