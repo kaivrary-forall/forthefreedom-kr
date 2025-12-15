@@ -270,7 +270,6 @@
                 if (currentSearch) {
                     url += `&search=${encodeURIComponent(currentSearch)}`;
                 }
-                }
                 
                 const response = await fetch(url);
                 const result = await response.json();
