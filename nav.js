@@ -179,7 +179,7 @@ function loadNavigation() {
                         <!-- 로그인 상태 -->
                         <div id="nav-member" class="hidden flex items-center gap-4">
                             <span id="nav-nickname" class="text-[#212121] text-sm font-medium"></span>
-                            <a href="#" onclick="openMypageModal(); return false;" class="text-[#a50034] hover:underline text-sm font-medium">
+                            <a href="#" onclick="openMypageModal(); return false;" class="text-[#a50034] text-sm font-medium">
                                 마이페이지
                             </a>
                             <button onclick="navLogout()" class="text-gray-500 hover:text-gray-700 text-sm">
