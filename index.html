@@ -1663,5 +1663,125 @@
             }
         }
     </style>
+    
+    <!-- 게이트 팝업 스크립트 -->
+    <script>
+        // 게이트 팝업 로드
+        async function loadGatePopup() {
+            // 세션에서 이미 닫은 경우 표시 안 함
+            if (sessionStorage.getItem('gatePopupClosed')) return;
+            
+            try {
+                const response = await fetch(window.API_BASE + '/popup');
+                const result = await response.json();
+                
+                if (result.success && result.data && result.data.isActive) {
+                    const popup = result.data;
+                    
+                    const modalHTML = `
+                        <div id="gate-popup-overlay" style="
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            right: 0;
+                            bottom: 0;
+                            background: rgba(0, 0, 0, 0.85);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            z-index: 9999;
+                            opacity: 0;
+                            transition: opacity 0.5s ease;
+                        ">
+                            <div id="gate-popup-content" style="
+                                text-align: center;
+                                color: ${popup.defaultTextColor || '#ffffff'};
+                                max-width: 90%;
+                                transform: scale(0.9);
+                                opacity: 0;
+                                transition: all 0.5s ease;
+                            ">
+                                <h1 style="
+                                    font-size: clamp(1.5rem, 5vw, 3rem);
+                                    font-weight: 800;
+                                    margin-bottom: 1rem;
+                                    text-shadow: 2px 2px 20px rgba(0,0,0,0.5);
+                                    line-height: ${popup.titleLineHeight || 1.2};
+                                ">${popup.titleHtml || popup.title.replace(/\n/g, '<br>')}</h1>
+                                ${popup.subtitle ? `
+                                    <p style="
+                                        font-size: clamp(0.9rem, 2vw, 1.25rem);
+                                        opacity: 0.9;
+                                        margin-bottom: 2rem;
+                                        text-shadow: 1px 1px 10px rgba(0,0,0,0.5);
+                                        line-height: ${popup.subtitleLineHeight || 1.6};
+                                    ">${popup.subtitleHtml || popup.subtitle.replace(/\n/g, '<br>')}</p>
+                                ` : ''}
+                                ${popup.link ? `
+                                    <a href="${popup.link}" style="
+                                        display: inline-block;
+                                        background: #A50034;
+                                        color: white;
+                                        padding: 12px 32px;
+                                        border-radius: 8px;
+                                        text-decoration: none;
+                                        font-weight: 600;
+                                        font-size: 1rem;
+                                        transition: all 0.3s ease;
+                                        margin-bottom: 1rem;
+                                    " onmouseover="this.style.background='#8B002C'" onmouseout="this.style.background='#A50034'">${popup.linkText || '자세히 보기'}</a>
+                                ` : ''}
+                                <button onclick="closeGatePopup()" style="
+                                    display: block;
+                                    margin: 1rem auto 0;
+                                    background: none;
+                                    border: none;
+                                    color: rgba(255,255,255,0.7);
+                                    cursor: pointer;
+                                    font-size: 14px;
+                                    padding: 8px 16px;
+                                " onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">닫기</button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.insertAdjacentHTML('beforeend', modalHTML);
+                    
+                    // 애니메이션 시작
+                    requestAnimationFrame(() => {
+                        const overlay = document.getElementById('gate-popup-overlay');
+                        const content = document.getElementById('gate-popup-content');
+                        if (overlay) overlay.style.opacity = '1';
+                        if (content) {
+                            content.style.transform = 'scale(1)';
+                            content.style.opacity = '1';
+                        }
+                    });
+                }
+            } catch (error) {
+                console.log('게이트 팝업 로드 실패:', error);
+            }
+        }
+        
+        function closeGatePopup() {
+            const overlay = document.getElementById('gate-popup-overlay');
+            const content = document.getElementById('gate-popup-content');
+            
+            if (overlay) overlay.style.opacity = '0';
+            if (content) {
+                content.style.transform = 'scale(0.9)';
+                content.style.opacity = '0';
+            }
+            
+            setTimeout(() => {
+                if (overlay) overlay.remove();
+            }, 500);
+            
+            sessionStorage.setItem('gatePopupClosed', 'true');
+        }
+        
+        // 페이지 로드 시 게이트 팝업 표시
+        document.addEventListener('DOMContentLoaded', loadGatePopup);
+    </script>
 </body>
 </html>
