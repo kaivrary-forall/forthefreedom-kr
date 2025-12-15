@@ -9,8 +9,75 @@ const { getAll, getById, deleteById } = require('../controllers/baseController')
 const { uploads, createAttachmentsInfo, uploadDir } = require('../utils/upload');
 const upload = uploads.notice; // 공지사항과 같은 업로드 설정 사용
 
-// 인사 발령 목록 조회
-router.get('/', getAll(Personnel));
+// 인사 발령 목록 조회 (미래 날짜 예약 발행 지원)
+router.get('/', async (req, res) => {
+    try {
+        const {
+            page = 1,
+            limit = 10,
+            search = '',
+            category = '',
+            status = 'published',
+            sortBy = 'createdAt',
+            sortOrder = 'desc',
+            includeScheduled = 'false'  // 관리자용: 예약 게시물 포함 여부
+        } = req.query;
+
+        const searchConditions = {
+            status: status === 'all' ? { $in: ['draft', 'published'] } : status
+        };
+
+        // 예약 발행: 미래 날짜 게시물 제외 (관리자가 아닌 경우)
+        if (includeScheduled !== 'true') {
+            searchConditions.createdAt = { $lte: new Date() };
+        }
+
+        if (search) {
+            searchConditions.$or = [
+                { title: { $regex: search, $options: 'i' } },
+                { content: { $regex: search, $options: 'i' } },
+                { excerpt: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        if (category) {
+            searchConditions.category = category;
+        }
+
+        const sortOptions = {};
+        sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
+
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+
+        const [items, total] = await Promise.all([
+            Personnel.find(searchConditions)
+                .sort(sortOptions)
+                .skip(skip)
+                .limit(parseInt(limit)),
+            Personnel.countDocuments(searchConditions)
+        ]);
+
+        res.json({
+            success: true,
+            data: items,
+            pagination: {
+                current: parseInt(page),
+                pages: Math.ceil(total / parseInt(limit)),
+                total,
+                hasNext: skip + items.length < total,
+                hasPrev: parseInt(page) > 1
+            },
+            totalPages: Math.ceil(total / parseInt(limit))
+        });
+    } catch (error) {
+        console.error('인사 발령 목록 조회 오류:', error);
+        res.status(500).json({
+            success: false,
+            message: '인사 발령 목록 조회 중 오류가 발생했습니다',
+            error: error.message
+        });
+    }
+});
 
 // 인사 발령 단일 조회
 router.get('/:id', getById(Personnel));
@@ -58,7 +125,7 @@ router.post('/upload-image', upload.single('image'), async (req, res) => {
 // 인사 발령 생성 (파일 업로드 포함)
 router.post('/', upload.array('attachments'), async (req, res) => {
     try {
-        const { title, content, category, author, excerpt, tags, isImportant, showOnSideCard } = req.body;
+        const { title, content, category, author, excerpt, tags, isImportant, showOnSideCard, createdAt } = req.body;
 
         // 첨부파일 정보 처리 (한글 파일명 자동 복원)
         const attachments = createAttachmentsInfo(req.files);
@@ -76,6 +143,11 @@ router.post('/', upload.array('attachments'), async (req, res) => {
             status: 'published',
             publishDate: new Date()
         };
+        
+        // createdAt이 전달되면 사용 (예약 발행용)
+        if (createdAt) {
+            personnelData.createdAt = new Date(createdAt);
+        }
 
         const personnel = new Personnel(personnelData);
         await personnel.save();
