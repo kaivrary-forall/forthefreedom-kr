@@ -205,6 +205,14 @@
                     <input type="checkbox" id="popupActive" checked class="w-5 h-5 text-primary rounded">
                     <label for="popupActive" class="text-sm font-medium text-gray-700">게이트 팝업 활성화</label>
                 </div>
+                
+                <!-- 크리스마스 모드 -->
+                <div class="flex items-center gap-2 p-4 bg-gradient-to-r from-red-50 to-green-50 rounded-lg border border-red-200">
+                    <input type="checkbox" id="christmasMode" class="w-5 h-5 text-red-600 rounded">
+                    <label for="christmasMode" class="text-sm font-medium text-gray-700">
+                        🎄 크리스마스 모드 <span class="text-xs text-gray-500">(눈, 트리, 별 효과)</span>
+                    </label>
+                </div>
             </div>
             
             <!-- 버튼 -->
@@ -325,6 +333,7 @@
                     document.getElementById('subtitleLineHeightNum').value = popup.subtitleLineHeight || 1.6;
                     
                     document.getElementById('popupActive').checked = popup.isActive;
+                    document.getElementById('christmasMode').checked = popup.christmasMode || false;
                     
                     updatePreview();
                     
@@ -415,7 +424,8 @@
                 defaultTextColor: document.getElementById('defaultTextColor').value,
                 titleLineHeight: parseFloat(document.getElementById('titleLineHeight').value),
                 subtitleLineHeight: parseFloat(document.getElementById('subtitleLineHeight').value),
-                isActive: document.getElementById('popupActive').checked
+                isActive: document.getElementById('popupActive').checked,
+                christmasMode: document.getElementById('christmasMode').checked
             };
             
             console.log('[게이트팝업] 저장 데이터:', data);
