@@ -338,7 +338,7 @@ async function getLatestItems(showCategories, limit, excludeIds = []) {
         }
         
         if (showCategories.personnel) {
-            const personnel = await Personnel.find({ _id: { $nin: excludeIds }, status: 'published' })
+            const personnel = await Personnel.find({ _id: { $nin: excludeIds }, status: 'published', showOnSideCard: true })
                 .sort({ createdAt: -1 })
                 .limit(2);
             personnel.forEach(item => {
@@ -353,7 +353,7 @@ async function getLatestItems(showCategories, limit, excludeIds = []) {
         }
         
         if (showCategories.congratulations) {
-            const congrats = await Congratulation.find({ _id: { $nin: excludeIds }, isActive: true })
+            const congrats = await Congratulation.find({ _id: { $nin: excludeIds }, isActive: true, showOnSideCard: true })
                 .sort({ createdAt: -1 })
                 .limit(2);
             congrats.forEach(item => {

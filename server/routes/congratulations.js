@@ -73,7 +73,7 @@ router.get('/:id', async (req, res) => {
 // 경조사 생성 (관리자)
 router.post('/', async (req, res) => {
     try {
-        const { category, title, content, targetPerson, createdAt } = req.body;
+        const { category, title, content, targetPerson, createdAt, showOnSideCard } = req.body;
         
         if (!category || !title || !content) {
             return res.status(400).json({
@@ -87,7 +87,8 @@ router.post('/', async (req, res) => {
             title,
             content,
             targetPerson: targetPerson || '',
-            isActive: true
+            isActive: true,
+            showOnSideCard: showOnSideCard !== false
         };
         
         // createdAt이 전달되면 사용 (과거 날짜 입력용)
@@ -116,14 +117,15 @@ router.post('/', async (req, res) => {
 // 경조사 수정 (관리자)
 router.put('/:id', async (req, res) => {
     try {
-        const { category, title, content, targetPerson, isActive } = req.body;
+        const { category, title, content, targetPerson, isActive, showOnSideCard } = req.body;
         
         const updateData = {
             category,
             title,
             content,
             targetPerson: targetPerson || '',
-            isActive: isActive !== undefined ? isActive : true
+            isActive: isActive !== undefined ? isActive : true,
+            showOnSideCard: showOnSideCard !== undefined ? showOnSideCard : true
         };
         
         const congratulation = await Congratulation.findByIdAndUpdate(

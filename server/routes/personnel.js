@@ -58,7 +58,7 @@ router.post('/upload-image', upload.single('image'), async (req, res) => {
 // 인사 발령 생성 (파일 업로드 포함)
 router.post('/', upload.array('attachments'), async (req, res) => {
     try {
-        const { title, content, category, author, excerpt, tags, isImportant } = req.body;
+        const { title, content, category, author, excerpt, tags, isImportant, showOnSideCard } = req.body;
 
         // 첨부파일 정보 처리 (한글 파일명 자동 복원)
         const attachments = createAttachmentsInfo(req.files);
@@ -71,6 +71,7 @@ router.post('/', upload.array('attachments'), async (req, res) => {
             excerpt,
             tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
             isImportant: isImportant === 'true' || isImportant === true,
+            showOnSideCard: showOnSideCard === 'true' || showOnSideCard === true,
             attachments,
             status: 'published',
             publishDate: new Date()
@@ -97,7 +98,7 @@ router.post('/', upload.array('attachments'), async (req, res) => {
 // 인사 발령 수정
 router.put('/:id', upload.array('attachments'), async (req, res) => {
     try {
-        const { title, content, category, author, excerpt, tags, isImportant, existingAttachments } = req.body;
+        const { title, content, category, author, excerpt, tags, isImportant, showOnSideCard, existingAttachments } = req.body;
 
         const updateData = {
             title,
@@ -107,6 +108,7 @@ router.put('/:id', upload.array('attachments'), async (req, res) => {
             excerpt,
             tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
             isImportant: isImportant === 'true' || isImportant === true,
+            showOnSideCard: showOnSideCard === 'true' || showOnSideCard === true,
             updatedAt: new Date()
         };
 
