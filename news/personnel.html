@@ -115,6 +115,16 @@
             color: #92400e;
         }
         
+        .badge-dismissal {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .badge-discipline {
+            background: #fecaca;
+            color: #7f1d1d;
+        }
+        
         .badge-other {
             background: #f3f4f6;
             color: #374151;
@@ -159,18 +169,12 @@
 
                 <!-- 필터 버튼 -->
                 <div class="mb-8 flex flex-wrap gap-3 justify-center">
-                    <button class="filter-btn active" data-category="">
-                        <i class="fas fa-list mr-2"></i>전체
-                    </button>
-                    <button class="filter-btn" data-category="임명">
-                        <i class="fas fa-user-plus mr-2"></i>임명
-                    </button>
-                    <button class="filter-btn" data-category="승진">
-                        <i class="fas fa-arrow-up mr-2"></i>승진
-                    </button>
-                    <button class="filter-btn" data-category="전보">
-                        <i class="fas fa-exchange-alt mr-2"></i>전보
-                    </button>
+                    <button class="filter-btn active" data-category="">전체</button>
+                    <button class="filter-btn" data-category="임명">임명</button>
+                    <button class="filter-btn" data-category="승진">승진</button>
+                    <button class="filter-btn" data-category="전보">전보</button>
+                    <button class="filter-btn" data-category="해촉">해촉</button>
+                    <button class="filter-btn" data-category="징계">징계</button>
                 </div>
 
                 <!-- 로딩 -->
@@ -291,6 +295,12 @@
                 } else if (item.category === '전보') {
                     badgeClass = 'badge-transfer';
                     icon = 'fa-exchange-alt';
+                } else if (item.category === '해촉') {
+                    badgeClass = 'badge-dismissal';
+                    icon = 'fa-user-minus';
+                } else if (item.category === '징계') {
+                    badgeClass = 'badge-discipline';
+                    icon = 'fa-gavel';
                 }
                 
                 return `
