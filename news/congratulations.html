@@ -156,7 +156,7 @@
                 </div>
 
                 <!-- 필터 버튼 -->
-                <div class="mb-8 flex flex-wrap gap-3 justify-center">
+                <div class="mb-6 flex flex-wrap gap-3 justify-center">
                     <button class="filter-btn active" data-category="">
                         <i class="fas fa-list mr-2"></i>전체
                     </button>
@@ -166,6 +166,19 @@
                     <button class="filter-btn" data-category="조사">
                         <i class="fas fa-ribbon mr-2"></i>조사
                     </button>
+                </div>
+
+                <!-- 검색 -->
+                <div class="mb-8 max-w-xl mx-auto">
+                    <div class="flex gap-2">
+                        <input type="text" id="searchInput" 
+                            class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                            placeholder="이름, 내용 등으로 검색..."
+                            onkeypress="if(event.key==='Enter') doSearch()">
+                        <button onclick="doSearch()" class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- 로딩 -->
@@ -208,6 +221,7 @@
     <script>
         let currentPage = 1;
         let currentCategory = '';
+        let currentSearch = '';
         const itemsPerPage = 10;
         
         // 페이지 로드 시
@@ -215,6 +229,13 @@
             loadCongratulations();
             setupFilterButtons();
         });
+        
+        // 검색 실행
+        function doSearch() {
+            currentSearch = document.getElementById('searchInput').value.trim();
+            currentPage = 1;
+            loadCongratulations();
+        }
         
         // 필터 버튼 설정
         function setupFilterButtons() {
@@ -245,6 +266,10 @@
                 let url = `${window.API_BASE}/congratulations?page=${currentPage}&limit=${itemsPerPage}`;
                 if (currentCategory) {
                     url += `&category=${encodeURIComponent(currentCategory)}`;
+                }
+                if (currentSearch) {
+                    url += `&search=${encodeURIComponent(currentSearch)}`;
+                }
                 }
                 
                 const response = await fetch(url);
