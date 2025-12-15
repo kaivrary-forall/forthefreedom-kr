@@ -592,69 +592,11 @@
         // ===== 사이드 카드 (공지사항, 보도자료, 일정 등) =====
         async function loadSideCards() {
             try {
-                // 여러 API에서 데이터 가져오기
-                const [noticesRes, pressRes, eventsRes] = await Promise.all([
-                    fetch(window.API_BASE + '/notices?limit=2').catch(() => ({ json: () => ({ success: false }) })),
-                    fetch(window.API_BASE + '/spokesperson?limit=2').catch(() => ({ json: () => ({ success: false }) })),
-                    fetch(window.API_BASE + '/events?limit=2').catch(() => ({ json: () => ({ success: false }) }))
-                ]);
+                const response = await fetch(window.API_BASE + '/side-cards');
+                const result = await response.json();
                 
-                const [notices, press, events] = await Promise.all([
-                    noticesRes.json ? noticesRes.json() : { success: false },
-                    pressRes.json ? pressRes.json() : { success: false },
-                    eventsRes.json ? eventsRes.json() : { success: false }
-                ]);
-                
-                // 데이터 합치기
-                let allItems = [];
-                
-                if (notices.success && notices.data) {
-                    const noticeItems = (Array.isArray(notices.data) ? notices.data : notices.data.notices || []).slice(0, 2);
-                    noticeItems.forEach(item => {
-                        allItems.push({
-                            category: '공지사항',
-                            title: item.title,
-                            content: item.content ? item.content.replace(/<[^>]*>/g, '').substring(0, 60) : '',
-                            link: 'news/notice-detail.html?id=' + item._id,
-                            date: item.createdAt
-                        });
-                    });
-                }
-                
-                if (press.success && press.data) {
-                    const pressItems = (Array.isArray(press.data) ? press.data : press.data.items || []).slice(0, 1);
-                    pressItems.forEach(item => {
-                        allItems.push({
-                            category: '보도자료',
-                            title: item.title,
-                            content: item.content ? item.content.replace(/<[^>]*>/g, '').substring(0, 60) : '',
-                            link: 'news/press-release-detail.html?id=' + item._id,
-                            date: item.createdAt
-                        });
-                    });
-                }
-                
-                if (events.success && events.data) {
-                    const eventItems = (Array.isArray(events.data) ? events.data : []).slice(0, 1);
-                    eventItems.forEach(item => {
-                        allItems.push({
-                            category: '일정',
-                            title: item.title,
-                            content: item.location || (item.description ? item.description.substring(0, 60) : ''),
-                            link: 'news/event-detail.html?id=' + item._id,
-                            date: item.startDate || item.createdAt
-                        });
-                    });
-                }
-                
-                // 최신순 정렬
-                allItems.sort((a, b) => new Date(b.date) - new Date(a.date));
-                
-                // 최대 4개
-                allItems = allItems.slice(0, 4);
-                
-                if (allItems.length > 0) {
-                    renderSideCards(allItems);
+                if (result.success && result.data && result.data.length > 0) {
+                    renderSideCards(result.data);
                 }
             } catch (error) {
                 console.log('사이드 카드 로드 실패:', error);
@@ -666,7 +608,7 @@
             
             container.innerHTML = items.map(item => `
                 <a href="${item.link}" class="side-card" style="text-decoration: none;">
-                    <div class="side-card-category">${item.category}</div>
+                    <div class="side-card-category">${item.category}${item.isPinned ? ' 📌' : ''}</div>
                     <div class="side-card-title">${item.title}</div>
                     ${item.content ? `<div class="side-card-content">${item.content}...</div>` : ''}
                 </a>
