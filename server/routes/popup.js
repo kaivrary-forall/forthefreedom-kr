@@ -40,9 +40,9 @@ router.get('/', async (req, res) => {
 // 팝업 생성/수정 (관리자)
 router.post('/', async (req, res) => {
     try {
-        const { title, titleHtml, subtitle, subtitleHtml, defaultTextColor, titleLineHeight, subtitleLineHeight, link, linkText, isActive } = req.body;
+        const { title, titleHtml, subtitle, subtitleHtml, defaultTextColor, titleLineHeight, subtitleLineHeight, link, linkText, isActive, christmasMode } = req.body;
         
-        console.log('📢 팝업 저장 요청:', { title, titleHtml: titleHtml ? '있음' : '없음', subtitleHtml: subtitleHtml ? '있음' : '없음' });
+        console.log('📢 팝업 저장 요청:', { title, titleHtml: titleHtml ? '있음' : '없음', subtitleHtml: subtitleHtml ? '있음' : '없음', christmasMode });
         
         if (!title) {
             return res.status(400).json({
@@ -66,6 +66,7 @@ router.post('/', async (req, res) => {
             popup.link = link || '';
             popup.linkText = linkText || '자세히 보기';
             popup.isActive = isActive !== undefined ? isActive : true;
+            popup.christmasMode = christmasMode !== undefined ? christmasMode : false;
             await popup.save();
         } else {
             console.log('📢 새 팝업 생성');
@@ -79,7 +80,8 @@ router.post('/', async (req, res) => {
                 subtitleLineHeight: subtitleLineHeight || 1.6,
                 link: link || '',
                 linkText: linkText || '자세히 보기',
-                isActive: isActive !== undefined ? isActive : true
+                isActive: isActive !== undefined ? isActive : true,
+                christmasMode: christmasMode !== undefined ? christmasMode : false
             });
         }
         
