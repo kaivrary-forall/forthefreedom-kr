@@ -273,6 +273,9 @@ app.use('/api/chapters', require('./routes/chapters'));
 // 인사 게시판 라우트
 app.use('/api/personnel', require('./routes/personnel'));
 
+// 경조사 라우트
+app.use('/api/congratulations', require('./routes/congratulations'));
+
 // 지원(당협위원장 등) 라우트
 app.use('/api/applications', require('./routes/applications'));
 
