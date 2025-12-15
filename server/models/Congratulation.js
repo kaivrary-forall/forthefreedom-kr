@@ -23,6 +23,10 @@ const congratulationSchema = new mongoose.Schema({
     isActive: {
         type: Boolean,
         default: true
+    },
+    showOnSideCard: {
+        type: Boolean,
+        default: true
     }
 }, {
     timestamps: true

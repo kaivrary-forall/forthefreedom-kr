@@ -18,7 +18,7 @@ const personnelSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['임명', '해임', '승진', '전보', '기타'],
+    enum: ['임명', '승진', '전보', '해촉', '징계'],
     default: '임명'
   },
   priority: {
@@ -41,6 +41,10 @@ const personnelSchema = new mongoose.Schema({
     type: String,
     enum: ['draft', 'published'],
     default: 'published'
+  },
+  showOnSideCard: {
+    type: Boolean,
+    default: true
   },
   views: {
     type: Number,
