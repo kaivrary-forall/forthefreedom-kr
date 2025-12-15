@@ -5,11 +5,20 @@ const Congratulation = require('../models/Congratulation');
 // 경조사 목록 조회 (공개)
 router.get('/', async (req, res) => {
     try {
-        const { page = 1, limit = 10, category } = req.query;
+        const { page = 1, limit = 10, category, search } = req.query;
         
         const query = { isActive: true };
         if (category) {
             query.category = category;
+        }
+        
+        // 검색 기능
+        if (search) {
+            query.$or = [
+                { title: { $regex: search, $options: 'i' } },
+                { content: { $regex: search, $options: 'i' } },
+                { targetPerson: { $regex: search, $options: 'i' } }
+            ];
         }
         
         const total = await Congratulation.countDocuments(query);
