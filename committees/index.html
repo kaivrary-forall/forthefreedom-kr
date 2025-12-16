@@ -321,7 +321,7 @@
                 : committees.filter(c => c.category === currentFilter);
             
             // 페이지가 있는 위원회 목록
-            const availablePages = ['christian', 'catholic', 'youth', 'policy', 'fight'];
+            const availablePages = ['christian', 'catholic', 'youth', 'policy', 'fight', 'spokesperson', 'research', 'science', 'future', 'security', 'education', 'finance', 'unification', 'admin', 'admin-reform', 'strategy', 'organization', 'pr', 'newmedia', 'international', 'external', 'recruitment', 'local', 'election', 'antination', 'buddhist', 'college', 'middleage', 'silver', 'family', 'overseas', 'disabled', 'vulnerable', 'culture', 'volunteer'];
             
             container.innerHTML = filtered.map(committee => {
                 const hasChairman = committee.members.some(m => m.name);
