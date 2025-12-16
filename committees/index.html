@@ -324,10 +324,29 @@
             const availablePages = ['christian', 'catholic', 'youth', 'policy', 'fight', 'spokesperson', 'research', 'science', 'future', 'security', 'education', 'finance', 'unification', 'admin', 'admin-reform', 'strategy', 'organization', 'pr', 'newmedia', 'international', 'external', 'recruitment', 'local', 'election', 'antination', 'buddhist', 'college', 'middleage', 'silver', 'family', 'overseas', 'disabled', 'vulnerable', 'culture', 'volunteer'];
             
             container.innerHTML = filtered.map(committee => {
-                const hasChairman = committee.members.some(m => m.name);
-                const chairman = committee.members.find(m => m.title.includes('위원장') || m.title.includes('원장') || m.title.includes('대변인') || m.title.includes('단장'));
                 const hasPage = availablePages.includes(committee.slug);
                 const clickHandler = hasPage ? `onclick="location.href='/committees/${committee.slug}/'"` : `onclick="alert('${committee.name} 페이지 준비 중입니다.')"`;
+                
+                // 대표자 찾기 로직
+                const leader = committee.members.find(m => 
+                    m.title.includes('위원장') || m.title.includes('원장') || 
+                    m.title.includes('대변인') || m.title.includes('단장')
+                );
+                const viceLeader = committee.members.find(m => m.title.includes('부위원장') || m.title.includes('부원장'));
+                
+                // 대표자 표시 텍스트 결정
+                let leaderDisplay = '';
+                if (leader && leader.name) {
+                    // 대빵이 있는 경우
+                    leaderDisplay = `<span class="font-semibold text-gray-800">${leader.title} ${leader.name}</span>`;
+                } else if (viceLeader && viceLeader.name) {
+                    // 대빵 공석이고 부대빵만 있는 경우
+                    const actingTitle = leader ? leader.title.replace('위원장', '위원장 대행').replace('원장', '원장 대행') : '위원장 대행';
+                    leaderDisplay = `<span class="font-semibold text-gray-600">${actingTitle} ${viceLeader.name} <span class="text-gray-400">부위원장</span></span>`;
+                } else {
+                    // 둘 다 없는 경우
+                    leaderDisplay = `<span class="text-gray-400">공석</span>`;
+                }
                 
                 return `
                     <div class="committee-card bg-white rounded-xl border border-gray-200 p-6 cursor-pointer hover:border-primary" data-category="${committee.category}" ${clickHandler}>
@@ -337,22 +356,13 @@
                             </div>
                             <span class="category-badge ${getCategoryColor(committee.category)}">${committee.categoryName}</span>
                         </div>
-                        <h3 class="text-lg font-bold text-gray-900 mb-2">${committee.name}</h3>
-                        ${chairman ? `
-                            <div class="text-sm text-gray-600">
-                                <span class="text-gray-400">${chairman.title}:</span> 
-                                <span class="font-medium ${chairman.name ? 'text-gray-800' : 'text-gray-400'}">${chairman.name || '공석'}</span>
-                            </div>
-                        ` : ''}
-                        ${committee.members.length > 1 ? `
-                            <div class="mt-2 text-xs text-gray-400">
-                                외 ${committee.members.length - 1}명
-                            </div>
-                        ` : ''}
+                        <h3 class="text-lg font-bold text-gray-900 mb-3">${committee.name}</h3>
+                        <div class="text-sm">
+                            ${leaderDisplay}
+                        </div>
                         <div class="mt-4 pt-4 border-t border-gray-100">
                             <span class="text-xs text-primary font-medium">
-                                ${hasChairman ? '활동 중' : '위원장 모집 중'} 
-                                <i class="fas fa-chevron-right ml-1"></i>
+                                자세히 보기 <i class="fas fa-chevron-right ml-1"></i>
                             </span>
                         </div>
                     </div>
