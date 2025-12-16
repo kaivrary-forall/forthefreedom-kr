@@ -54,7 +54,6 @@
         </div>
     </section>
 
-    <!-- 탭 네비게이션 -->
     <div class="bg-white border-b sticky top-16 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <nav class="flex gap-0">
@@ -67,7 +66,6 @@
     </div>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <!-- 소개 탭 -->
         <div id="tab-about" class="tab-content active">
             <div class="max-w-3xl mx-auto text-center mb-12">
                 <h2 class="text-3xl font-bold text-gray-900 mb-4">위원회 소개</h2>
@@ -98,9 +96,7 @@
             </div>
         </div>
 
-        <!-- 임원진 탭 -->
         <div id="tab-executives" class="tab-content">
-            <!-- 현재 임원진 -->
             <div class="mb-16">
                 <div class="max-w-3xl mx-auto text-center mb-12">
                     <h2 class="text-3xl font-bold text-gray-900 mb-4">현재 임원진</h2>
@@ -112,8 +108,6 @@
                     <div class="card-hover bg-white rounded-2xl p-8 text-center border border-gray-200 shadow-sm"><div class="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center"><i class="fas fa-user text-gray-400 text-3xl"></i></div><span class="inline-block bg-gray-600 text-white text-sm font-bold px-3 py-1 rounded-full mb-3">부위원장</span><h3 class="text-2xl font-bold text-gray-900 mb-2">안일식</h3><p class="text-gray-500 text-sm">초대 부위원장</p></div>
                 </div>
             </div>
-            
-            <!-- 역대 임원진 -->
             <div class="pt-12 border-t border-gray-200">
                 <div class="max-w-3xl mx-auto text-center mb-12">
                     <h2 class="text-3xl font-bold text-gray-900 mb-4">역대 임원진</h2>
@@ -136,7 +130,6 @@
             </div>
         </div>
 
-        <!-- 게시판 탭 -->
         <div id="tab-board" class="tab-content">
             <div class="max-w-3xl mx-auto text-center mb-12">
                 <h2 class="text-3xl font-bold text-gray-900 mb-4">게시판</h2>
@@ -164,7 +157,6 @@
             </div>
         </div>
 
-        <!-- 가입 신청 탭 -->
         <div id="tab-join" class="tab-content">
             <div class="max-w-3xl mx-auto text-center mb-12">
                 <h2 class="text-3xl font-bold text-gray-900 mb-4">가입 신청</h2>
@@ -194,8 +186,8 @@
         </div>
     </main>
 
-    <!-- 푸터 영역 (SNS) -->
-    <section class="py-12 bg-committee mt-12">
+    <!-- 위원회 SNS -->
+    <section class="py-12 bg-committee">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h3 class="text-xl font-bold text-white mb-6">장애인위원회 SNS</h3>
             <div class="flex justify-center gap-4">
@@ -207,27 +199,20 @@
         </div>
     </section>
 
+    <!-- 공통 푸터 -->
+    <div id="footer-container"></div>
+
     <script src="../../config.js"></script>
     <script src="../../nav.js"></script>
+    <script src="../../footer.js"></script>
     <script>
-        // 메인 탭 전환
         function switchTab(tabName) {
-            // 모든 탭 버튼 비활성화
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            // 클릭한 버튼 활성화
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelector('.tab-btn[data-tab="' + tabName + '"]').classList.add('active');
-            
-            // 모든 탭 콘텐츠 숨기기
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            // 선택한 탭 콘텐츠 표시
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             document.getElementById('tab-' + tabName).classList.add('active');
         }
 
-        // 게시판 서브탭 전환
         function switchBoardTab(tab) {
             document.querySelectorAll('.board-tab').forEach(btn => {
                 btn.classList.remove('bg-committee', 'text-white');
@@ -235,7 +220,6 @@
             });
             document.getElementById('btn-' + tab).classList.remove('bg-gray-200', 'text-gray-700');
             document.getElementById('btn-' + tab).classList.add('bg-committee', 'text-white');
-            
             document.getElementById('board-notice').classList.add('hidden');
             document.getElementById('board-gallery').classList.add('hidden');
             document.getElementById('board-' + tab).classList.remove('hidden');
