@@ -59,7 +59,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <nav class="flex gap-0">
                 <button onclick="switchTab('about')" class="tab-btn active px-6 py-4 text-gray-600 hover:text-committee font-medium whitespace-nowrap border-b-3 border-transparent" data-tab="about">소개</button>
-                <button onclick="switchTab('executives')" class="tab-btn px-6 py-4 text-gray-600 hover:text-committee font-medium whitespace-nowrap border-b-3 border-transparent" data-tab="executives">임원진</button>
+                <button onclick="switchTab('members')" class="tab-btn px-6 py-4 text-gray-600 hover:text-committee font-medium whitespace-nowrap border-b-3 border-transparent" data-tab="members">구성원</button>
                 <button onclick="switchTab('board')" class="tab-btn px-6 py-4 text-gray-600 hover:text-committee font-medium whitespace-nowrap border-b-3 border-transparent" data-tab="board">게시판</button>
                 <button onclick="switchTab('join')" class="tab-btn px-6 py-4 text-gray-600 hover:text-committee font-medium whitespace-nowrap border-b-3 border-transparent" data-tab="join">가입 신청</button>
             </nav>
@@ -70,7 +70,7 @@
         <!-- 소개 탭 -->
         <div id="tab-about" class="tab-content active">
             <div class="max-w-3xl mx-auto text-center mb-12">
-                <h2 class="text-3xl font-bold text-gray-900 mb-4">위원회 소개</h2>
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">대변인실 소개</h2>
                 <div class="w-20 h-1 bg-committee mx-auto"></div>
             </div>
             <div class="grid md:grid-cols-3 gap-8">
@@ -79,44 +79,58 @@
                         <i class="fas fa-bullseye text-white text-2xl"></i>
                     </div>
                     <h3 class="text-xl font-bold text-gray-900 mb-3">목적</h3>
-                    <p class="text-gray-600">대한민국의 자유민주주의와 시장경제를 수호하고 발전시킵니다.</p>
+                    <p class="text-gray-600">당의 입장과 정책을 국민에게 명확하게 전달합니다.</p>
                 </div>
                 <div class="card-hover bg-white rounded-2xl p-8 text-center shadow-sm">
                     <div class="w-16 h-16 bg-committee rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-hands-helping text-white text-2xl"></i>
+                        <i class="fas fa-microphone text-white text-2xl"></i>
                     </div>
                     <h3 class="text-xl font-bold text-gray-900 mb-3">활동</h3>
-                    <p class="text-gray-600">정책 연구, 토론회, 캠페인 등 다양한 활동을 전개합니다.</p>
+                    <p class="text-gray-600">언론 브리핑, 성명서 발표, 미디어 대응 등을 수행합니다.</p>
                 </div>
                 <div class="card-hover bg-white rounded-2xl p-8 text-center shadow-sm">
                     <div class="w-16 h-16 bg-committee rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-users text-white text-2xl"></i>
+                        <i class="fas fa-globe text-white text-2xl"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-3">대상</h3>
-                    <p class="text-gray-600">자유와혁신 당원이라면 누구나 함께할 수 있습니다.</p>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">역할</h3>
+                    <p class="text-gray-600">국내외 언론과 소통하며 당의 목소리를 전합니다.</p>
                 </div>
             </div>
         </div>
 
-        <!-- 임원진 탭 -->
-        <div id="tab-executives" class="tab-content">
-            <!-- 현재 임원진 -->
+        <!-- 구성원 탭 -->
+        <div id="tab-members" class="tab-content">
+            <!-- 현재 구성원 -->
             <div class="mb-16">
                 <div class="max-w-3xl mx-auto text-center mb-12">
-                    <h2 class="text-3xl font-bold text-gray-900 mb-4">현재 임원진</h2>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">현재 구성원</h2>
                     <p class="text-gray-600">2025년 ~ 현재</p>
                     <div class="w-20 h-1 bg-committee mx-auto mt-4"></div>
                 </div>
                 <div class="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
-                    <div class="card-hover bg-white rounded-2xl p-8 text-center border-2 border-committee shadow-sm"><div class="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center"><i class="fas fa-user text-gray-400 text-3xl"></i></div><span class="inline-block bg-committee text-white text-sm font-bold px-3 py-1 rounded-full mb-3">위원장</span><h3 class="text-2xl font-bold text-gray-900 mb-2">윤태준</h3><p class="text-gray-500 text-sm">초대 위원장</p></div>
-                    <div class="card-hover bg-white rounded-2xl p-8 text-center border border-gray-200 shadow-sm"><div class="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center"><i class="fas fa-user text-gray-400 text-3xl"></i></div><span class="inline-block bg-gray-600 text-white text-sm font-bold px-3 py-1 rounded-full mb-3">부위원장</span><h3 class="text-2xl font-bold text-gray-900 mb-2">김선주</h3><p class="text-gray-500 text-sm">초대 부위원장</p></div>
+                    <div class="card-hover bg-white rounded-2xl p-8 text-center border-2 border-committee shadow-sm">
+                        <div class="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center">
+                            <i class="fas fa-user text-gray-400 text-3xl"></i>
+                        </div>
+                        <span class="inline-block bg-committee text-white text-sm font-bold px-3 py-1 rounded-full mb-3">주 대변인</span>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-2">윤태준</h3>
+                        <p class="text-gray-500 text-sm">초대 주 대변인</p>
+                    </div>
+                    <div class="card-hover bg-white rounded-2xl p-8 text-center border-2 border-committee shadow-sm">
+                        <div class="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center">
+                            <i class="fas fa-user text-gray-400 text-3xl"></i>
+                        </div>
+                        <span class="inline-block bg-committee text-white text-sm font-bold px-3 py-1 rounded-full mb-3">국제 대변인</span>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-2">김선주</h3>
+                        <p class="text-gray-500 text-sm">초대 국제 대변인</p>
+                    </div>
                 </div>
             </div>
             
-            <!-- 역대 임원진 -->
+            <!-- 역대 구성원 -->
             <div class="pt-12 border-t border-gray-200">
                 <div class="max-w-3xl mx-auto text-center mb-12">
-                    <h2 class="text-3xl font-bold text-gray-900 mb-4">역대 임원진</h2>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">역대 구성원</h2>
                     <div class="w-20 h-1 bg-committee mx-auto"></div>
                 </div>
                 <div class="max-w-3xl mx-auto">
@@ -127,8 +141,15 @@
                         </div>
                         <div class="w-4 h-4 bg-committee rounded-full border-4 border-committee-light z-10"></div>
                         <div class="flex-1 bg-white rounded-xl p-6 shadow-sm">
-                            <div class="flex flex-wrap gap-4">
-                                <div><span class="text-xs text-gray-500">위원장</span><p class="font-bold text-gray-900">윤태준</p></div><div><span class="text-xs text-gray-500">부위원장</span><p class="font-bold text-gray-900">김선주</p></div>
+                            <div class="flex flex-wrap gap-6">
+                                <div>
+                                    <span class="text-xs text-gray-500">주 대변인</span>
+                                    <p class="font-bold text-gray-900">윤태준</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-gray-500">국제 대변인</span>
+                                    <p class="font-bold text-gray-900">김선주</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -168,7 +189,7 @@
         <div id="tab-join" class="tab-content">
             <div class="max-w-3xl mx-auto text-center mb-12">
                 <h2 class="text-3xl font-bold text-gray-900 mb-4">가입 신청</h2>
-                <p class="text-gray-600">대변인실과(와) 함께해주세요</p>
+                <p class="text-gray-600">대변인실과 함께해주세요</p>
                 <div class="w-20 h-1 bg-committee mx-auto mt-4"></div>
             </div>
             <div class="max-w-2xl mx-auto mb-8">
@@ -212,18 +233,14 @@
     <script>
         // 메인 탭 전환
         function switchTab(tabName) {
-            // 모든 탭 버튼 비활성화
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            // 클릭한 버튼 활성화
             document.querySelector('.tab-btn[data-tab="' + tabName + '"]').classList.add('active');
             
-            // 모든 탭 콘텐츠 숨기기
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
             });
-            // 선택한 탭 콘텐츠 표시
             document.getElementById('tab-' + tabName).classList.add('active');
         }
 
@@ -244,7 +261,6 @@
         function checkJoinStatus() {
             const token = localStorage.getItem('token');
             const joinStatusEl = document.getElementById('joinStatus');
-            const committeeName = '대변인실';
             
             if (!token) {
                 joinStatusEl.innerHTML = '<i class="fas fa-lock text-5xl text-gray-300 mb-4"></i><h3 class="text-xl font-bold text-gray-900 mb-2">로그인이 필요합니다</h3><p class="text-gray-500 mb-6">가입 신청을 위해 먼저 로그인해주세요.</p><a href="../../login.html" class="inline-block bg-committee text-white font-bold px-8 py-3 rounded-lg hover:bg-committee-dark transition-colors"><i class="fas fa-sign-in-alt mr-2"></i>로그인</a>';
@@ -259,9 +275,9 @@
                 if (data.success && data.data) {
                     const user = data.data;
                     if (user.partyMemberStatus !== 'approved') {
-                        joinStatusEl.innerHTML = '<i class="fas fa-id-card text-5xl text-yellow-400 mb-4"></i><h3 class="text-xl font-bold text-gray-900 mb-2">당원 가입이 필요합니다</h3><p class="text-gray-500 mb-6">' + committeeName + ' 가입을 위해서는 먼저 당원으로 가입해주세요.</p><a href="https://www.ihappynanum.com/Nanum/api/screen/F7FCRIO2E3" target="_blank" class="inline-block bg-committee text-white font-bold px-8 py-3 rounded-lg hover:bg-committee-dark transition-colors"><i class="fas fa-user-plus mr-2"></i>당원 가입하기</a>';
+                        joinStatusEl.innerHTML = '<i class="fas fa-id-card text-5xl text-yellow-400 mb-4"></i><h3 class="text-xl font-bold text-gray-900 mb-2">당원 가입이 필요합니다</h3><p class="text-gray-500 mb-6">대변인실 가입을 위해서는 먼저 당원으로 가입해주세요.</p><a href="https://www.ihappynanum.com/Nanum/api/screen/F7FCRIO2E3" target="_blank" class="inline-block bg-committee text-white font-bold px-8 py-3 rounded-lg hover:bg-committee-dark transition-colors"><i class="fas fa-user-plus mr-2"></i>당원 가입하기</a>';
                     } else {
-                        joinStatusEl.innerHTML = '<i class="fas fa-check-circle text-5xl text-green-500 mb-4"></i><h3 class="text-xl font-bold text-gray-900 mb-2">가입 신청 가능</h3><p class="text-gray-500 mb-6">' + user.name + '님, ' + committeeName + '에 가입하시겠습니까?</p><button onclick="applyCommittee()" class="inline-block bg-committee text-white font-bold px-8 py-3 rounded-lg hover:bg-committee-dark transition-colors"><i class="fas fa-paper-plane mr-2"></i>가입 신청하기</button>';
+                        joinStatusEl.innerHTML = '<i class="fas fa-check-circle text-5xl text-green-500 mb-4"></i><h3 class="text-xl font-bold text-gray-900 mb-2">가입 신청 가능</h3><p class="text-gray-500 mb-6">' + user.name + '님, 대변인실에 가입하시겠습니까?</p><button onclick="applyCommittee()" class="inline-block bg-committee text-white font-bold px-8 py-3 rounded-lg hover:bg-committee-dark transition-colors"><i class="fas fa-paper-plane mr-2"></i>가입 신청하기</button>';
                     }
                 }
             })
