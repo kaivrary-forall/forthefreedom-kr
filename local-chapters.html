@@ -190,7 +190,7 @@
             { id: 'gangwon', name: '강원', hasData: false },
             { id: 'chungbuk', name: '충북', hasData: false },
             { id: 'chungnam', name: '충남', hasData: false },
-            { id: 'gyeongbuk', name: '경북', hasData: false },
+            { id: 'gyeongbuk', name: '경북', hasData: true },
             { id: 'gyeongnam', name: '경남', hasData: false },
             { id: 'jeonbuk', name: '전북', hasData: false },
             { id: 'jeonnam', name: '전남', hasData: false },
@@ -229,6 +229,28 @@
                 chatTitle: '부산광역시당 당협위원회별 채팅방',
                 channels: [
                     { name: '공식 문의 e-mail', value: 'busan@freeinno.kr', type: 'email', icon: 'fas fa-envelope' },
+                    { name: '네이버 블로그', value: '공개 예정', type: 'text', icon: 'fas fa-blog' },
+                    { name: '인스타그램', value: '공개 예정', type: 'text', icon: 'fab fa-instagram' },
+                    { name: '스레드', value: '공개 예정', type: 'text', icon: 'fas fa-at' },
+                    { name: '엑스(구 트위터)', value: '공개 예정', type: 'text', icon: 'fab fa-x-twitter' },
+                    { name: '페이스북', value: '공개 예정', type: 'text', icon: 'fab fa-facebook' },
+                    { name: '유튜브 채널', value: '공개 예정', type: 'text', icon: 'fab fa-youtube' },
+                    { name: '디스코드(온라인 당사)', value: '공개 예정', type: 'text', icon: 'fab fa-discord' }
+                ],
+                committees: [
+                    { name: '홍보분과', kakaoLink: null },
+                    { name: '조직강화분과', kakaoLink: null },
+                    { name: '정책분과', kakaoLink: null },
+                    { name: '투쟁분과', kakaoLink: null },
+                    { name: '자원봉사단', kakaoLink: null }
+                ]
+            },
+            gyeongbuk: {
+                title: '경상북도당 공식채널',
+                committeeTitle: '경상북도당 분과위원회 채팅방',
+                chatTitle: '경상북도당 당협위원회별 채팅방',
+                channels: [
+                    { name: '공식 문의 e-mail', value: 'gyeongbuk@freeinno.kr', type: 'email', icon: 'fas fa-envelope' },
                     { name: '네이버 블로그', value: '공개 예정', type: 'text', icon: 'fas fa-blog' },
                     { name: '인스타그램', value: '공개 예정', type: 'text', icon: 'fab fa-instagram' },
                     { name: '스레드', value: '공개 예정', type: 'text', icon: 'fas fa-at' },
@@ -541,6 +563,8 @@
 
         // 부산 당협위원회 데이터
         const busanChapters = [];
+        
+        const gyeongbukChapters = [];
 
         // API에서 가져온 데이터 (로드 후 채워짐)
         let apiChapters = null;
@@ -551,6 +575,8 @@
                 return apiChapters || seoulChapters;
             } else if (currentProvince === 'busan') {
                 return apiChapters || busanChapters;
+            } else if (currentProvince === 'gyeongbuk') {
+                return apiChapters || gyeongbukChapters;
             }
             return [];
         }
