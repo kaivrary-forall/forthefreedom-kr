@@ -207,6 +207,7 @@
                 chatTitle: '서울특별시당 당협위원회별 채팅방',
                 channels: [
                     { name: '공식 문의 e-mail', value: 'seoul@freeinno.kr', type: 'email', icon: 'fas fa-envelope' },
+                    { name: '카카오톡 오픈채팅', value: 'https://open.kakao.com/o/gvs2bA5h', type: 'kakao', icon: 'fas fa-comment' },
                     { name: '네이버 블로그', value: '확보 예정', type: 'text', icon: 'fas fa-blog' },
                     { name: '인스타그램', value: 'https://www.instagram.com/freeinno_seoul', type: 'link', icon: 'fab fa-instagram' },
                     { name: '스레드', value: 'https://www.threads.com/@freeinno_seoul', type: 'link', icon: 'fas fa-at' },
@@ -229,6 +230,7 @@
                 chatTitle: '부산광역시당 당협위원회별 채팅방',
                 channels: [
                     { name: '공식 문의 e-mail', value: 'busan@freeinno.kr', type: 'email', icon: 'fas fa-envelope' },
+                    { name: '카카오톡 오픈채팅', value: 'https://open.kakao.com/o/g8zkGj6h', type: 'kakao', icon: 'fas fa-comment' },
                     { name: '네이버 블로그', value: '공개 예정', type: 'text', icon: 'fas fa-blog' },
                     { name: '인스타그램', value: '공개 예정', type: 'text', icon: 'fab fa-instagram' },
                     { name: '스레드', value: '공개 예정', type: 'text', icon: 'fas fa-at' },
@@ -251,6 +253,7 @@
                 chatTitle: '경상북도당 당협위원회별 채팅방',
                 channels: [
                     { name: '공식 문의 e-mail', value: 'gyeongbuk@freeinno.kr', type: 'email', icon: 'fas fa-envelope' },
+                    { name: '카카오톡 오픈채팅', value: 'https://open.kakao.com/o/gffKtR6h', type: 'kakao', icon: 'fas fa-comment' },
                     { name: '네이버 블로그', value: '공개 예정', type: 'text', icon: 'fas fa-blog' },
                     { name: '인스타그램', value: '공개 예정', type: 'text', icon: 'fab fa-instagram' },
                     { name: '스레드', value: '공개 예정', type: 'text', icon: 'fas fa-at' },
@@ -821,6 +824,17 @@
                         </div>
                     `;
                     cardClass += ' hover:shadow-md hover:border-red-300 cursor-pointer';
+                } else if (channel.type === 'kakao') {
+                    // 카카오톡 오픈채팅 - 노란색 배경
+                    cardWrapper = `<a href="${channel.value}" target="_blank" rel="noopener noreferrer" class="block">`;
+                    cardContent = `
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-comment text-amber-900 text-xl flex-shrink-0"></i>
+                            <span class="font-medium text-amber-900">${channel.name}</span>
+                            <i class="fas fa-external-link-alt text-amber-700 text-xs ml-auto flex-shrink-0"></i>
+                        </div>
+                    `;
+                    cardClass = 'bg-yellow-300 rounded-xl p-4 border border-yellow-400 transition-all h-20 flex flex-col justify-center hover:shadow-md hover:bg-yellow-400 cursor-pointer';
                 } else if (channel.type === 'link') {
                     // 링크는 카드 클릭으로 이동
                     cardWrapper = `<a href="${channel.value}" target="_blank" rel="noopener noreferrer" class="block">`;
