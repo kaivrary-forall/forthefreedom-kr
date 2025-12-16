@@ -1771,7 +1771,11 @@
                             .star {
                                 position: absolute;
                                 border-radius: 50%;
-                                opacity: 0.6;
+                                animation: starTwinkle 4s ease-in-out infinite;
+                            }
+                            @keyframes starTwinkle {
+                                0%, 100% { opacity: 0.4; }
+                                50% { opacity: 0.8; }
                             }
                         </style>
                     ` : '';
@@ -1781,10 +1785,8 @@
                         ? 'background: linear-gradient(180deg, rgba(5, 15, 35, 0.97), rgba(15, 30, 60, 0.95), rgba(10, 25, 50, 0.97));'
                         : 'background: rgba(0, 0, 0, 0.85);';
                     
-                    // 콘텐츠 위치 (트리가 있으면 오른쪽으로)
-                    const contentStyle = isChristmas 
-                        ? 'max-width: 65%; margin-left: 10%;'
-                        : 'max-width: 90%;';
+                    // 콘텐츠 위치 (가운데 정렬)
+                    const contentStyle = 'max-width: 90%;';
                     
                     const modalHTML = `
                         <div id="gate-popup-overlay" style="
