@@ -327,7 +327,7 @@
                 const hasChairman = committee.members.some(m => m.name);
                 const chairman = committee.members.find(m => m.title.includes('위원장') || m.title.includes('원장') || m.title.includes('대변인') || m.title.includes('단장'));
                 const hasPage = availablePages.includes(committee.slug);
-                const clickHandler = hasPage ? `onclick="location.href='${committee.slug}/'"` : `onclick="alert('${committee.name} 페이지 준비 중입니다.')"`;
+                const clickHandler = hasPage ? `onclick="location.href='/committees/${committee.slug}/'"` : `onclick="alert('${committee.name} 페이지 준비 중입니다.')"`;
                 
                 return `
                     <div class="committee-card bg-white rounded-xl border border-gray-200 p-6 cursor-pointer hover:border-primary" data-category="${committee.category}" ${clickHandler}>
