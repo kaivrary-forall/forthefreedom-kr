@@ -4,15 +4,15 @@ lang_code,en
 og_locale,en_US
 
 # ===== Site Common =====
-site_name,Liberty and Innovation
-site_title,Liberty and Innovation Party
-meta_description,Official website of Liberty and Innovation Party. A conservative party dedicated to defending democracy and ensuring election integrity in Korea.
-meta_keywords,Liberty and Innovation Party, Korean conservative party, Hwang Kyo-ahn, democracy, freedom, election integrity, Korea politics
+site_name,Freedom & Innovation
+site_title,Freedom & Innovation Party
+meta_description,Official website of Freedom & Innovation Party. A conservative party dedicated to defending democracy and ensuring election integrity in Korea.
+meta_keywords,Freedom & Innovation Party, Korean conservative party, Hwang Kyo-ahn, democracy, freedom, election integrity, Korea politics
 
 # ===== Chairman Greeting Section =====
 greeting_label,Message from the Chairman
 greeting_title,Defending Liberal Democracy<br>and Innovative Vision
-greeting_quote,Liberty and Innovation Party is dedicated to defending Korea's liberal democratic system and leading an innovative future based on market economy and rule of law.
+greeting_quote,Freedom & Innovation Party is dedicated to defending Korea's liberal democratic system and leading an innovative future based on market economy and rule of law.
 greeting_para1,Our party inherits the spirit of 'Liberty' from President Syngman Rhee, who adopted liberal democracy at Korea's founding, and the spirit of 'Innovation' from President Park Chung-hee, who laid the foundation for industrialization.
 greeting_para2,We will firmly address election fraud and anti-state activities, establish rule of law, lead the 4th Industrial Revolution, and guarantee unlimited opportunities for youth. As a unified party for all generations, we will rebuild a free Korea and make it a first-class nation.
 chairman_title,Party Chairman
@@ -64,10 +64,10 @@ btn_learn_more,Learn More
 loading,Loading...
 
 # ===== about.html Page =====
-about_page_title,About Chairman Hwang Kyo-ahn | Liberty and Innovation Party
-about_meta_description,Introduction to Chairman Hwang Kyo-ahn and Liberty and Innovation Party. Learn about our founding background, identity, and vision for Korea's future.
-about_meta_keywords,Hwang Kyo-ahn, Liberty and Innovation, Korean conservative party, party introduction, liberal democracy, founding story
-about_hero_title,Introducing Liberty and Innovation
+about_page_title,About Chairman Hwang Kyo-ahn | Freedom & Innovation Party
+about_meta_description,Introduction to Chairman Hwang Kyo-ahn and Freedom & Innovation Party. Learn about our founding background, identity, and vision for Korea's future.
+about_meta_keywords,Hwang Kyo-ahn, Freedom & Innovation, Korean conservative party, party introduction, liberal democracy, founding story
+about_hero_title,Introducing Freedom & Innovation
 about_hero_subtitle,New Politics through Liberal Democracy and Innovation
 
 # Identity Section
@@ -92,7 +92,7 @@ founding_intro,Korea currently faces a crisis due to incomplete government overs
 founding_reason1,Repeated manipulation allegations since the April 15, 2020 general election
 founding_reason2,Election manipulation attempts by anti-state forces colluding with leftist groups
 founding_reason3,Serious crisis of the liberal democratic system
-founding_conclusion,Outraged patriotic forces founded Liberty and Innovation to fight against this great evil and protect our system.
+founding_conclusion,Outraged patriotic forces founded Freedom & Innovation to fight against this great evil and protect our system.
 founding_goals_title,Founding Goals
 founding_short_term,Short-term
 founding_short_term_desc,Root out election fraud cartels and establish fair election systems
@@ -117,85 +117,85 @@ vision5_desc,Becoming a first-class nation through free unification and achievin
 
 # CTA Section
 cta_title,Join Us in Defending Liberal Democracy
-cta_description,We will work together with all who support Liberty and Innovation against anti-state forces to protect our liberal democratic system.
+cta_description,We will work together with all who support Freedom & Innovation against anti-state forces to protect our liberal democratic system.
 
 # ===== organization.html =====
-org_page_title,Organization Chart - Liberty and Innovation
+org_page_title,Organization Chart - Freedom & Innovation
 org_header_title,Organization Chart
 org_empty_message,No organizations registered yet.
 org_cta_title,We're Looking for Talented People
-org_cta_desc,We are waiting for talented and passionate people to build Korea's future together with Liberty and Innovation.
-committees_page_title,Specialized Committees - Liberty and Innovation
-chapters_page_title,Regional Chapters - Liberty and Innovation
+org_cta_desc,We are waiting for talented and passionate people to build Korea's future together with Freedom & Innovation.
+committees_page_title,Specialized Committees - Freedom & Innovation
+chapters_page_title,Regional Chapters - Freedom & Innovation
 
 # ===== Additional Page Titles =====
-support_receipt_title,Donation Receipt | Liberty and Innovation
-members_faq_title,Membership FAQ - Liberty and Innovation
-members_join_title,Join Us - Liberty and Innovation
-board_title,Agora | Liberty and Innovation
-login_title,Login | Liberty and Innovation
-support_guide_title,Donation Guide | Liberty and Innovation
-support_title,Support Us | Liberty and Innovation
-founding_title,Founding Story - Liberty and Innovation
-location_title,Location - Liberty and Innovation
-logo_title,Logo - Liberty and Innovation
-people_regional_title,Regional Staff - Liberty and Innovation
-policy_title,Party Platform - Liberty and Innovation
-principles_title,Party Constitution - Liberty and Innovation
-news_title,News - Liberty and Innovation
+support_receipt_title,Donation Receipt | Freedom & Innovation
+members_faq_title,Membership FAQ - Freedom & Innovation
+members_join_title,Join Us - Freedom & Innovation
+board_title,Agora | Freedom & Innovation
+login_title,Login | Freedom & Innovation
+support_guide_title,Donation Guide | Freedom & Innovation
+support_title,Support Us | Freedom & Innovation
+founding_title,Founding Story - Freedom & Innovation
+location_title,Location - Freedom & Innovation
+logo_title,Logo - Freedom & Innovation
+people_regional_title,Regional Staff - Freedom & Innovation
+policy_title,Party Platform - Freedom & Innovation
+principles_title,Party Constitution - Freedom & Innovation
+news_title,News - Freedom & Innovation
 btn_join,Join
 btn_donate,Donate
 btn_login,Login
 
 # ===== news pages =====
-notices_title,Notices - Liberty and Innovation
-press_releases_title,Press Releases - Liberty and Innovation
-press_policy_title,Policy Committee - Liberty and Innovation
-press_media_title,New Media Committee - Liberty and Innovation
-media_title,Media Coverage - Liberty and Innovation
-events_title,Events - Liberty and Innovation
-cardnews_title,Card News - Liberty and Innovation
-gallery_title,Photo Gallery - Liberty and Innovation
-personnel_title,Personnel Announcements - Liberty and Innovation
-congratulations_title,Celebrations - Liberty and Innovation
-resources_title,Resources - Liberty and Innovation
-people_central_title,Central Party Staff - Liberty and Innovation
+notices_title,Notices - Freedom & Innovation
+press_releases_title,Press Releases - Freedom & Innovation
+press_policy_title,Policy Committee - Freedom & Innovation
+press_media_title,New Media Committee - Freedom & Innovation
+media_title,Media Coverage - Freedom & Innovation
+events_title,Events - Freedom & Innovation
+cardnews_title,Card News - Freedom & Innovation
+gallery_title,Photo Gallery - Freedom & Innovation
+personnel_title,Personnel Announcements - Freedom & Innovation
+congratulations_title,Celebrations - Freedom & Innovation
+resources_title,Resources - Freedom & Innovation
+people_central_title,Central Party Staff - Freedom & Innovation
 
 # ===== Legal/Other Pages =====
-privacy_policy_title,Privacy Policy - Liberty and Innovation
-terms_title,Terms of Service - Liberty and Innovation
-disclosure_title,Information Disclosure - Liberty and Innovation
-members_title,Members - Liberty and Innovation
+privacy_policy_title,Privacy Policy - Freedom & Innovation
+terms_title,Terms of Service - Freedom & Innovation
+disclosure_title,Information Disclosure - Freedom & Innovation
+members_title,Members - Freedom & Innovation
 
 # ===== Member Pages =====
-mypage_title,My Page - Liberty and Innovation
-profile_title,Profile - Liberty and Innovation
-join_title,Sign Up - Liberty and Innovation
-dashboard_title,Dashboard - Liberty and Innovation
+mypage_title,My Page - Freedom & Innovation
+profile_title,Profile - Freedom & Innovation
+join_title,Sign Up - Freedom & Innovation
+dashboard_title,Dashboard - Freedom & Innovation
 
 # ===== Additional Pages =====
-page_not_found_title,Page Not Found - Liberty and Innovation
-schedule_title,Schedule - Liberty and Innovation
-disclosure_title2,Information Disclosure - Liberty and Innovation
-downloads_title,Downloads - Liberty and Innovation
-election_materials_title,Election Materials - Liberty and Innovation
-party_constitution_title,Party Constitution - Liberty and Innovation
-policy_materials_title,Policy Materials - Liberty and Innovation
+page_not_found_title,Page Not Found - Freedom & Innovation
+schedule_title,Schedule - Freedom & Innovation
+disclosure_title2,Information Disclosure - Freedom & Innovation
+downloads_title,Downloads - Freedom & Innovation
+election_materials_title,Election Materials - Freedom & Innovation
+party_constitution_title,Party Constitution - Freedom & Innovation
+policy_materials_title,Policy Materials - Freedom & Innovation
 
 # ===== Board/Detail Pages =====
-board_view_title,Post | Liberty and Innovation
-board_write_title,Write | Liberty and Innovation
-privacy_title,Privacy Policy - Liberty and Innovation
-terms_short_title,Terms of Service - Liberty and Innovation
-activities_title,Activities - Liberty and Innovation
-activity_detail_title,Activity - Liberty and Innovation
-cardnews_detail_title,Card News - Liberty and Innovation
-event_detail_title,Event - Liberty and Innovation
-gallery_detail_title,Photo Gallery - Liberty and Innovation
-media_detail_title,Media - Liberty and Innovation
-notice_detail_title,Notice - Liberty and Innovation
-policy_detail_title,Policy - Liberty and Innovation
-press_detail_title,Press Release - Liberty and Innovation
-election_detail_title,Election Materials - Liberty and Innovation
-constitution_detail_title,Party Constitution - Liberty and Innovation
-policy_mat_detail_title,Policy Materials - Liberty and Innovation
+board_view_title,Post | Freedom & Innovation
+board_write_title,Write | Freedom & Innovation
+privacy_title,Privacy Policy - Freedom & Innovation
+terms_short_title,Terms of Service - Freedom & Innovation
+activities_title,Activities - Freedom & Innovation
+activity_detail_title,Activity - Freedom & Innovation
+cardnews_detail_title,Card News - Freedom & Innovation
+event_detail_title,Event - Freedom & Innovation
+gallery_detail_title,Photo Gallery - Freedom & Innovation
+media_detail_title,Media - Freedom & Innovation
+notice_detail_title,Notice - Freedom & Innovation
+policy_detail_title,Policy - Freedom & Innovation
+press_detail_title,Press Release - Freedom & Innovation
+election_detail_title,Election Materials - Freedom & Innovation
+constitution_detail_title,Party Constitution - Freedom & Innovation
+policy_mat_detail_title,Policy Materials - Freedom & Innovation
