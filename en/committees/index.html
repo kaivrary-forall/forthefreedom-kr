@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E0H9DY9T0F"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-E0H9DY9T0F');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Specialized Committees - Liberty and Innovation</title>
+    
+    <!-- SEO 메타 태그 -->
+    <meta name="description" content="자유와혁신 직능위원회 안내. 정책, 조직, 홍보, 종교, 세대별 다양한 위원회가 활동하고 있습니다.">
+    <meta name="keywords" content="자유와혁신, 직능위원회, 정책위원회, 청년위원회, 황교안">
+    <meta name="author" content="자유와혁신">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://forthefreedom.kr/committees/index.html">
+    
+    <!-- 파비콘 설정 -->
+    <link rel="icon" type="image/png" sizes="32x32" href="../../images/favicon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../../images/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../../images/favicon.png">
+    <link rel="shortcut icon" type="image/png" href="../../images/favicon.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#a50034'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .committee-card {
+            transition: all 0.2s ease;
+        }
+        .committee-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        .category-badge {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 9999px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../style.css">
+    <script src="../../analytics.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div id="navigation-container"></div>
+    
+    <!-- 브레드크럼 -->
+    <section class="bg-gray-100 py-8 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="text-sm">
+                <ol class="list-none p-0 inline-flex space-x-2">
+                    <li class="flex items-center">
+                        <a href="../index.html" class="text-gray-500 hover:text-primary">홈</a>
+                        <i class="fas fa-chevron-right mx-2 text-gray-400"></i>
+                    </li>
+                    <li class="text-gray-900 font-medium">직능위원회</li>
+                </ol>
+            </nav>
+        </div>
+    </section>
+
+    <main class="bg-white">
+        <section class="py-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- 페이지 헤더 -->
+                <div class="text-center mb-12">
+                    <h1 class="text-4xl font-bold text-gray-900 mb-4">직능위원회</h1>
+                    <p class="text-lg text-gray-600">자유와혁신의 다양한 분야별 위원회입니다</p>
+                    <div class="mt-4 text-sm text-gray-500">
+                        <i class="fas fa-user-tie mr-2"></i>직능위원회 사무처장: <span class="font-medium text-gray-700">한성학</span>
+                    </div>
+                </div>
+
+                <!-- 카테고리 필터 -->
+                <div class="flex flex-wrap justify-center gap-2 mb-10">
+                    <button onclick="filterCommittees('all')" class="filter-btn active px-4 py-2 rounded-full text-sm font-medium bg-primary text-white" data-filter="all">전체</button>
+                    <button onclick="filterCommittees('spokesperson')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300" data-filter="spokesperson">대변인실</button>
+                    <button onclick="filterCommittees('special')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300" data-filter="special">특별위원회</button>
+                    <button onclick="filterCommittees('policy')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300" data-filter="policy">정책/연구</button>
+                    <button onclick="filterCommittees('organization')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300" data-filter="organization">조직/홍보</button>
+                    <button onclick="filterCommittees('religion')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300" data-filter="religion">종교</button>
+                    <button onclick="filterCommittees('culture')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300" data-filter="culture">문화/예술/체육</button>
+                    <button onclick="filterCommittees('volunteer')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300" data-filter="volunteer">봉사/동행</button>
+                </div>
+
+                <!-- 위원회 카드 목록 -->
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="committeesContainer">
+                    <!-- 동적으로 생성 -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // 직능위원회 데이터
+        const committees = [
+            // 대변인실
+            { name: '대변인실', slug: 'spokesperson', category: 'spokesperson', categoryName: '대변인실', icon: 'fa-bullhorn',
+              description: '당의 입장과 정책을 국민에게 명확하게 전달하고, 언론 대응 및 성명서 발표를 담당합니다.',
+              members: [
+                { title: '주 대변인', name: '윤태준' },
+                { title: '국제 대변인', name: '김선주' }
+              ]
+            },
+            // 자유연구원
+            { name: '자유연구원', slug: 'research', category: 'policy', categoryName: '정책/연구', icon: 'fa-flask',
+              description: '자유민주주의와 시장경제에 기반한 정책 연구 및 대안을 제시합니다.',
+              members: [
+                { title: '원장', name: '천규승' }
+              ]
+            },
+            // 정책/연구 분야
+            { name: '정책위원회', slug: 'policy', category: 'policy', categoryName: '정책/연구', icon: 'fa-file-alt',
+              description: '당의 핵심 정책을 개발하고 정책 방향을 수립합니다.',
+              members: [
+                { title: '위원장', name: '박철희' }
+              ]
+            },
+            { name: '과학기술정책위원회', slug: 'science', category: 'policy', categoryName: '정책/연구', icon: 'fa-microscope',
+              description: '4차 산업혁명 시대에 맞는 과학기술 정책을 연구하고 제안합니다.',
+              members: [
+                { title: '위원장', name: '조영탁' }
+              ]
+            },
+            { name: '국가미래위원회', slug: 'future', category: 'policy', categoryName: '정책/연구', icon: 'fa-rocket',
+              description: '대한민국의 장기적 발전 방향과 미래 전략을 수립합니다.',
+              members: [
+                { title: '위원장', name: '서의석' },
+                { title: '부위원장', name: '한동훈' }
+              ]
+            },
+            { name: '국가안보위원회', slug: 'security', category: 'policy', categoryName: '정책/연구', icon: 'fa-shield-alt',
+              description: '국가 안보 정책을 연구하고 안보 위협에 대응합니다.',
+              members: [
+                { title: '위원장', name: '이희제' }
+              ]
+            },
+            { name: '교육위원회', slug: 'education', category: 'policy', categoryName: '정책/연구', icon: 'fa-graduation-cap',
+              description: '미래 세대를 위한 교육 정책과 개혁 방안을 연구합니다.',
+              members: [
+                { title: '위원장', name: '장갑덕' }
+              ]
+            },
+            { name: '재정위원회', slug: 'finance', category: 'policy', categoryName: '정책/연구', icon: 'fa-coins',
+              description: '건전한 국가 재정과 경제 정책을 연구합니다.',
+              members: [
+                { title: '위원장', name: '장갑덕' }
+              ]
+            },
+            { name: '자유통일위원회', slug: 'unification', category: 'policy', categoryName: '정책/연구', icon: 'fa-handshake',
+              description: '자유민주주의 체제 하의 평화통일 정책을 연구합니다.',
+              members: [
+                { title: '위원장', name: '김지혜' }
+              ]
+            },
+            { name: '행정위원회', slug: 'admin', category: 'policy', categoryName: '정책/연구', icon: 'fa-building',
+              description: '효율적인 행정 시스템과 정부 조직 개편을 연구합니다.',
+              members: [
+                { title: '위원장', name: null }
+              ]
+            },
+            { name: '행정개혁위원회', slug: 'admin-reform', category: 'policy', categoryName: '정책/연구', icon: 'fa-cogs',
+              description: '공공부문 혁신과 행정 효율화 방안을 연구합니다.',
+              members: [
+                { title: '위원장', name: null }
+              ]
+            },
+            // 조직/홍보 분야
+            { name: '전략위원회', slug: 'strategy', category: 'organization', categoryName: '조직/홍보', icon: 'fa-chess',
+              description: '당의 전략적 방향과 선거 전략을 수립합니다.',
+              members: [
+                { title: '위원장', name: '한성학' }
+              ]
+            },
+            { name: '조직위원회', slug: 'organization', category: 'organization', categoryName: '조직/홍보', icon: 'fa-sitemap',
+              description: '전국 조직 확대와 당원 관리를 담당합니다.',
+              members: [
+                { title: '위원장', name: '김운하' }
+              ]
+            },
+            { name: '홍보위원회', slug: 'pr', category: 'organization', categoryName: '조직/홍보', icon: 'fa-bullhorn',
+              description: '당의 홍보 전략과 대국민 소통을 담당합니다.',
+              members: [
+                { title: '위원장', name: '노세윤' },
+                { title: '부위원장', name: '김막달' },
+                { title: '부위원장', name: '신수정' },
+                { title: '부위원장', name: '박미라' }
+              ]
+            },
+            { name: '뉴미디어위원회', slug: 'newmedia', category: 'organization', categoryName: '조직/홍보', icon: 'fa-video',
+              description: 'SNS, 유튜브 등 뉴미디어 채널을 운영하고 콘텐츠를 제작합니다.',
+              members: [
+                { title: '위원장', name: '이성재' },
+                { title: '부위원장', name: '주지영' }
+              ]
+            },
+            { name: '국제위원회', slug: 'international', category: 'organization', categoryName: '조직/홍보', icon: 'fa-globe',
+              description: '해외 교류 및 국제 협력 활동을 담당합니다.',
+              members: [
+                { title: '위원장', name: '김선주' }
+              ]
+            },
+            { name: '대외협력위원회', slug: 'external', category: 'organization', categoryName: '조직/홍보', icon: 'fa-handshake',
+              description: '외부 단체 및 시민사회와의 협력을 담당합니다.',
+              members: [
+                { title: '위원장', name: '이천석' }
+              ]
+            },
+            { name: '인재영입위원회', slug: 'recruitment', category: 'organization', categoryName: '조직/홍보', icon: 'fa-user-plus',
+              description: '당의 미래를 이끌 인재를 발굴하고 영입합니다.',
+              members: [
+                { title: '위원장', name: null }
+              ]
+            },
+            { name: '지방자치위원회', slug: 'local', category: 'organization', categoryName: '조직/홍보', icon: 'fa-map-marked-alt',
+              description: '지방 조직 강화와 지방선거 대응을 담당합니다.',
+              members: [
+                { title: '위원장', name: '안일식' },
+                { title: '부위원장', name: '창서희' },
+                { title: '부위원장', name: '한범식' }
+              ]
+            },
+            // 특별위원회
+            { name: '투쟁위원회', slug: 'fight', category: 'special', categoryName: '특별위원회', icon: 'fa-fist-raised',
+              description: '국민의 목소리를 대변하고 현장 투쟁을 이끕니다.',
+              members: [
+                { title: '위원장', name: '임하규' },
+                { title: '부위원장', name: '이호석' }
+              ]
+            },
+            { name: '부정선거개혁특별위원회', slug: 'election', category: 'special', categoryName: '특별위원회', icon: 'fa-vote-yea',
+              description: '선거 제도 개혁과 공정한 선거 환경 조성을 위해 활동합니다.',
+              members: [
+                { title: '위원장', name: '위금숙' },
+                { title: '부위원장', name: '황나연' }
+              ]
+            },
+            { name: '반국가세력척결위원회', slug: 'antination', category: 'special', categoryName: '특별위원회', icon: 'fa-gavel',
+              description: '대한민국의 정체성을 위협하는 세력에 대응합니다.',
+              members: [
+                { title: '위원장', name: '오성훈' }
+              ]
+            },
+            // 종교 분야
+            { name: '천주교위원회', slug: 'catholic', category: 'religion', categoryName: '종교', icon: 'fa-cross',
+              description: '천주교 신자 당원들의 모임으로, 종교적 가치와 정치 참여를 연결합니다.',
+              members: [
+                { title: '위원장', name: '권일영' }
+              ]
+            },
+            { name: '기독교위원회', slug: 'christian', category: 'religion', categoryName: '종교', icon: 'fa-church',
+              description: '기독교 신자 당원들의 모임으로, 기독교적 가치를 바탕으로 활동합니다.',
+              members: [
+                { title: '위원장', name: '권오용' },
+                { title: '부위원장', name: '김영희' }
+              ]
+            },
+            { name: '불교위원회', slug: 'buddhist', category: 'religion', categoryName: '종교', icon: 'fa-om',
+              description: '불교 신자 당원들의 모임으로, 불교적 가치를 바탕으로 활동합니다.',
+              members: [
+                { title: '위원장', name: null }
+              ]
+            },
+            // 세대/계층 (조직/홍보에 포함)
+            { name: '청년위원회', slug: 'youth', category: 'organization', categoryName: '조직/홍보', icon: 'fa-running',
+              description: '청년 세대의 목소리를 대변하고 청년 정책을 개발합니다.',
+              members: [
+                { title: '위원장', name: null }
+              ]
+            },
+            { name: '대학생위원회', slug: 'college', category: 'organization', categoryName: '조직/홍보', icon: 'fa-user-graduate',
+              description: '대학생 당원들의 활동을 지원하고 캠퍼스 내 보수 가치를 확산합니다.',
+              members: [
+                { title: '위원장', name: null }
+              ]
+            },
+            { name: '중장년위원회', slug: 'middleage', category: 'organization', categoryName: '조직/홍보', icon: 'fa-user-tie',
+              description: '40~50대 중장년층의 목소리를 대변하고 세대 간 소통을 이끕니다.',
+              members: [
+                { title: '위원장', name: null }
+              ]
+            },
+            { name: '실버위원회', slug: 'silver', category: 'organization', categoryName: '조직/홍보', icon: 'fa-user-clock',
+              description: '어르신들의 정치 참여를 지원하고 복지 정책을 연구합니다.',
+              members: [
+                { title: '위원장', name: null }
+              ]
+            },
+            { name: '가족위원회', slug: 'family', category: 'organization', categoryName: '조직/홍보', icon: 'fa-home',
+              description: '건강한 가정과 가족 가치를 수호하는 정책을 개발합니다.',
+              members: [
+                { title: '위원장', name: null }
+              ]
+            },
+            { name: '재외동포위원회', slug: 'overseas', category: 'organization', categoryName: '조직/홍보', icon: 'fa-plane',
+              description: '해외 거주 동포들의 참여를 독려하고 재외국민 정책을 연구합니다.',
+              members: [
+                { title: '위원장', name: '정종태' },
+                { title: '부위원장', name: '김선주' }
+              ]
+            },
+            { name: '장애인위원회', slug: 'disabled', category: 'volunteer', categoryName: '봉사/동행', icon: 'fa-wheelchair',
+              description: '장애인 권익 증진과 복지 정책을 연구하고 활동합니다.',
+              members: [
+                { title: '위원장', name: '최성애' },
+                { title: '부위원장', name: '안일식' }
+              ]
+            },
+            { name: '사회적약자동행위원회', slug: 'vulnerable', category: 'volunteer', categoryName: '봉사/동행', icon: 'fa-hands-helping',
+              description: '사회적 약자를 위한 정책 개발과 봉사 활동을 수행합니다.',
+              members: [
+                { title: '위원장', name: '신석출' }
+              ]
+            },
+            // 문화/예술/체육
+            { name: '문화예술위원회', slug: 'culture', category: 'culture', categoryName: '문화/예술/체육', icon: 'fa-palette',
+              description: '문화예술인들의 활동을 지원하고 문화 정책을 연구합니다.',
+              members: [
+                { title: '위원장', name: null }
+              ]
+            },
+            // 봉사
+            { name: '자원봉사단', slug: 'volunteer', category: 'volunteer', categoryName: '봉사/동행', icon: 'fa-heart',
+              description: '지역사회 봉사활동과 나눔을 실천합니다.',
+              members: [
+                { title: '단장', name: null }
+              ]
+            }
+        ];
+
+        let currentFilter = 'all';
+
+        function getCategoryColor(category) {
+            const colors = {
+                'spokesperson': 'bg-yellow-100 text-yellow-700',
+                'policy': 'bg-blue-100 text-blue-700',
+                'organization': 'bg-green-100 text-green-700',
+                'special': 'bg-red-100 text-red-700',
+                'religion': 'bg-purple-100 text-purple-700',
+                'culture': 'bg-pink-100 text-pink-700',
+                'volunteer': 'bg-teal-100 text-teal-700'
+            };
+            return colors[category] || 'bg-gray-100 text-gray-700';
+        }
+
+        function renderCommittees() {
+            const container = document.getElementById('committeesContainer');
+            const filtered = currentFilter === 'all' 
+                ? committees 
+                : committees.filter(c => c.category === currentFilter);
+            
+            // 페이지가 있는 위원회 목록
+            const availablePages = ['christian', 'catholic', 'youth', 'policy', 'fight', 'spokesperson', 'research', 'science', 'future', 'security', 'education', 'finance', 'unification', 'admin', 'admin-reform', 'strategy', 'organization', 'pr', 'newmedia', 'international', 'external', 'recruitment', 'local', 'election', 'antination', 'buddhist', 'college', 'middleage', 'silver', 'family', 'overseas', 'disabled', 'vulnerable', 'culture', 'volunteer'];
+            
+            container.innerHTML = filtered.map(committee => {
+                const hasPage = availablePages.includes(committee.slug);
+                const clickHandler = hasPage ? `onclick="location.href='/committees/${committee.slug}/'"` : `onclick="alert('${committee.name} 페이지 준비 중입니다.')"`;
+                
+                // 대표자 찾기 로직
+                const leader = committee.members.find(m => 
+                    m.title.includes('위원장') || m.title.includes('원장') || 
+                    m.title.includes('대변인') || m.title.includes('단장')
+                );
+                const viceLeader = committee.members.find(m => m.title.includes('부위원장') || m.title.includes('부원장'));
+                
+                // 대표자 표시 텍스트 결정
+                let leaderDisplay = '';
+                if (leader && leader.name) {
+                    // 대빵이 있는 경우
+                    leaderDisplay = `<span class="font-semibold text-gray-800">${leader.title} ${leader.name}</span>`;
+                } else if (viceLeader && viceLeader.name) {
+                    // 대빵 공석이고 부대빵만 있는 경우
+                    const actingTitle = leader ? leader.title.replace('위원장', '위원장 대행').replace('원장', '원장 대행') : '위원장 대행';
+                    leaderDisplay = `<span class="font-semibold text-gray-600">${actingTitle} ${viceLeader.name} <span class="text-gray-400">부위원장</span></span>`;
+                } else {
+                    // 둘 다 없는 경우
+                    leaderDisplay = `<span class="text-gray-400">공석</span>`;
+                }
+                
+                return `
+                    <div class="committee-card bg-white rounded-xl border border-gray-200 p-6 cursor-pointer hover:border-primary" data-category="${committee.category}" ${clickHandler}>
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                                <i class="fas ${committee.icon} text-primary text-xl"></i>
+                            </div>
+                            <span class="category-badge ${getCategoryColor(committee.category)}">${committee.categoryName}</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">${committee.name}</h3>
+                        <p class="text-sm text-gray-500 mb-4 line-clamp-2">${committee.description || ''}</p>
+                        <div class="pt-4 border-t border-gray-100">
+                            <div class="text-sm">
+                                ${leaderDisplay}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterCommittees(category) {
+            currentFilter = category;
+            
+            // 버튼 스타일 업데이트
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.dataset.filter === category) {
+                    btn.classList.remove('bg-gray-200', 'text-gray-700');
+                    btn.classList.add('bg-primary', 'text-white');
+                } else {
+                    btn.classList.remove('bg-primary', 'text-white');
+                    btn.classList.add('bg-gray-200', 'text-gray-700');
+                }
+            });
+            
+            renderCommittees();
+        }
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCommittees();
+        });
+    </script>
+
+    <script src="../config.js"></script>
+    <script src="../../nav.js"></script>
+    <!-- 공통 푸터 -->
+    <div id="footer-container"></div>
+    <script src="../../footer.js"></script>
+</body>
+</html>
