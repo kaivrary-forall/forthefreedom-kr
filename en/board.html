@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E0H9DY9T0F"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-E0H9DY9T0F');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agora | Liberty and Innovation</title>
+    <link rel="icon" type="image/png" href="../images/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#A50034',
+                        'primary-dark': '#8B002C',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../style.css">
+    <script src="config.js"></script>
+    <style>
+        .board-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        /* 테이블 스타일 */
+        .board-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .board-table th {
+            background: #f9fafb;
+            padding: 12px 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #6b7280;
+            border-bottom: 2px solid #e5e7eb;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .board-table td {
+            padding: 14px 8px;
+            font-size: 0.875rem;
+            border-bottom: 1px solid #f0f0f0;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .board-table tr {
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .board-table tbody tr:hover {
+            background: #fafafa;
+        }
+        .col-no { width: 60px; color: #9ca3af; }
+        .col-title { 
+            text-align: left !important; 
+            max-width: 300px;
+        }
+        .col-title a {
+            color: #1f2937;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+        }
+        .col-title a:hover {
+            color: #A50034;
+        }
+        .comment-count {
+            background: #A50034;
+            color: white;
+            font-size: 0.65rem;
+            padding: 2px 5px;
+            border-radius: 8px;
+            margin-left: 4px;
+        }
+        .col-author { 
+            width: 130px;
+            position: relative;
+        }
+        .author-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            position: relative;
+        }
+        .author-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .author-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .author-avatar i {
+            font-size: 0.7rem;
+            color: #9ca3af;
+        }
+        .author-name {
+            color: #374151;
+            font-weight: 500;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .author-name:hover {
+            color: #A50034;
+            text-decoration: underline;
+        }
+        /* 작성자 드롭다운 메뉴 */
+        .author-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 100;
+            min-width: 140px;
+            display: none;
+            overflow: hidden;
+        }
+        .author-dropdown.show {
+            display: block;
+        }
+        .author-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            color: #374151;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .author-dropdown-item:hover {
+            background: #f3f4f6;
+        }
+        .author-dropdown-item i {
+            width: 16px;
+            color: #6b7280;
+        }
+        .col-grade { width: 80px; }
+        .grade-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        .grade-general { background: #F6D219; color: #000; }
+        .grade-party { background: #051C4C; color: #fff; }
+        .grade-innovation { background: #A50033; color: #fff; }
+        .grade-position { background: #000003; color: #fff; }
+        .col-date { width: 90px; color: #9ca3af; font-size: 0.8rem; }
+        .col-view { width: 60px; color: #9ca3af; }
+        .col-like { width: 50px; color: #22c55e; }
+        .col-dislike { width: 50px; color: #6b7280; }
+        
+        /* 댓글 모달 */
+        .comments-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .comments-modal.hidden {
+            display: none;
+        }
+        .comments-modal-backdrop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+        }
+        .comments-modal-content {
+            position: relative;
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .comments-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .comments-modal-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: #f3f4f6;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-close:hover {
+            background: #e5e7eb;
+        }
+        .comments-modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .comment-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+        .comment-post-title {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-bottom: 6px;
+        }
+        .comment-post-title a {
+            color: #A50034;
+        }
+        .comment-content {
+            font-size: 0.9rem;
+            color: #374151;
+            line-height: 1.5;
+        }
+        .comment-date {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            margin-top: 6px;
+        }
+        }
+        .board-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 2px solid #A50034;
+        }
+        .board-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        .write-btn {
+            background: #A50034;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+        .write-btn:hover {
+            background: #8B002C;
+        }
+        /* 컨트롤 바 (정렬 + 페이지당 개수) */
+        .control-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .sort-tabs {
+            display: flex;
+            gap: 4px;
+        }
+        .sort-tab {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .sort-tab:hover {
+            background: #e5e7eb;
+        }
+        .sort-tab.active {
+            background: #A50034;
+            color: white;
+        }
+        .per-page-select {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .per-page-select label {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+        .per-page-select select {
+            padding: 6px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9ca3af;
+        }
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            display: block;
+        }
+        /* 하단 영역 */
+        .board-footer {
+            padding: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+        /* 페이지네이션 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 16px;
+        }
+        .page-btn {
+            min-width: 32px;
+            height: 32px;
+            padding: 0 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .page-btn:hover {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+        }
+        .page-btn.active {
+            background: #A50034;
+            color: white;
+            border-color: #A50034;
+        }
+        .page-btn.disabled {
+            color: #d1d5db;
+            cursor: not-allowed;
+        }
+        .page-btn.disabled:hover {
+            background: transparent;
+            border-color: transparent;
+        }
+        .page-ellipsis {
+            padding: 0 4px;
+            color: #9ca3af;
+        }
+        /* 검색 + 페이지 이동 */
+        .footer-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .search-type {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        .search-input {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            width: 200px;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: #A50034;
+        }
+        .search-btn {
+            padding: 8px 16px;
+            background: #A50034;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .search-btn:hover {
+            background: #8B002C;
+        }
+        .page-jump {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .page-jump input {
+            width: 60px;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        .page-jump button {
+            padding: 8px 12px;
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .page-jump button:hover {
+            background: #e5e7eb;
+        }
+        .login-notice {
+            background: #fef3c7;
+            border: 1px solid #fcd34d;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 16px 20px;
+            font-size: 0.875rem;
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .login-notice a {
+            color: #A50034;
+            font-weight: 600;
+        }
+    </style>
+    <script src="../analytics.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div id="navigation-container"></div>
+    
+    <main class="pt-20 pb-12 px-4">
+        <div class="board-container bg-white rounded-xl shadow-sm overflow-hidden">
+            <!-- 헤더 -->
+            <div class="board-header">
+                <h1 class="board-title">
+                    <i class="fas fa-comments text-primary mr-2"></i>
+                    회원 게시판
+                </h1>
+            </div>
+            
+            <!-- 로그인 안내 -->
+            <div id="loginNotice" class="login-notice hidden">
+                <i class="fas fa-info-circle"></i>
+                <span>글쓰기와 댓글 작성은 <a href="login.html">로그인</a> 후 이용 가능합니다.</span>
+            </div>
+            
+            <!-- 컨트롤 바 (정렬 + 페이지당 + 글쓰기) -->
+            <div class="control-bar" style="justify-content: space-between;">
+                <div class="sort-tabs">
+                    <div class="sort-tab active" data-sort="latest">최신순</div>
+                    <div class="sort-tab" data-sort="popular">인기순</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div class="per-page-select">
+                        <label>페이지당</label>
+                        <select id="perPageSelect" onchange="changePerPage(this.value)">
+                            <option value="30" selected>30개</option>
+                            <option value="50">50개</option>
+                            <option value="100">100개</option>
+                        </select>
+                    </div>
+                    <a href="board-write.html" class="write-btn" id="writeBtn">
+                        <i class="fas fa-pen"></i>
+                        글쓰기
+                    </a>
+                </div>
+            </div>
+            
+            <!-- 게시글 목록 -->
+            <div id="postList">
+                <div class="empty-state">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>게시글을 불러오는 중...</p>
+                </div>
+            </div>
+            
+            <!-- 하단 영역 -->
+            <div class="board-footer">
+                <!-- 페이지네이션 -->
+                <div id="pagination" class="pagination"></div>
+                
+                <!-- 검색 + 페이지 이동 + 글쓰기 -->
+                <div class="footer-controls">
+                    <div class="search-box">
+                        <select id="searchType" class="search-type">
+                            <option value="title">제목</option>
+                            <option value="content">내용</option>
+                            <option value="both" selected>제목+내용</option>
+                            <option value="author">작성자</option>
+                        </select>
+                        <input type="text" id="searchInput" class="search-input" placeholder="검색어 입력" onkeypress="if(event.key==='Enter') doSearch()">
+                        <button class="search-btn" onclick="doSearch()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="page-jump">
+                            <input type="number" id="pageJumpInput" min="1" placeholder="페이지">
+                            <button onclick="jumpToPage()">
+                                이동 <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                        <a href="board-write.html" class="write-btn" id="writeBtnBottom">
+                            <i class="fas fa-pen"></i>
+                            글쓰기
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- 댓글 보기 모달 -->
+    <div id="commentsModal" class="comments-modal hidden">
+        <div class="comments-modal-backdrop" onclick="closeCommentsModal()"></div>
+        <div class="comments-modal-content">
+            <div class="comments-modal-header">
+                <h3><i class="fas fa-comment"></i> <span id="commentsModalTitle">회원 댓글</span></h3>
+                <button class="modal-close" onclick="closeCommentsModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="comments-modal-body" id="commentsModalBody">
+                <div class="empty-state">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>댓글을 불러오는 중...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../nav.js"></script>
+    <script>
+        const API_BASE = window.API_BASE || 'https://forthefreedom-kr-production.up.railway.app/api';
+        
+        let currentPage = 1;
+        let currentSort = 'latest';
+        let totalPages = 1;
+        let perPage = 30;
+        let searchType = 'both';
+        let searchKeyword = '';
+        let filterAuthorId = null;
+        let filterType = null; // 'posts' or 'comments'
+        
+        // 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            // URL 파라미터 확인
+            const urlParams = new URLSearchParams(window.location.search);
+            filterAuthorId = urlParams.get('authorId');
+            filterType = urlParams.get('type');
+            
+            // 작성자 필터링 모드면 UI 업데이트
+            if (filterAuthorId) {
+                updateFilterUI();
+            }
+            
+            checkAuth();
+            loadPosts();
+            setupSortTabs();
+        });
+        
+        // 필터링 모드 UI 업데이트
+        function updateFilterUI() {
+            const titleEl = document.querySelector('.board-title');
+            const typeText = filterType === 'comments' ? '댓글' : '작성글';
+            titleEl.innerHTML = `<i class="fas fa-user mr-2"></i> 회원 ${typeText} 보기 <a href="board.html" style="font-size: 0.8rem; color: #A50034; margin-left: 12px;"><i class="fas fa-times"></i> 필터 해제</a>`;
+        }
+        
+        // 인증 확인
+        function checkAuth() {
+            const token = localStorage.getItem('memberToken');
+            const writeBtn = document.getElementById('writeBtn');
+            const writeBtnBottom = document.getElementById('writeBtnBottom');
+            const loginNotice = document.getElementById('loginNotice');
+            
+            if (!token) {
+                writeBtn.classList.add('hidden');
+                writeBtnBottom.classList.add('hidden');
+                loginNotice.classList.remove('hidden');
+            }
+        }
+        
+        // 정렬 탭 설정
+        function setupSortTabs() {
+            document.querySelectorAll('.sort-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.sort-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentSort = this.dataset.sort;
+                    currentPage = 1;
+                    loadPosts();
+                });
+            });
+        }
+        
+        // 게시글 목록 로드
+        async function loadPosts() {
+            const postList = document.getElementById('postList');
+            const pagination = document.getElementById('pagination');
+            
+            try {
+                const token = localStorage.getItem('memberToken');
+                const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+                
+                // URL 파라미터 구성
+                let url = `${API_BASE}/posts?boardType=member&page=${currentPage}&sort=${currentSort}&limit=${perPage}`;
+                if (searchKeyword) {
+                    url += `&searchType=${searchType}&keyword=${encodeURIComponent(searchKeyword)}`;
+                }
+                if (filterAuthorId) {
+                    url += `&authorId=${filterAuthorId}`;
+                    if (filterType) {
+                        url += `&filterType=${filterType}`;
+                    }
+                }
+                
+                const response = await fetch(url, { headers });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    const { posts, pagination: paginationData } = result.data;
+                    totalPages = paginationData.totalPages;
+                    
+                    if (posts.length === 0) {
+                        postList.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-file-alt"></i>
+                                <p>${searchKeyword ? '검색 결과가 없습니다' : '아직 게시글이 없습니다'}</p>
+                                <p class="text-sm mt-2">${searchKeyword ? '다른 검색어로 시도해보세요' : '첫 번째 글을 작성해보세요!'}</p>
+                            </div>
+                        `;
+                        pagination.innerHTML = '';
+                    } else {
+                        postList.innerHTML = renderPostTable(posts, paginationData);
+                        renderPagination();
+                    }
+                } else {
+                    throw new Error(result.message);
+                }
+                
+            } catch (error) {
+                console.error('게시글 로드 오류:', error);
+                postList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-circle text-red-400"></i>
+                        <p>게시글을 불러올 수 없습니다</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // 게시글 테이블 렌더링
+        function renderPostTable(posts, paginationData) {
+            const startNo = (paginationData.page - 1) * perPage + 1;
+            
+            return `
+                <table class="board-table">
+                    <thead>
+                        <tr>
+                            <th class="col-no">번호</th>
+                            <th class="col-title">제목</th>
+                            <th class="col-author">작성자</th>
+                            <th class="col-grade">등급</th>
+                            <th class="col-date">작성일</th>
+                            <th class="col-view">조회</th>
+                            <th class="col-like">👍</th>
+                            <th class="col-dislike">👎</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${posts.map((post, index) => renderPostRow(post, paginationData.total - (startNo - 1) - index)).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        // 게시글 행 렌더링
+        function renderPostRow(post, rowNo) {
+            const date = new Date(post.createdAt);
+            const dateStr = formatDate(date);
+            const gradeInfo = getGradeInfo(post.author?.memberType);
+            
+            return `
+                <tr onclick="goToPost('${post._id}')">
+                    <td class="col-no">${rowNo}</td>
+                    <td class="col-title">
+                        <a href="javascript:void(0)">
+                            ${escapeHtml(post.title)}
+                            ${post.commentCount > 0 ? `<span class="comment-count">${post.commentCount}</span>` : ''}
+                        </a>
+                    </td>
+                    <td class="col-author">
+                        <div class="author-cell">
+                            <div class="author-avatar">
+                                ${post.author?.profileImage 
+                                    ? `<img src="${post.author.profileImage}" alt="">` 
+                                    : '<i class="fas fa-user"></i>'}
+                            </div>
+                            <span class="author-name" onclick="event.stopPropagation(); toggleAuthorMenu('${post.author?._id}')">${post.author?.nickname || '알 수 없음'}</span>
+                            <div class="author-dropdown" id="author-menu-${post.author?._id}">
+                                <div class="author-dropdown-item" onclick="event.stopPropagation(); viewAuthorPosts('${post.author?._id}')">
+                                    <i class="fas fa-file-alt"></i> 작성글
+                                </div>
+                                <div class="author-dropdown-item" onclick="event.stopPropagation(); viewAuthorComments('${post.author?._id}')">
+                                    <i class="fas fa-comment"></i> 댓글
+                                </div>
+                                <div class="author-dropdown-item" onclick="event.stopPropagation(); goToProfile('${post.author?._id}')">
+                                    <i class="fas fa-user-circle"></i> 프로필 가기
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="col-grade">
+                        <span class="grade-badge ${gradeInfo.class}">${gradeInfo.text}</span>
+                    </td>
+                    <td class="col-date">${dateStr}</td>
+                    <td class="col-view">${post.viewCount}</td>
+                    <td class="col-like">${post.likeCount || 0}</td>
+                    <td class="col-dislike">${post.dislikeCount || 0}</td>
+                </tr>
+            `;
+        }
+        
+        // 등급 정보 반환
+        function getGradeInfo(memberType) {
+            switch(memberType) {
+                case 'party_member':
+                    return { text: '당원', class: 'grade-party' };
+                case 'innovation_member':
+                    return { text: '혁신당원', class: 'grade-innovation' };
+                case 'position_member':
+                    return { text: '직분당원', class: 'grade-position' };
+                default:
+                    return { text: '일반', class: 'grade-general' };
+            }
+        }
+        
+        // 날짜 포맷
+        function formatDate(date) {
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return '방금 전';
+            if (diff < 3600000) return Math.floor(diff / 60000) + '분 전';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + '시간 전';
+            
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            
+            if (year === now.getFullYear()) {
+                return `${month}.${day}`;
+            }
+            return `${year}.${month}.${day}`;
+        }
+        
+        // 페이지네이션 렌더링
+        function renderPagination() {
+            const pagination = document.getElementById('pagination');
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+            
+            let html = '';
+            
+            // 처음으로 버튼
+            html += `<div class="page-btn ${currentPage === 1 ? 'disabled' : ''}" onclick="${currentPage > 1 ? 'goToPage(1)' : ''}" title="처음">
+                <i class="fas fa-angle-double-left"></i>
+            </div>`;
+            
+            // 이전 버튼
+            html += `<div class="page-btn ${currentPage === 1 ? 'disabled' : ''}" onclick="${currentPage > 1 ? 'goToPage(' + (currentPage - 1) + ')' : ''}" title="이전">
+                <i class="fas fa-angle-left"></i>
+            </div>`;
+            
+            // 페이지 번호 계산 (최대 10개 표시)
+            let startPage, endPage;
+            if (totalPages <= 10) {
+                startPage = 1;
+                endPage = totalPages;
+            } else {
+                if (currentPage <= 6) {
+                    startPage = 1;
+                    endPage = 10;
+                } else if (currentPage + 4 >= totalPages) {
+                    startPage = totalPages - 9;
+                    endPage = totalPages;
+                } else {
+                    startPage = currentPage - 5;
+                    endPage = currentPage + 4;
+                }
+            }
+            
+            // 첫 페이지 + ... 표시
+            if (startPage > 1) {
+                html += `<div class="page-btn" onclick="goToPage(1)">1</div>`;
+                if (startPage > 2) {
+                    html += `<span class="page-ellipsis">...</span>`;
+                }
+            }
+            
+            // 페이지 번호들
+            for (let i = startPage; i <= endPage; i++) {
+                if (i === 1 && startPage > 1) continue; // 이미 표시됨
+                if (i === totalPages && endPage < totalPages) continue; // 아래서 표시
+                html += `<div class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</div>`;
+            }
+            
+            // ... + 마지막 페이지 표시
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    html += `<span class="page-ellipsis">...</span>`;
+                }
+                html += `<div class="page-btn" onclick="goToPage(${totalPages})">${totalPages}</div>`;
+            }
+            
+            // 다음 버튼
+            html += `<div class="page-btn ${currentPage === totalPages ? 'disabled' : ''}" onclick="${currentPage < totalPages ? 'goToPage(' + (currentPage + 1) + ')' : ''}" title="다음">
+                <i class="fas fa-angle-right"></i>
+            </div>`;
+            
+            // 끝으로 버튼
+            html += `<div class="page-btn ${currentPage === totalPages ? 'disabled' : ''}" onclick="${currentPage < totalPages ? 'goToPage(' + totalPages + ')' : ''}" title="끝">
+                <i class="fas fa-angle-double-right"></i>
+            </div>`;
+            
+            pagination.innerHTML = html;
+            
+            // 페이지 이동 입력창 max 설정
+            document.getElementById('pageJumpInput').max = totalPages;
+        }
+        
+        // 페이지 이동
+        function goToPage(page) {
+            currentPage = page;
+            loadPosts();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // 페이지당 개수 변경
+        function changePerPage(value) {
+            perPage = parseInt(value);
+            currentPage = 1;
+            loadPosts();
+        }
+        
+        // 검색
+        function doSearch() {
+            searchType = document.getElementById('searchType').value;
+            searchKeyword = document.getElementById('searchInput').value.trim();
+            currentPage = 1;
+            loadPosts();
+        }
+        
+        // 페이지 점프
+        function jumpToPage() {
+            const input = document.getElementById('pageJumpInput');
+            const page = parseInt(input.value);
+            if (page && page >= 1 && page <= totalPages) {
+                goToPage(page);
+                input.value = '';
+            } else {
+                alert(`1 ~ ${totalPages} 사이의 페이지 번호를 입력해주세요`);
+            }
+        }
+        
+        // 게시글 상세 페이지로 이동
+        function goToPost(postId) {
+            const token = localStorage.getItem('memberToken');
+            if (!token) {
+                alert('게시글을 보려면 로그인이 필요합니다');
+                location.href = 'login.html?return=' + encodeURIComponent('board-view.html?id=' + postId);
+                return;
+            }
+            location.href = 'board-view.html?id=' + postId;
+        }
+        
+        // HTML 이스케이프
+        // 작성자 메뉴 토글
+        let currentOpenMenu = null;
+        
+        function toggleAuthorMenu(authorId) {
+            const menu = document.getElementById('author-menu-' + authorId);
+            
+            // 다른 열린 메뉴 닫기
+            if (currentOpenMenu && currentOpenMenu !== menu) {
+                currentOpenMenu.classList.remove('show');
+            }
+            
+            menu.classList.toggle('show');
+            currentOpenMenu = menu.classList.contains('show') ? menu : null;
+        }
+        
+        // 문서 클릭시 메뉴 닫기
+        document.addEventListener('click', function(e) {
+            if (currentOpenMenu && !e.target.closest('.author-cell')) {
+                currentOpenMenu.classList.remove('show');
+                currentOpenMenu = null;
+            }
+        });
+        
+        // 작성자 글 보기
+        function viewAuthorPosts(authorId) {
+            closeAllMenus();
+            // 검색 타입을 작성자로 설정하고 검색
+            // 일단 쿼리 파라미터로 작성자 ID 전달
+            location.href = `board.html?authorId=${authorId}&type=posts`;
+        }
+        
+        // 작성자 댓글 보기 (모달)
+        async function viewAuthorComments(authorId) {
+            closeAllMenus();
+            
+            const modal = document.getElementById('commentsModal');
+            const modalBody = document.getElementById('commentsModalBody');
+            
+            modal.classList.remove('hidden');
+            modalBody.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>댓글을 불러오는 중...</p>
+                </div>
+            `;
+            
+            try {
+                const token = localStorage.getItem('memberToken');
+                const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+                
+                const response = await fetch(`${API_BASE}/posts/member/${authorId}/comments`, { headers });
+                const result = await response.json();
+                
+                if (result.success) {
+                    if (result.data.comments.length === 0) {
+                        modalBody.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-comment-slash"></i>
+                                <p>작성한 댓글이 없습니다</p>
+                            </div>
+                        `;
+                    } else {
+                        modalBody.innerHTML = result.data.comments.map(comment => `
+                            <div class="comment-item">
+                                <div class="comment-post-title">
+                                    <a href="board-view.html?id=${comment.post?._id}">${comment.post?.title || '삭제된 게시글'}</a>에 남긴 댓글
+                                </div>
+                                <div class="comment-content">${escapeHtml(comment.content)}</div>
+                                <div class="comment-date">${formatDate(new Date(comment.createdAt))}</div>
+                            </div>
+                        `).join('');
+                    }
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error('댓글 로드 오류:', error);
+                modalBody.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-circle text-red-400"></i>
+                        <p>댓글을 불러올 수 없습니다</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function closeCommentsModal() {
+            document.getElementById('commentsModal').classList.add('hidden');
+        }
+        
+        // 프로필 페이지로 이동
+        function goToProfile(authorId) {
+            closeAllMenus();
+            location.href = `profile.html?id=${authorId}`;
+        }
+        
+        function closeAllMenus() {
+            document.querySelectorAll('.author-dropdown.show').forEach(menu => {
+                menu.classList.remove('show');
+            });
+            currentOpenMenu = null;
+        }
+        
+        // HTML 이스케이프
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+    <!-- 공통 푸터 -->
+    <div id="footer-container"></div>
+    <script src="../footer.js"></script>
+</body>
+</html>
