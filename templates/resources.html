@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="{{lang_code}}">
+<head>
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E0H9DY9T0F"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-E0H9DY9T0F');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{resources_title}}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/favicon.png">
+    <link rel="shortcut icon" type="image/png" href="images/favicon.png">
+    <link rel="icon" href="images/favicon.png">
+    <meta name="application-name" content="자유와혁신">
+    <meta name="msapplication-TileImage" content="images/favicon.png">
+    <meta name="msapplication-TileColor" content="#A50034">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'red-600': '#A50034',
+                        'red-700': '#8B002C',
+                        'red-800': '#700024',
+                        'red-900': '#56001C',
+                        'red-50': '#FDF2F4',
+                        'red-100': '#FCE7EA',
+                        'red-500': '#A50034'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <script src="/analytics.js"></script>
+</head>
+<body>
+    <div id="navigation-container"></div>
+    
+    <!-- Hero Section -->
+    <section class="hero-section hero-bg-surrounding" style="position:relative; height:60vh; display:flex; align-items:center; justify-content:center;">
+        <div class="hero-overlay" style="position:absolute; top:0; left:0; right:0; bottom:0; background:linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.2)); z-index:1;"></div>
+        <div class="hero-content" style="position:relative; z-index:2; color:#fff; text-align:center;">
+            <h1 style="font-size:3.5rem; font-weight:bold; margin:0; text-shadow:2px 2px 4px rgba(0,0,0,0.5);">자료실</h1>
+            <p style="font-size:1.25rem; margin-top:1rem; opacity:0.9;">자유와혁신의 다양한 자료를 확인하세요</p>
+        </div>
+    </section>
+
+    <main style="position:relative; z-index:1; background:#fff;">
+        <!-- 자료실 카테고리 Section -->
+        <section class="py-16 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl font-bold text-gray-900 mb-6">자료 카테고리</h2>
+                    <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                        자유와혁신의 다양한 자료를 카테고리별로 확인하세요
+                    </p>
+                </div>
+                
+                <div class="grid lg:grid-cols-3 gap-8">
+                    <!-- 정책자료 -->
+                    <div class="bg-blue-50 border border-blue-100 rounded-lg p-8 text-center hover:shadow-lg transition-shadow">
+                        <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-file-alt text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-semibold text-gray-900 mb-4">정책자료</h3>
+                        <p class="text-gray-600 mb-6 leading-relaxed">
+                            7대 핵심 정책과 분야별 세부 정책 자료를 확인하세요
+                        </p>
+                        <div class="mb-6">
+                            <div class="text-sm text-gray-500 mb-2">총 자료 수</div>
+                            <div id="policy-materials-count" class="text-2xl font-bold text-blue-600">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                        <a href="resources/policy-materials.html" class="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                            <span>바로가기</span>
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                    
+                    <!-- 당헌당규 -->
+                    <div class="bg-red-50 border border-red-100 rounded-lg p-8 text-center hover:shadow-lg transition-shadow">
+                        <div class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-balance-scale text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-semibold text-gray-900 mb-4">당헌당규</h3>
+                        <p class="text-gray-600 mb-6 leading-relaxed">
+                            자유와혁신의 강령, 당헌, 당규 등 기본 규정을 확인하세요
+                        </p>
+                        <div class="mb-6">
+                            <div class="text-sm text-gray-500 mb-2">총 문서 수</div>
+                            <div id="party-constitution-count" class="text-2xl font-bold text-red-600">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                        <a href="resources/party-constitution.html" class="inline-flex items-center justify-center px-6 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors">
+                            <span>바로가기</span>
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                    
+                    <!-- 선거자료 -->
+                    <div class="bg-purple-50 border border-purple-100 rounded-lg p-8 text-center hover:shadow-lg transition-shadow">
+                        <div class="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-vote-yea text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-semibold text-gray-900 mb-4">선거자료</h3>
+                        <p class="text-gray-600 mb-6 leading-relaxed">
+                            선거 관련 공약, 정책 자료, 선거운동 자료를 확인하세요
+                        </p>
+                        <div class="mb-6">
+                            <div class="text-sm text-gray-500 mb-2">총 자료 수</div>
+                            <div id="election-materials-count" class="text-2xl font-bold text-purple-600">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                        <a href="resources/election-materials.html" class="inline-flex items-center justify-center px-6 py-3 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors">
+                            <span>바로가기</span>
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <!-- API 설정 로드 -->
+    <script src="config.js"></script>
+    <script src="nav.js"></script>
+    <script>
+        loadNavigation();
+
+        // 환경 감지 및 API 설정
+        // API 설정 - config.js에서 로드된 설정 사용
+        const API_BASE_URL = window.API_BASE;
+
+        // 자료 통계 로드 함수
+        async function loadResourceStats() {
+            try {
+                // 정책자료 개수 가져오기
+                const policyResponse = await fetch(`${API_BASE_URL}/policy-materials`);
+                const policyData = await policyResponse.json();
+                if (policyData.success) {
+                    const policyCount = policyData.pagination?.total || 0;
+                    document.getElementById('policy-materials-count').textContent = `${policyCount}개`;
+                } else {
+                    document.getElementById('policy-materials-count').textContent = '0개';
+                }
+            } catch (error) {
+                console.error('정책자료 통계 로드 실패:', error);
+                document.getElementById('policy-materials-count').textContent = '0개';
+            }
+
+            try {
+                // 당헌당규 개수 가져오기
+                const constitutionResponse = await fetch(`${API_BASE_URL}/party-constitution`);
+                const constitutionData = await constitutionResponse.json();
+                if (constitutionData.success) {
+                    const constitutionCount = constitutionData.pagination?.total || 0;
+                    document.getElementById('party-constitution-count').textContent = `${constitutionCount}개`;
+                } else {
+                    document.getElementById('party-constitution-count').textContent = '0개';
+                }
+            } catch (error) {
+                console.error('당헌당규 통계 로드 실패:', error);
+                document.getElementById('party-constitution-count').textContent = '0개';
+            }
+
+            try {
+                // 선거자료 개수 가져오기
+                const electionResponse = await fetch(`${API_BASE_URL}/election-materials`);
+                const electionData = await electionResponse.json();
+                if (electionData.success) {
+                    const electionCount = electionData.pagination?.total || 0;
+                    if (electionCount === 0) {
+                        document.getElementById('election-materials-count').textContent = '준비중';
+                    } else {
+                        document.getElementById('election-materials-count').textContent = `${electionCount}개`;
+                    }
+                } else {
+                    document.getElementById('election-materials-count').textContent = '준비중';
+                }
+            } catch (error) {
+                console.error('선거자료 통계 로드 실패:', error);
+                document.getElementById('election-materials-count').textContent = '준비중';
+            }
+        }
+
+        // 페이지 로드시 통계 로드
+        document.addEventListener('DOMContentLoaded', loadResourceStats);
+        
+        // WebP 지원 감지
+        (function() {
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = 1;
+                canvas.height = 1;
+                const dataURL = canvas.toDataURL('image/webp');
+                if (dataURL.indexOf('data:image/webp') === 0) {
+                    document.documentElement.classList.add('webp');
+                } else {
+                    document.documentElement.classList.add('no-webp');
+                }
+            } catch (e) {
+                document.documentElement.classList.add('no-webp');
+            }
+        })();
+    </script>
+    <!-- 공통 푸터 -->
+    <div id="footer-container"></div>
+    <script src="/footer.js"></script>
+</body>
+</html> 

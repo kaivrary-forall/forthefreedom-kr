@@ -1,0 +1,359 @@
+﻿<!DOCTYPE html>
+<html lang="{{lang_code}}">
+<head>
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E0H9DY9T0F"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-E0H9DY9T0F');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{members_join_title}}</title>
+    
+    <!-- 파비콘 설정 -->
+    <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../images/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../images/favicon.png">
+    <link rel="shortcut icon" type="image/png" href="../images/favicon.png">
+    <link rel="icon" href="../images/favicon.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'red-600': '#A50034',
+                        'red-700': '#8B002C',
+                        'red-800': '#700024',
+                        'red-900': '#56001C',
+                        'red-50': '#FDF2F4',
+                        'red-100': '#FCE7EA',
+                        'red-500': '#A50034'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <script src="/analytics.js"></script>
+</head>
+<body>
+    <div id="navigation-container"></div>
+    
+    <section class="hero-section hero-bg-flag-sub" style="position:relative; height:60vh; display:flex; align-items:center; justify-content:center;">
+        <div class="hero-overlay" style="position:absolute; top:0; left:0; right:0; bottom:0; background:linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.2)); z-index:1;"></div>
+        <div class="hero-content" style="position:relative; z-index:2; color:#fff; text-align:center;">
+            <h1 style="font-size:3.5rem; font-weight:bold; margin:0; text-shadow:2px 2px 4px rgba(0,0,0,0.5);">당원 가입안내</h1>
+        </div>
+    </section>
+    
+    <main style="position:relative; z-index:1; background:#fff;">
+        <!-- Membership Information Section -->
+        <section class="py-16 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Online Application Guide - 가장 위에 배치 -->
+                <div class="mb-20">
+                    <div class="text-center mb-16">
+                        <h2 class="text-5xl font-bold text-gray-900 mb-8">온라인 당원가입</h2>
+                        <p class="text-2xl text-gray-600 max-w-4xl mx-auto mb-12">
+                            자유와혁신의 당원이 되어 새로운 정치 변화에 참여하세요
+                        </p>
+                    </div>
+                    
+                    <div class="max-w-4xl mx-auto">
+                        <div class="bg-red-50 rounded-lg p-12 text-center">
+                            <div class="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-8">
+                                <i class="fas fa-laptop text-red-600 text-3xl"></i>
+                            </div>
+                            <h3 class="text-3xl font-semibold text-gray-900 mb-6">간편하게 온라인으로 가입하세요</h3>
+                            <p class="text-xl text-gray-700 mb-10">간편가입 시스템을 통해 빠르고 안전하게 당원가입을 진행할 수 있습니다.</p>
+                            
+                            <a href="https://www.ihappynanum.com/Nanum/api/screen/F7FCRIO2E3" target="_blank" class="inline-block bg-red-600 text-white px-16 py-6 rounded-lg text-2xl font-semibold hover:bg-red-700 transition-colors mb-8">
+                                <i class="fas fa-user-plus mr-4"></i>
+                                온라인 당원가입
+                            </a>
+                            
+                            <p class="text-gray-600 text-lg">
+                                클릭하고 본인인증 후 당원가입을 진행해주세요.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Offline Application Guide -->
+                <div class="mb-20">
+                    <div class="text-center mb-16">
+                        <h2 class="text-5xl font-bold text-gray-900 mb-8">오프라인 당원가입</h2>
+                        <p class="text-2xl text-gray-600 max-w-4xl mx-auto mb-12">
+                            오프라인으로 가입을 원하시는 분들을 위한 안내입니다.
+                        </p>
+                    </div>
+                    
+                    <!-- Application Process -->
+                    <div class="mb-16">
+                        <div class="max-w-4xl mx-auto">
+                            <div class="bg-red-50 rounded-lg p-12">
+                                <h3 class="text-3xl font-semibold text-gray-900 mb-8 text-center">가입방법</h3>
+                                
+                                <div class="space-y-8">
+                                    <div class="flex items-start">
+                                        <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                            <span class="text-white font-bold text-lg">1</span>
+                                        </div>
+                                        <p class="ml-6 text-xl text-gray-700">중앙당 혹은 각 시도당 사무실에 직접 방문하셔서 가입해주세요.</p>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                            <span class="text-white font-bold text-lg">2</span>
+                                        </div>
+                                        <div class="ml-6">
+                                            <p class="text-xl text-gray-700 mb-6">입당원서를 다운로드 받은후 중앙당에 팩스 혹은 우편으로 보내주세요.</p>
+                                            <a href="../resources/documents/입당원서.pdf" download="입당원서.pdf" class="inline-block bg-red-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-red-700 transition-colors">
+                                                <i class="fas fa-download mr-2"></i>입당원서 다운로드
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Regional Party Offices -->
+                <div class="mb-16">
+                    <h3 class="text-5xl font-bold text-gray-900 mb-8 text-center">시도당 안내</h3>
+                    <p class="text-center text-gray-600 text-xl mb-8">
+                        오프라인 가입신청서 제출 및 당원 관련 문의는 해당 시도당으로 연락주세요.
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- 주요 8개 시도당 (위쪽 배치) -->
+                        <!-- 서울 -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                            <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                                <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>
+                                서울특별시당
+                            </h4>
+                            <p class="text-gray-600 text-sm">서울특별시 영등포구</p>
+                        </div>
+                        
+                        <!-- 경기 -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                            <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                                <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>
+                                경기도당
+                            </h4>
+                            <p class="text-gray-600 text-sm">경기도 수원시 영통구</p>
+                        </div>
+                        
+                        <!-- 인천 -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                            <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                                <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>
+                                인천광역시당
+                            </h4>
+                            <p class="text-gray-600 text-sm">인천광역시 남동구</p>
+                        </div>
+                        
+                        <!-- 부산 -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                            <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                                <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>
+                                부산광역시당
+                            </h4>
+                            <p class="text-gray-600 text-sm">부산광역시 부산진구</p>
+                        </div>
+                        
+                        <!-- 경남 -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                            <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                                <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>
+                                경상남도당
+                            </h4>
+                            <p class="text-gray-600 text-sm">경상남도 창원시 의창구</p>
+                        </div>
+                        
+                        <!-- 대구 -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                            <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                                <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>
+                                대구광역시당
+                            </h4>
+                            <p class="text-gray-600 text-sm">대구광역시 중구</p>
+                        </div>
+                        
+                        <!-- 울산 -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                            <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                                <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>
+                                울산광역시당
+                            </h4>
+                            <p class="text-gray-600 text-sm">울산광역시 남구</p>
+                        </div>
+                        
+                        <!-- 경북 -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                            <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                                <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>
+                                경상북도당
+                            </h4>
+                            <p class="text-gray-600 text-sm">경상북도 안동시</p>
+                        </div>
+                        
+                        <!-- 나머지 시도당들 (아래쪽 배치) -->
+                        <!-- 충남 -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                            <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                                <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>
+                                충청남도당
+                            </h4>
+                            <p class="text-gray-600 text-sm">충청남도 홍성군 홍북읍</p>
+                        </div>
+                        
+                        <!-- 충북 -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                            <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                                <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>
+                                충청북도당
+                            </h4>
+                            <p class="text-gray-600 text-sm">충청북도 청주시 상당구</p>
+                        </div>
+                        
+                        <!-- 강원 -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                            <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                                <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>
+                                강원특별자치도당
+                            </h4>
+                            <p class="text-gray-600 text-sm">강원특별자치도 춘천시</p>
+                        </div>
+                        
+                        <!-- 대전 -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                            <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                                <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>
+                                대전광역시당
+                            </h4>
+                            <p class="text-gray-600 text-sm">대전광역시 서구</p>
+                        </div>
+                        
+                        <!-- 세종 -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                            <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                                <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>
+                                세종특별자치시당
+                            </h4>
+                            <p class="text-gray-600 text-sm">세종특별자치시 조치원읍</p>
+                        </div>
+                        
+                        <!-- 광주 -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                            <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                                <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>
+                                광주광역시당
+                            </h4>
+                            <p class="text-gray-600 text-sm">광주광역시 서구</p>
+                        </div>
+                        
+                        <!-- 전북 -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                            <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                                <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>
+                                전북특별자치도당
+                            </h4>
+                            <p class="text-gray-600 text-sm">전북특별자치도 전주시 덕진구</p>
+                        </div>
+                        
+                        <!-- 전남 -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                            <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                                <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>
+                                전라남도당
+                            </h4>
+                            <p class="text-gray-600 text-sm">전라남도 무안군 삼향읍</p>
+                        </div>
+                        
+                        <!-- 제주 -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+                            <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                                <i class="fas fa-map-marker-alt text-red-600 mr-2"></i>
+                                제주특별자치도당
+                            </h4>
+                            <p class="text-gray-600 text-sm">제주특별자치도 제주시</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 text-center">
+                        <p class="text-gray-600 mb-4">중앙당 연락처</p>
+                        <div class="inline-flex items-center gap-4">
+                            <span class="text-gray-700">
+                                <i class="fas fa-phone text-red-600 mr-2"></i>
+                                대표전화: 02-2634-2023
+                            </span>
+                            <span class="text-gray-700">
+                                <i class="fas fa-envelope text-red-600 mr-2"></i>
+                                이메일: forthefreedom2025@naver.com
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTA Section -->
+                <div class="bg-red-600 text-white rounded-lg p-8 text-center">
+                    <h3 class="text-2xl font-bold mb-4">지금 당원이 되어보세요!</h3>
+                    <p class="text-red-100 mb-8">
+                        자유와혁신과 함께 새로운 정치 미래를 만들어가요.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="https://www.ihappynanum.com/Nanum/api/screen/F7FCRIO2E3" target="_blank" class="bg-white text-red-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                            <i class="fas fa-laptop mr-2"></i>온라인 가입 신청
+                        </a>
+                        <a href="faq.html" class="bg-red-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-red-800 transition-colors">
+                            <i class="fas fa-question-circle mr-2"></i>가입안내 FAQ
+                        </a>
+                    </div>
+                    
+                    <div class="mt-6 pt-6 border-t border-red-500">
+                        <p class="text-red-100 text-sm mb-3">오프라인 가입을 원하시나요?</p>
+                        <p class="text-red-100 text-sm">
+                            자유와혁신 중앙당으로 문의해주세요
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <script src="../nav.js"></script>
+    <script src="../script.js"></script>
+    <script>
+        // WebP 지원 감지
+        (function() {
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = 1;
+                canvas.height = 1;
+                const dataURL = canvas.toDataURL('image/webp');
+                if (dataURL.indexOf('data:image/webp') === 0) {
+                    document.documentElement.classList.add('webp');
+                } else {
+                    document.documentElement.classList.add('no-webp');
+                }
+            } catch (e) {
+                document.documentElement.classList.add('no-webp');
+            }
+        })();
+    </script>
+    <!-- 공통 푸터 -->
+    <div id="footer-container"></div>
+    <script src="/footer.js"></script>
+</body>
+</html> 
+

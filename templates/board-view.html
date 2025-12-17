@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="{{lang_code}}">
+<head>
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E0H9DY9T0F"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-E0H9DY9T0F');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{board_view_title}}</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#A50034',
+                        'primary-dark': '#8B002C',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="config.js"></script>
+    <style>
+        .view-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .post-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .post-header {
+            padding: 24px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .post-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            line-height: 1.4;
+            margin-bottom: 16px;
+        }
+        .post-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        .author-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            overflow: hidden;
+        }
+        .author-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .author-name {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .grade-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        .grade-general { background: #F6D219; color: #000; }
+        .grade-party { background: #051C4C; color: #fff; }
+        .grade-innovation { background: #A50033; color: #fff; }
+        .grade-position { background: #000003; color: #fff; }
+        .post-stats {
+            margin-left: auto;
+            display: flex;
+            gap: 12px;
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+        .post-body {
+            padding: 32px 24px;
+            min-height: 200px;
+            font-size: 1rem;
+            line-height: 1.8;
+            color: #374151;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        
+        /* 액션 버튼 영역 */
+        .post-actions {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            padding: 24px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 16px 32px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid #e5e7eb;
+            background: white;
+        }
+        .action-btn:hover {
+            border-color: #d1d5db;
+            background: #f9fafb;
+        }
+        .action-btn.active.like {
+            border-color: #22c55e;
+            background: #f0fdf4;
+        }
+        .action-btn.active.dislike {
+            border-color: #6b7280;
+            background: #f3f4f6;
+        }
+        .action-btn i {
+            font-size: 1.5rem;
+            color: #9ca3af;
+        }
+        .action-btn.active.like i {
+            color: #22c55e;
+        }
+        .action-btn.active.dislike i {
+            color: #6b7280;
+        }
+        .action-btn span {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #6b7280;
+        }
+        
+        /* 댓글 영역 */
+        .comments-section {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .comments-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            font-weight: 600;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .comment-count-badge {
+            background: #A50034;
+            color: white;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        .comment-form {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            background: #f9fafb;
+        }
+        .comment-form.hidden {
+            display: none;
+        }
+        .comment-textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.9375rem;
+            resize: none;
+            transition: all 0.2s;
+        }
+        .comment-textarea:focus {
+            outline: none;
+            border-color: #A50034;
+            box-shadow: 0 0 0 3px rgba(165, 0, 52, 0.1);
+        }
+        .comment-form-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 12px;
+        }
+        .comment-submit-btn {
+            background: #A50034;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .comment-submit-btn:hover {
+            background: #8B002C;
+        }
+        .comment-submit-btn:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+        }
+        .comment-login-notice {
+            padding: 16px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.875rem;
+            background: #f9fafb;
+        }
+        .comment-login-notice a {
+            color: #A50034;
+            font-weight: 600;
+        }
+        
+        /* 댓글 목록 */
+        .comment-list {
+            padding: 0;
+        }
+        .comment-item {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            font-size: 0.75rem;
+            overflow: hidden;
+        }
+        .comment-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .comment-author {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #1f2937;
+        }
+        .comment-date {
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+        .comment-content {
+            font-size: 0.9375rem;
+            line-height: 1.6;
+            color: #374151;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .comment-actions {
+            display: flex;
+            gap: 16px;
+            margin-top: 10px;
+        }
+        .comment-like-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.75rem;
+            color: #9ca3af;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .comment-like-btn:hover {
+            background: #f3f4f6;
+        }
+        .comment-like-btn.active {
+            color: #ef4444;
+        }
+        .comment-empty {
+            padding: 40px;
+            text-align: center;
+            color: #9ca3af;
+        }
+        
+        /* 하단 버튼 */
+        .bottom-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 16px;
+            background: #f3f4f6;
+            color: #6b7280;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+        .back-btn:hover {
+            background: #e5e7eb;
+        }
+        
+        /* 관리자 버튼 */
+        .admin-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .admin-btn {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        .admin-btn.edit {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+        .admin-btn.delete {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+        .admin-btn:hover {
+            opacity: 0.8;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #9ca3af;
+        }
+        .loading i {
+            font-size: 2rem;
+            margin-bottom: 12px;
+            display: block;
+        }
+    </style>
+    <script src="/analytics.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div id="navigation-container"></div>
+    
+    <main class="pt-20 pb-12 px-4">
+        <div class="view-container">
+            <!-- 로딩 -->
+            <div id="loadingState" class="post-card">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin text-primary"></i>
+                    <p>게시글을 불러오는 중...</p>
+                </div>
+            </div>
+            
+            <!-- 게시글 -->
+            <div id="postContent" class="hidden">
+                <div class="post-card">
+                    <!-- 관리자 버튼 -->
+                    <div id="adminActions" class="admin-actions hidden" style="padding: 16px 24px 0; justify-content: flex-end;">
+                        <button class="admin-btn edit" onclick="editPost()">
+                            <i class="fas fa-edit"></i> 수정
+                        </button>
+                        <button class="admin-btn delete" onclick="deletePost()">
+                            <i class="fas fa-trash"></i> 삭제
+                        </button>
+                    </div>
+                    
+                    <div class="post-header">
+                        <h1 id="postTitle" class="post-title"></h1>
+                        <div class="post-meta">
+                            <div class="author-info">
+                                <div class="author-avatar" id="authorAvatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span class="author-name" id="authorName"></span>
+                                        <span id="authorGrade" class="grade-badge"></span>
+                                    </div>
+                                    <div id="postDate" style="font-size: 0.75rem; color: #9ca3af;"></div>
+                                </div>
+                            </div>
+                            <div class="post-stats">
+                                <span><i class="fas fa-eye"></i> <span id="viewCount">0</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="postBody" class="post-body"></div>
+                    
+                    <div class="post-actions">
+                        <button class="action-btn like" id="likeBtn" onclick="toggleLike()">
+                            <i class="fas fa-thumbs-up"></i>
+                            <span>좋아요 <span id="likeCount">0</span></span>
+                        </button>
+                        <button class="action-btn dislike" id="dislikeBtn" onclick="toggleDislike()">
+                            <i class="fas fa-thumbs-down"></i>
+                            <span>싫어요 <span id="dislikeCount">0</span></span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 댓글 -->
+                <div class="comments-section">
+                    <div class="comments-header">
+                        <i class="fas fa-comment"></i>
+                        댓글
+                        <span class="comment-count-badge" id="commentCountBadge">0</span>
+                    </div>
+                    
+                    <!-- 댓글 작성 폼 -->
+                    <div id="commentForm" class="comment-form hidden">
+                        <textarea 
+                            id="commentInput" 
+                            class="comment-textarea" 
+                            placeholder="댓글을 입력하세요"
+                            maxlength="1000"
+                        ></textarea>
+                        <div class="comment-form-actions">
+                            <button class="comment-submit-btn" onclick="submitComment()">
+                                댓글 등록
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 로그인 안내 -->
+                    <div id="commentLoginNotice" class="comment-login-notice hidden">
+                        댓글을 작성하려면 <a href="login.html">로그인</a>이 필요합니다.
+                    </div>
+                    
+                    <!-- 댓글 목록 -->
+                    <div id="commentList" class="comment-list"></div>
+                </div>
+                
+                <!-- 하단 버튼 -->
+                <div class="bottom-actions">
+                    <a href="board.html" class="back-btn">
+                        <i class="fas fa-list"></i>
+                        목록으로
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script src="nav.js"></script>
+    <script>
+        const API_BASE = window.API_BASE || 'https://forthefreedom-kr-production.up.railway.app/api';
+        
+        let postId = null;
+        let postData = null;
+        let isLoggedIn = false;
+        let isAdmin = false;
+        
+        // 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            postId = urlParams.get('id');
+            
+            if (!postId) {
+                alert('잘못된 접근입니다');
+                location.href = 'board.html';
+                return;
+            }
+            
+            if (!checkAuth()) return;
+            loadPost();
+        });
+        
+        // 인증 확인
+        function checkAuth() {
+            const token = localStorage.getItem('memberToken');
+            isLoggedIn = !!token;
+            
+            // 비로그인 시 로그인 페이지로 이동
+            if (!isLoggedIn) {
+                alert('게시글을 보려면 로그인이 필요합니다');
+                location.href = 'login.html?return=' + encodeURIComponent(location.href);
+                return false;
+            }
+            
+            // 토큰에서 관리자 여부 확인
+            if (token) {
+                try {
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    isAdmin = payload.isAdmin || false;
+                } catch (e) {
+                    console.error('토큰 파싱 오류:', e);
+                }
+            }
+            return true;
+        }
+        
+        // 게시글 로드
+        async function loadPost() {
+            try {
+                const token = localStorage.getItem('memberToken');
+                const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+                
+                const response = await fetch(`${API_BASE}/posts/${postId}`, { headers });
+                const result = await response.json();
+                
+                if (result.success) {
+                    postData = result.data.post;
+                    const comments = result.data.comments;
+                    
+                    renderPost(postData);
+                    renderComments(comments);
+                    
+                    document.getElementById('loadingState').classList.add('hidden');
+                    document.getElementById('postContent').classList.remove('hidden');
+                    
+                    // 페이지 제목 업데이트
+                    document.title = postData.title + ' | 자유와혁신';
+                    
+                } else {
+                    throw new Error(result.message);
+                }
+                
+            } catch (error) {
+                console.error('게시글 로드 오류:', error);
+                document.getElementById('loadingState').innerHTML = `
+                    <div class="loading">
+                        <i class="fas fa-exclamation-circle text-red-400"></i>
+                        <p>게시글을 찾을 수 없습니다</p>
+                        <a href="board.html" class="back-btn" style="display: inline-flex; margin-top: 16px;">
+                            목록으로 돌아가기
+                        </a>
+                    </div>
+                `;
+            }
+        }
+        
+        // 게시글 렌더링
+        function renderPost(post) {
+            document.getElementById('postTitle').textContent = post.title;
+            document.getElementById('postBody').textContent = post.content;
+            document.getElementById('authorName').textContent = post.author?.nickname || '알 수 없음';
+            
+            // 작성자 등급 배지
+            const gradeInfo = getGradeInfo(post.author?.memberType);
+            const gradeEl = document.getElementById('authorGrade');
+            gradeEl.textContent = gradeInfo.text;
+            gradeEl.className = 'grade-badge ' + gradeInfo.class;
+            
+            document.getElementById('postDate').textContent = formatDate(new Date(post.createdAt));
+            document.getElementById('viewCount').textContent = post.viewCount;
+            document.getElementById('likeCount').textContent = post.likeCount || 0;
+            document.getElementById('dislikeCount').textContent = post.dislikeCount || 0;
+            
+            // 작성자 아바타
+            const avatarEl = document.getElementById('authorAvatar');
+            if (post.author?.profileImage) {
+                avatarEl.innerHTML = `<img src="${post.author.profileImage}" alt="프로필">`;
+            }
+            
+            // 좋아요/싫어요 상태
+            if (post.isLiked) {
+                document.getElementById('likeBtn').classList.add('active');
+            }
+            if (post.isDisliked) {
+                document.getElementById('dislikeBtn').classList.add('active');
+            }
+            
+            // 관리자 버튼
+            if (isAdmin) {
+                document.getElementById('adminActions').classList.remove('hidden');
+            }
+            
+            // 댓글 폼
+            if (isLoggedIn) {
+                document.getElementById('commentForm').classList.remove('hidden');
+            } else {
+                document.getElementById('commentLoginNotice').classList.remove('hidden');
+            }
+        }
+        
+        // 댓글 렌더링
+        function renderComments(comments) {
+            const commentList = document.getElementById('commentList');
+            document.getElementById('commentCountBadge').textContent = comments.length;
+            
+            if (comments.length === 0) {
+                commentList.innerHTML = `
+                    <div class="comment-empty">
+                        <i class="fas fa-comment-slash"></i>
+                        <p>아직 댓글이 없습니다</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            commentList.innerHTML = comments.map(comment => `
+                <div class="comment-item" data-id="${comment._id}">
+                    <div class="comment-header">
+                        <div class="comment-avatar">
+                            ${comment.author?.profileImage 
+                                ? `<img src="${comment.author.profileImage}" alt="프로필">` 
+                                : '<i class="fas fa-user"></i>'}
+                        </div>
+                        <div class="comment-author">${comment.author?.nickname || '알 수 없음'}</div>
+                        <div class="comment-date">${formatDate(new Date(comment.createdAt))}</div>
+                        ${isAdmin ? `
+                            <button class="admin-btn delete" style="margin-left: auto; padding: 4px 8px; font-size: 0.7rem;" onclick="deleteComment('${comment._id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                    <div class="comment-content">${escapeHtml(comment.content)}</div>
+                    <div class="comment-actions">
+                        <button class="comment-like-btn ${comment.isLiked ? 'active' : ''}" onclick="toggleCommentLike('${comment._id}')">
+                            <i class="fas fa-heart"></i>
+                            <span>${comment.likeCount || 0}</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 좋아요 토글
+        async function toggleLike() {
+            if (!isLoggedIn) {
+                alert('로그인이 필요합니다');
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('memberToken');
+                const response = await fetch(`${API_BASE}/posts/${postId}/like`, {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('likeCount').textContent = result.data.likeCount;
+                    document.getElementById('likeBtn').classList.toggle('active', result.data.isLiked);
+                    // 싫어요 상태도 업데이트
+                    document.getElementById('dislikeCount').textContent = result.data.dislikeCount;
+                    document.getElementById('dislikeBtn').classList.toggle('active', result.data.isDisliked);
+                }
+                
+            } catch (error) {
+                console.error('좋아요 오류:', error);
+            }
+        }
+        
+        // 싫어요 토글
+        async function toggleDislike() {
+            if (!isLoggedIn) {
+                alert('로그인이 필요합니다');
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('memberToken');
+                const response = await fetch(`${API_BASE}/posts/${postId}/dislike`, {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('dislikeCount').textContent = result.data.dislikeCount;
+                    document.getElementById('dislikeBtn').classList.toggle('active', result.data.isDisliked);
+                    // 좋아요 상태도 업데이트
+                    document.getElementById('likeCount').textContent = result.data.likeCount;
+                    document.getElementById('likeBtn').classList.toggle('active', result.data.isLiked);
+                }
+                
+            } catch (error) {
+                console.error('싫어요 오류:', error);
+            }
+        }
+        
+        // 댓글 작성
+        async function submitComment() {
+            const commentInput = document.getElementById('commentInput');
+            const content = commentInput.value.trim();
+            
+            if (!content) {
+                alert('댓글 내용을 입력해주세요');
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('memberToken');
+                const response = await fetch(`${API_BASE}/posts/${postId}/comments`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ content })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    commentInput.value = '';
+                    // 댓글 목록 새로고침
+                    loadPost();
+                } else {
+                    throw new Error(result.message);
+                }
+                
+            } catch (error) {
+                console.error('댓글 작성 오류:', error);
+                alert(error.message || '댓글 작성에 실패했습니다');
+            }
+        }
+        
+        // 댓글 좋아요 토글
+        async function toggleCommentLike(commentId) {
+            if (!isLoggedIn) {
+                alert('로그인이 필요합니다');
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('memberToken');
+                const response = await fetch(`${API_BASE}/posts/${postId}/comments/${commentId}/like`, {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    const commentItem = document.querySelector(`.comment-item[data-id="${commentId}"]`);
+                    const likeBtn = commentItem.querySelector('.comment-like-btn');
+                    likeBtn.classList.toggle('active', result.data.isLiked);
+                    likeBtn.querySelector('span').textContent = result.data.likeCount;
+                }
+                
+            } catch (error) {
+                console.error('댓글 좋아요 오류:', error);
+            }
+        }
+        
+        // 게시글 삭제 (관리자)
+        async function deletePost() {
+            if (!confirm('정말로 이 게시글을 삭제하시겠습니까?')) {
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('memberToken');
+                const response = await fetch(`${API_BASE}/posts/${postId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('게시글이 삭제되었습니다');
+                    location.href = 'board.html';
+                } else {
+                    throw new Error(result.message);
+                }
+                
+            } catch (error) {
+                console.error('게시글 삭제 오류:', error);
+                alert(error.message || '게시글 삭제에 실패했습니다');
+            }
+        }
+        
+        // 게시글 수정 (관리자)
+        function editPost() {
+            // TODO: 수정 페이지로 이동 또는 모달
+            alert('수정 기능은 준비 중입니다');
+        }
+        
+        // 댓글 삭제 (관리자)
+        async function deleteComment(commentId) {
+            if (!confirm('정말로 이 댓글을 삭제하시겠습니까?')) {
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('memberToken');
+                const response = await fetch(`${API_BASE}/posts/${postId}/comments/${commentId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    loadPost(); // 새로고침
+                } else {
+                    throw new Error(result.message);
+                }
+                
+            } catch (error) {
+                console.error('댓글 삭제 오류:', error);
+                alert(error.message || '댓글 삭제에 실패했습니다');
+            }
+        }
+        
+        // 등급 정보 반환
+        function getGradeInfo(memberType) {
+            switch(memberType) {
+                case 'party_member':
+                    return { text: '당원', class: 'grade-party' };
+                case 'innovation_member':
+                    return { text: '혁신당원', class: 'grade-innovation' };
+                case 'position_member':
+                    return { text: '직분당원', class: 'grade-position' };
+                default:
+                    return { text: '일반', class: 'grade-general' };
+            }
+        }
+        
+        // 날짜 포맷
+        function formatDate(date) {
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return '방금 전';
+            if (diff < 3600000) return Math.floor(diff / 60000) + '분 전';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + '시간 전';
+            
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            
+            if (year === now.getFullYear()) {
+                return `${month}.${day} ${hours}:${minutes}`;
+            }
+            return `${year}.${month}.${day} ${hours}:${minutes}`;
+        }
+        
+        // HTML 이스케이프
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+    <!-- 공통 푸터 -->
+    <div id="footer-container"></div>
+    <script src="/footer.js"></script>
+</body>
+</html>

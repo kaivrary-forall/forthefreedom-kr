@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="{{lang_code}}">
+<head>
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E0H9DY9T0F"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-E0H9DY9T0F');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>청년위원회 - 자유와혁신</title>
+    <meta name="description" content="자유와혁신 청년위원회">
+    <link rel="icon" type="image/png" href="../../images/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#a50034',
+                        committee: '#F97316',
+                        'committee-light': '#FFEDD5',
+                        'committee-dark': '#EA580C'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .hero-gradient { background: linear-gradient(135deg, #F97316 0%, #FB923C 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15); }
+        .tab-btn { transition: all 0.2s ease; }
+        .tab-btn.active { border-bottom: 3px solid #F97316; color: #F97316; font-weight: 600; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <script src="/analytics.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div id="navigation-container"></div>
+    
+    <section class="hero-gradient text-white pt-28 pb-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="text-center md:text-left mb-8 md:mb-0">
+                    <div class="inline-flex items-center gap-2 bg-white/20 rounded-full px-4 py-1 text-sm mb-4">
+                        <i class="fas fa-running"></i>
+                        <span>자유와혁신 직능위원회</span>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl font-bold mb-4">청년위원회</h1>
+                    <p class="text-xl text-white/90 mb-6">대한민국의 자유를 위해 함께합니다</p>
+                </div>
+                <div class="w-32 h-32 md:w-48 md:h-48 bg-white/20 rounded-full flex items-center justify-center">
+                    <i class="fas fa-running text-6xl md:text-8xl text-white/80"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="bg-white border-b sticky top-16 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="flex gap-0">
+                <button onclick="switchTab('about')" class="tab-btn active px-6 py-4 text-gray-600 hover:text-committee font-medium whitespace-nowrap border-b-3 border-transparent" data-tab="about">소개</button>
+                <button onclick="switchTab('executives')" class="tab-btn px-6 py-4 text-gray-600 hover:text-committee font-medium whitespace-nowrap border-b-3 border-transparent" data-tab="executives">임원진</button>
+                <button onclick="switchTab('board')" class="tab-btn px-6 py-4 text-gray-600 hover:text-committee font-medium whitespace-nowrap border-b-3 border-transparent" data-tab="board">게시판</button>
+                <button onclick="switchTab('join')" class="tab-btn px-6 py-4 text-gray-600 hover:text-committee font-medium whitespace-nowrap border-b-3 border-transparent" data-tab="join">가입 신청</button>
+            </nav>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div id="tab-about" class="tab-content active">
+            <div class="max-w-3xl mx-auto text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">위원회 소개</h2>
+                <div class="w-20 h-1 bg-committee mx-auto"></div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="card-hover bg-white rounded-2xl p-8 text-center shadow-sm">
+                    <div class="w-16 h-16 bg-committee rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-bullseye text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">목적</h3>
+                    <p class="text-gray-600">대한민국의 자유민주주의와 시장경제를 수호하고 발전시킵니다.</p>
+                </div>
+                <div class="card-hover bg-white rounded-2xl p-8 text-center shadow-sm">
+                    <div class="w-16 h-16 bg-committee rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-hands-helping text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">활동</h3>
+                    <p class="text-gray-600">정책 연구, 토론회, 캠페인 등 다양한 활동을 전개합니다.</p>
+                </div>
+                <div class="card-hover bg-white rounded-2xl p-8 text-center shadow-sm">
+                    <div class="w-16 h-16 bg-committee rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-users text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">대상</h3>
+                    <p class="text-gray-600">자유와혁신 당원이라면 누구나 함께할 수 있습니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-executives" class="tab-content">
+            <div class="mb-16">
+                <div class="max-w-3xl mx-auto text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">현재 임원진</h2>
+                    <p class="text-gray-600">위원장 모집 중</p>
+                    <div class="w-20 h-1 bg-committee mx-auto mt-4"></div>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
+                    <div class="card-hover bg-white rounded-2xl p-8 text-center border-2 border-dashed border-committee shadow-sm"><div class="w-24 h-24 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center"><i class="fas fa-user-plus text-committee text-3xl"></i></div><span class="inline-block bg-committee/20 text-committee text-sm font-bold px-3 py-1 rounded-full mb-3">위원장</span><h3 class="text-2xl font-bold text-gray-400 mb-2">모집 중</h3><p class="text-gray-400 text-sm">위원장을 모집합니다</p></div>
+                    <div class="card-hover bg-white rounded-2xl p-8 text-center border border-gray-200 shadow-sm"><div class="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center"><i class="fas fa-user text-gray-400 text-3xl"></i></div><span class="inline-block bg-gray-400 text-white text-sm font-bold px-3 py-1 rounded-full mb-3">부위원장</span><h3 class="text-2xl font-bold text-gray-400 mb-2">공석</h3><p class="text-gray-400 text-sm">모집 중</p></div>
+                </div>
+            </div>
+            <div class="pt-12 border-t border-gray-200">
+                <div class="max-w-3xl mx-auto text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">역대 임원진</h2>
+                    <div class="w-20 h-1 bg-committee mx-auto"></div>
+                </div>
+                <div class="max-w-3xl mx-auto">
+                    <div class="relative flex items-center gap-8 mb-8">
+                        <div class="w-24 text-right">
+                            <span class="inline-block bg-committee text-white font-bold px-4 py-2 rounded-lg">초대</span>
+                            <p class="text-sm text-gray-500 mt-1">2025~</p>
+                        </div>
+                        <div class="w-4 h-4 bg-committee rounded-full border-4 border-committee-light z-10"></div>
+                        <div class="flex-1 bg-white rounded-xl p-6 shadow-sm">
+                            <div class="flex flex-wrap gap-4">
+                                <div><span class="text-xs text-gray-500">위원장</span><p class="font-bold text-gray-900">공석</p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-board" class="tab-content">
+            <div class="max-w-3xl mx-auto text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">게시판</h2>
+                <div class="w-20 h-1 bg-committee mx-auto"></div>
+            </div>
+            <div class="flex justify-center gap-4 mb-8">
+                <button onclick="switchBoardTab('notice')" id="btn-notice" class="board-tab px-6 py-2 rounded-full font-medium bg-committee text-white"><i class="fas fa-bullhorn mr-2"></i>공지사항</button>
+                <button onclick="switchBoardTab('gallery')" id="btn-gallery" class="board-tab px-6 py-2 rounded-full font-medium bg-gray-200 text-gray-700"><i class="fas fa-images mr-2"></i>활동사진</button>
+                <button onclick="switchBoardTab('freeboard')" id="btn-freeboard" class="board-tab px-6 py-2 rounded-full font-medium bg-gray-200 text-gray-700"><i class="fas fa-comments mr-2"></i>자유게시판</button>
+            </div>
+            <div id="board-notice" class="board-content">
+                <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                    <div class="p-12 text-center text-gray-500">
+                        <i class="fas fa-clipboard-list text-5xl text-gray-300 mb-4"></i>
+                        <p>아직 등록된 공지사항이 없습니다.</p>
+                    </div>
+                </div>
+            </div>
+            <div id="board-gallery" class="board-content hidden">
+                <div class="bg-white rounded-2xl border border-gray-200 p-12">
+                    <div class="text-center text-gray-500">
+                        <i class="fas fa-camera text-5xl text-gray-300 mb-4"></i>
+                        <p>아직 등록된 활동사진이 없습니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-join" class="tab-content">
+            <div class="max-w-3xl mx-auto text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">가입 신청</h2>
+                <p class="text-gray-600">청년위원회과(와) 함께해주세요</p>
+                <div class="w-20 h-1 bg-committee mx-auto mt-4"></div>
+            </div>
+            <div class="max-w-2xl mx-auto mb-8">
+                <div class="bg-white rounded-2xl p-6 shadow-sm">
+                    <h3 class="font-bold text-gray-900 mb-4"><i class="fas fa-check-circle text-committee mr-2"></i>가입 조건</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center gap-3">
+                            <span class="w-6 h-6 bg-committee text-white rounded-full flex items-center justify-center text-sm">1</span>
+                            <span class="text-gray-700">자유와혁신 홈페이지 <strong>회원가입</strong> 완료</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="w-6 h-6 bg-committee text-white rounded-full flex items-center justify-center text-sm">2</span>
+                            <span class="text-gray-700">자유와혁신 <strong>당원 등록</strong> 완료</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="max-w-2xl mx-auto">
+                <div class="bg-white rounded-2xl border-2 border-gray-200 p-8 text-center">
+                    <div id="joinStatus"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 위원회 SNS -->
+    <section class="py-12 bg-committee">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h3 class="text-xl font-bold text-white mb-6">청년위원회 SNS</h3>
+            <div class="flex justify-center gap-4">
+                <a href="#" class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors"><i class="fab fa-instagram text-xl"></i></a>
+                <a href="#" class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors"><i class="fab fa-youtube text-xl"></i></a>
+                <a href="#" class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors"><i class="fas fa-comment text-xl"></i></a>
+            </div>
+            <p class="text-white/60 text-sm mt-4">SNS 채널 준비 중입니다</p>
+        </div>
+    </section>
+
+    <!-- 공통 푸터 -->
+    <div id="footer-container"></div>
+
+    <script src="../../config.js"></script>
+    <script src="../../nav.js"></script>
+    <script src="../../footer.js"></script>
+    <script>
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.tab-btn[data-tab="' + tabName + '"]').classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+
+        function switchBoardTab(tab) {
+            document.querySelectorAll('.board-tab').forEach(btn => {
+                btn.classList.remove('bg-committee', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-gray-700');
+            });
+            document.getElementById('btn-' + tab).classList.remove('bg-gray-200', 'text-gray-700');
+            document.getElementById('btn-' + tab).classList.add('bg-committee', 'text-white');
+            document.getElementById('board-notice').classList.add('hidden');
+            document.getElementById('board-gallery').classList.add('hidden');
+            document.getElementById('board-' + tab).classList.remove('hidden');
+        }
+
+        function checkJoinStatus() {
+            const token = localStorage.getItem('token');
+            const joinStatusEl = document.getElementById('joinStatus');
+            const committeeName = '청년위원회';
+            
+            if (!token) {
+                joinStatusEl.innerHTML = '<i class="fas fa-lock text-5xl text-gray-300 mb-4"></i><h3 class="text-xl font-bold text-gray-900 mb-2">로그인이 필요합니다</h3><p class="text-gray-500 mb-6">가입 신청을 위해 먼저 로그인해주세요.</p><a href="../../login.html" class="inline-block bg-committee text-white font-bold px-8 py-3 rounded-lg hover:bg-committee-dark transition-colors"><i class="fas fa-sign-in-alt mr-2"></i>로그인</a>';
+                return;
+            }
+            
+            fetch((window.API_BASE || 'https://forthefreedom-kr-production.up.railway.app/api') + '/auth/me', {
+                headers: { 'Authorization': 'Bearer ' + token }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    const user = data.data;
+                    if (user.partyMemberStatus !== 'approved') {
+                        joinStatusEl.innerHTML = '<i class="fas fa-id-card text-5xl text-yellow-400 mb-4"></i><h3 class="text-xl font-bold text-gray-900 mb-2">당원 가입이 필요합니다</h3><p class="text-gray-500 mb-6">' + committeeName + ' 가입을 위해서는 먼저 당원으로 가입해주세요.</p><a href="https://www.ihappynanum.com/Nanum/api/screen/F7FCRIO2E3" target="_blank" class="inline-block bg-committee text-white font-bold px-8 py-3 rounded-lg hover:bg-committee-dark transition-colors"><i class="fas fa-user-plus mr-2"></i>당원 가입하기</a>';
+                    } else {
+                        joinStatusEl.innerHTML = '<i class="fas fa-check-circle text-5xl text-green-500 mb-4"></i><h3 class="text-xl font-bold text-gray-900 mb-2">가입 신청 가능</h3><p class="text-gray-500 mb-6">' + user.name + '님, ' + committeeName + '에 가입하시겠습니까?</p><button onclick="applyCommittee()" class="inline-block bg-committee text-white font-bold px-8 py-3 rounded-lg hover:bg-committee-dark transition-colors"><i class="fas fa-paper-plane mr-2"></i>가입 신청하기</button>';
+                    }
+                }
+            })
+            .catch(err => {
+                joinStatusEl.innerHTML = '<p class="text-red-500">회원 정보를 불러오는데 실패했습니다.</p>';
+            });
+        }
+
+        function applyCommittee() {
+            alert('청년위원회 가입 신청이 접수되었습니다.\n담당자 확인 후 연락드리겠습니다.');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => { checkJoinStatus(); });
+    </script>
+</body>
+</html>

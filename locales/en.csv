@@ -146,3 +146,56 @@ news_title,News - Liberty and Innovation
 btn_join,Join
 btn_donate,Donate
 btn_login,Login
+
+# ===== news pages =====
+notices_title,Notices - Liberty and Innovation
+press_releases_title,Press Releases - Liberty and Innovation
+press_policy_title,Policy Committee - Liberty and Innovation
+press_media_title,New Media Committee - Liberty and Innovation
+media_title,Media Coverage - Liberty and Innovation
+events_title,Events - Liberty and Innovation
+cardnews_title,Card News - Liberty and Innovation
+gallery_title,Photo Gallery - Liberty and Innovation
+personnel_title,Personnel Announcements - Liberty and Innovation
+congratulations_title,Celebrations - Liberty and Innovation
+resources_title,Resources - Liberty and Innovation
+people_central_title,Central Party Staff - Liberty and Innovation
+
+# ===== Legal/Other Pages =====
+privacy_policy_title,Privacy Policy - Liberty and Innovation
+terms_title,Terms of Service - Liberty and Innovation
+disclosure_title,Information Disclosure - Liberty and Innovation
+members_title,Members - Liberty and Innovation
+
+# ===== Member Pages =====
+mypage_title,My Page - Liberty and Innovation
+profile_title,Profile - Liberty and Innovation
+join_title,Sign Up - Liberty and Innovation
+dashboard_title,Dashboard - Liberty and Innovation
+
+# ===== Additional Pages =====
+page_not_found_title,Page Not Found - Liberty and Innovation
+schedule_title,Schedule - Liberty and Innovation
+disclosure_title2,Information Disclosure - Liberty and Innovation
+downloads_title,Downloads - Liberty and Innovation
+election_materials_title,Election Materials - Liberty and Innovation
+party_constitution_title,Party Constitution - Liberty and Innovation
+policy_materials_title,Policy Materials - Liberty and Innovation
+
+# ===== Board/Detail Pages =====
+board_view_title,Post | Liberty and Innovation
+board_write_title,Write | Liberty and Innovation
+privacy_title,Privacy Policy - Liberty and Innovation
+terms_short_title,Terms of Service - Liberty and Innovation
+activities_title,Activities - Liberty and Innovation
+activity_detail_title,Activity - Liberty and Innovation
+cardnews_detail_title,Card News - Liberty and Innovation
+event_detail_title,Event - Liberty and Innovation
+gallery_detail_title,Photo Gallery - Liberty and Innovation
+media_detail_title,Media - Liberty and Innovation
+notice_detail_title,Notice - Liberty and Innovation
+policy_detail_title,Policy - Liberty and Innovation
+press_detail_title,Press Release - Liberty and Innovation
+election_detail_title,Election Materials - Liberty and Innovation
+constitution_detail_title,Party Constitution - Liberty and Innovation
+policy_mat_detail_title,Policy Materials - Liberty and Innovation

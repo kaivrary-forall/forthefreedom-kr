@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="{{lang_code}}">
+<head>
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E0H9DY9T0F"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-E0H9DY9T0F');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{board_write_title}}</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#A50034',
+                        'primary-dark': '#8B002C',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="config.js"></script>
+    <style>
+        .write-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .write-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .write-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .write-header h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        .write-body {
+            padding: 24px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #A50034;
+            box-shadow: 0 0 0 3px rgba(165, 0, 52, 0.1);
+        }
+        .form-textarea {
+            width: 100%;
+            min-height: 400px;
+            padding: 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            line-height: 1.6;
+            resize: vertical;
+            transition: all 0.2s;
+        }
+        .form-textarea:focus {
+            outline: none;
+            border-color: #A50034;
+            box-shadow: 0 0 0 3px rgba(165, 0, 52, 0.1);
+        }
+        .char-count {
+            text-align: right;
+            font-size: 0.8rem;
+            color: #9ca3af;
+            margin-top: 6px;
+        }
+        .btn-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 20px 24px;
+            background: #f9fafb;
+            border-top: 1px solid #e5e7eb;
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        .btn-cancel {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+        .btn-cancel:hover {
+            background: #e5e7eb;
+        }
+        .btn-submit {
+            background: #A50034;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-submit:hover {
+            background: #8B002C;
+        }
+        .btn-submit:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+        }
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.875rem;
+        }
+        .board-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #fef2f2;
+            color: #A50034;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-left: 12px;
+        }
+    </style>
+    <script src="/analytics.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div id="navigation-container"></div>
+    
+    <main class="pt-20 pb-12 px-4">
+        <div class="write-container">
+            <div class="write-card">
+                <div class="write-header">
+                    <h1>
+                        <i class="fas fa-pen text-primary mr-2"></i>
+                        글쓰기
+                        <span class="board-badge">
+                            <i class="fas fa-users"></i>
+                            회원 게시판
+                        </span>
+                    </h1>
+                </div>
+                
+                <form id="writeForm">
+                    <div class="write-body">
+                        <div id="errorMessage" class="error-message hidden"></div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">제목</label>
+                            <input 
+                                type="text" 
+                                id="title" 
+                                class="form-input" 
+                                placeholder="제목을 입력하세요"
+                                maxlength="200"
+                                required
+                            >
+                            <div class="char-count">
+                                <span id="titleCount">0</span>/200
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">내용</label>
+                            <textarea 
+                                id="content" 
+                                class="form-textarea" 
+                                placeholder="내용을 입력하세요"
+                                required
+                            ></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-cancel" onclick="history.back()">취소</button>
+                        <button type="submit" class="btn btn-submit" id="submitBtn">
+                            <i class="fas fa-check"></i>
+                            등록하기
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+    
+    <script src="nav.js"></script>
+    <script>
+        const API_BASE = window.API_BASE || 'https://forthefreedom-kr-production.up.railway.app/api';
+        
+        // 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            setupForm();
+        });
+        
+        // 인증 확인
+        function checkAuth() {
+            const token = localStorage.getItem('memberToken');
+            if (!token) {
+                alert('로그인이 필요합니다');
+                location.href = 'login.html?return=' + encodeURIComponent(location.href);
+            }
+        }
+        
+        // 폼 설정
+        function setupForm() {
+            const titleInput = document.getElementById('title');
+            const titleCount = document.getElementById('titleCount');
+            
+            titleInput.addEventListener('input', function() {
+                titleCount.textContent = this.value.length;
+            });
+            
+            document.getElementById('writeForm').addEventListener('submit', submitPost);
+        }
+        
+        // 게시글 등록
+        async function submitPost(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('title').value.trim();
+            const content = document.getElementById('content').value.trim();
+            const errorMessage = document.getElementById('errorMessage');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // 유효성 검사
+            if (!title) {
+                showError('제목을 입력해주세요');
+                return;
+            }
+            
+            if (!content) {
+                showError('내용을 입력해주세요');
+                return;
+            }
+            
+            errorMessage.classList.add('hidden');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 등록 중...';
+            
+            try {
+                const token = localStorage.getItem('memberToken');
+                
+                const response = await fetch(`${API_BASE}/posts`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({
+                        boardType: 'member',
+                        title,
+                        content
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('게시글이 등록되었습니다');
+                    location.href = 'board-view.html?id=' + result.data.post._id;
+                } else {
+                    throw new Error(result.message);
+                }
+                
+            } catch (error) {
+                console.error('게시글 등록 오류:', error);
+                showError(error.message || '게시글 등록에 실패했습니다');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-check"></i> 등록하기';
+            }
+        }
+        
+        // 에러 표시
+        function showError(message) {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+    <!-- 공통 푸터 -->
+    <div id="footer-container"></div>
+    <script src="/footer.js"></script>
+</body>
+</html>
