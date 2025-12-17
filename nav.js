@@ -10,16 +10,28 @@ function getLanguageSwitchURL(targetLang) {
     const search = window.location.search;
     const hash = window.location.hash;
     
+    // 현재 페이지 파일명 추출
+    const pathParts = currentPath.split('/').filter(p => p);
+    const isEnPage = pathParts[0] === 'en';
+    
+    // 파일명 (예: index.html, about.html)
+    let fileName = pathParts[pathParts.length - 1] || 'index.html';
+    if (!fileName.includes('.')) fileName = 'index.html';
+    
     if (targetLang === 'en') {
-        if (currentPath.startsWith('/en/')) {
+        if (isEnPage) {
+            // 이미 영어 페이지
             return currentPath + search + hash;
         }
-        return '/en' + currentPath + search + hash;
+        // 한국어 → 영어: en/ 폴더로 이동
+        return 'en/' + fileName + search + hash;
     } else {
-        if (currentPath.startsWith('/en/')) {
-            return currentPath.replace('/en/', '/') + search + hash;
+        if (!isEnPage) {
+            // 이미 한국어 페이지
+            return currentPath + search + hash;
         }
-        return currentPath + search + hash;
+        // 영어 → 한국어: 상위 폴더로 이동
+        return '../' + fileName + search + hash;
     }
 }
 
