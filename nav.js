@@ -54,7 +54,6 @@ function loadNavigation() {
     // pathPrefix: 루트로 돌아가는 경로
     // langPrefix: 언어 폴더 (영어면 'en/', 한국어면 '')
     let pathPrefix = '';
-    let langPrefix = isEnPage ? 'en/' : '';
     
     if (isEnPage) {
         // /en/index.html → pathPrefix = ''
@@ -66,8 +65,8 @@ function loadNavigation() {
         pathPrefix = isInSubFolder ? '../' : '';
     }
     
-    // 전체 링크 프리픽스: 루트로 간 다음 언어 폴더로
-    const linkPrefix = pathPrefix + langPrefix;
+    // 링크 프리픽스: 절대 경로 사용 (상대 경로 /en/en/ 버그 방지)
+    const linkPrefix = isEnPage ? '/en/' : '/';
     
     // 이미지 경로 프리픽스 (이미지는 루트의 images/ 폴더에 있음)
     // 영어 페이지에서는 ../images/, 한국어는 기존 pathPrefix 사용
