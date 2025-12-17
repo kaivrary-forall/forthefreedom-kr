@@ -68,14 +68,8 @@ function loadNavigation() {
     // 링크 프리픽스: 절대 경로 사용 (상대 경로 /en/en/ 버그 방지)
     const linkPrefix = isEnPage ? '/en/' : '/';
     
-    // 이미지 경로 프리픽스 (이미지는 루트의 images/ 폴더에 있음)
-    // 영어 페이지에서는 ../images/, 한국어는 기존 pathPrefix 사용
-    let imgPrefix = '';
-    if (isEnPage) {
-        imgPrefix = isInSubFolder ? '../../' : '../';
-    } else {
-        imgPrefix = pathPrefix;
-    }
+    // 이미지 경로 프리픽스 - 절대 경로 사용
+    const imgPrefix = '/';
     
     // 다국어 텍스트
     const t = isEnPage ? {
