@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid md:grid-cols-3 gap-8 mb-8">
                 <div>
-                    <h3 class="text-lg sm:text-xl lg:text-2xl font-bold mb-4 sm:mb-6">${isEnPage ? 'Liberty and Innovation' : '자유와혁신'}</h3>
+                    <h3 class="text-lg sm:text-xl lg:text-2xl font-bold mb-4 sm:mb-6">${isEnPage ? 'Freedom & Innovation' : '자유와혁신'}</h3>
                     <p class="text-gray-400 mb-4 text-sm sm:text-base leading-relaxed">${isEnPage ? 'Building a new politics and a new future together.' : '새로운 정치, 새로운 미래를 함께 만들어갑니다.'}</p>
                     <div class="flex space-x-4 mt-4">
                         <a href="javascript:void(0)" onclick="alert('${isEnPage ? 'Coming soon. Please try again later.' : '준비중입니다. 잠시 후 다시 시도해 주세요.'}')" class="text-gray-400 hover:text-white transition-colors">
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             <div class="border-t border-gray-800 pt-6">
                 <div class="flex flex-col md:flex-row justify-between items-center">
-                    <p class="text-gray-400 text-xs sm:text-sm mb-4 md:mb-0">${isEnPage ? '© 2025 Liberty and Innovation. All rights reserved.' : '© 2025 자유와혁신. 모든 권리 보유.'}</p>
+                    <p class="text-gray-400 text-xs sm:text-sm mb-4 md:mb-0">${isEnPage ? '© 2025 Freedom & Innovation. All rights reserved.' : '© 2025 자유와혁신. 모든 권리 보유.'}</p>
                     <div class="flex space-x-6 text-xs sm:text-sm">
                         <a href="${langPrefix}/privacy-policy.html" class="text-gray-400 hover:text-white transition-colors">${isEnPage ? 'Privacy Policy' : '개인정보처리방침'}</a>
                         <a href="${langPrefix}/terms-of-service.html" class="text-gray-400 hover:text-white transition-colors">${isEnPage ? 'Terms of Service' : '이용약관'}</a>

@@ -834,7 +834,7 @@ function checkLoginStatus() {
                 
                 const diffTime = todayKST - joinDateKST;
                 const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                dayCounterText.textContent = isEnPage ? 'With Liberty & Innovation for' : '자유와혁신과 함께한 지';
+                dayCounterText.textContent = isEnPage ? 'With Freedom & Innovation for' : '자유와혁신과 함께한 지';
                 dayCounterNumber.textContent = diffDays.toLocaleString();
             } else {
                 // appliedAt이 없으면 창당일 기준
@@ -850,7 +850,7 @@ function checkLoginStatus() {
                 
                 const diffTime = todayKST - foundingDateKST;
                 const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                dayCounterText.textContent = isEnPage ? 'With Liberty & Innovation for' : '자유와혁신과 함께한 지';
+                dayCounterText.textContent = isEnPage ? 'With Freedom & Innovation for' : '자유와혁신과 함께한 지';
                 if (diffDays <= 0) {
                     dayCounterNumber.textContent = 'D' + diffDays;
                 } else {
