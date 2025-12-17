@@ -38,8 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <p class="text-xs text-gray-500">${isEnPage ? '(Postal Code: 04307)' : '(지번: 서울 용산구 청파동3가 29-14, 우편번호: 04307)'}</p>
                         <p><i class="fas fa-phone mr-2 text-red-500"></i>02-2634-2023 / 02-2634-2024</p>
                         <p><i class="fas fa-fax mr-2 text-red-500"></i>FAX: 02-2634-2026</p>
-                        <p><i class="fas fa-envelope mr-2 text-red-500"></i>forthefreedom2025@naver.com</p>
-                        <p><i class="fas fa-globe mr-2 text-red-500"></i>www.forthefreedom.kr</p>
+                        <p><i class="fas fa-envelope mr-2 text-red-500"></i>info@freeinno.kr</p>
                     </div>
                 </div>
                 <div>
