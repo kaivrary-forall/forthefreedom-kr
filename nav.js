@@ -214,21 +214,8 @@ function loadNavigation() {
                         </div>
                     </div>
                     
-                    <!-- 오른쪽: 언어전환, 일수 카운터, 로그인/마이페이지 -->
+                    <!-- 오른쪽: 일수 카운터, 로그인/마이페이지, 언어전환 -->
                     <div class="hidden md:flex items-center gap-6">
-                        <!-- 언어 전환 -->
-                        <div class="language-switcher flex items-center gap-1 text-sm">
-                            <a href="${getLanguageSwitchURL('ko')}" 
-                               class="px-2 py-1 rounded ${isEnglishPage() ? 'text-gray-600 hover:text-[#a50034]' : 'bg-[#a50034] text-white font-medium'}">
-                                KO
-                            </a>
-                            <span class="text-gray-300">|</span>
-                            <a href="${getLanguageSwitchURL('en')}" 
-                               class="px-2 py-1 rounded ${isEnglishPage() ? 'bg-[#a50034] text-white font-medium' : 'text-gray-600 hover:text-[#a50034]'}">
-                                EN
-                            </a>
-                        </div>
-                        <div class="border-l border-gray-300 h-5"></div>
                         <!-- 일수 카운터 -->
                         <div id="day-counter" class="flex items-center gap-2">
                             <span id="day-counter-text" class="text-[#212121] font-medium text-sm tracking-tight"></span>
@@ -254,6 +241,19 @@ function loadNavigation() {
                             <button onclick="navLogout()" class="text-gray-500 hover:text-gray-700 text-sm">
                                 로그아웃
                             </button>
+                        </div>
+                        <div class="border-l border-gray-300 h-5"></div>
+                        <!-- 언어 전환 -->
+                        <div class="language-switcher flex items-center gap-1 text-sm">
+                            <a href="${getLanguageSwitchURL('ko')}" 
+                               class="px-2 py-1 rounded ${isEnglishPage() ? 'text-gray-600 hover:text-[#a50034]' : 'bg-[#a50034] text-white font-medium'}">
+                                KO
+                            </a>
+                            <span class="text-gray-300">|</span>
+                            <a href="${getLanguageSwitchURL('en')}" 
+                               class="px-2 py-1 rounded ${isEnglishPage() ? 'bg-[#a50034] text-white font-medium' : 'text-gray-600 hover:text-[#a50034]'}">
+                                EN
+                            </a>
                         </div>
                     </div>
                     
