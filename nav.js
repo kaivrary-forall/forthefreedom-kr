@@ -786,6 +786,10 @@ function checkLoginStatus() {
     const token = localStorage.getItem('memberToken');
     const memberInfo = JSON.parse(localStorage.getItem('memberInfo') || '{}');
     
+    // 언어 감지
+    const currentPath = window.location.pathname;
+    const isEnPage = currentPath.startsWith('/en/') || currentPath === '/en';
+    
     // 데스크톱 네비게이션
     const navGuest = document.getElementById('nav-guest');
     const navMember = document.getElementById('nav-member');
@@ -807,11 +811,11 @@ function checkLoginStatus() {
             navMember.classList.remove('hidden');
             navMember.classList.add('flex');
         }
-        if (navNickname) navNickname.textContent = memberInfo.nickname + '님';
+        if (navNickname) navNickname.textContent = memberInfo.nickname + (isEnPage ? '' : '님');
         
         if (mobileNavGuest) mobileNavGuest.classList.add('hidden');
         if (mobileNavMember) mobileNavMember.classList.remove('hidden');
-        if (mobileNavNickname) mobileNavNickname.textContent = memberInfo.nickname + '님';
+        if (mobileNavNickname) mobileNavNickname.textContent = memberInfo.nickname + (isEnPage ? '' : '님');
         
         // 일수 카운터 - 회원가입일 기준
         if (dayCounterText && dayCounterNumber) {
@@ -830,7 +834,7 @@ function checkLoginStatus() {
                 
                 const diffTime = todayKST - joinDateKST;
                 const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                dayCounterText.textContent = '자유와혁신과 함께한 지';
+                dayCounterText.textContent = isEnPage ? 'With Liberty & Innovation for' : '자유와혁신과 함께한 지';
                 dayCounterNumber.textContent = diffDays.toLocaleString();
             } else {
                 // appliedAt이 없으면 창당일 기준
@@ -846,7 +850,7 @@ function checkLoginStatus() {
                 
                 const diffTime = todayKST - foundingDateKST;
                 const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                dayCounterText.textContent = '자유와혁신과 함께한 지';
+                dayCounterText.textContent = isEnPage ? 'With Liberty & Innovation for' : '자유와혁신과 함께한 지';
                 if (diffDays <= 0) {
                     dayCounterNumber.textContent = 'D' + diffDays;
                 } else {
@@ -879,7 +883,7 @@ function checkLoginStatus() {
             
             const diffTime = todayKST - foundingDateKST;
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-            dayCounterText.textContent = '자유와혁신의 발걸음,';
+            dayCounterText.textContent = isEnPage ? 'Our Journey,' : '자유와혁신의 발걸음,';
             // 창당일 전이면 D-day 표시
             if (diffDays <= 0) {
                 dayCounterNumber.textContent = 'D' + diffDays;
@@ -892,7 +896,11 @@ function checkLoginStatus() {
 
 // 네비게이션 로그아웃
 function navLogout() {
-    if (confirm('로그아웃 하시겠습니까?')) {
+    const currentPath = window.location.pathname;
+    const isEnPage = currentPath.startsWith('/en/') || currentPath === '/en';
+    const confirmMsg = isEnPage ? 'Are you sure you want to log out?' : '로그아웃 하시겠습니까?';
+    
+    if (confirm(confirmMsg)) {
         localStorage.removeItem('memberToken');
         localStorage.removeItem('memberInfo');
         window.location.reload();
