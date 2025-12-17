@@ -1,0 +1,64 @@
+key,value
+# ===== 기본 설정 =====
+lang_code,ko
+og_locale,ko_KR
+
+# ===== 사이트 공통 =====
+site_name,자유와혁신
+site_title,자유와혁신
+meta_description,황교안 대표 자유와혁신 공식 홈페이지. 자유민주주의 수호와 부정선거 척결을 위한 보수정당
+meta_keywords,황교안신당, 자유와혁신, 자혁당, 자유당, 황교안, 보수정당, 자유민주주의, 부정선거척결, 반국가세력척결, 창당, 대표, 정책, 당원가입, 후원
+
+# ===== 대표 인사말 섹션 =====
+greeting_label,당 대표 인사말
+greeting_title,자유민주주의 수호와<br>혁신적 미래 비전
+greeting_quote,자유와혁신은 대한민국의 자유민주주의 체제를 수호하고, 시장경제와 법치주의를 기반으로 혁신적 미래를 선도하는 국민의 정당입니다.
+greeting_para1,자유와혁신은 대한민국 건국 당시, 자유민주주의를 채택하여 세계 자유진영과 함께 한 이승만 대통령의 '자유' 정신, 그리고 오늘날 대한민국이 부국강병 반열에 오를 수 있도록 산업화의 토대를 마련한 박정희 대통령의 '혁신' 정신을 계승한 정당입니다.
+greeting_para2,부정선거와 반국가행위를 엄단하고, 법치주의를 확립하여 국민이 안심하고 살 수 있는 나라, 4차 산업혁명을 선도하며 청년들에게 무한한 기회가 보장되는 나라를 만들겠습니다. 청년, 기성세대를 모두 아우르는 하나 되는 정당으로 자유 대한민국을 재건하고 초일류 정상국가로 만들겠습니다.
+chairman_title,당 대표
+chairman_subtitle,대한민국 제 44대 국무총리
+chairman_signature_alt,황교안 대표 서명
+chairman_photo_alt,자유와혁신 대표 황교안
+
+# ===== 정책 섹션 =====
+policy_section_label,7대 핵심 정책
+policy_section_title1,새로운 대한민국을 위한
+policy_section_title2,7대 핵심 정책
+btn_view_policies,정강정책 보기
+
+policy1_title,정의, 공정, 희망을 추구하는 가치 정당
+policy1_desc,특권과 불공정, 편법과 부정부패의 고리를 단호히 끊어내고 법 앞에 만인이 평등한 사회 구현
+
+policy2_title,부정선거 세력 척결
+policy2_desc,사전투표제 폐지, 당일 투표·당일 수개표 원칙 확립으로 선거 시스템의 투명성 확보
+
+policy3_title,반국가세력 척결 및 국가 안보 강화
+policy3_desc,반국가세력 엄단, 국정원 대공수사권 복원, 마약청 신설로 국민 안전과 일상 보호
+
+policy4_title,4차 산업혁명 활성화를 통한 미래도약
+policy4_desc,AI·로봇·양자컴퓨터 등 첨단기술 강국 육성과 초격차 기술 핵심 클러스터 구축
+
+policy5_title,청년 희망 사다리 구축
+policy5_desc,청년 패스트트랙 마련, 내국인 역차별 금지, 사법시험 부활로 공정한 기회 보장
+
+policy6_title,자유 통일의 기반 구축
+policy6_desc,통일 한국의 번영을 위한 사전 준비, 10만 통일꾼 확보 및 북한 주민 교육 프로그램
+
+policy7_title,문화 융성을 통한 행복한 대한민국
+policy7_desc,품격 있는 문화국가 실현, K-콘텐츠 전략적 수출 산업 육성으로 글로벌 문화강국 도약
+
+# ===== 뉴스 섹션 =====
+news_section_label,주요 소식
+news_section_title,우리들의 활동
+news_loading,소식을 불러오는 중...
+news_empty_title,아직 등록된 소식이 없습니다
+news_empty_desc,곧 새로운 소식이 업데이트됩니다
+btn_view_all_news,모든 소식 보기
+
+# ===== 공통 버튼/UI =====
+btn_join,입당하기
+btn_about,당 소개
+btn_more,더 보기
+btn_view_all,전체보기
+btn_learn_more,자세히 보기
+loading,로딩 중...

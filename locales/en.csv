@@ -1,0 +1,64 @@
+key,value
+# ===== Basic Settings =====
+lang_code,en
+og_locale,en_US
+
+# ===== Site Common =====
+site_name,Liberty and Innovation
+site_title,Liberty and Innovation Party
+meta_description,Official website of Liberty and Innovation Party. A conservative party dedicated to defending democracy and ensuring election integrity in Korea.
+meta_keywords,Liberty and Innovation Party, Korean conservative party, Hwang Kyo-ahn, democracy, freedom, election integrity, Korea politics
+
+# ===== Chairman Greeting Section =====
+greeting_label,Message from the Chairman
+greeting_title,Defending Liberal Democracy<br>and Innovative Vision
+greeting_quote,Liberty and Innovation Party is dedicated to defending Korea's liberal democratic system and leading an innovative future based on market economy and rule of law.
+greeting_para1,Our party inherits the spirit of 'Liberty' from President Syngman Rhee, who adopted liberal democracy at Korea's founding, and the spirit of 'Innovation' from President Park Chung-hee, who laid the foundation for industrialization.
+greeting_para2,We will firmly address election fraud and anti-state activities, establish rule of law, lead the 4th Industrial Revolution, and guarantee unlimited opportunities for youth. As a unified party for all generations, we will rebuild a free Korea and make it a first-class nation.
+chairman_title,Party Chairman
+chairman_subtitle,44th Prime Minister of the Republic of Korea
+chairman_signature_alt,Chairman Hwang Kyo-ahn Signature
+chairman_photo_alt,Chairman Hwang Kyo-ahn
+
+# ===== Policy Section =====
+policy_section_label,7 Key Policies
+policy_section_title1,For a New Korea:
+policy_section_title2,7 Key Policies
+btn_view_policies,View All Policies
+
+policy1_title,A Party Pursuing Justice, Fairness, and Hope
+policy1_desc,Firmly cutting off privileges, unfairness, irregularities and corruption to realize a society where all are equal before the law
+
+policy2_title,Eradicating Election Fraud
+policy2_desc,Abolishing early voting, establishing same-day voting and counting to ensure election transparency
+
+policy3_title,Strengthening National Security
+policy3_desc,Cracking down on anti-state forces, restoring NIS investigation powers, establishing Drug Enforcement Agency
+
+policy4_title,Leading the 4th Industrial Revolution
+policy4_desc,Building a technology powerhouse in AI, robotics, and quantum computing with cutting-edge clusters
+
+policy5_title,Building Ladder of Hope for Youth
+policy5_desc,Youth fast-track programs, ending reverse discrimination, restoring bar exam for fair opportunities
+
+policy6_title,Foundation for Free Unification
+policy6_desc,Preparing for unified Korea's prosperity with 100,000 unification workers and North Korean education programs
+
+policy7_title,Cultural Prosperity for a Happy Korea
+policy7_desc,Realizing a cultured nation, strategic K-content export industry for global cultural leadership
+
+# ===== News Section =====
+news_section_label,Latest News
+news_section_title,Our Activities
+news_loading,Loading news...
+news_empty_title,No news available yet
+news_empty_desc,New updates coming soon
+btn_view_all_news,View All News
+
+# ===== Common Buttons/UI =====
+btn_join,Join Us
+btn_about,About Us
+btn_more,More
+btn_view_all,View All
+btn_learn_more,Learn More
+loading,Loading...

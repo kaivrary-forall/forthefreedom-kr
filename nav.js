@@ -1,14 +1,51 @@
 // 간결한 네비게이션 컴포넌트 (피그마 디자인 적용)
+
+// 언어 관련 헬퍼 함수
+function isEnglishPage() {
+    return window.location.pathname.startsWith('/en/') || window.location.pathname === '/en';
+}
+
+function getLanguageSwitchURL(targetLang) {
+    const currentPath = window.location.pathname;
+    const search = window.location.search;
+    const hash = window.location.hash;
+    
+    if (targetLang === 'en') {
+        if (currentPath.startsWith('/en/')) {
+            return currentPath + search + hash;
+        }
+        return '/en' + currentPath + search + hash;
+    } else {
+        if (currentPath.startsWith('/en/')) {
+            return currentPath.replace('/en/', '/') + search + hash;
+        }
+        return currentPath + search + hash;
+    }
+}
+
 function loadNavigation() {
     // 현재 경로 확인하여 하위 폴더 내부인지 감지
     const currentPath = window.location.pathname;
+    const isEnPage = currentPath.startsWith('/en/') || currentPath === '/en';
+    
     // 하위 폴더들: about/, policy/, resources/, news/ 등
-    const isInSubFolder = currentPath.includes('/about/') || 
-                          currentPath.includes('/policy/') || 
-                          currentPath.includes('/resources/') ||
-                          currentPath.includes('/news/') ||
-                          currentPath.split('/').length > 2; // 일반적인 하위 폴더 감지
-    const pathPrefix = isInSubFolder ? '../' : '';
+    // /en/ 경로에서는 /en/을 제외한 나머지 경로로 판단
+    const pathForCheck = isEnPage ? currentPath.replace('/en', '') : currentPath;
+    const isInSubFolder = pathForCheck.includes('/about/') || 
+                          pathForCheck.includes('/policy/') || 
+                          pathForCheck.includes('/resources/') ||
+                          pathForCheck.includes('/news/') ||
+                          pathForCheck.includes('/members/') ||
+                          pathForCheck.includes('/committees/') ||
+                          pathForCheck.split('/').filter(p => p && !p.includes('.')).length > 1;
+    
+    // /en/ 페이지에서는 항상 상위로 한 단계 더 올라가야 함
+    let pathPrefix = '';
+    if (isEnPage) {
+        pathPrefix = isInSubFolder ? '../../' : '../';
+    } else {
+        pathPrefix = isInSubFolder ? '../' : '';
+    }
     
     const navigationHTML = `
         <nav class="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
@@ -166,8 +203,21 @@ function loadNavigation() {
                         </div>
                     </div>
                     
-                    <!-- 오른쪽: 일수 카운터, 로그인/마이페이지 -->
+                    <!-- 오른쪽: 언어전환, 일수 카운터, 로그인/마이페이지 -->
                     <div class="hidden md:flex items-center gap-6">
+                        <!-- 언어 전환 -->
+                        <div class="language-switcher flex items-center gap-1 text-sm">
+                            <a href="${getLanguageSwitchURL('ko')}" 
+                               class="px-2 py-1 rounded ${isEnglishPage() ? 'text-gray-600 hover:text-[#a50034]' : 'bg-[#a50034] text-white font-medium'}">
+                                KO
+                            </a>
+                            <span class="text-gray-300">|</span>
+                            <a href="${getLanguageSwitchURL('en')}" 
+                               class="px-2 py-1 rounded ${isEnglishPage() ? 'bg-[#a50034] text-white font-medium' : 'text-gray-600 hover:text-[#a50034]'}">
+                                EN
+                            </a>
+                        </div>
+                        <div class="border-l border-gray-300 h-5"></div>
                         <!-- 일수 카운터 -->
                         <div id="day-counter" class="flex items-center gap-2">
                             <span id="day-counter-text" class="text-[#212121] font-medium text-sm tracking-tight"></span>
@@ -196,8 +246,21 @@ function loadNavigation() {
                         </div>
                     </div>
                     
-                    <!-- 모바일 메뉴 버튼 -->
-                    <div class="md:hidden">
+                    <!-- 모바일: 언어전환 + 메뉴 버튼 -->
+                    <div class="md:hidden flex items-center gap-3">
+                        <!-- 모바일 언어 전환 -->
+                        <div class="language-switcher flex items-center gap-1 text-xs">
+                            <a href="${getLanguageSwitchURL('ko')}" 
+                               class="px-1.5 py-0.5 rounded ${isEnglishPage() ? 'text-gray-600' : 'bg-[#a50034] text-white font-medium'}">
+                                KO
+                            </a>
+                            <span class="text-gray-300">|</span>
+                            <a href="${getLanguageSwitchURL('en')}" 
+                               class="px-1.5 py-0.5 rounded ${isEnglishPage() ? 'bg-[#a50034] text-white font-medium' : 'text-gray-600'}">
+                                EN
+                            </a>
+                        </div>
+                        <!-- 메뉴 버튼 -->
                         <button id="mobile-menu-button" onclick="toggleMobileMenu()" class="text-[#212121] hover:text-[#a50034] focus:outline-none">
                             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
