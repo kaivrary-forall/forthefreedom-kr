@@ -62,3 +62,59 @@ btn_more,More
 btn_view_all,View All
 btn_learn_more,Learn More
 loading,Loading...
+
+# ===== about.html Page =====
+about_page_title,About Chairman Hwang Kyo-ahn | Liberty and Innovation Party
+about_meta_description,Introduction to Chairman Hwang Kyo-ahn and Liberty and Innovation Party. Learn about our founding background, identity, and vision for Korea's future.
+about_meta_keywords,Hwang Kyo-ahn, Liberty and Innovation, Korean conservative party, party introduction, liberal democracy, founding story
+about_hero_title,Introducing Liberty and Innovation
+about_hero_subtitle,New Politics through Liberal Democracy and Innovation
+
+# Identity Section
+identity_title,Our Party Identity
+identity_subtitle,We present the core values we pursue and the direction for their realization.
+identity_antistate_title,Eliminating Anti-State Forces
+identity_antistate_desc,We firmly crack down on anti-state forces threatening liberal democracy and strengthen national security.
+identity_democracy_title,Liberal Democracy
+identity_democracy_desc,We defend and advance the liberal democratic system that is Korea's founding principle.
+identity_election_title,Eradicating Election Fraud
+identity_election_desc,We build transparent and fair election systems to protect democracy.
+identity_justice_title,Realizing a Just Society
+identity_justice_desc,We create a society where fairness and justice thrive.
+identity_youth_title,Together with Youth
+identity_youth_desc,We provide unlimited opportunities for young people and pioneer the future together.
+identity_innovation_title,Innovation and Advancement
+identity_innovation_desc,We lead the 4th Industrial Revolution and create an innovative future.
+
+# Founding Background Section
+founding_title,Founding Background
+founding_intro,Korea currently faces a crisis due to incomplete government oversight, anti-state forces, and election manipulation allegations.
+founding_reason1,Repeated manipulation allegations since the April 15, 2020 general election
+founding_reason2,Election manipulation attempts by anti-state forces colluding with leftist groups
+founding_reason3,Serious crisis of the liberal democratic system
+founding_conclusion,Outraged patriotic forces founded Liberty and Innovation to fight against this great evil and protect our system.
+founding_goals_title,Founding Goals
+founding_short_term,Short-term
+founding_short_term_desc,Root out election fraud cartels and establish fair election systems
+founding_mid_term,Mid-term
+founding_mid_term_desc,Eliminate anti-state forces and strengthen government oversight systems
+founding_long_term,Long-term
+founding_long_term_desc,Realize free unification of Korea and build a global powerhouse
+
+# Future Vision Section
+vision_title,Future Vision
+vision_subtitle,We aim to become a first-class political nation leading the era of the 4th Industrial Revolution.
+vision1_title,Free Unification of Korea
+vision1_desc,Liberating North Korean people to achieve peace across the Eurasian continent as a unified nation
+vision2_title,Leading the 4th Industrial Revolution
+vision2_desc,Discovering and implementing innovative policies to lead cutting-edge industries like AI, semiconductors, and robotics
+vision3_title,Empowering Young Talent
+vision3_desc,Boldly employing talented individuals regardless of region or field to contribute to national development
+vision4_title,Cultural Prosperity
+vision4_desc,Realizing a cultured nation, fostering K-content to become a global cultural powerhouse
+vision5_title,Achieving G2 Global Power
+vision5_desc,Becoming a first-class nation through free unification and achieving G2 global power status
+
+# CTA Section
+cta_title,Join Us in Defending Liberal Democracy
+cta_description,We will work together with all who support Liberty and Innovation against anti-state forces to protect our liberal democratic system.
