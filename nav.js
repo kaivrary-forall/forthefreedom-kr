@@ -93,7 +93,23 @@ function loadNavigation() {
                                             </div>
                                         </div>
                                         <a href="${pathPrefix}about/founding.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">창당 스토리</a>
+                                        <a href="${pathPrefix}about/policy.html" title="자유와혁신 정강정책 - 7대 핵심정책과 정당의 정책 방향" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">정책</a>
+                                        <a href="${pathPrefix}about/logo.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">로고</a>
+                                        <a href="${pathPrefix}about/location.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">찾아오시는길</a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 2. 조직 -->
+                            <div class="relative group">
+                                <a href="${pathPrefix}about/organization.html" class="text-[#212121] hover:text-[#a50034] font-medium py-2 transition-colors duration-200 text-lg tracking-tight">
+                                    조직
+                                </a>
+                                <div class="absolute left-0 top-full mt-2 w-56 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0">
+                                    <div class="py-2">
                                         <a href="${pathPrefix}about/organization.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">조직도</a>
+                                        <a href="${pathPrefix}committees/index.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">직능위원회</a>
+                                        <a href="${pathPrefix}local-chapters.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">시도당·당협</a>
                                         <div class="relative group/sub">
                                             <a href="#" class="flex items-center justify-between px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">
                                                 일꾼들 <i class="fas fa-chevron-right text-xs ml-2"></i>
@@ -105,14 +121,11 @@ function loadNavigation() {
                                                 </div>
                                             </div>
                                         </div>
-                                        <a href="${pathPrefix}about/policy.html" title="자유와혁신 정강정책 - 7대 핵심정책과 정당의 정책 방향" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">정책</a>
-                                        <a href="${pathPrefix}about/logo.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">로고</a>
-                                        <a href="${pathPrefix}about/location.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">찾아오시는길</a>
                                     </div>
                                 </div>
                             </div>
                             
-                            <!-- 2. 소식 -->
+                            <!-- 3. 소식 -->
                             <div class="relative group">
                                 <a href="${pathPrefix}news.html" title="자유와혁신 최신 소식 - 공지사항, 보도자료, 당 활동 소식" class="text-[#212121] hover:text-[#a50034] font-medium py-2 transition-colors duration-200 text-lg tracking-tight">
                                     소식
@@ -197,20 +210,6 @@ function loadNavigation() {
                                         <a href="${pathPrefix}support-receipt.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">후원영수증 신청</a>
                                     </div>
                                 </div>
-                            </div>
-                            
-                            <!-- 5. 직능위원회 -->
-                            <div class="relative group">
-                                <a href="${pathPrefix}committees/index.html" class="text-[#212121] hover:text-[#a50034] font-medium py-2 transition-colors duration-200 text-lg tracking-tight">
-                                    직능위원회
-                                </a>
-                            </div>
-                            
-                            <!-- 6. 시도당 당협위원회 구성 -->
-                            <div class="relative group">
-                                <a href="${pathPrefix}local-chapters.html" class="text-[#212121] hover:text-[#a50034] font-medium py-2 transition-colors duration-200 text-lg tracking-tight">
-                                    시도당·당협
-                                </a>
                             </div>
                         </div>
                     </div>
@@ -297,12 +296,24 @@ function loadNavigation() {
                                 <a href="${pathPrefix}about/principles.html#charter" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">당헌</a>
                                 <a href="${pathPrefix}about/principles.html#rules" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">당규</a>
                                 <a href="${pathPrefix}about/founding.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">창당 스토리</a>
-                                <a href="${pathPrefix}about/organization.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">조직도</a>
-                                <a href="${pathPrefix}about/people-central.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">중앙당</a>
-                                <a href="${pathPrefix}about/people-regional.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">시도당</a>
                                 <a href="${pathPrefix}about/policy.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">정책</a>
                                 <a href="${pathPrefix}about/logo.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">로고</a>
                                 <a href="${pathPrefix}about/location.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">찾아오시는길</a>
+                            </div>
+                        </div>
+                        
+                        <!-- 조직 메뉴 -->
+                        <div class="mobile-menu-item">
+                            <button onclick="toggleMobileSubmenu('org-submenu')" class="w-full flex items-center justify-between px-3 py-2 text-lg text-gray-700 hover:bg-gray-50 hover:text-red-600">
+                                <span class="font-bold">조직</span>
+                                <i class="fas fa-chevron-down transition-transform duration-200" id="org-submenu-icon"></i>
+                            </button>
+                            <div id="org-submenu" class="hidden bg-gray-50 border-l-4 border-red-600 ml-3">
+                                <a href="${pathPrefix}about/organization.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">조직도</a>
+                                <a href="${pathPrefix}committees/index.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">직능위원회</a>
+                                <a href="${pathPrefix}local-chapters.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">시도당·당협</a>
+                                <a href="${pathPrefix}about/people-central.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">중앙당 일꾼들</a>
+                                <a href="${pathPrefix}about/people-regional.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">시도당 일꾼들</a>
                             </div>
                         </div>
                         
@@ -365,20 +376,6 @@ function loadNavigation() {
                                 <a href="${pathPrefix}support-guide.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">후원 안내</a>
                                 <a href="${pathPrefix}support-receipt.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">후원영수증 신청</a>
                             </div>
-                        </div>
-                        
-                        <!-- 직능위원회 메뉴 -->
-                        <div class="mobile-menu-item">
-                            <a href="${pathPrefix}committees/index.html" class="w-full flex items-center justify-between px-3 py-2 text-lg text-gray-700 hover:bg-gray-50 hover:text-red-600">
-                                <span class="font-bold">직능위원회</span>
-                            </a>
-                        </div>
-                        
-                        <!-- 시도당·당협 메뉴 -->
-                        <div class="mobile-menu-item">
-                            <a href="${pathPrefix}local-chapters.html" class="w-full flex items-center justify-between px-3 py-2 text-lg text-gray-700 hover:bg-gray-50 hover:text-red-600">
-                                <span class="font-bold">시도당·당협</span>
-                            </a>
                         </div>
                         
                         <!-- 로그인/회원 영역 -->
