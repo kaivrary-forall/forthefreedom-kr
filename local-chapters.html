@@ -109,6 +109,15 @@
     </section>
 
     <main class="bg-white">
+        <!-- 페이지 제목 -->
+        <div class="bg-white py-8">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h1 class="text-3xl font-bold text-gray-900">시도당·당협위원회</h1>
+                </div>
+            </div>
+        </div>
+
         <!-- 시도당 탭 (항상 보임) -->
         <div class="bg-gray-50 border-b sticky top-20 z-10">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -122,7 +131,6 @@
         <section id="landingSection" class="py-12 hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-8">
-                    <h1 class="text-3xl font-bold text-gray-900 mb-2">시도당·당협위원회</h1>
                     <p class="text-gray-600">전국 17개 시·도 지역당부 현황</p>
                 </div>
 
@@ -135,101 +143,67 @@
                         </div>
                         
                         <!-- 대한민국 지도 SVG -->
-                        <svg viewBox="0 0 550 750" class="w-full max-w-md mx-auto">
-                            <defs>
-                                <style>
-                                    .region { 
-                                        stroke: #ffffff; 
-                                        stroke-width: 1.5; 
-                                        cursor: pointer; 
-                                        transition: all 0.25s ease;
-                                    }
-                                    .region:hover { 
-                                        filter: brightness(1.1); 
-                                        stroke-width: 2.5;
-                                    }
-                                    .established { fill: #22c55e; }
-                                    .preparing { fill: #eab308; }
-                                    .inactive { fill: #d1d5db; }
-                                    .map-label { 
-                                        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-                                        font-size: 12px; 
-                                        font-weight: 600; 
-                                        pointer-events: none;
-                                        text-anchor: middle;
-                                    }
-                                    .label-light { fill: #ffffff; }
-                                    .label-dark { fill: #374151; }
-                                </style>
-                            </defs>
-                            
-                            <!-- 강원도 -->
-                            <path onclick="switchProvince('gangwon')" class="region inactive" d="M340,60 Q380,55 420,65 Q460,80 480,120 Q490,160 485,200 Q475,240 450,270 Q420,290 380,295 Q340,290 310,270 Q290,240 285,200 Q290,150 310,100 Q325,70 340,60 Z"><title>강원</title></path>
-                            <text class="map-label label-dark" x="385" y="175">강원</text>
-                            
-                            <!-- 경기도 -->
-                            <path onclick="switchProvince('gyeonggi')" class="region established" d="M200,130 Q240,120 280,125 Q310,140 320,170 Q325,200 315,230 Q300,260 270,275 Q235,285 200,280 Q170,270 155,240 Q145,205 155,170 Q170,140 200,130 Z"><title>경기</title></path>
-                            <text class="map-label label-light" x="235" y="205">경기</text>
-                            
+                        <svg viewBox="0 0 800 900" class="w-full max-w-md mx-auto cursor-pointer">
+                            <style>
+                                .map-region { transition: all 0.2s; cursor: pointer; }
+                                .map-region:hover { filter: brightness(0.9); }
+                                .status-established { fill: #22c55e; stroke: #fff; stroke-width: 2; }
+                                .status-preparing { fill: #eab308; stroke: #fff; stroke-width: 2; }
+                                .status-inactive { fill: #e5e7eb; stroke: #fff; stroke-width: 2; }
+                            </style>
+                            <!-- 강원 -->
+                            <path onclick="switchProvince('gangwon')" class="map-region status-inactive" d="M450,120 L550,100 L620,150 L600,250 L500,280 L420,240 L400,180 Z"><title>강원</title></path>
+                            <!-- 경기 -->
+                            <path onclick="switchProvince('gyeonggi')" class="map-region status-established" d="M300,180 L400,180 L420,240 L380,300 L300,320 L250,280 L260,200 Z"><title>경기</title></path>
                             <!-- 서울 -->
-                            <path onclick="switchProvince('seoul')" class="region established" d="M235,175 Q255,170 270,180 Q280,195 275,210 Q265,225 245,228 Q225,225 218,210 Q215,195 225,180 Q230,175 235,175 Z"><title>서울</title></path>
-                            <text class="map-label label-light" x="247" y="205">서울</text>
-                            
+                            <path onclick="switchProvince('seoul')" class="map-region status-established" d="M320,220 L360,220 L370,250 L340,270 L310,250 Z"><title>서울</title></path>
                             <!-- 인천 -->
-                            <path onclick="switchProvince('incheon')" class="region established" d="M160,185 Q180,175 195,185 Q205,200 200,220 Q190,235 170,238 Q150,235 145,218 Q145,200 160,185 Z"><title>인천</title></path>
-                            <text class="map-label label-light" x="173" y="212">인천</text>
-                            
-                            <!-- 충청북도 -->
-                            <path onclick="switchProvince('chungbuk')" class="region preparing" d="M300,260 Q340,255 375,270 Q400,290 405,325 Q400,360 380,385 Q350,405 310,400 Q275,390 260,360 Q250,325 265,290 Q280,265 300,260 Z"><title>충북</title></path>
-                            <text class="map-label label-dark" x="330" y="335">충북</text>
-                            
+                            <path onclick="switchProvince('incheon')" class="map-region status-established" d="M250,220 L290,220 L300,260 L260,280 L230,250 Z"><title>인천</title></path>
+                            <!-- 충북 -->
+                            <path onclick="switchProvince('chungbuk')" class="map-region status-preparing" d="M380,300 L500,280 L520,350 L450,400 L350,380 L340,320 Z"><title>충북</title></path>
                             <!-- 세종 -->
-                            <path onclick="switchProvince('sejong')" class="region inactive" d="M255,320 Q270,315 280,325 Q288,340 282,355 Q272,365 255,362 Q240,355 242,340 Q245,325 255,320 Z"><title>세종</title></path>
-                            <text class="map-label label-dark" x="262" y="345">세종</text>
-                            
+                            <path onclick="switchProvince('sejong')" class="map-region status-inactive" d="M320,350 L350,350 L360,380 L330,400 L310,380 Z"><title>세종</title></path>
                             <!-- 대전 -->
-                            <path onclick="switchProvince('daejeon')" class="region preparing" d="M280,365 Q300,358 315,370 Q325,388 318,405 Q305,420 285,418 Q265,412 262,395 Q265,375 280,365 Z"><title>대전</title></path>
-                            <text class="map-label label-dark" x="292" y="395">대전</text>
-                            
-                            <!-- 충청남도 -->
-                            <path onclick="switchProvince('chungnam')" class="region preparing" d="M130,270 Q170,260 210,270 Q245,285 255,320 Q258,355 245,385 Q225,415 185,425 Q140,430 105,405 Q80,375 85,335 Q95,295 130,270 Z"><title>충남</title></path>
-                            <text class="map-label label-dark" x="165" y="350">충남</text>
-                            
-                            <!-- 경상북도 -->
-                            <path onclick="switchProvince('gyeongbuk')" class="region established" d="M385,250 Q430,245 470,265 Q505,295 515,345 Q515,400 490,445 Q455,480 405,485 Q360,480 330,450 Q310,415 315,370 Q325,315 355,275 Q370,255 385,250 Z"><title>경북</title></path>
-                            <text class="map-label label-light" x="415" y="365">경북</text>
-                            
+                            <path onclick="switchProvince('daejeon')" class="map-region status-preparing" d="M350,380 L390,380 L400,420 L360,440 L340,410 Z"><title>대전</title></path>
+                            <!-- 충남 -->
+                            <path onclick="switchProvince('chungnam')" class="map-region status-preparing" d="M200,300 L300,320 L340,320 L350,380 L320,350 L310,380 L340,410 L300,450 L180,420 L160,350 Z"><title>충남</title></path>
+                            <!-- 경북 -->
+                            <path onclick="switchProvince('gyeongbuk')" class="map-region status-established" d="M500,280 L600,250 L650,350 L620,450 L500,480 L450,400 L520,350 Z"><title>경북</title></path>
                             <!-- 대구 -->
-                            <path onclick="switchProvince('daegu')" class="region preparing" d="M395,410 Q420,405 438,420 Q450,440 445,460 Q432,478 408,480 Q385,475 378,455 Q375,435 390,418 Q392,412 395,410 Z"><title>대구</title></path>
-                            <text class="map-label label-dark" x="413" y="448">대구</text>
-                            
-                            <!-- 전라북도 -->
-                            <path onclick="switchProvince('jeonbuk')" class="region inactive" d="M120,420 Q165,410 205,425 Q240,445 250,485 Q250,525 225,555 Q190,580 145,575 Q105,565 85,530 Q75,490 90,455 Q105,425 120,420 Z"><title>전북</title></path>
-                            <text class="map-label label-dark" x="165" y="495">전북</text>
-                            
+                            <path onclick="switchProvince('daegu')" class="map-region status-preparing" d="M520,420 L570,420 L580,470 L540,490 L510,460 Z"><title>대구</title></path>
+                            <!-- 전북 -->
+                            <path onclick="switchProvince('jeonbuk')" class="map-region status-inactive" d="M180,420 L300,450 L340,410 L360,440 L350,500 L280,530 L160,500 Z"><title>전북</title></path>
+                            <!-- 전남 -->
+                            <path onclick="switchProvince('jeonnam')" class="map-region status-inactive" d="M160,500 L280,530 L300,600 L250,680 L120,650 L100,550 Z"><title>전남</title></path>
                             <!-- 광주 -->
-                            <path onclick="switchProvince('gwangju')" class="region inactive" d="M150,555 Q172,548 188,562 Q198,580 190,598 Q175,612 152,608 Q132,600 130,580 Q135,560 150,555 Z"><title>광주</title></path>
-                            <text class="map-label label-dark" x="163" y="585">광주</text>
-                            
-                            <!-- 전라남도 -->
-                            <path onclick="switchProvince('jeonnam')" class="region inactive" d="M95,555 Q135,545 170,560 Q200,580 210,620 Q210,665 180,700 Q140,730 90,720 Q45,700 30,655 Q25,605 55,570 Q75,555 95,555 Z"><title>전남</title></path>
-                            <text class="map-label label-dark" x="120" y="640">전남</text>
-                            
-                            <!-- 경상남도 -->
-                            <path onclick="switchProvince('gyeongnam')" class="region preparing" d="M270,470 Q320,460 365,475 Q405,495 420,540 Q425,585 400,620 Q360,650 305,645 Q255,635 230,595 Q215,550 235,510 Q250,480 270,470 Z"><title>경남</title></path>
-                            <text class="map-label label-dark" x="325" y="555">경남</text>
-                            
+                            <path onclick="switchProvince('gwangju')" class="map-region status-inactive" d="M200,540 L250,540 L260,580 L220,600 L190,570 Z"><title>광주</title></path>
+                            <!-- 경남 -->
+                            <path onclick="switchProvince('gyeongnam')" class="map-region status-preparing" d="M350,500 L500,480 L540,490 L580,470 L600,550 L550,620 L400,600 L320,560 Z"><title>경남</title></path>
                             <!-- 울산 -->
-                            <path onclick="switchProvince('ulsan')" class="region preparing" d="M455,455 Q478,448 495,462 Q508,482 502,505 Q488,522 462,520 Q440,512 435,492 Q438,468 455,455 Z"><title>울산</title></path>
-                            <text class="map-label label-dark" x="470" y="490">울산</text>
-                            
+                            <path onclick="switchProvince('ulsan')" class="map-region status-preparing" d="M580,470 L620,450 L650,500 L620,530 L590,500 Z"><title>울산</title></path>
                             <!-- 부산 -->
-                            <path onclick="switchProvince('busan')" class="region established" d="M420,545 Q448,538 468,555 Q482,578 475,602 Q458,622 430,620 Q405,612 398,588 Q400,562 420,545 Z"><title>부산</title></path>
-                            <text class="map-label label-light" x="438" y="585">부산</text>
+                            <path onclick="switchProvince('busan')" class="map-region status-established" d="M550,580 L600,550 L630,590 L600,630 L560,610 Z"><title>부산</title></path>
+                            <!-- 제주 -->
+                            <path onclick="switchProvince('jeju')" class="map-region status-preparing" d="M180,780 L300,780 L310,830 L170,830 Z"><title>제주</title></path>
                             
-                            <!-- 제주도 -->
-                            <path onclick="switchProvince('jeju')" class="region preparing" d="M130,710 Q175,700 220,710 Q255,725 260,755 Q255,785 220,800 Q175,810 130,800 Q95,785 90,755 Q95,725 130,710 Z"><title>제주</title></path>
-                            <text class="map-label label-dark" x="175" y="758">제주</text>
+                            <!-- 지역 라벨 -->
+                            <text x="340" y="250" class="text-xs font-bold fill-white pointer-events-none" style="font-size:14px;font-weight:bold;">서울</text>
+                            <text x="330" y="270" class="text-xs font-bold fill-white pointer-events-none" style="font-size:14px;font-weight:bold;">경기</text>
+                            <text x="260" y="255" class="text-xs font-bold fill-white pointer-events-none" style="font-size:14px;font-weight:bold;">인천</text>
+                            <text x="510" y="190" class="text-xs font-bold fill-gray-500 pointer-events-none" style="font-size:14px;font-weight:bold;">강원</text>
+                            <text x="430" y="350" class="text-xs font-bold fill-gray-700 pointer-events-none" style="font-size:14px;font-weight:bold;">충북</text>
+                            <text x="240" y="385" class="text-xs font-bold fill-gray-700 pointer-events-none" style="font-size:14px;font-weight:bold;">충남</text>
+                            <text x="335" y="375" class="text-xs font-bold fill-gray-500 pointer-events-none" style="font-size:14px;font-weight:bold;">세종</text>
+                            <text x="368" y="415" class="text-xs font-bold fill-gray-700 pointer-events-none" style="font-size:14px;font-weight:bold;">대전</text>
+                            <text x="555" y="365" class="text-xs font-bold fill-white pointer-events-none" style="font-size:14px;font-weight:bold;">경북</text>
+                            <text x="545" y="458" class="text-xs font-bold fill-gray-700 pointer-events-none" style="font-size:14px;font-weight:bold;">대구</text>
+                            <text x="260" y="480" class="text-xs font-bold fill-gray-500 pointer-events-none" style="font-size:14px;font-weight:bold;">전북</text>
+                            <text x="200" y="600" class="text-xs font-bold fill-gray-500 pointer-events-none" style="font-size:14px;font-weight:bold;">전남</text>
+                            <text x="223" y="573" class="text-xs font-bold fill-gray-500 pointer-events-none" style="font-size:14px;font-weight:bold;">광주</text>
+                            <text x="460" y="555" class="text-xs font-bold fill-gray-700 pointer-events-none" style="font-size:14px;font-weight:bold;">경남</text>
+                            <text x="610" y="495" class="text-xs font-bold fill-gray-700 pointer-events-none" style="font-size:14px;font-weight:bold;">울산</text>
+                            <text x="590" y="600" class="text-xs font-bold fill-white pointer-events-none" style="font-size:14px;font-weight:bold;">부산</text>
+                            <text x="240" y="810" class="text-xs font-bold fill-gray-700 pointer-events-none" style="font-size:14px;font-weight:bold;">제주</text>
                         </svg>
                     </div>
 
@@ -262,11 +236,6 @@
         <!-- 기존 메인 콘텐츠 -->
         <section id="mainContent" class="py-16 hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <!-- 페이지 헤더 -->
-                <div class="text-center mb-12">
-                    <h1 class="text-4xl font-bold text-gray-900 mb-6">시도당·당협위원회</h1>
-                </div>
-
                 <!-- 공식 채널 섹션 -->
                 <div id="officialChannelSection" class="mb-16">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-red-600 pl-4" id="officialChannelTitle">서울특별시당 공식 채널</h2>
