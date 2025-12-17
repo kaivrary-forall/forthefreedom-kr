@@ -615,7 +615,7 @@ function goToFain() {
                           window.location.pathname.includes('/admin/')
                           ? '../' : '';
         
-        location.href = pathPrefix + 'profile.html?id=' + memberId;
+        location.href = linkPrefix + 'profile.html?id=' + memberId;
     } catch (e) {
         console.error('토큰 파싱 오류:', e);
         alert('로그인 정보를 확인할 수 없습니다');

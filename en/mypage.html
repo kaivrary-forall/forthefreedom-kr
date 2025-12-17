@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E0H9DY9T0F"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-E0H9DY9T0F');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>My Page - Liberty and Innovation</title>
+    <meta name="description" content="자유와혁신 회원 마이페이지입니다.">
+    
+    <!-- 파비콘 -->
+    <link rel="icon" type="image/png" href="../images/favicon.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#A50034',
+                        'primary-dark': '#8B002C',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
+    <link rel="stylesheet" href="../style.css">
+    <script src="config.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+    
+    <style>
+        .section-card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .info-row {
+            display: flex;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            width: 100px;
+            color: #6b7280;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+        .info-value {
+            flex: 1;
+            color: #1f2937;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #A50034;
+            box-shadow: 0 0 0 2px rgba(165, 0, 52, 0.1);
+        }
+        .btn-primary {
+            background: #A50034;
+            color: white;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .btn-primary:hover {
+            background: #8B002C;
+        }
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .badge-primary {
+            background: #fef2f2;
+            color: #A50034;
+        }
+        .badge-success {
+            background: #ecfdf5;
+            color: #059669;
+        }
+        .badge-gray {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            max-width: 400px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+    </style>
+    <script src="../analytics.js"></script>
+</head>
+<body class="bg-gray-100">
+    <div id="navigation-container"></div>
+    
+    <main class="min-h-screen pt-24 pb-16">
+        <div class="max-w-3xl mx-auto px-4">
+            <!-- 로딩 -->
+            <div id="loading" class="text-center py-12">
+                <i class="fas fa-spinner fa-spin text-3xl text-gray-400"></i>
+                <p class="text-gray-500 mt-2">정보를 불러오는 중...</p>
+            </div>
+            
+            <!-- 컨텐츠 -->
+            <div id="content" class="hidden">
+                <!-- 프로필 요약 -->
+                <div class="section-card bg-gradient-to-r from-primary to-red-700 text-white">
+                    <div class="flex items-center gap-4">
+                        <!-- 프로필 이미지 (클릭하면 모달 열기) -->
+                        <div class="relative group cursor-pointer" onclick="openProfileImageModal()">
+                            <div id="profileImageContainer" class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center overflow-hidden">
+                                <i id="profileImageIcon" class="fas fa-user text-2xl"></i>
+                                <img id="profileImagePreview" src="" alt="프로필" class="w-full h-full object-cover hidden">
+                            </div>
+                            <div class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <i class="fas fa-camera text-white"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span id="profileNickname" class="text-xl font-bold"></span>
+                                <span id="memberTypeBadge" class="badge"></span>
+                            </div>
+                            <p id="profileUserId" class="text-white/70 text-sm"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 기본 정보 -->
+                <div class="section-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="section-title"><i class="fas fa-user text-primary"></i> 기본 정보</h2>
+                        <button onclick="openEditModal()" class="text-primary text-sm hover:underline">
+                            <i class="fas fa-edit mr-1"></i> 수정
+                        </button>
+                    </div>
+                    <div>
+                        <div class="info-row">
+                            <span class="info-label">아이디</span>
+                            <span id="infoUserId" class="info-value"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">닉네임</span>
+                            <span class="info-value">
+                                <span id="infoNickname"></span>
+                                <button onclick="openNicknameModal()" class="ml-2 text-xs text-primary hover:underline">변경</button>
+                            </span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">이름</span>
+                            <span id="infoName" class="info-value"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">이메일</span>
+                            <span id="infoEmail" class="info-value"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">연락처</span>
+                            <span id="infoPhone" class="info-value"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">도로명 주소</span>
+                            <span id="infoAddress" class="info-value"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">행정동 주소</span>
+                            <span id="infoAddressDong" class="info-value"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 당원 정보 -->
+                <div class="section-card">
+                    <h2 class="section-title"><i class="fas fa-id-card text-primary"></i> 당원 정보</h2>
+                    <div id="partyMemberInfo">
+                        <!-- 일반회원인 경우 -->
+                        <div id="generalMemberSection" class="hidden">
+                            <div class="bg-gray-50 rounded-lg p-4 text-center">
+                                <p class="text-gray-600 mb-3">아직 혁신 당원이 아니십니다</p>
+                                <a href="support.html" class="btn-primary inline-block">
+                                    <i class="fas fa-user-plus mr-1"></i> 당원 가입하기
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- 혁신당원인 경우 -->
+                        <div id="partyMemberSection" class="hidden">
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                                <div class="flex items-center gap-2 text-green-700 font-semibold mb-2">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>혁신 당원 (당비 납부 중)</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3 text-sm">
+                                    <div>
+                                        <span class="text-gray-500">납부 시작일</span>
+                                        <p id="partyFeeStartDate" class="font-medium text-gray-900">-</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">월 납부액</span>
+                                        <p id="partyFeeMonthly" class="font-medium text-gray-900">-</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">총 납부 금액</span>
+                                        <p id="partyFeeTotalPaid" class="font-medium text-gray-900">-</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">최근 납부일</span>
+                                        <p id="partyFeeLastPayment" class="font-medium text-gray-900">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 후원/구매 내역 -->
+                <div class="section-card">
+                    <h2 class="section-title"><i class="fas fa-heart text-primary"></i> 후원/구매 내역</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-50 rounded-lg p-4 text-center">
+                            <p class="text-gray-500 text-sm">총 후원금</p>
+                            <p id="donationTotal" class="text-xl font-bold text-gray-900">0원</p>
+                            <p id="donationCount" class="text-xs text-gray-400">0회</p>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4 text-center">
+                            <p class="text-gray-500 text-sm">총 구매금</p>
+                            <p id="purchaseTotal" class="text-xl font-bold text-gray-900">0원</p>
+                            <p id="purchaseCount" class="text-xs text-gray-400">0회</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 계정 관리 -->
+                <div class="section-card">
+                    <h2 class="section-title"><i class="fas fa-cog text-primary"></i> 계정 관리</h2>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="openPasswordModal()" class="btn-secondary">
+                            <i class="fas fa-key mr-1"></i> 비밀번호 변경
+                        </button>
+                        <button onclick="openWithdrawModal()" class="text-red-500 hover:text-red-600 text-sm px-4 py-2">
+                            <i class="fas fa-user-times mr-1"></i> 회원 탈퇴
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- 프로필 이미지 업로드 모달 -->
+    <div id="profileImageModal" class="modal">
+        <div class="modal-content" style="max-width: 650px;">
+            <div class="p-6">
+                <h3 class="text-lg font-bold mb-4">프로필 이미지 변경</h3>
+                
+                <!-- Step 1: 파일 선택 -->
+                <div id="uploadStep1">
+                    <div class="flex gap-6">
+                        <!-- 왼쪽: 이미지 미리보기 -->
+                        <div class="flex-shrink-0">
+                            <div id="modalImagePreview" class="w-32 h-32 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden border-2 border-gray-200">
+                                <i id="modalImageIcon" class="fas fa-user text-4xl text-gray-400"></i>
+                                <img id="modalImageImg" src="" alt="미리보기" class="w-full h-full object-cover hidden">
+                            </div>
+                            <p class="text-center text-xs text-gray-500 mt-2">현재 이미지</p>
+                        </div>
+                        
+                        <!-- 오른쪽: 업로드 영역 -->
+                        <div class="flex-1">
+                            <!-- 드래그 앤 드롭 영역 -->
+                            <div id="dropZone" class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary hover:bg-primary/5 transition-colors cursor-pointer"
+                                 onclick="document.getElementById('profileImageInput').click()"
+                                 ondrop="handleDrop(event)" 
+                                 ondragover="handleDragOver(event)" 
+                                 ondragleave="handleDragLeave(event)">
+                                <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                                <p class="text-sm text-gray-600 mb-1">이미지를 드래그하거나</p>
+                                <p class="text-sm text-primary font-medium">클릭하여 업로드</p>
+                                <input type="file" id="profileImageInput" accept="image/*" class="hidden" onchange="handleFileSelect(this)">
+                            </div>
+                            
+                            <!-- 안내 사항 -->
+                            <div class="mt-4 text-xs text-gray-500 space-y-1">
+                                <p><i class="fas fa-check text-green-500 mr-1"></i> 지원 형식: JPG, PNG, GIF, WebP</p>
+                                <p><i class="fas fa-check text-green-500 mr-1"></i> 최대 크기: 30MB (자동 압축)</p>
+                                <p><i class="fas fa-info-circle text-blue-500 mr-1"></i> 원하는 영역을 선택할 수 있습니다</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-3 mt-6">
+                        <button type="button" onclick="closeModal('profileImageModal')" class="flex-1 btn-secondary">취소</button>
+                    </div>
+                </div>
+                
+                <!-- Step 2: 크롭 -->
+                <div id="uploadStep2" class="hidden">
+                    <div class="flex gap-6">
+                        <!-- 왼쪽: 크롭 영역 -->
+                        <div class="flex-1">
+                            <div class="bg-gray-900 rounded-lg overflow-hidden" style="max-height: 400px;">
+                                <img id="cropImage" src="" alt="크롭할 이미지" style="max-width: 100%; display: block;">
+                            </div>
+                        </div>
+                        
+                        <!-- 오른쪽: 미리보기 -->
+                        <div class="flex-shrink-0 flex flex-col items-center">
+                            <p class="text-xs text-gray-500 mb-2">미리보기</p>
+                            <div class="w-32 h-32 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-100">
+                                <div id="cropPreview" style="width: 128px; height: 128px; overflow: hidden;"></div>
+                            </div>
+                            
+                            <!-- 줌 컨트롤 -->
+                            <div class="mt-4 flex items-center gap-2">
+                                <button type="button" onclick="zoomOut()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-minus text-sm"></i>
+                                </button>
+                                <span class="text-xs text-gray-500">확대/축소</span>
+                                <button type="button" onclick="zoomIn()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-plus text-sm"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- 회전 컨트롤 -->
+                            <div class="mt-2 flex items-center gap-2">
+                                <button type="button" onclick="rotateLeft()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-undo text-sm"></i>
+                                </button>
+                                <span class="text-xs text-gray-500">회전</span>
+                                <button type="button" onclick="rotateRight()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-redo text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 업로드 진행 상태 -->
+                    <div id="uploadProgress" class="hidden mt-4">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-spinner fa-spin text-primary"></i>
+                            <span class="text-sm text-gray-600">업로드 중...</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-3 mt-6">
+                        <button type="button" onclick="backToStep1()" class="flex-1 btn-secondary">
+                            <i class="fas fa-arrow-left mr-1"></i> 뒤로
+                        </button>
+                        <button type="button" id="uploadConfirmBtn" onclick="confirmUpload()" class="flex-1 btn-primary">
+                            <i class="fas fa-upload mr-1"></i> 변경하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 주소검색 모달 -->
+    <div id="addressModal" class="modal" style="z-index: 1100;">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold">주소 검색</h3>
+                    <button type="button" onclick="closeAddressModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div id="addressSearchWrap" style="width: 100%; height: 400px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 정보 수정 모달 -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6">
+                <h3 class="text-lg font-bold mb-4">기본 정보 수정</h3>
+                <form id="editForm" onsubmit="saveInfo(event)">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">이름 <span class="text-xs text-gray-400">(변경 불가)</span></label>
+                            <input type="text" id="editName" class="form-input bg-gray-100 text-gray-500 cursor-not-allowed" readonly>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">이메일 <span class="text-xs text-gray-400">(별도 인증 필요)</span></label>
+                            <div class="flex gap-2">
+                                <input type="email" id="editEmail" class="form-input flex-1 bg-gray-100 text-gray-500 cursor-not-allowed" readonly>
+                                <button type="button" onclick="openEmailChangeModal()" class="btn-secondary text-sm whitespace-nowrap">변경</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">연락처</label>
+                            <input type="tel" id="editPhone" class="form-input" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">주소</label>
+                            <div class="flex gap-2 mb-2">
+                                <input type="text" id="editZipCode" class="form-input w-28" placeholder="우편번호" readonly>
+                                <button type="button" onclick="searchAddress()" class="btn-secondary text-sm">주소검색</button>
+                            </div>
+                            <input type="text" id="editAddress" class="form-input mb-2" placeholder="기본주소" readonly>
+                            <input type="hidden" id="editAddressDong">
+                            <input type="text" id="editAddressDetail" class="form-input" placeholder="상세주소">
+                        </div>
+                    </div>
+                    <div class="flex gap-3 mt-6">
+                        <button type="button" onclick="closeModal('editModal')" class="flex-1 btn-secondary">취소</button>
+                        <button type="submit" class="flex-1 btn-primary">저장</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 닉네임 변경 모달 -->
+    <div id="nicknameModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6">
+                <h3 class="text-lg font-bold mb-4">닉네임 변경</h3>
+                <div id="nicknameStatus" class="mb-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-700"></div>
+                <form id="nicknameForm" onsubmit="changeNickname(event)">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">새 닉네임</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="newNickname" class="form-input flex-1" placeholder="2~20자" required>
+                            <button type="button" onclick="checkNewNickname()" class="btn-secondary text-sm whitespace-nowrap">중복확인</button>
+                        </div>
+                        <p id="nicknameError" class="text-red-500 text-sm mt-1 hidden"></p>
+                        <p id="nicknameSuccess" class="text-green-500 text-sm mt-1 hidden"></p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button type="button" onclick="closeModal('nicknameModal')" class="flex-1 btn-secondary">취소</button>
+                        <button type="submit" id="nicknameSubmitBtn" class="flex-1 btn-primary" disabled>변경</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 이메일 변경 모달 -->
+    <div id="emailChangeModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6">
+                <h3 class="text-lg font-bold mb-4">이메일 변경</h3>
+                
+                <!-- Step 1: 새 이메일 입력 -->
+                <div id="emailStep1">
+                    <p class="text-sm text-gray-600 mb-4">새 이메일 주소로 인증 코드가 발송됩니다.</p>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">현재 이메일</label>
+                        <input type="email" id="currentEmailDisplay" class="form-input bg-gray-100 text-gray-500" readonly>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">새 이메일</label>
+                        <input type="email" id="newEmailInput" class="form-input" placeholder="새 이메일 주소 입력" required>
+                        <p id="emailRequestError" class="text-red-500 text-sm mt-1 hidden"></p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button type="button" onclick="closeModal('emailChangeModal')" class="flex-1 btn-secondary">취소</button>
+                        <button type="button" onclick="requestEmailCode()" id="emailRequestBtn" class="flex-1 btn-primary">인증 코드 발송</button>
+                    </div>
+                </div>
+                
+                <!-- Step 2: 인증 코드 입력 -->
+                <div id="emailStep2" class="hidden">
+                    <div class="mb-4 p-3 bg-blue-50 rounded-lg">
+                        <p class="text-sm text-blue-700">📧 <strong id="sentEmailDisplay"></strong>으로 인증 코드를 발송했습니다.</p>
+                        <p class="text-xs text-blue-600 mt-1">5분 내로 입력해주세요.</p>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">인증 코드 (6자리)</label>
+                        <input type="text" id="emailVerifyCode" class="form-input text-center text-2xl tracking-widest" placeholder="000000" maxlength="6" pattern="[0-9]{6}">
+                        <p id="emailVerifyError" class="text-red-500 text-sm mt-1 hidden"></p>
+                    </div>
+                    <div class="flex gap-3 mb-3">
+                        <button type="button" onclick="backToEmailStep1()" class="flex-1 btn-secondary">뒤로</button>
+                        <button type="button" onclick="verifyEmailCode()" id="emailVerifyBtn" class="flex-1 btn-primary">확인</button>
+                    </div>
+                    <button type="button" onclick="requestEmailCode()" class="w-full text-sm text-gray-500 hover:text-primary">인증 코드 재발송</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 비밀번호 변경 모달 -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6">
+                <h3 class="text-lg font-bold mb-4">비밀번호 변경</h3>
+                <form id="passwordForm" onsubmit="changePassword(event)">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">현재 비밀번호</label>
+                            <input type="password" id="currentPassword" class="form-input" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">새 비밀번호</label>
+                            <input type="password" id="newPassword" class="form-input" placeholder="8자 이상" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">새 비밀번호 확인</label>
+                            <input type="password" id="newPasswordConfirm" class="form-input" required>
+                        </div>
+                    </div>
+                    <p id="passwordError" class="text-red-500 text-sm mt-2 hidden"></p>
+                    <div class="flex gap-3 mt-6">
+                        <button type="button" onclick="closeModal('passwordModal')" class="flex-1 btn-secondary">취소</button>
+                        <button type="submit" class="flex-1 btn-primary">변경</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 회원 탈퇴 모달 -->
+    <div id="withdrawModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6">
+                <h3 class="text-lg font-bold text-red-600 mb-4">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>회원 탈퇴
+                </h3>
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 text-sm text-red-700">
+                    <p class="font-semibold mb-2">탈퇴 전 확인사항</p>
+                    <ul class="space-y-1">
+                        <li>• 혁신 당원인 경우 당비 납부가 자동 해지됩니다</li>
+                        <li>• 후원/구매 내역은 법적 보관 기간 동안 유지됩니다</li>
+                        <li>• 탈퇴 후에도 재가입이 가능합니다</li>
+                    </ul>
+                </div>
+                <form id="withdrawForm" onsubmit="withdraw(event)">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">탈퇴 사유 (선택)</label>
+                            <textarea id="withdrawReason" class="form-input" rows="3" placeholder="탈퇴 사유를 입력해주세요"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">비밀번호 확인</label>
+                            <input type="password" id="withdrawPassword" class="form-input" placeholder="본인 확인을 위해 비밀번호를 입력해주세요" required>
+                        </div>
+                    </div>
+                    <div class="flex gap-3 mt-6">
+                        <button type="button" onclick="closeModal('withdrawModal')" class="flex-1 btn-secondary">취소</button>
+                        <button type="submit" class="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">탈퇴하기</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 카카오 주소 API -->
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    
+    <script src="../nav.js"></script>
+    <script>
+        loadNavigation();
+        
+        let memberData = null;
+        let nicknameChecked = false;
+        
+        // 로그인 체크
+        const token = localStorage.getItem('memberToken');
+        if (!token) {
+            window.location.href = 'login.html?return=' + encodeURIComponent(window.location.pathname);
+        }
+        
+        // 페이지 로드 시 정보 불러오기
+        document.addEventListener('DOMContentLoaded', loadMemberInfo);
+        
+        // 회원 정보 불러오기
+        async function loadMemberInfo() {
+            try {
+                const response = await fetch(`${window.API_BASE}/members/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        // 토큰 만료
+                        localStorage.removeItem('memberToken');
+                        localStorage.removeItem('memberInfo');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    if (response.status === 403) {
+                        // 계정 상태 변경됨 (승인대기, 정지, 탈퇴)
+                        const result = await response.json();
+                        localStorage.removeItem('memberToken');
+                        localStorage.removeItem('memberInfo');
+                        
+                        // 상태에 따른 메시지와 함께 로그인 페이지로 이동
+                        const code = result.code || 'ACCOUNT_INACTIVE';
+                        window.location.href = `login.html?status=${code}`;
+                        return;
+                    }
+                    throw new Error('정보 조회 실패');
+                }
+                
+                const result = await response.json();
+                memberData = result.data;
+                
+                renderMemberInfo();
+                
+            } catch (error) {
+                console.error('회원 정보 로드 오류:', error);
+                alert('정보를 불러오는 중 오류가 발생했습니다');
+            }
+        }
+        
+        // 회원 정보 렌더링
+        function renderMemberInfo() {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('content').classList.remove('hidden');
+            
+            // 프로필 요약
+            document.getElementById('profileNickname').textContent = memberData.nickname;
+            document.getElementById('profileUserId').textContent = '@' + memberData.userId;
+            
+            // 프로필 이미지
+            if (memberData.profileImage) {
+                document.getElementById('profileImageIcon').classList.add('hidden');
+                document.getElementById('profileImagePreview').src = memberData.profileImage;
+                document.getElementById('profileImagePreview').classList.remove('hidden');
+            } else {
+                document.getElementById('profileImageIcon').classList.remove('hidden');
+                document.getElementById('profileImagePreview').classList.add('hidden');
+            }
+            
+            // 회원 유형 배지
+            const badge = document.getElementById('memberTypeBadge');
+            if (memberData.memberType === 'party_member') {
+                badge.textContent = '혁신 당원';
+                badge.className = 'badge bg-white/20 text-white';
+            } else {
+                badge.textContent = '일반 회원';
+                badge.className = 'badge bg-white/20 text-white';
+            }
+            
+            // 기본 정보
+            document.getElementById('infoUserId').textContent = memberData.userId;
+            document.getElementById('infoNickname').textContent = memberData.nickname;
+            document.getElementById('infoName').textContent = memberData.name;
+            document.getElementById('infoEmail').textContent = memberData.email;
+            document.getElementById('infoPhone').textContent = memberData.phone;
+            
+            // 도로명 주소
+            let address = memberData.address || '-';
+            if (memberData.addressDetail) address += ' ' + memberData.addressDetail;
+            document.getElementById('infoAddress').textContent = address;
+            
+            // 행정동
+            document.getElementById('infoAddressDong').textContent = memberData.addressDong || '-';
+            
+            // 당원 정보
+            if (memberData.memberType === 'party_member' && memberData.happyNanum?.partyFee?.isActive) {
+                document.getElementById('generalMemberSection').classList.add('hidden');
+                document.getElementById('partyMemberSection').classList.remove('hidden');
+                
+                const fee = memberData.happyNanum.partyFee;
+                document.getElementById('partyFeeStartDate').textContent = formatDate(fee.startDate);
+                document.getElementById('partyFeeMonthly').textContent = formatMoney(fee.monthlyAmount) + '원';
+                document.getElementById('partyFeeTotalPaid').textContent = formatMoney(fee.totalPaid) + '원';
+                document.getElementById('partyFeeLastPayment').textContent = formatDate(fee.lastPaymentDate);
+            } else {
+                document.getElementById('generalMemberSection').classList.remove('hidden');
+                document.getElementById('partyMemberSection').classList.add('hidden');
+            }
+            
+            // 후원/구매 내역
+            document.getElementById('donationTotal').textContent = formatMoney(memberData.donation?.totalAmount || 0) + '원';
+            document.getElementById('donationCount').textContent = (memberData.donation?.count || 0) + '회';
+            document.getElementById('purchaseTotal').textContent = formatMoney(memberData.purchase?.totalAmount || 0) + '원';
+            document.getElementById('purchaseCount').textContent = (memberData.purchase?.count || 0) + '회';
+        }
+        
+        // 유틸리티 함수
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+        }
+        
+        function formatMoney(amount) {
+            return (amount || 0).toLocaleString();
+        }
+        
+        // 모달 열기/닫기
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+        
+        // 정보 수정 모달
+        function openEditModal() {
+            document.getElementById('editName').value = memberData.name;
+            document.getElementById('editEmail').value = memberData.email;
+            document.getElementById('editPhone').value = memberData.phone;
+            document.getElementById('editZipCode').value = memberData.zipCode || '';
+            document.getElementById('editAddress').value = memberData.address || '';
+            document.getElementById('editAddressDong').value = memberData.addressDong || '';
+            document.getElementById('editAddressDetail').value = memberData.addressDetail || '';
+            document.getElementById('editModal').classList.add('active');
+        }
+        
+        // 주소 검색 모달 열기
+        function searchAddress() {
+            document.getElementById('addressModal').classList.add('active');
+            
+            // 기존 내용 초기화
+            const wrap = document.getElementById('addressSearchWrap');
+            wrap.innerHTML = '';
+            
+            new daum.Postcode({
+                oncomplete: function(data) {
+                    document.getElementById('editZipCode').value = data.zonecode;
+                    document.getElementById('editAddress').value = data.roadAddress || data.jibunAddress;
+                    // 행정동 전체 주소 (시/도 + 구/군 + 행정동)
+                    const dong = data.hname || data.bname || '';
+                    const fullDong = dong ? `${data.sido} ${data.sigungu} ${dong}` : '';
+                    document.getElementById('editAddressDong').value = fullDong;
+                    document.getElementById('editAddressDetail').focus();
+                    closeAddressModal();
+                },
+                width: '100%',
+                height: '100%'
+            }).embed(wrap);
+        }
+        
+        // 주소 검색 모달 닫기
+        function closeAddressModal() {
+            document.getElementById('addressModal').classList.remove('active');
+        }
+        
+        // 정보 저장
+        async function saveInfo(event) {
+            event.preventDefault();
+            
+            try {
+                const response = await fetch(`${window.API_BASE}/members/me`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        phone: document.getElementById('editPhone').value,
+                        zipCode: document.getElementById('editZipCode').value,
+                        address: document.getElementById('editAddress').value,
+                        addressDong: document.getElementById('editAddressDong').value,
+                        addressDetail: document.getElementById('editAddressDetail').value
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    closeModal('editModal');
+                    showSuccessModal('정보가 수정되었습니다');
+                    loadMemberInfo();
+                } else {
+                    alert(result.message || '수정에 실패했습니다');
+                }
+            } catch (error) {
+                console.error('정보 수정 오류:', error);
+                alert('수정 중 오류가 발생했습니다');
+            }
+        }
+        
+        // 닉네임 모달
+        async function openNicknameModal() {
+            nicknameChecked = false;
+            document.getElementById('newNickname').value = '';
+            document.getElementById('nicknameError').classList.add('hidden');
+            document.getElementById('nicknameSuccess').classList.add('hidden');
+            document.getElementById('nicknameSubmitBtn').disabled = true;
+            
+            // 닉네임 변경 상태 조회
+            try {
+                const response = await fetch(`${window.API_BASE}/members/me/nickname-status`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await response.json();
+                
+                const statusEl = document.getElementById('nicknameStatus');
+                if (result.data.canChangeFree) {
+                    statusEl.innerHTML = `<i class="fas fa-gift mr-1"></i> 무료 변경 가능 (${result.data.remainingFreeChanges}회 남음)`;
+                    statusEl.className = 'mb-4 p-3 bg-green-50 rounded-lg text-sm text-green-700';
+                } else {
+                    statusEl.innerHTML = `<i class="fas fa-info-circle mr-1"></i> 무료 변경 횟수를 모두 사용하셨습니다`;
+                    statusEl.className = 'mb-4 p-3 bg-yellow-50 rounded-lg text-sm text-yellow-700';
+                }
+            } catch (error) {
+                console.error('닉네임 상태 조회 오류:', error);
+            }
+            
+            document.getElementById('nicknameModal').classList.add('active');
+        }
+        
+        // 닉네임 중복 확인
+        async function checkNewNickname() {
+            const nickname = document.getElementById('newNickname').value.trim();
+            const errorEl = document.getElementById('nicknameError');
+            const successEl = document.getElementById('nicknameSuccess');
+            
+            errorEl.classList.add('hidden');
+            successEl.classList.add('hidden');
+            
+            if (!nickname) {
+                errorEl.textContent = '닉네임을 입력해주세요';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
+            if (nickname.length < 2 || nickname.length > 20) {
+                errorEl.textContent = '닉네임은 2~20자여야 합니다';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
+            if (nickname === memberData.nickname) {
+                errorEl.textContent = '현재 닉네임과 동일합니다';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${window.API_BASE}/members/check-nickname?nickname=${encodeURIComponent(nickname)}`);
+                const result = await response.json();
+                
+                if (result.available) {
+                    successEl.textContent = '사용 가능한 닉네임입니다';
+                    successEl.classList.remove('hidden');
+                    nicknameChecked = true;
+                    document.getElementById('nicknameSubmitBtn').disabled = false;
+                } else {
+                    errorEl.textContent = result.message;
+                    errorEl.classList.remove('hidden');
+                    nicknameChecked = false;
+                    document.getElementById('nicknameSubmitBtn').disabled = true;
+                }
+            } catch (error) {
+                errorEl.textContent = '확인 중 오류가 발생했습니다';
+                errorEl.classList.remove('hidden');
+            }
+        }
+        
+        // 닉네임 입력 시 초기화
+        document.getElementById('newNickname').addEventListener('input', function() {
+            nicknameChecked = false;
+            document.getElementById('nicknameSubmitBtn').disabled = true;
+            document.getElementById('nicknameSuccess').classList.add('hidden');
+        });
+        
+        // 닉네임 변경
+        async function changeNickname(event) {
+            event.preventDefault();
+            
+            if (!nicknameChecked) {
+                alert('닉네임 중복확인을 해주세요');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${window.API_BASE}/members/me/nickname`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        nickname: document.getElementById('newNickname').value.trim()
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    closeModal('nicknameModal');
+                    showSuccessModal(result.message || '닉네임이 변경되었습니다');
+                    loadMemberInfo();
+                } else {
+                    alert(result.message || '닉네임 변경에 실패했습니다');
+                }
+            } catch (error) {
+                console.error('닉네임 변경 오류:', error);
+                alert('변경 중 오류가 발생했습니다');
+            }
+        }
+
+        // ===== 이메일 변경 =====
+        let mypagePendingEmail = '';
+
+        function openEmailChangeModal() {
+            // 초기화
+            document.getElementById('currentEmailDisplay').value = memberData.email;
+            document.getElementById('newEmailInput').value = '';
+            document.getElementById('emailVerifyCode').value = '';
+            document.getElementById('emailRequestError').classList.add('hidden');
+            document.getElementById('emailVerifyError').classList.add('hidden');
+            document.getElementById('emailStep1').classList.remove('hidden');
+            document.getElementById('emailStep2').classList.add('hidden');
+            document.getElementById('emailRequestBtn').disabled = false;
+            document.getElementById('emailRequestBtn').textContent = '인증 코드 발송';
+            mypagePendingEmail = '';
+            
+            document.getElementById('emailChangeModal').classList.add('active');
+        }
+
+        async function requestEmailCode() {
+            const newEmail = document.getElementById('newEmailInput').value.trim();
+            const errorEl = document.getElementById('emailRequestError');
+            const btn = document.getElementById('emailRequestBtn');
+            
+            errorEl.classList.add('hidden');
+            
+            if (!newEmail) {
+                errorEl.textContent = '새 이메일 주소를 입력해주세요';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
+            // 이메일 형식 검증
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(newEmail)) {
+                errorEl.textContent = '올바른 이메일 형식이 아닙니다';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = '발송 중...';
+
+            try {
+                const response = await fetch(`${window.API_BASE}/members/me/email/request`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ newEmail })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    mypagePendingEmail = newEmail;
+                    document.getElementById('sentEmailDisplay').textContent = newEmail;
+                    document.getElementById('emailStep1').classList.add('hidden');
+                    document.getElementById('emailStep2').classList.remove('hidden');
+                } else {
+                    errorEl.textContent = result.message || '인증 코드 발송에 실패했습니다';
+                    errorEl.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('이메일 인증 요청 오류:', error);
+                errorEl.textContent = '요청 중 오류가 발생했습니다';
+                errorEl.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '인증 코드 발송';
+            }
+        }
+
+        function backToEmailStep1() {
+            document.getElementById('emailStep1').classList.remove('hidden');
+            document.getElementById('emailStep2').classList.add('hidden');
+            document.getElementById('emailVerifyCode').value = '';
+            document.getElementById('emailVerifyError').classList.add('hidden');
+        }
+
+        async function verifyEmailCode() {
+            const code = document.getElementById('emailVerifyCode').value.trim();
+            const errorEl = document.getElementById('emailVerifyError');
+            const btn = document.getElementById('emailVerifyBtn');
+            
+            errorEl.classList.add('hidden');
+            
+            if (!code || code.length !== 6) {
+                errorEl.textContent = '6자리 인증 코드를 입력해주세요';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = '확인 중...';
+
+            try {
+                const response = await fetch(`${window.API_BASE}/members/me/email/verify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ newEmail: mypagePendingEmail, code })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    closeModal('emailChangeModal');
+                    showSuccessModal('이메일이 성공적으로 변경되었습니다!');
+                    // 기본 정보 수정 모달의 이메일 필드도 업데이트
+                    document.getElementById('editEmail').value = mypagePendingEmail;
+                    loadMemberInfo(); // 정보 새로고침
+                } else {
+                    errorEl.textContent = result.message || '인증에 실패했습니다';
+                    errorEl.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('이메일 인증 확인 오류:', error);
+                errorEl.textContent = '확인 중 오류가 발생했습니다';
+                errorEl.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '확인';
+            }
+        }
+        
+        // 비밀번호 모달
+        function openPasswordModal() {
+            document.getElementById('passwordForm').reset();
+            document.getElementById('passwordError').classList.add('hidden');
+            document.getElementById('passwordModal').classList.add('active');
+        }
+        
+        // 비밀번호 변경
+        async function changePassword(event) {
+            event.preventDefault();
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const newPasswordConfirm = document.getElementById('newPasswordConfirm').value;
+            const errorEl = document.getElementById('passwordError');
+            
+            errorEl.classList.add('hidden');
+            
+            if (newPassword.length < 8) {
+                errorEl.textContent = '새 비밀번호는 8자 이상이어야 합니다';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
+            if (newPassword !== newPasswordConfirm) {
+                errorEl.textContent = '새 비밀번호가 일치하지 않습니다';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${window.API_BASE}/members/me/password`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        currentPassword,
+                        newPassword,
+                        newPasswordConfirm
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    closeModal('passwordModal');
+                    showSuccessModal('비밀번호가 변경되었습니다');
+                } else {
+                    errorEl.textContent = result.message;
+                    errorEl.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('비밀번호 변경 오류:', error);
+                errorEl.textContent = '변경 중 오류가 발생했습니다';
+                errorEl.classList.remove('hidden');
+            }
+        }
+        
+        // 탈퇴 모달
+        function openWithdrawModal() {
+            document.getElementById('withdrawForm').reset();
+            document.getElementById('withdrawModal').classList.add('active');
+        }
+        
+        // 회원 탈퇴
+        async function withdraw(event) {
+            event.preventDefault();
+            
+            if (!confirm('정말 탈퇴하시겠습니까?\n\n이 작업은 취소할 수 없습니다.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${window.API_BASE}/members/me/withdraw`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        reason: document.getElementById('withdrawReason').value,
+                        password: document.getElementById('withdrawPassword').value
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('탈퇴 처리가 완료되었습니다.\n\n그동안 자유와혁신과 함께해주셔서 감사합니다.');
+                    localStorage.removeItem('memberToken');
+                    localStorage.removeItem('memberInfo');
+                    window.location.href = 'index.html';
+                } else {
+                    alert(result.message || '탈퇴 처리에 실패했습니다');
+                }
+            } catch (error) {
+                console.error('탈퇴 오류:', error);
+                alert('탈퇴 처리 중 오류가 발생했습니다');
+            }
+        }
+        
+        // 선택된 파일 임시 저장
+        let selectedProfileFile = null;
+        let cropper = null;
+        
+        // 프로필 이미지 모달 열기
+        function openProfileImageModal() {
+            // 현재 프로필 이미지 표시
+            const modalIcon = document.getElementById('modalImageIcon');
+            const modalImg = document.getElementById('modalImageImg');
+            
+            if (memberData.profileImage) {
+                modalIcon.classList.add('hidden');
+                modalImg.src = memberData.profileImage;
+                modalImg.classList.remove('hidden');
+            } else {
+                modalIcon.classList.remove('hidden');
+                modalImg.classList.add('hidden');
+            }
+            
+            // 초기화 - Step 1 보이기
+            document.getElementById('uploadStep1').classList.remove('hidden');
+            document.getElementById('uploadStep2').classList.add('hidden');
+            document.getElementById('uploadProgress').classList.add('hidden');
+            document.getElementById('profileImageInput').value = '';
+            
+            // 기존 Cropper 정리
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            
+            document.getElementById('profileImageModal').classList.add('active');
+        }
+        
+        // 드래그 오버
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('dropZone').classList.add('border-primary', 'bg-primary/10');
+        }
+        
+        // 드래그 떠남
+        function handleDragLeave(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('dropZone').classList.remove('border-primary', 'bg-primary/10');
+        }
+        
+        // 드롭
+        function handleDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('dropZone').classList.remove('border-primary', 'bg-primary/10');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                processFile(files[0]);
+            }
+        }
+        
+        // 파일 선택
+        function handleFileSelect(input) {
+            if (input.files.length > 0) {
+                processFile(input.files[0]);
+            }
+        }
+        
+        // 파일 처리 → Step 2로 이동
+        function processFile(file) {
+            // 이미지 파일 체크
+            if (!file.type.startsWith('image/')) {
+                alert('이미지 파일만 업로드 가능합니다');
+                return;
+            }
+            
+            // 파일 크기 체크 (30MB - 서버에서 압축됨)
+            if (file.size > 30 * 1024 * 1024) {
+                alert('이미지 크기는 30MB 이하만 가능합니다');
+                return;
+            }
+            
+            selectedProfileFile = file;
+            
+            // Step 2로 이동
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Step 1 숨기고 Step 2 보이기
+                document.getElementById('uploadStep1').classList.add('hidden');
+                document.getElementById('uploadStep2').classList.remove('hidden');
+                
+                // 이미지 로드
+                const cropImage = document.getElementById('cropImage');
+                cropImage.src = e.target.result;
+                
+                // 기존 Cropper 정리
+                if (cropper) {
+                    cropper.destroy();
+                }
+                
+                // Cropper 초기화
+                cropper = new Cropper(cropImage, {
+                    aspectRatio: 1, // 정사각형
+                    viewMode: 1,
+                    dragMode: 'move',
+                    autoCropArea: 0.8,
+                    cropBoxResizable: true,
+                    cropBoxMovable: true,
+                    guides: true,
+                    center: true,
+                    highlight: false,
+                    background: true,
+                    preview: '#cropPreview',
+                    responsive: true,
+                    restore: false
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Step 1로 돌아가기
+        function backToStep1() {
+            document.getElementById('uploadStep1').classList.remove('hidden');
+            document.getElementById('uploadStep2').classList.add('hidden');
+            document.getElementById('profileImageInput').value = '';
+            
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+        }
+        
+        // 줌 인
+        function zoomIn() {
+            if (cropper) cropper.zoom(0.1);
+        }
+        
+        // 줌 아웃
+        function zoomOut() {
+            if (cropper) cropper.zoom(-0.1);
+        }
+        
+        // 왼쪽 회전
+        function rotateLeft() {
+            if (cropper) cropper.rotate(-90);
+        }
+        
+        // 오른쪽 회전
+        function rotateRight() {
+            if (cropper) cropper.rotate(90);
+        }
+        
+        // 업로드 확인
+        async function confirmUpload() {
+            if (!cropper) return;
+            
+            // 크롭된 이미지를 Blob으로 변환
+            const canvas = cropper.getCroppedCanvas({
+                width: 400,
+                height: 400,
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high'
+            });
+            
+            // 업로드 중 표시
+            document.getElementById('uploadProgress').classList.remove('hidden');
+            document.getElementById('uploadConfirmBtn').disabled = true;
+            document.getElementById('uploadConfirmBtn').innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> 업로드 중...';
+            
+            canvas.toBlob(async (blob) => {
+                const formData = new FormData();
+                formData.append('profileImage', blob, 'profile.jpg');
+                
+                try {
+                    const response = await fetch(`${window.API_BASE}/members/me/profile-image`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        // 프로필 이미지 업데이트
+                        const icon = document.getElementById('profileImageIcon');
+                        const preview = document.getElementById('profileImagePreview');
+                        
+                        icon.classList.add('hidden');
+                        preview.src = result.data.profileImage;
+                        preview.classList.remove('hidden');
+                        memberData.profileImage = result.data.profileImage;
+                        
+                        closeModal('profileImageModal');
+                        showSuccessModal('프로필 이미지가 변경되었습니다!');
+                    } else {
+                        alert(result.message || '이미지 업로드에 실패했습니다');
+                    }
+                } catch (error) {
+                    console.error('프로필 이미지 업로드 오류:', error);
+                    alert('이미지 업로드 중 오류가 발생했습니다');
+                } finally {
+                    document.getElementById('uploadProgress').classList.add('hidden');
+                    document.getElementById('uploadConfirmBtn').disabled = false;
+                    document.getElementById('uploadConfirmBtn').innerHTML = '<i class="fas fa-upload mr-1"></i> 변경하기';
+                }
+            }, 'image/jpeg', 0.9);
+        }
+        
+        // 로그아웃
+        function logout() {
+            if (confirm('로그아웃 하시겠습니까?')) {
+                localStorage.removeItem('memberToken');
+                localStorage.removeItem('memberInfo');
+                window.location.href = 'index.html';
+            }
+        }
+        
+        // 성공 모달 표시
+        function showSuccessModal(message) {
+            document.getElementById('successMessage').textContent = message;
+            document.getElementById('successModal').classList.add('active');
+        }
+        
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.remove('active');
+        }
+    </script>
+    
+    <!-- 성공 모달 -->
+    <div id="successModal" class="modal">
+        <div class="modal-content" style="max-width: 400px; text-align: center; padding: 30px;">
+            <div style="margin-bottom: 20px;">
+                <div style="width: 60px; height: 60px; background: #10b981; border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-check" style="color: white; font-size: 28px;"></i>
+                </div>
+                <p id="successMessage" style="font-size: 16px; color: #333;"></p>
+            </div>
+            <button onclick="closeSuccessModal()" class="btn-primary" style="width: 100%;">확인</button>
+        </div>
+    </div>
+    <!-- 공통 푸터 -->
+    <div id="footer-container"></div>
+    <script src="../footer.js"></script>
+</body>
+</html>

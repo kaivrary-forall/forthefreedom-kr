@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E0H9DY9T0F"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-E0H9DY9T0F');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card News - Liberty and Innovation</title>
+    
+    <!-- 파비콘 설정 -->
+    <link rel="icon" type="image/png" sizes="32x32" href="../../images/favicon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../../images/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../../images/favicon.png">
+    <link rel="shortcut icon" type="image/png" href="../../images/favicon.png">
+    <link rel="icon" href="../../images/favicon.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'red-600': '#A50034',
+                        'red-700': '#8B002C',
+                        'red-800': '#700024',
+                        'red-900': '#56001C',
+                        'red-50': '#FDF2F4',
+                        'red-100': '#FCE7EA',
+                        'red-500': '#A50034'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .text-red-600 { color: #A50034 !important; }
+        .bg-red-600 { background-color: #A50034 !important; }
+        .border-red-600 { border-color: #A50034 !important; }
+        .hover\:bg-red-700:hover { background-color: #8B002C !important; }
+        .hover\:text-red-600:hover { color: #A50034 !important; }
+        .hover\:text-red-700:hover { color: #8B002C !important; }
+        .hover\:border-red-600:hover { border-color: #A50034 !important; }
+        .bg-red-50 { background-color: #FDF2F4 !important; }
+        .bg-red-100 { background-color: #FCE7EA !important; }
+        .text-red-800 { color: #700024 !important; }
+        
+        .loading-spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #A50034;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .card-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            aspect-ratio: 3/4;
+            background: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .card-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(165, 0, 52, 0.15);
+            border-color: #A50034;
+        }
+        
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .card-item:hover .card-image {
+            transform: scale(1.05);
+        }
+        
+        .card-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            color: white;
+            padding: 16px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .card-item:hover .card-overlay {
+            transform: translateY(0);
+        }
+        
+        .card-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: #A50034;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            background-color: white;
+            border: 1px solid #d1d5db;
+            color: #6b7280;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .filter-btn:hover {
+            background-color: #f9fafb;
+            border-color: #A50034;
+            color: #A50034;
+        }
+        
+        .filter-btn.active {
+            background-color: #A50034;
+            border-color: #A50034;
+            color: white;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../style.css">
+    <script src="../../analytics.js"></script>
+</head>
+<body>
+    <div id="navigation-container"></div>
+    
+    <!-- 브레드크럼 -->
+    <section class="bg-gray-50 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="text-sm">
+                <ol class="list-none p-0 inline-flex space-x-2">
+                    <li class="flex items-center">
+                        <a href="../index.html" class="text-gray-500 hover:text-red-600">홈</a>
+                        <i class="fas fa-chevron-right mx-2 text-gray-400"></i>
+                    </li>
+                    <li class="flex items-center">
+                        <a href="../news.html" class="text-gray-500 hover:text-red-600">정당소식</a>
+                        <i class="fas fa-chevron-right mx-2 text-gray-400"></i>
+                    </li>
+                    <li class="text-gray-900">카드뉴스</li>
+                </ol>
+            </nav>
+        </div>
+    </section>
+
+    <main class="bg-white">
+        <section class="py-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- 페이지 헤더 -->
+                <div class="text-center mb-12">
+                    <h1 class="text-4xl font-bold text-gray-900 mb-4">카드뉴스</h1>
+                    <p class="text-xl text-gray-600">자유와혁신의 정책과 활동을 카드뉴스로 쉽게 만나보세요</p>
+                </div>
+
+                <!-- 필터 버튼 -->
+                <div class="mb-8 flex flex-wrap gap-3 justify-center">
+                    <button class="filter-btn active" data-category="">
+                        <i class="fas fa-th mr-2"></i>전체
+                    </button>
+                    <button class="filter-btn" data-category="정책">
+                        <i class="fas fa-file-alt mr-2"></i>정책
+                    </button>
+                    <button class="filter-btn" data-category="활동">
+                        <i class="fas fa-users mr-2"></i>활동
+                    </button>
+                    <button class="filter-btn" data-category="소식">
+                        <i class="fas fa-newspaper mr-2"></i>소식
+                    </button>
+                    <button class="filter-btn" data-category="정보">
+                        <i class="fas fa-info-circle mr-2"></i>정보
+                    </button>
+                </div>
+
+                <!-- 검색 영역 -->
+                <div class="mb-8 bg-gray-50 p-6 rounded-lg">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">기간</label>
+                            <select id="dateFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-red-500 focus:border-red-500">
+                                <option value="">전체</option>
+                                <option value="today">오늘</option>
+                                <option value="week">일주일</option>
+                                <option value="month">한달</option>
+                                <option value="3months">3개월</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">검색어</label>
+                            <input type="text" id="searchInput" placeholder="제목, 내용 검색" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-red-500 focus:border-red-500">
+                        </div>
+                        <div class="flex items-end">
+                            <button id="searchBtn" class="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+                                <i class="fas fa-search mr-2"></i>검색
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 로딩 상태 -->
+                <div id="loading" class="flex justify-center items-center py-16">
+                    <div class="loading-spinner"></div>
+                    <span class="ml-4 text-gray-600">카드뉴스를 불러오는 중...</span>
+                </div>
+
+                <!-- 에러 상태 -->
+                <div id="error" class="hidden text-center py-16">
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md mx-auto">
+                        <i class="fas fa-exclamation-triangle text-red-500 text-3xl mb-4"></i>
+                        <h3 class="text-lg font-semibold text-red-800 mb-2">불러오기 실패</h3>
+                        <p class="text-red-600 mb-4">카드뉴스를 불러오는 중 오류가 발생했습니다.</p>
+                        <button id="retryBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                            다시 시도
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 카드뉴스 그리드 -->
+                <div id="cardContainer" class="hidden">
+                    <div id="cardGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <!-- 동적으로 생성됨 -->
+                    </div>
+
+                    <!-- 더보기 버튼 -->
+                    <div class="text-center mt-12">
+                        <button id="loadMoreBtn" class="px-8 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
+                            더 많은 카드뉴스 보기 <i class="fas fa-chevron-down ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 빈 상태 -->
+                <div id="empty" class="hidden text-center py-16">
+                    <div class="max-w-md mx-auto">
+                        <i class="fas fa-id-card text-gray-400 text-6xl mb-6"></i>
+                        <h3 class="text-xl font-semibold text-gray-600 mb-2">카드뉴스가 없습니다</h3>
+                        <p class="text-gray-500">조건에 맞는 카드뉴스를 찾을 수 없습니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- API 설정 로드 -->
+<script src="../config.js"></script>
+<script src="../../nav.js"></script>
+    <script>
+        // 환경 감지 및 API 설정
+        // API 설정 - config.js에서 로드된 설정 사용
+        const API_BASE = window.API_BASE;
+
+        let currentPage = 1;
+        let currentFilters = {
+            category: '',
+            date: '',
+            search: ''
+        };
+        let cardData = [];
+
+        // DOM 요소
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const cardContainer = document.getElementById('cardContainer');
+        const empty = document.getElementById('empty');
+        const cardGrid = document.getElementById('cardGrid');
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        const retryBtn = document.getElementById('retryBtn');
+
+        // 필터 버튼
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const dateFilter = document.getElementById('dateFilter');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+
+        // 카드뉴스 불러오기
+        async function loadCardNews(page = 1, loadMore = false) {
+            if (!loadMore) showLoading();
+            
+            try {
+                let url = `${API_BASE}/card-news?page=${page}&limit=10&_t=${Date.now()}`;
+                
+                if (currentFilters.category) {
+                    url += `&category=${encodeURIComponent(currentFilters.category)}`;
+                }
+                if (currentFilters.date) {
+                    url += `&dateFilter=${currentFilters.date}`;
+                }
+                if (currentFilters.search) {
+                    url += `&search=${encodeURIComponent(currentFilters.search)}`;
+                }
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.success) {
+                    if (loadMore) {
+                        cardData = [...cardData, ...data.data];
+                    } else {
+                        cardData = data.data;
+                    }
+                    displayCardNews(cardData, data.pagination, loadMore);
+                } else {
+                    throw new Error(data.message || '데이터 불러오기 실패');
+                }
+            } catch (err) {
+                console.error('카드뉴스 불러오기 실패:', err);
+                showError();
+            }
+        }
+
+        // 카드뉴스 표시
+        function displayCardNews(cards, paginationData, loadMore = false) {
+            if (!loadMore) hideAll();
+            
+            if (cards.length === 0) {
+                if (!loadMore) empty.classList.remove('hidden');
+                return;
+            }
+
+            let html = '';
+            cards.forEach((card, index) => {
+                const categoryText = getCategoryText(card.category);
+                const thumbnail = card.attachments?.find(att => att.mimetype?.startsWith('image/'));
+                const thumbnailUrl = thumbnail ? `${API_BASE.replace('/api', '')}/uploads/${thumbnail.filename}?t=${Date.now()}` : `${API_BASE.replace('/api', '')}/images/logo.png`;
+                const imageCount = card.attachments?.filter(att => att.mimetype?.startsWith('image/')).length || 0;
+                
+                html += `
+                    <div class="card-item" onclick="openCard('${card._id}')">
+                        <div class="card-badge">${categoryText}</div>
+                        <img src="${thumbnailUrl}" 
+                             alt="${card.title}" 
+                             class="card-image"
+                             loading="lazy">
+                        <div class="card-overlay">
+                            <h3 class="font-bold text-sm mb-1">${card.title}</h3>
+                            <p class="text-xs opacity-90">${formatDate(card.createdAt)}</p>
+                            <p class="text-xs opacity-75 mt-1">${imageCount}장</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (loadMore) {
+                cardGrid.innerHTML += html;
+            } else {
+                cardGrid.innerHTML = html;
+                cardContainer.classList.remove('hidden');
+            }
+
+            // 더보기 버튼 표시/숨김
+            console.log('🔧 카드뉴스 페이지네이션:', { paginationData, hasNext: paginationData?.hasNext, totalCards: cards.length });
+            
+            if (paginationData && (paginationData.hasNext || paginationData.current < paginationData.pages)) {
+                loadMoreBtn.classList.remove('hidden');
+            } else {
+                loadMoreBtn.classList.add('hidden');
+            }
+        }
+
+        // 카테고리 텍스트 반환
+        function getCategoryText(category) {
+            const categories = {
+                '정책': '정책',
+                '활동': '활동', 
+                '소식': '소식',
+                '정보': '정보'
+            };
+            return categories[category] || '일반';
+        }
+
+        // 카드뉴스 열기 (상세페이지로 이동)
+        function openCard(cardId) {
+            window.location.href = `card-news-detail.html?id=${cardId}`;
+        }
+
+        // 검색
+        function search() {
+            currentFilters.search = searchInput.value.trim();
+            currentFilters.date = dateFilter.value;
+            currentPage = 1;
+            loadCardNews(1);
+        }
+
+        // 카테고리 필터
+        function setFilter(category) {
+            currentFilters.category = category;
+            currentPage = 1;
+            
+            // 버튼 상태 업데이트
+            filterBtns.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.category === category) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            loadCardNews(1);
+        }
+
+        // 더보기
+        function loadMore() {
+            currentPage++;
+            loadCardNews(currentPage, true);
+        }
+
+        // 날짜 포맷팅
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        // 상태 표시 함수들
+        function showLoading() {
+            hideAll();
+            loading.classList.remove('hidden');
+        }
+
+        function showError() {
+            hideAll();
+            error.classList.remove('hidden');
+        }
+
+        function hideAll() {
+            loading.classList.add('hidden');
+            error.classList.add('hidden');
+            cardContainer.classList.add('hidden');
+            empty.classList.add('hidden');
+        }
+
+        // 이벤트 리스너
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => setFilter(btn.dataset.category));
+        });
+
+        searchBtn.addEventListener('click', search);
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') search();
+        });
+
+        dateFilter.addEventListener('change', search);
+        loadMoreBtn.addEventListener('click', loadMore);
+        retryBtn.addEventListener('click', () => loadCardNews(currentPage));
+
+        // 페이지 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            loadNavigation();
+            loadCardNews();
+        });
+    </script>
+    <!-- 공통 푸터 -->
+    <div id="footer-container"></div>
+    <script src="../../footer.js"></script>
+</body>
+</html> 
