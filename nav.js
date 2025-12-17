@@ -51,12 +51,31 @@ function loadNavigation() {
                           pathForCheck.includes('/committees/') ||
                           pathForCheck.split('/').filter(p => p && !p.includes('.')).length > 1;
     
-    // /en/ 페이지에서는 항상 상위로 한 단계 더 올라가야 함
+    // pathPrefix: 루트로 돌아가는 경로
+    // langPrefix: 언어 폴더 (영어면 'en/', 한국어면 '')
     let pathPrefix = '';
+    let langPrefix = isEnPage ? 'en/' : '';
+    
     if (isEnPage) {
-        pathPrefix = isInSubFolder ? '../../' : '../';
+        // /en/index.html → pathPrefix = ''
+        // /en/about/policy.html → pathPrefix = '../../'
+        pathPrefix = isInSubFolder ? '../../' : '';
     } else {
+        // /index.html → pathPrefix = ''
+        // /about/policy.html → pathPrefix = '../'
         pathPrefix = isInSubFolder ? '../' : '';
+    }
+    
+    // 전체 링크 프리픽스: 루트로 간 다음 언어 폴더로
+    const linkPrefix = pathPrefix + langPrefix;
+    
+    // 이미지 경로 프리픽스 (이미지는 루트의 images/ 폴더에 있음)
+    // 영어 페이지에서는 ../images/, 한국어는 기존 pathPrefix 사용
+    let imgPrefix = '';
+    if (isEnPage) {
+        imgPrefix = isInSubFolder ? '../../' : '../';
+    } else {
+        imgPrefix = pathPrefix;
     }
     
     const navigationHTML = `
@@ -66,58 +85,58 @@ function loadNavigation() {
                     <!-- 왼쪽: 로고 + 메뉴 -->
                     <div class="flex items-center gap-8">
                         <!-- 로고 -->
-                        <a href="${pathPrefix}index.html" class="flex items-center">
-                            <img src="${pathPrefix}images/logo-symbol.png" alt="자유와혁신" class="h-8 w-auto">
+                        <a href="${linkPrefix}index.html" class="flex items-center">
+                            <img src="${imgPrefix}images/logo-symbol.png" alt="자유와혁신" class="h-8 w-auto">
                         </a>
                         
                         <!-- 데스크톱 메뉴 -->
                         <div class="hidden md:flex items-center gap-8">
                             <!-- 1. 소개 -->
                             <div class="relative group">
-                                <a href="${pathPrefix}about.html" class="text-[#212121] hover:text-[#a50034] font-medium py-2 transition-colors duration-200 text-lg tracking-tight">
+                                <a href="${linkPrefix}about.html" class="text-[#212121] hover:text-[#a50034] font-medium py-2 transition-colors duration-200 text-lg tracking-tight">
                                     소개
                                 </a>
                                 <div class="absolute left-0 top-full mt-2 w-56 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0">
                                     <div class="py-2">
-                                        <a href="${pathPrefix}about.html" title="자유와혁신 당 소개 - 황교안 대표 소개 및 당의 정체성" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">당소개</a>
+                                        <a href="${linkPrefix}about.html" title="자유와혁신 당 소개 - 황교안 대표 소개 및 당의 정체성" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">당소개</a>
                                         <div class="relative group/sub">
                                             <a href="#" class="flex items-center justify-between px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">
                                                 강령, 당헌, 당규 <i class="fas fa-chevron-right text-xs ml-2"></i>
                                             </a>
                                             <div class="absolute left-full top-0 mt-0 ml-1 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover/sub:opacity-100 group-hover/sub:visible transition-all duration-200">
                                                 <div class="py-2">
-                                                    <a href="${pathPrefix}about/principles.html#platform" class="block px-4 py-2 text-sm text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">강령</a>
-                                                    <a href="${pathPrefix}about/principles.html#charter" class="block px-4 py-2 text-sm text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">당헌</a>
-                                                    <a href="${pathPrefix}about/principles.html#rules" class="block px-4 py-2 text-sm text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">당규</a>
+                                                    <a href="${linkPrefix}about/principles.html#platform" class="block px-4 py-2 text-sm text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">강령</a>
+                                                    <a href="${linkPrefix}about/principles.html#charter" class="block px-4 py-2 text-sm text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">당헌</a>
+                                                    <a href="${linkPrefix}about/principles.html#rules" class="block px-4 py-2 text-sm text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">당규</a>
                                                 </div>
                                             </div>
                                         </div>
-                                        <a href="${pathPrefix}about/founding.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">창당 스토리</a>
-                                        <a href="${pathPrefix}about/policy.html" title="자유와혁신 정강정책 - 7대 핵심정책과 정당의 정책 방향" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">정책</a>
-                                        <a href="${pathPrefix}about/logo.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">로고</a>
-                                        <a href="${pathPrefix}about/location.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">찾아오시는길</a>
+                                        <a href="${linkPrefix}about/founding.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">창당 스토리</a>
+                                        <a href="${linkPrefix}about/policy.html" title="자유와혁신 정강정책 - 7대 핵심정책과 정당의 정책 방향" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">정책</a>
+                                        <a href="${linkPrefix}about/logo.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">로고</a>
+                                        <a href="${linkPrefix}about/location.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">찾아오시는길</a>
                                     </div>
                                 </div>
                             </div>
                             
                             <!-- 2. 조직 -->
                             <div class="relative group">
-                                <a href="${pathPrefix}about/organization.html" class="text-[#212121] hover:text-[#a50034] font-medium py-2 transition-colors duration-200 text-lg tracking-tight">
+                                <a href="${linkPrefix}about/organization.html" class="text-[#212121] hover:text-[#a50034] font-medium py-2 transition-colors duration-200 text-lg tracking-tight">
                                     조직
                                 </a>
                                 <div class="absolute left-0 top-full mt-2 w-56 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0">
                                     <div class="py-2">
-                                        <a href="${pathPrefix}about/organization.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">조직도</a>
-                                        <a href="${pathPrefix}committees/index.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">직능위원회</a>
-                                        <a href="${pathPrefix}local-chapters.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">시도당·당협</a>
+                                        <a href="${linkPrefix}about/organization.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">조직도</a>
+                                        <a href="${linkPrefix}committees/index.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">직능위원회</a>
+                                        <a href="${linkPrefix}local-chapters.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">시도당·당협</a>
                                         <div class="relative group/sub">
                                             <a href="#" class="flex items-center justify-between px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">
                                                 일꾼들 <i class="fas fa-chevron-right text-xs ml-2"></i>
                                             </a>
                                             <div class="absolute left-full top-0 mt-0 ml-1 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover/sub:opacity-100 group-hover/sub:visible transition-all duration-200">
                                                 <div class="py-2">
-                                                    <a href="${pathPrefix}about/people-central.html" class="block px-4 py-2 text-sm text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">중앙당</a>
-                                                    <a href="${pathPrefix}about/people-regional.html" class="block px-4 py-2 text-sm text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">시도당</a>
+                                                    <a href="${linkPrefix}about/people-central.html" class="block px-4 py-2 text-sm text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">중앙당</a>
+                                                    <a href="${linkPrefix}about/people-regional.html" class="block px-4 py-2 text-sm text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">시도당</a>
                                                 </div>
                                             </div>
                                         </div>
@@ -127,46 +146,46 @@ function loadNavigation() {
                             
                             <!-- 3. 소식 -->
                             <div class="relative group">
-                                <a href="${pathPrefix}news.html" title="자유와혁신 최신 소식 - 공지사항, 보도자료, 당 활동 소식" class="text-[#212121] hover:text-[#a50034] font-medium py-2 transition-colors duration-200 text-lg tracking-tight">
+                                <a href="${linkPrefix}news.html" title="자유와혁신 최신 소식 - 공지사항, 보도자료, 당 활동 소식" class="text-[#212121] hover:text-[#a50034] font-medium py-2 transition-colors duration-200 text-lg tracking-tight">
                                     소식
                                 </a>
                                 <div class="absolute left-0 top-full mt-2 w-60 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0">
                                     <div class="py-2">
-                                        <a href="${pathPrefix}news/notices.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">공지사항</a>
+                                        <a href="${linkPrefix}news/notices.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">공지사항</a>
                                         <div class="relative group/sub">
                                             <a href="#" class="flex items-center justify-between px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">
                                                 보도자료, 논평 <i class="fas fa-chevron-right text-xs ml-2"></i>
                                             </a>
                                             <div class="absolute left-full top-0 mt-0 ml-1 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover/sub:opacity-100 group-hover/sub:visible transition-all duration-200">
                                                 <div class="py-2">
-                                                    <a href="${pathPrefix}news/press-releases.html" class="block px-4 py-2 text-sm text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">대변인</a>
-                                                    <a href="${pathPrefix}news/press-policy.html" class="block px-4 py-2 text-sm text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">정책위원회</a>
-                                                    <a href="${pathPrefix}news/press-media.html" class="block px-4 py-2 text-sm text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">뉴미디어위원회</a>
+                                                    <a href="${linkPrefix}news/press-releases.html" class="block px-4 py-2 text-sm text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">대변인</a>
+                                                    <a href="${linkPrefix}news/press-policy.html" class="block px-4 py-2 text-sm text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">정책위원회</a>
+                                                    <a href="${linkPrefix}news/press-media.html" class="block px-4 py-2 text-sm text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">뉴미디어위원회</a>
                                                 </div>
                                             </div>
                                         </div>
-                                        <a href="${pathPrefix}news/media.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">언론보도</a>
-                                        <a href="${pathPrefix}news/events.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">주요일정</a>
+                                        <a href="${linkPrefix}news/media.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">언론보도</a>
+                                        <a href="${linkPrefix}news/events.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">주요일정</a>
                                         <div class="relative group/sub">
                                             <a href="#" class="flex items-center justify-between px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">
                                                 미디어홍보 <i class="fas fa-chevron-right text-xs ml-2"></i>
                                             </a>
                                             <div class="absolute left-full top-0 mt-0 ml-1 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover/sub:opacity-100 group-hover/sub:visible transition-all duration-200">
                                                 <div class="py-2">
-                                                    <a href="${pathPrefix}news/card-news.html" class="block px-4 py-2 text-sm text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">카드뉴스</a>
-                                                    <a href="${pathPrefix}news/gallery.html" class="block px-4 py-2 text-sm text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">포토갤러리</a>
+                                                    <a href="${linkPrefix}news/card-news.html" class="block px-4 py-2 text-sm text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">카드뉴스</a>
+                                                    <a href="${linkPrefix}news/gallery.html" class="block px-4 py-2 text-sm text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">포토갤러리</a>
                                                 </div>
                                             </div>
                                         </div>
-                                        <a href="${pathPrefix}resources.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">자료실</a>
-                                        <a href="${pathPrefix}news/personnel.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">인사공고</a>
-                                        <a href="${pathPrefix}news/congratulations.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">경조사</a>
+                                        <a href="${linkPrefix}resources.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">자료실</a>
+                                        <a href="${linkPrefix}news/personnel.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">인사공고</a>
+                                        <a href="${linkPrefix}news/congratulations.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">경조사</a>
                                     </div>
                                 </div>
                             </div>
                             
                             <!-- 아고라 -->
-                            <a href="${pathPrefix}board.html" class="text-[#212121] hover:text-[#a50034] font-medium py-2 transition-colors duration-200 text-lg tracking-tight">
+                            <a href="${linkPrefix}board.html" class="text-[#212121] hover:text-[#a50034] font-medium py-2 transition-colors duration-200 text-lg tracking-tight">
                                 아고라
                             </a>
                             
@@ -177,7 +196,7 @@ function loadNavigation() {
                             
                             <!-- 3. 당원 -->
                             <div class="relative group">
-                                <a href="${pathPrefix}members/join.html" class="text-[#212121] hover:text-[#a50034] font-medium py-2 transition-colors duration-200 text-lg tracking-tight">
+                                <a href="${linkPrefix}members/join.html" class="text-[#212121] hover:text-[#a50034] font-medium py-2 transition-colors duration-200 text-lg tracking-tight">
                                     당원
                                 </a>
                                 <div class="absolute left-0 top-full mt-2 w-56 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0">
@@ -188,8 +207,8 @@ function loadNavigation() {
                                             </a>
                                             <div class="absolute left-full top-0 mt-0 ml-1 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover/sub:opacity-100 group-hover/sub:visible transition-all duration-200">
                                                 <div class="py-2">
-                                                    <a href="${pathPrefix}members/join.html" class="block px-4 py-2 text-sm text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">당원가입</a>
-                                                    <a href="${pathPrefix}members/faq.html" class="block px-4 py-2 text-sm text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">당원가입 FAQ</a>
+                                                    <a href="${linkPrefix}members/join.html" class="block px-4 py-2 text-sm text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">당원가입</a>
+                                                    <a href="${linkPrefix}members/faq.html" class="block px-4 py-2 text-sm text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">당원가입 FAQ</a>
                                                 </div>
                                             </div>
                                         </div>
@@ -201,13 +220,13 @@ function loadNavigation() {
                             
                             <!-- 4. 후원 -->
                             <div class="relative group">
-                                <a href="${pathPrefix}support.html" class="text-[#212121] hover:text-[#a50034] font-medium py-2 transition-colors duration-200 text-lg tracking-tight">
+                                <a href="${linkPrefix}support.html" class="text-[#212121] hover:text-[#a50034] font-medium py-2 transition-colors duration-200 text-lg tracking-tight">
                                     후원
                                 </a>
                                 <div class="absolute left-0 top-full mt-2 w-56 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0">
                                     <div class="py-2">
-                                        <a href="${pathPrefix}support-guide.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">후원 안내</a>
-                                        <a href="${pathPrefix}support-receipt.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">후원영수증 신청</a>
+                                        <a href="${linkPrefix}support-guide.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">후원 안내</a>
+                                        <a href="${linkPrefix}support-receipt.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">후원영수증 신청</a>
                                     </div>
                                 </div>
                             </div>
@@ -225,7 +244,7 @@ function loadNavigation() {
                         <div class="border-l border-gray-300 h-5"></div>
                         <!-- 비로그인 상태 -->
                         <div id="nav-guest" class="flex items-center gap-4">
-                            <a href="${pathPrefix}login.html" class="text-[#212121] hover:text-[#a50034] text-sm transition-colors duration-200">
+                            <a href="${linkPrefix}login.html" class="text-[#212121] hover:text-[#a50034] text-sm transition-colors duration-200">
                                 로그인
                             </a>
                             <a href="#" onclick="alert('현재 테스트 기간으로 회원가입이 일시 중단되었습니다.'); return false;" class="bg-gray-400 text-white px-4 py-1.5 rounded-full text-sm font-medium cursor-not-allowed">
@@ -291,14 +310,14 @@ function loadNavigation() {
                                 <i class="fas fa-chevron-down transition-transform duration-200" id="about-submenu-icon"></i>
                             </button>
                             <div id="about-submenu" class="hidden bg-gray-50 border-l-4 border-red-600 ml-3">
-                                <a href="${pathPrefix}about.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">당소개</a>
-                                <a href="${pathPrefix}about/principles.html#platform" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">강령</a>
-                                <a href="${pathPrefix}about/principles.html#charter" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">당헌</a>
-                                <a href="${pathPrefix}about/principles.html#rules" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">당규</a>
-                                <a href="${pathPrefix}about/founding.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">창당 스토리</a>
-                                <a href="${pathPrefix}about/policy.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">정책</a>
-                                <a href="${pathPrefix}about/logo.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">로고</a>
-                                <a href="${pathPrefix}about/location.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">찾아오시는길</a>
+                                <a href="${linkPrefix}about.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">당소개</a>
+                                <a href="${linkPrefix}about/principles.html#platform" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">강령</a>
+                                <a href="${linkPrefix}about/principles.html#charter" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">당헌</a>
+                                <a href="${linkPrefix}about/principles.html#rules" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">당규</a>
+                                <a href="${linkPrefix}about/founding.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">창당 스토리</a>
+                                <a href="${linkPrefix}about/policy.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">정책</a>
+                                <a href="${linkPrefix}about/logo.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">로고</a>
+                                <a href="${linkPrefix}about/location.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">찾아오시는길</a>
                             </div>
                         </div>
                         
@@ -309,11 +328,11 @@ function loadNavigation() {
                                 <i class="fas fa-chevron-down transition-transform duration-200" id="org-submenu-icon"></i>
                             </button>
                             <div id="org-submenu" class="hidden bg-gray-50 border-l-4 border-red-600 ml-3">
-                                <a href="${pathPrefix}about/organization.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">조직도</a>
-                                <a href="${pathPrefix}committees/index.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">직능위원회</a>
-                                <a href="${pathPrefix}local-chapters.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">시도당·당협</a>
-                                <a href="${pathPrefix}about/people-central.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">중앙당 일꾼들</a>
-                                <a href="${pathPrefix}about/people-regional.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">시도당 일꾼들</a>
+                                <a href="${linkPrefix}about/organization.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">조직도</a>
+                                <a href="${linkPrefix}committees/index.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">직능위원회</a>
+                                <a href="${linkPrefix}local-chapters.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">시도당·당협</a>
+                                <a href="${linkPrefix}about/people-central.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">중앙당 일꾼들</a>
+                                <a href="${linkPrefix}about/people-regional.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">시도당 일꾼들</a>
                             </div>
                         </div>
                         
@@ -324,23 +343,23 @@ function loadNavigation() {
                                 <i class="fas fa-chevron-down transition-transform duration-200" id="news-submenu-icon"></i>
                             </button>
                             <div id="news-submenu" class="hidden bg-gray-50 border-l-4 border-red-600 ml-3">
-                                <a href="${pathPrefix}news/notices.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">공지사항</a>
-                                <a href="${pathPrefix}news/press-releases.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">대변인</a>
-                                <a href="${pathPrefix}news/press-policy.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">정책위</a>
-                                <a href="${pathPrefix}news/press-media.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">뉴미디어</a>
-                                <a href="${pathPrefix}news/media.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">언론보도</a>
-                                <a href="${pathPrefix}news/events.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">주요일정</a>
-                                <a href="${pathPrefix}news/card-news.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">카드뉴스</a>
-                                <a href="${pathPrefix}news/gallery.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">포토갤러리</a>
-                                <a href="${pathPrefix}resources.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">자료실</a>
-                                <a href="${pathPrefix}news/personnel.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">인사공고</a>
-                                <a href="${pathPrefix}news/congratulations.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">경조사</a>
+                                <a href="${linkPrefix}news/notices.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">공지사항</a>
+                                <a href="${linkPrefix}news/press-releases.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">대변인</a>
+                                <a href="${linkPrefix}news/press-policy.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">정책위</a>
+                                <a href="${linkPrefix}news/press-media.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">뉴미디어</a>
+                                <a href="${linkPrefix}news/media.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">언론보도</a>
+                                <a href="${linkPrefix}news/events.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">주요일정</a>
+                                <a href="${linkPrefix}news/card-news.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">카드뉴스</a>
+                                <a href="${linkPrefix}news/gallery.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">포토갤러리</a>
+                                <a href="${linkPrefix}resources.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">자료실</a>
+                                <a href="${linkPrefix}news/personnel.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">인사공고</a>
+                                <a href="${linkPrefix}news/congratulations.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">경조사</a>
                             </div>
                         </div>
                         
                         <!-- 아고라 메뉴 -->
                         <div class="mobile-menu-item">
-                            <a href="${pathPrefix}board.html" class="w-full flex items-center px-3 py-2 text-lg text-gray-700 hover:bg-gray-50 hover:text-red-600 font-bold">
+                            <a href="${linkPrefix}board.html" class="w-full flex items-center px-3 py-2 text-lg text-gray-700 hover:bg-gray-50 hover:text-red-600 font-bold">
                                 아고라
                             </a>
                         </div>
@@ -359,8 +378,8 @@ function loadNavigation() {
                                 <i class="fas fa-chevron-down transition-transform duration-200" id="members-submenu-icon"></i>
                             </button>
                             <div id="members-submenu" class="hidden bg-gray-50 border-l-4 border-red-600 ml-3">
-                                <a href="${pathPrefix}members/join.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">당원가입</a>
-                                <a href="${pathPrefix}members/faq.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">당원가입 FAQ</a>
+                                <a href="${linkPrefix}members/join.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">당원가입</a>
+                                <a href="${linkPrefix}members/faq.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">당원가입 FAQ</a>
                                 <a href="#" onclick="alert('당비납부 시스템 개발중입니다.'); return false;" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">당비납부 <span class="text-xs text-gray-500">(준비중)</span></a>
                                 <a href="#" onclick="alert('당원교육 시스템 개발중입니다.'); return false;" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">당원교육 <span class="text-xs text-gray-500">(개발중)</span></a>
                             </div>
@@ -373,8 +392,8 @@ function loadNavigation() {
                                 <i class="fas fa-chevron-down transition-transform duration-200" id="support-submenu-icon"></i>
                             </button>
                             <div id="support-submenu" class="hidden bg-gray-50 border-l-4 border-red-600 ml-3">
-                                <a href="${pathPrefix}support-guide.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">후원 안내</a>
-                                <a href="${pathPrefix}support-receipt.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">후원영수증 신청</a>
+                                <a href="${linkPrefix}support-guide.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">후원 안내</a>
+                                <a href="${linkPrefix}support-receipt.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">후원영수증 신청</a>
                             </div>
                         </div>
                         
@@ -382,7 +401,7 @@ function loadNavigation() {
                         <div class="pt-4 px-3 border-t border-gray-200 mt-4">
                             <!-- 비로그인 상태 -->
                             <div id="mobile-nav-guest" class="flex gap-2">
-                                <a href="${pathPrefix}login.html" class="flex-1 bg-gray-100 text-gray-700 text-center py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors">
+                                <a href="${linkPrefix}login.html" class="flex-1 bg-gray-100 text-gray-700 text-center py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors">
                                     로그인
                                 </a>
                                 <a href="#" onclick="alert('현재 테스트 기간으로 회원가입이 일시 중단되었습니다.'); return false;" class="flex-1 bg-gray-400 text-white text-center py-3 rounded-lg font-bold cursor-not-allowed">
@@ -444,7 +463,7 @@ function loadNavigation() {
                 </a>
                 
                 <!-- 후원영수증 신청 버튼 -->
-                <a href="${pathPrefix}support-receipt.html" 
+                <a href="${linkPrefix}support-receipt.html" 
                    class="floating-btn bg-green-600 hover:bg-green-700 text-white shadow-lg"
                    title="후원영수증 신청">
                     <i class="fas fa-receipt mr-2"></i>
@@ -453,7 +472,7 @@ function loadNavigation() {
                 </a>
                 
                 <!-- 후원하기 버튼 -->
-                <a href="${pathPrefix}support.html" 
+                <a href="${linkPrefix}support.html" 
                    class="floating-btn bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
                    title="후원하기">
                     <i class="fas fa-heart mr-2"></i>
