@@ -189,7 +189,7 @@ function loadNavigation() {
                     <!-- 왼쪽: 로고 + 메뉴 -->
                     <div class="flex items-center gap-8">
                         <!-- 로고 -->
-                        <a href="${linkPrefix}index.html" class="flex items-center">
+                        <a href="${linkPrefix}index.html" class="flex items-center flex-shrink-0">
                             <img src="${imgPrefix}images/logo-symbol.png" alt="자유와혁신" class="h-8 w-auto">
                         </a>
                         
