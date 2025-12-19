@@ -337,15 +337,8 @@ function loadNavigation() {
                         </div>
                     </div>
                     
-                    <!-- 오른쪽: 일수 카운터, 로그인/마이페이지, 언어전환 -->
+                    <!-- 오른쪽: 로그인/마이페이지, 언어전환 -->
                     <div class="hidden md:flex items-center gap-6">
-                        <!-- 일수 카운터 -->
-                        <div id="day-counter" class="flex items-center gap-2">
-                            <span id="day-counter-text" class="text-[#212121] font-medium text-sm tracking-tight"></span>
-                            <span id="day-counter-number" class="bg-[#a50034] text-white px-2 py-0.5 rounded font-bold text-sm"></span>
-                            <span class="text-[#212121] font-medium text-sm">${isEnPage ? 'days' : '일째'}</span>
-                        </div>
-                        <div class="border-l border-gray-300 h-5"></div>
                         <!-- 비로그인 상태 -->
                         <div id="nav-guest" class="flex items-center gap-4">
                             <a href="${linkPrefix}login.html" class="text-[#212121] hover:text-[#a50034] text-sm transition-colors duration-200">
