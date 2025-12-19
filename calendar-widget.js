@@ -219,7 +219,7 @@ const CalendarWidget = {
                 const date = new Date(startDate);
                 date.setDate(startDate.getDate() + (week * 7) + day);
 
-                const dateStr = date.toISOString().split('T')[0];
+                const dateStr = date.toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
                 const dayEvents = this.events.filter(e => e.date === dateStr);
                 const isToday = date.getTime() === today.getTime();
                 const isSunday = date.getDay() === 0;
