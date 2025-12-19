@@ -119,8 +119,8 @@ const CalendarWidget = {
                     <!-- 섹션 헤더 -->
                     <div class="flex items-center justify-between mb-8">
                         <div>
-                            <h2 class="text-2xl font-bold text-gray-900">${isEnPage ? 'Upcoming Events' : '주요 일정'}</h2>
-                            <p class="text-gray-500 mt-1">${isEnPage ? 'Check out our upcoming schedule' : '자유와혁신의 다가오는 일정을 확인하세요'}</p>
+                            <h2 class="text-2xl font-bold text-gray-900">${isEnPage ? 'Freedom & Innovation Events' : '자유와혁신 주요 일정'}</h2>
+                            <p class="text-gray-500 mt-1">${isEnPage ? 'Check out our upcoming schedule' : '다가오는 일정을 확인하세요'}</p>
                         </div>
                         <a href="${isEnPage ? '/en/news/events.html' : '/news/events.html'}" class="text-[#a50034] hover:text-[#8B002C] font-medium flex items-center gap-1">
                             ${isEnPage ? 'View All' : '전체 일정 보기'} <i class="fas fa-arrow-right text-sm"></i>
