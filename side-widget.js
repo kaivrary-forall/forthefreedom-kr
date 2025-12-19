@@ -11,12 +11,12 @@
                 z-index: 40;
             }
             #side-banner-left {
-                left: calc((100vw - 1280px) / 2 - 220px);
+                left: calc((100vw - 1280px) / 2 - 170px);
             }
             #side-banner-right {
-                right: calc((100vw - 1280px) / 2 - 220px);
+                right: calc((100vw - 1280px) / 2 - 170px);
             }
-            @media (min-width: 1536px) {
+            @media (min-width: 1700px) {
                 #side-banner-left, #side-banner-right {
                     display: block;
                 }
@@ -25,28 +25,28 @@
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                width: 28px;
-                height: 36px;
+                width: 24px;
+                height: 32px;
                 background: #a50034;
                 color: white;
-                font-size: 18px;
+                font-size: 16px;
                 font-weight: 700;
-                border-radius: 6px;
+                border-radius: 5px;
             }
             .side-banner-card {
                 background: white;
                 border-radius: 16px;
                 border: 1px solid #e5e7eb;
-                padding: 16px;
-                width: 160px;
+                padding: 14px;
+                width: 140px;
                 text-align: center;
             }
             .member-btn {
                 display: block;
                 width: 100%;
-                padding: 8px 0;
-                border-radius: 8px;
-                font-size: 13px;
+                padding: 7px 0;
+                border-radius: 6px;
+                font-size: 12px;
                 font-weight: 500;
                 text-decoration: none;
                 transition: all 0.2s;
@@ -70,11 +70,11 @@
         <!-- 왼쪽 배너: 일수 카운터 -->
         <div id="side-banner-left">
             <div class="side-banner-card">
-                <p id="banner-label" style="font-size: 11px; color: #6b7280; margin-bottom: 10px;">
+                <p id="banner-label" style="font-size: 10px; color: #6b7280; margin-bottom: 8px;">
                     ${isEnPage ? "Our Journey" : '자유와혁신의 발걸음'}
                 </p>
-                <div id="banner-digits" style="display: flex; justify-content: center; gap: 2px; margin-bottom: 6px;"></div>
-                <p style="font-size: 12px; color: #9ca3af;">${isEnPage ? 'days' : '일째'}</p>
+                <div id="banner-digits" style="display: flex; justify-content: center; gap: 2px; margin-bottom: 4px;"></div>
+                <p style="font-size: 11px; color: #9ca3af;">${isEnPage ? 'days' : '일째'}</p>
             </div>
         </div>
 
@@ -82,24 +82,24 @@
         <div id="side-banner-right">
             <div class="side-banner-card">
                 <!-- 프로필 이미지 -->
-                <div id="profile-image" style="width: 60px; height: 60px; margin: 0 auto 12px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                    <svg id="default-avatar" style="width: 32px; height: 32px; color: #9ca3af;" fill="currentColor" viewBox="0 0 24 24">
+                <div id="profile-image" style="width: 50px; height: 50px; margin: 0 auto 10px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                    <svg id="default-avatar" style="width: 28px; height: 28px; color: #9ca3af;" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                     </svg>
                     <img id="member-avatar" style="width: 100%; height: 100%; object-fit: cover; display: none;" alt="profile">
                 </div>
                 
                 <!-- 회원 아이디 (로그인 시에만) -->
-                <p id="member-id" style="font-size: 13px; color: #374151; font-weight: 600; margin-bottom: 12px; display: none;"></p>
+                <p id="member-id" style="font-size: 12px; color: #374151; font-weight: 600; margin-bottom: 10px; display: none;"></p>
                 
                 <!-- 비로그인 상태 버튼 -->
-                <div id="guest-buttons" style="display: flex; flex-direction: column; gap: 8px;">
+                <div id="guest-buttons" style="display: flex; flex-direction: column; gap: 6px;">
                     <a href="${linkPrefix}login.html" class="member-btn member-btn-primary">${isEnPage ? 'Login' : '로그인'}</a>
                     <a href="${linkPrefix}join.html" class="member-btn member-btn-secondary">${isEnPage ? 'Sign Up' : '회원가입'}</a>
                 </div>
                 
                 <!-- 로그인 상태 버튼 -->
-                <div id="member-buttons" style="display: none; flex-direction: column; gap: 8px;">
+                <div id="member-buttons" style="display: none; flex-direction: column; gap: 6px;">
                     <a href="${linkPrefix}mypage.html" class="member-btn member-btn-primary">${isEnPage ? 'My Page' : '마이페이지'}</a>
                     <button onclick="logoutMember()" class="member-btn member-btn-secondary">${isEnPage ? 'Logout' : '로그아웃'}</button>
                 </div>
@@ -138,9 +138,10 @@
         const labelEl = document.getElementById('banner-label');
         if (!labelEl) return;
 
+        const token = localStorage.getItem('memberToken');
         const memberInfoStr = localStorage.getItem('memberInfo');
         
-        if (memberInfoStr) {
+        if (token && memberInfoStr) {
             try {
                 const memberInfo = JSON.parse(memberInfoStr);
                 if (memberInfo.appliedAt) {
