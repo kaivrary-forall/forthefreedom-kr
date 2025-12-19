@@ -10,11 +10,6 @@
                 position: fixed;
                 z-index: 40;
             }
-            @media (min-width: 1600px) {
-                #side-banner-left, #side-banner-right {
-                    display: block;
-                }
-            }
             .day-digit {
                 display: inline-flex;
                 align-items: center;
@@ -111,6 +106,25 @@
         
         if (!bannerLeft || !bannerRight) return;
         
+        const viewportWidth = window.innerWidth;
+        const contentWidth = 1280;
+        const bannerWidth = 140;
+        const gap = 20;
+        
+        // 필요한 최소 너비: 1280 + (140 + 20) * 2 = 1600px
+        const minWidth = contentWidth + (bannerWidth + gap) * 2;
+        
+        if (viewportWidth < minWidth) {
+            // 공간 부족 - 배너 숨김
+            bannerLeft.style.display = 'none';
+            bannerRight.style.display = 'none';
+            return;
+        }
+        
+        // 배너 표시
+        bannerLeft.style.display = 'block';
+        bannerRight.style.display = 'block';
+        
         // 상단 위치 (네비게이션 바 아래)
         if (nav) {
             const navBottom = nav.getBoundingClientRect().bottom;
@@ -119,20 +133,12 @@
             bannerRight.style.top = topPos;
         }
         
-        // 좌우 위치 (1280px 컨텐츠 기준 고정 간격 20px)
-        const viewportWidth = window.innerWidth;
-        const contentWidth = 1280;
-        const bannerWidth = 140;
-        const gap = 20;
-        
+        // 좌우 위치 계산
         const sideMargin = (viewportWidth - contentWidth) / 2;
         const bannerPosition = sideMargin - bannerWidth - gap;
         
-        // 배너가 화면 밖으로 나가지 않도록 최소 10px 확보
-        const finalPosition = Math.max(10, bannerPosition);
-        
-        bannerLeft.style.left = finalPosition + 'px';
-        bannerRight.style.right = finalPosition + 'px';
+        bannerLeft.style.left = bannerPosition + 'px';
+        bannerRight.style.right = bannerPosition + 'px';
     }
 
     function renderDigits(number) {
