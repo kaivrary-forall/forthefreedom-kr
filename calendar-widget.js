@@ -49,18 +49,34 @@ const CalendarWidget = {
                 return;
             }
 
-            this.events = (data.items || []).map(event => ({
-                id: event.id,
-                title: event.summary || '(제목 없음)',
-                date: event.start.date || event.start.dateTime.split('T')[0],
-                time: event.start.dateTime ? event.start.dateTime.split('T')[1].substring(0, 5) : '종일',
-                location: event.location || '',
-                description: event.description || '',
-                url: event.description && event.description.startsWith('http') 
-                    ? event.description.split('\n')[0] 
-                    : (event.htmlLink || '#'),
-                color: this.getEventColor(event)
-            }));
+            this.events = (data.items || []).map(event => {
+                // 날짜 파싱 (한국 시간대 고려)
+                let eventDate, eventTime;
+                
+                if (event.start.date) {
+                    // 종일 일정
+                    eventDate = event.start.date;
+                    eventTime = '종일';
+                } else if (event.start.dateTime) {
+                    // 시간 지정 일정 - 한국 시간대로 변환
+                    const dt = new Date(event.start.dateTime);
+                    eventDate = dt.toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
+                    eventTime = dt.toLocaleTimeString('ko-KR', { timeZone: 'Asia/Seoul', hour: '2-digit', minute: '2-digit', hour12: false });
+                }
+                
+                return {
+                    id: event.id,
+                    title: event.summary || '(제목 없음)',
+                    date: eventDate,
+                    time: eventTime,
+                    location: event.location || '',
+                    description: event.description || '',
+                    url: event.description && event.description.startsWith('http') 
+                        ? event.description.split('\n')[0] 
+                        : (event.htmlLink || '#'),
+                    color: this.getEventColor(event)
+                };
+            });
 
             this.renderCalendar();
             this.renderEventList();
