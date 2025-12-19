@@ -7,8 +7,8 @@
             #side-banner {
                 display: none;
                 position: fixed;
-                top: 140px;
-                left: calc((100vw - 1280px) / 2 - 180px);
+                top: 100px;
+                left: calc((100vw - 1280px) / 2 - 190px);
                 z-index: 40;
             }
             @media (min-width: 1536px) {
