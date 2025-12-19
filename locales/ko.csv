@@ -199,3 +199,15 @@ press_detail_title,보도자료 - 자유와혁신
 election_detail_title,선거자료 - 자유와혁신
 constitution_detail_title,당헌당규 - 자유와혁신
 policy_mat_detail_title,정책자료 - 자유와혁신
+events_page_title,주요 일정
+events_page_subtitle,자유와혁신의 주요 일정을 확인하세요
+events_breadcrumb,주요 일정
+events_list_title,이번 달 일정
+events_loading,일정을 불러오는 중...
+day_sun,일
+day_mon,월
+day_tue,화
+day_wed,수
+day_thu,목
+day_fri,금
+day_sat,토
