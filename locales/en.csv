@@ -211,3 +211,9 @@ day_wed,Wed
 day_thu,Thu
 day_fri,Fri
 day_sat,Sat
+linkPrefix,../
+imgPrefix,../
+lang_code,en
+breadcrumb_home,Home
+breadcrumb_news,News
+events_meta_description,Check out Freedom & Innovation's major events and schedules. We provide information on party meetings, political activities, and public events.
