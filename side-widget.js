@@ -10,11 +10,12 @@
                 position: fixed;
                 top: 120px;
                 z-index: 40;
-                left: calc((100vw - 1280px) / 2 - 200px);
+                left: 20px;
             }
-            @media (min-width: 1600px) {
+            @media (min-width: 1920px) {
                 #side-widget-left {
                     display: block;
+                    left: calc((100vw - 1280px) / 2 - 220px);
                 }
             }
             .widget-card {
