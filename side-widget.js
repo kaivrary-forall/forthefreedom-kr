@@ -7,7 +7,6 @@
             #side-banner {
                 display: none;
                 position: fixed;
-                top: 125px;
                 left: calc((100vw - 1280px) / 2 - 190px);
                 z-index: 40;
             }
@@ -41,6 +40,17 @@
     `;
 
     document.body.insertAdjacentHTML('beforeend', bannerHTML);
+
+    // 네비게이션 바 기준으로 위치 조정
+    function adjustBannerPosition() {
+        const nav = document.querySelector('nav') || document.querySelector('.nav-container') || document.querySelector('[class*="nav"]');
+        const banner = document.getElementById('side-banner');
+        if (nav && banner) {
+            const navRect = nav.getBoundingClientRect();
+            const navBottom = navRect.bottom;
+            banner.style.top = (navBottom + 24) + 'px'; // 네비게이션 아래 24px 간격
+        }
+    }
 
     function renderDigits(number) {
         const container = document.getElementById('banner-digits');
@@ -81,8 +91,15 @@
     }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', updateCounter);
+        document.addEventListener('DOMContentLoaded', function() {
+            adjustBannerPosition();
+            updateCounter();
+        });
     } else {
+        adjustBannerPosition();
         updateCounter();
     }
+
+    // 리사이즈 시에도 위치 재조정
+    window.addEventListener('resize', adjustBannerPosition);
 })();
