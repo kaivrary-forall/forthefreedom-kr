@@ -10,15 +10,15 @@
                 position: fixed;
                 z-index: 40;
             }
-            #side-banner-left {
-                left: calc((100vw - 1280px) / 2 - 170px);
-            }
-            #side-banner-right {
-                right: calc((100vw - 1280px) / 2 - 170px);
-            }
             @media (min-width: 1700px) {
                 #side-banner-left, #side-banner-right {
                     display: block;
+                }
+                #side-banner-left {
+                    left: calc(50% - 640px - 160px);
+                }
+                #side-banner-right {
+                    right: calc(50% - 640px - 160px);
                 }
             }
             .day-digit {
