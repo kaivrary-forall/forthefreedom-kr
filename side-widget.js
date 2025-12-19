@@ -48,7 +48,7 @@
         if (nav && banner) {
             const navRect = nav.getBoundingClientRect();
             const navBottom = navRect.bottom;
-            banner.style.top = (navBottom + 24) + 'px'; // 네비게이션 아래 24px 간격
+            banner.style.top = (navBottom + 23) + 'px'; // 네비게이션 아래 24px 간격
         }
     }
 
