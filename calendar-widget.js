@@ -257,13 +257,24 @@ const CalendarWidget = {
                 // 일정 목록
                 dayEvents.forEach(event => {
                     const textColor = isToday ? 'text-white/90' : 'text-gray-700';
+                    const subTextColor = isToday ? 'text-white/70' : 'text-gray-500';
                     const dotColor = isToday ? 'bg-white' : '';
                     const hoverBg = isToday ? 'hover:bg-white/20' : 'hover:bg-gray-100';
 
+                    // 시간 | 장소 조합
+                    let timeLocation = event.time || '';
+                    if (event.location) {
+                        timeLocation += timeLocation ? ' | ' + event.location : event.location;
+                    }
+
                     html += `
-                        <a href="${event.url}" class="flex items-start gap-1 text-xs ${hoverBg} rounded p-0.5 sm:p-1 -mx-0.5 sm:-mx-1 ${textColor}">
-                            <span class="w-1.5 h-1.5 rounded-full mt-1 flex-shrink-0 ${dotColor}" style="background-color: ${isToday ? 'white' : event.color}"></span>
-                            <span class="truncate sm:whitespace-normal">${event.title}</span>
+                        <a href="${event.url}" class="block text-xs ${hoverBg} rounded p-0.5 sm:p-1 -mx-0.5 sm:-mx-1 mb-1">
+                            <div class="flex items-start gap-1 ${textColor}">
+                                <span class="w-1.5 h-1.5 rounded-full mt-1 flex-shrink-0 ${dotColor}" style="background-color: ${isToday ? 'white' : event.color}"></span>
+                                <span class="font-medium">${event.title}</span>
+                            </div>
+                            ${timeLocation ? `<div class="ml-2.5 text-[10px] ${subTextColor}">${timeLocation}</div>` : ''}
+                            ${event.description && !event.description.startsWith('http') ? `<div class="ml-2.5 text-[10px] ${subTextColor} truncate">${event.description.split('\\n')[0]}</div>` : ''}
                         </a>
                     `;
                 });
