@@ -299,7 +299,17 @@
     <div id="navigation-container"></div>
 
     <!-- Hero Section Wrapper - 배너 + 사이드 카드 -->
-    <div class="hero-wrapper max-w-7xl" style="width: 100%; margin-left: auto; margin-right: auto; padding: 24px 24px;">
+    <div style="position: relative;">
+        <!-- 사이드 배너 (1920px 이상에서만 표시) -->
+        <div id="side-banner" class="hidden 2xl:block" style="position: absolute; top: 24px; left: calc((100% - 1280px) / 2 - 180px); z-index: 30;">
+            <div style="background: white; border-radius: 16px; border: 1px solid #e5e7eb; padding: 20px; width: 160px; text-align: center;">
+                <p id="banner-label" style="font-size: 11px; color: #6b7280; margin-bottom: 12px;">자유와혁신의 발걸음</p>
+                <div id="banner-digits" style="display: flex; justify-content: center; gap: 3px; margin-bottom: 8px;"></div>
+                <p style="font-size: 12px; color: #9ca3af;">일째</p>
+            </div>
+        </div>
+        
+        <div class="hero-wrapper max-w-7xl" style="width: 100%; margin-left: auto; margin-right: auto; padding: 24px 24px;">
         <div class="hero-layout" style="display: flex; gap: 16px; height: 500px;">
             <!-- 배너 슬라이더 (70%) -->
             <div class="banner-area" style="flex: 7; min-width: 0; display: flex; flex-direction: column;">
@@ -340,6 +350,42 @@
             </div>
         </div>
     </div>
+    </div>
+    
+    <!-- 사이드 배너 스크립트 -->
+    <script>
+    (function() {
+        function renderDigits(number) {
+            const container = document.getElementById('banner-digits');
+            if (!container) return;
+            const numStr = String(number).padStart(4, '0');
+            let html = '';
+            for (let i = 0; i < numStr.length; i++) {
+                html += '<span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:36px;background:#a50034;color:white;font-size:18px;font-weight:700;border-radius:6px;">' + numStr[i] + '</span>';
+            }
+            container.innerHTML = html;
+        }
+        
+        const foundingDate = new Date('2025-06-06T00:00:00+09:00');
+        const today = new Date();
+        const diffDays = Math.floor((today - foundingDate) / (1000 * 60 * 60 * 24)) + 1;
+        renderDigits(Math.max(1, diffDays));
+        
+        // 로그인 상태 확인
+        const memberInfoStr = localStorage.getItem('memberInfo');
+        if (memberInfoStr) {
+            try {
+                const memberInfo = JSON.parse(memberInfoStr);
+                if (memberInfo.appliedAt) {
+                    document.getElementById('banner-label').textContent = '우리가 함께한 지';
+                    const joinDate = new Date(memberInfo.appliedAt);
+                    const days = Math.floor((today - joinDate) / (1000 * 60 * 60 * 24)) + 1;
+                    renderDigits(days);
+                }
+            } catch (e) {}
+        }
+    })();
+    </script>
     
     <style>
         @keyframes shimmer {
