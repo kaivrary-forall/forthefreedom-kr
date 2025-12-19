@@ -190,19 +190,9 @@
                 <!-- 왼쪽: 월간 캘린더 -->
                 <div class="lg:col-span-3">
                     <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-                        <!-- 요일 헤더 -->
-                        <div class="calendar-grid border-b border-gray-200">
-                            <div class="calendar-header text-red-500">Sun</div>
-                            <div class="calendar-header">Mon</div>
-                            <div class="calendar-header">Tue</div>
-                            <div class="calendar-header">Wed</div>
-                            <div class="calendar-header">Thu</div>
-                            <div class="calendar-header">Fri</div>
-                            <div class="calendar-header text-blue-500">Sat</div>
-                        </div>
-                        <!-- 날짜 그리드 -->
+                        <!-- 캘린더 (헤더 + 날짜 통합) -->
                         <div id="calendar-grid" class="calendar-grid">
-                            <!-- 동적 생성 -->
+                            <!-- 요일 헤더 (JS에서 함께 렌더링) -->
                         </div>
                     </div>
                 </div>
@@ -338,6 +328,18 @@
 
             let html = '';
             const date = new Date(startDate);
+
+            // 요일 헤더 추가
+            const dayHeaders = this.isEnPage 
+                ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+                : ['일', '월', '화', '수', '목', '금', '토'];
+            
+            dayHeaders.forEach((day, idx) => {
+                let headerClass = 'calendar-header';
+                if (idx === 0) headerClass += ' text-red-500';
+                else if (idx === 6) headerClass += ' text-blue-500';
+                html += `<div class="${headerClass}">${day}</div>`;
+            });
 
             // 6주 렌더링
             for (let week = 0; week < 6; week++) {
