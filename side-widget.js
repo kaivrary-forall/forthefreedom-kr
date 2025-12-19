@@ -11,7 +11,7 @@
                 left: calc((100vw - 1280px) / 2 - 180px);
                 z-index: 40;
             }
-            @media (min-width: 1920px) {
+            @media (min-width: 1536px) {
                 #side-banner {
                     display: block;
                 }
@@ -24,19 +24,18 @@
                 height: 36px;
                 background: #a50034;
                 color: white;
-                font-size: 20px;
+                font-size: 18px;
                 font-weight: 700;
-                border-radius: 4px;
-                margin: 0 1px;
+                border-radius: 6px;
             }
         </style>
         <div id="side-banner">
-            <div class="bg-white rounded-xl border border-gray-200 p-4 w-44">
-                <p id="banner-label" class="text-xs text-gray-500 font-medium mb-2 text-center">
+            <div style="background: white; border-radius: 16px; border: 1px solid #e5e7eb; padding: 16px; width: 160px; text-align: center;">
+                <p id="banner-label" style="font-size: 11px; color: #6b7280; margin-bottom: 10px;">
                     ${isEnPage ? "Our Journey" : '자유와혁신의 발걸음'}
                 </p>
-                <div id="banner-digits" class="flex justify-center items-center mb-1"></div>
-                <p class="text-xs text-gray-400 text-center">${isEnPage ? 'days' : '일째'}</p>
+                <div id="banner-digits" style="display: flex; justify-content: center; gap: 2px; margin-bottom: 6px;"></div>
+                <p style="font-size: 12px; color: #9ca3af;">${isEnPage ? 'days' : '일째'}</p>
             </div>
         </div>
     `;
