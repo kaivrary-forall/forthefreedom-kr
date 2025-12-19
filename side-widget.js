@@ -10,15 +10,9 @@
                 position: fixed;
                 z-index: 40;
             }
-            @media (min-width: 1700px) {
+            @media (min-width: 1600px) {
                 #side-banner-left, #side-banner-right {
                     display: block;
-                }
-                #side-banner-left {
-                    left: calc(50% - 640px - 160px);
-                }
-                #side-banner-right {
-                    right: calc(50% - 640px - 160px);
                 }
             }
             .day-digit {
@@ -109,18 +103,36 @@
 
     document.body.insertAdjacentHTML('beforeend', bannerHTML);
 
-    // 네비게이션 바 기준으로 위치 조정
+    // 배너 위치 조정 - 1280px 컨텐츠 기준 고정 간격
     function adjustBannerPosition() {
         const nav = document.querySelector('nav') || document.querySelector('.nav-container') || document.querySelector('[class*="nav"]');
         const bannerLeft = document.getElementById('side-banner-left');
         const bannerRight = document.getElementById('side-banner-right');
-        if (nav && bannerLeft && bannerRight) {
-            const navRect = nav.getBoundingClientRect();
-            const navBottom = navRect.bottom;
+        
+        if (!bannerLeft || !bannerRight) return;
+        
+        // 상단 위치 (네비게이션 바 아래)
+        if (nav) {
+            const navBottom = nav.getBoundingClientRect().bottom;
             const topPos = (navBottom + 24) + 'px';
             bannerLeft.style.top = topPos;
             bannerRight.style.top = topPos;
         }
+        
+        // 좌우 위치 (1280px 컨텐츠 기준 고정 간격 20px)
+        const viewportWidth = window.innerWidth;
+        const contentWidth = 1280;
+        const bannerWidth = 140;
+        const gap = 20;
+        
+        const sideMargin = (viewportWidth - contentWidth) / 2;
+        const bannerPosition = sideMargin - bannerWidth - gap;
+        
+        // 배너가 화면 밖으로 나가지 않도록 최소 10px 확보
+        const finalPosition = Math.max(10, bannerPosition);
+        
+        bannerLeft.style.left = finalPosition + 'px';
+        bannerRight.style.right = finalPosition + 'px';
     }
 
     function renderDigits(number) {
@@ -175,14 +187,12 @@
             try {
                 const memberInfo = JSON.parse(memberInfoStr);
                 if (memberInfo.nickname) {
-                    // 로그인 상태
                     if (guestButtons) guestButtons.style.display = 'none';
                     if (memberButtons) memberButtons.style.display = 'flex';
                     if (memberId) {
                         memberId.style.display = 'block';
                         memberId.textContent = memberInfo.nickname || memberInfo.name || 'Member';
                     }
-                    // 프로필 이미지가 있으면 표시
                     if (memberInfo.profileImage && memberAvatar && defaultAvatar) {
                         memberAvatar.src = memberInfo.profileImage;
                         memberAvatar.style.display = 'block';
@@ -193,7 +203,6 @@
             } catch (e) {}
         }
         
-        // 비로그인 상태
         if (guestButtons) guestButtons.style.display = 'flex';
         if (memberButtons) memberButtons.style.display = 'none';
         if (memberId) memberId.style.display = 'none';
@@ -201,7 +210,6 @@
         if (memberAvatar) memberAvatar.style.display = 'none';
     }
 
-    // 로그아웃 함수 (전역)
     window.logoutMember = function() {
         localStorage.removeItem('memberToken');
         localStorage.removeItem('memberInfo');
