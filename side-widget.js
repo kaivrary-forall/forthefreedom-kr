@@ -1,17 +1,23 @@
-// 사이드 배너 - 자유와혁신 일수 카운터
+// 사이드 배너 - 자유와혁신 일수 카운터 + 회원 정보
 (function() {
     const isEnPage = window.location.pathname.startsWith('/en/') || window.location.pathname === '/en';
+    const linkPrefix = isEnPage ? '../' : '';
 
     const bannerHTML = `
         <style>
-            #side-banner {
+            #side-banner-left, #side-banner-right {
                 display: none;
                 position: fixed;
-                left: calc((100vw - 1280px) / 2 - 220px);
                 z-index: 40;
             }
+            #side-banner-left {
+                left: calc((100vw - 1280px) / 2 - 220px);
+            }
+            #side-banner-right {
+                right: calc((100vw - 1280px) / 2 - 220px);
+            }
             @media (min-width: 1536px) {
-                #side-banner {
+                #side-banner-left, #side-banner-right {
                     display: block;
                 }
             }
@@ -27,14 +33,76 @@
                 font-weight: 700;
                 border-radius: 6px;
             }
+            .side-banner-card {
+                background: white;
+                border-radius: 16px;
+                border: 1px solid #e5e7eb;
+                padding: 16px;
+                width: 160px;
+                text-align: center;
+            }
+            .member-btn {
+                display: block;
+                width: 100%;
+                padding: 8px 0;
+                border-radius: 8px;
+                font-size: 13px;
+                font-weight: 500;
+                text-decoration: none;
+                transition: all 0.2s;
+            }
+            .member-btn-primary {
+                background: #a50034;
+                color: white;
+            }
+            .member-btn-primary:hover {
+                background: #8a002c;
+            }
+            .member-btn-secondary {
+                background: #f3f4f6;
+                color: #374151;
+            }
+            .member-btn-secondary:hover {
+                background: #e5e7eb;
+            }
         </style>
-        <div id="side-banner">
-            <div style="background: white; border-radius: 16px; border: 1px solid #e5e7eb; padding: 16px; width: 160px; text-align: center;">
+
+        <!-- 왼쪽 배너: 일수 카운터 -->
+        <div id="side-banner-left">
+            <div class="side-banner-card">
                 <p id="banner-label" style="font-size: 11px; color: #6b7280; margin-bottom: 10px;">
                     ${isEnPage ? "Our Journey" : '자유와혁신의 발걸음'}
                 </p>
                 <div id="banner-digits" style="display: flex; justify-content: center; gap: 2px; margin-bottom: 6px;"></div>
                 <p style="font-size: 12px; color: #9ca3af;">${isEnPage ? 'days' : '일째'}</p>
+            </div>
+        </div>
+
+        <!-- 오른쪽 배너: 회원 정보 -->
+        <div id="side-banner-right">
+            <div class="side-banner-card">
+                <!-- 프로필 이미지 -->
+                <div id="profile-image" style="width: 60px; height: 60px; margin: 0 auto 12px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                    <svg id="default-avatar" style="width: 32px; height: 32px; color: #9ca3af;" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                    <img id="member-avatar" style="width: 100%; height: 100%; object-fit: cover; display: none;" alt="profile">
+                </div>
+                
+                <!-- 회원 아이디 (로그인 시에만) -->
+                <p id="member-id" style="font-size: 13px; color: #374151; font-weight: 600; margin-bottom: 12px; display: none;"></p>
+                
+                <!-- 비로그인 상태 버튼 -->
+                <div id="guest-buttons" style="display: flex; flex-direction: column; gap: 8px;">
+                    <a href="${linkPrefix}login.html" class="member-btn member-btn-primary">${isEnPage ? 'Login' : '로그인'}</a>
+                    <a href="${linkPrefix}join.html" class="member-btn member-btn-secondary">${isEnPage ? 'Sign Up' : '회원가입'}</a>
+                </div>
+                
+                <!-- 로그인 상태 버튼 -->
+                <div id="member-buttons" style="display: none; flex-direction: column; gap: 8px;">
+                    <a href="${linkPrefix}mypage.html" class="member-btn member-btn-primary">${isEnPage ? 'My Page' : '마이페이지'}</a>
+                    <button onclick="logoutMember()" class="member-btn member-btn-secondary">${isEnPage ? 'Logout' : '로그아웃'}</button>
+                </div>
             </div>
         </div>
     `;
@@ -44,11 +112,14 @@
     // 네비게이션 바 기준으로 위치 조정
     function adjustBannerPosition() {
         const nav = document.querySelector('nav') || document.querySelector('.nav-container') || document.querySelector('[class*="nav"]');
-        const banner = document.getElementById('side-banner');
-        if (nav && banner) {
+        const bannerLeft = document.getElementById('side-banner-left');
+        const bannerRight = document.getElementById('side-banner-right');
+        if (nav && bannerLeft && bannerRight) {
             const navRect = nav.getBoundingClientRect();
             const navBottom = navRect.bottom;
-            banner.style.top = (navBottom + 23) + 'px'; // 네비게이션 아래 24px 간격
+            const topPos = (navBottom + 24) + 'px';
+            bannerLeft.style.top = topPos;
+            bannerRight.style.top = topPos;
         }
     }
 
@@ -90,16 +161,59 @@
         renderDigits(Math.max(1, diffDays));
     }
 
+    function updateMemberInfo() {
+        const memberInfoStr = localStorage.getItem('memberInfo');
+        const guestButtons = document.getElementById('guest-buttons');
+        const memberButtons = document.getElementById('member-buttons');
+        const memberId = document.getElementById('member-id');
+        const defaultAvatar = document.getElementById('default-avatar');
+        const memberAvatar = document.getElementById('member-avatar');
+
+        if (memberInfoStr) {
+            try {
+                const memberInfo = JSON.parse(memberInfoStr);
+                // 로그인 상태
+                if (guestButtons) guestButtons.style.display = 'none';
+                if (memberButtons) memberButtons.style.display = 'flex';
+                if (memberId) {
+                    memberId.style.display = 'block';
+                    memberId.textContent = memberInfo.nickname || memberInfo.name || 'Member';
+                }
+                // 프로필 이미지가 있으면 표시
+                if (memberInfo.profileImage && memberAvatar && defaultAvatar) {
+                    memberAvatar.src = memberInfo.profileImage;
+                    memberAvatar.style.display = 'block';
+                    defaultAvatar.style.display = 'none';
+                }
+            } catch (e) {}
+        } else {
+            // 비로그인 상태
+            if (guestButtons) guestButtons.style.display = 'flex';
+            if (memberButtons) memberButtons.style.display = 'none';
+            if (memberId) memberId.style.display = 'none';
+            if (defaultAvatar) defaultAvatar.style.display = 'block';
+            if (memberAvatar) memberAvatar.style.display = 'none';
+        }
+    }
+
+    // 로그아웃 함수 (전역)
+    window.logoutMember = function() {
+        localStorage.removeItem('memberInfo');
+        localStorage.removeItem('accessToken');
+        location.reload();
+    };
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() {
             adjustBannerPosition();
             updateCounter();
+            updateMemberInfo();
         });
     } else {
         adjustBannerPosition();
         updateCounter();
+        updateMemberInfo();
     }
 
-    // 리사이즈 시에도 위치 재조정
     window.addEventListener('resize', adjustBannerPosition);
 })();
