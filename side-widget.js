@@ -162,6 +162,7 @@
     }
 
     function updateMemberInfo() {
+        const token = localStorage.getItem('memberToken');
         const memberInfoStr = localStorage.getItem('memberInfo');
         const guestButtons = document.getElementById('guest-buttons');
         const memberButtons = document.getElementById('member-buttons');
@@ -169,37 +170,40 @@
         const defaultAvatar = document.getElementById('default-avatar');
         const memberAvatar = document.getElementById('member-avatar');
 
-        if (memberInfoStr) {
+        if (token && memberInfoStr) {
             try {
                 const memberInfo = JSON.parse(memberInfoStr);
-                // 로그인 상태
-                if (guestButtons) guestButtons.style.display = 'none';
-                if (memberButtons) memberButtons.style.display = 'flex';
-                if (memberId) {
-                    memberId.style.display = 'block';
-                    memberId.textContent = memberInfo.nickname || memberInfo.name || 'Member';
-                }
-                // 프로필 이미지가 있으면 표시
-                if (memberInfo.profileImage && memberAvatar && defaultAvatar) {
-                    memberAvatar.src = memberInfo.profileImage;
-                    memberAvatar.style.display = 'block';
-                    defaultAvatar.style.display = 'none';
+                if (memberInfo.nickname) {
+                    // 로그인 상태
+                    if (guestButtons) guestButtons.style.display = 'none';
+                    if (memberButtons) memberButtons.style.display = 'flex';
+                    if (memberId) {
+                        memberId.style.display = 'block';
+                        memberId.textContent = memberInfo.nickname || memberInfo.name || 'Member';
+                    }
+                    // 프로필 이미지가 있으면 표시
+                    if (memberInfo.profileImage && memberAvatar && defaultAvatar) {
+                        memberAvatar.src = memberInfo.profileImage;
+                        memberAvatar.style.display = 'block';
+                        defaultAvatar.style.display = 'none';
+                    }
+                    return;
                 }
             } catch (e) {}
-        } else {
-            // 비로그인 상태
-            if (guestButtons) guestButtons.style.display = 'flex';
-            if (memberButtons) memberButtons.style.display = 'none';
-            if (memberId) memberId.style.display = 'none';
-            if (defaultAvatar) defaultAvatar.style.display = 'block';
-            if (memberAvatar) memberAvatar.style.display = 'none';
         }
+        
+        // 비로그인 상태
+        if (guestButtons) guestButtons.style.display = 'flex';
+        if (memberButtons) memberButtons.style.display = 'none';
+        if (memberId) memberId.style.display = 'none';
+        if (defaultAvatar) defaultAvatar.style.display = 'block';
+        if (memberAvatar) memberAvatar.style.display = 'none';
     }
 
     // 로그아웃 함수 (전역)
     window.logoutMember = function() {
+        localStorage.removeItem('memberToken');
         localStorage.removeItem('memberInfo');
-        localStorage.removeItem('accessToken');
         location.reload();
     };
 
