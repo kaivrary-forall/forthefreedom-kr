@@ -7,7 +7,7 @@
             #side-banner {
                 display: none;
                 position: fixed;
-                top: 120px;
+                top: 125px;
                 left: calc((100vw - 1280px) / 2 - 190px);
                 z-index: 40;
             }
