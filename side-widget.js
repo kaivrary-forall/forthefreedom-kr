@@ -1,4 +1,4 @@
-// 사이드 위젯 - 자유와혁신 일수 카운터 (애플 위젯 스타일)
+// 사이드 위젯 - 자유와혁신 일수 카운터
 (function() {
     const isEnPage = window.location.pathname.startsWith('/en/') || window.location.pathname === '/en';
 
@@ -8,8 +8,7 @@
             #side-widget-left {
                 display: none;
                 position: fixed;
-                top: 50%;
-                transform: translateY(-50%);
+                top: 120px;
                 z-index: 40;
                 left: calc((100vw - 1280px) / 2 - 200px);
             }
@@ -23,36 +22,34 @@
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
             }
-            .widget-number {
+            .day-digit {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 32px;
+                height: 40px;
                 background: linear-gradient(135deg, #a50034 0%, #c41e4a 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
+                color: white;
+                font-size: 24px;
+                font-weight: 700;
+                border-radius: 6px;
+                margin: 0 2px;
             }
         </style>
         <div id="side-widget-left">
-            <div class="widget-card rounded-3xl shadow-xl border border-gray-200/50 p-6 w-44">
-                <!-- 상단 라벨 -->
-                <div class="flex items-center gap-2 mb-4">
-                    <div class="w-8 h-8 bg-gradient-to-br from-[#a50034] to-[#d4004a] rounded-lg flex items-center justify-center shadow-sm">
-                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </div>
-                    <span id="widget-label" class="text-[11px] font-semibold text-gray-500 uppercase tracking-wide">
-                        ${isEnPage ? 'JOURNEY' : '발걸음'}
-                    </span>
-                </div>
-                
-                <!-- 일수 -->
-                <div class="mb-2">
-                    <span id="widget-day-number" class="widget-number text-5xl font-bold tracking-tight">-</span>
-                </div>
-                
-                <!-- 하단 텍스트 -->
-                <p id="widget-day-text" class="text-xs text-gray-400 font-medium">
-                    ${isEnPage ? 'days with us' : '일째'}
+            <div class="widget-card rounded-2xl shadow-xl border border-gray-200/50 p-5 w-48">
+                <!-- 라벨 -->
+                <p id="widget-label" class="text-xs text-gray-500 font-medium mb-3 text-center">
+                    ${isEnPage ? "Freedom & Innovation's Journey" : '자유와혁신의 발걸음'}
                 </p>
+                
+                <!-- 일수 디지털 디스플레이 -->
+                <div id="widget-digits" class="flex justify-center items-center mb-2">
+                    <!-- JS로 채움 -->
+                </div>
+                
+                <!-- 일째 -->
+                <p class="text-sm text-gray-400 font-medium text-center">${isEnPage ? 'days' : '일째'}</p>
             </div>
         </div>
     `;
@@ -60,12 +57,23 @@
     // 위젯 삽입
     document.body.insertAdjacentHTML('beforeend', widgetHTML);
 
+    // 숫자를 디지털 디스플레이로 변환
+    function renderDigits(number) {
+        const digitsContainer = document.getElementById('widget-digits');
+        if (!digitsContainer) return;
+        
+        const numStr = String(number).padStart(4, '0');
+        let html = '';
+        for (let i = 0; i < numStr.length; i++) {
+            html += `<span class="day-digit">${numStr[i]}</span>`;
+        }
+        digitsContainer.innerHTML = html;
+    }
+
     // 일수 계산 및 표시
     function updateDayCounter() {
-        const numberEl = document.getElementById('widget-day-number');
         const labelEl = document.getElementById('widget-label');
-        const textEl = document.getElementById('widget-day-text');
-        if (!numberEl) return;
+        if (!labelEl) return;
 
         // 회원 정보 확인
         const memberInfoStr = localStorage.getItem('memberInfo');
@@ -74,9 +82,8 @@
             try {
                 const memberInfo = JSON.parse(memberInfoStr);
                 if (memberInfo.appliedAt) {
-                    // 로그인 상태 - "자유와혁신과 함께한 지"
-                    labelEl.textContent = isEnPage ? 'WITH US' : '함께한 지';
-                    textEl.textContent = isEnPage ? 'days together' : '일째';
+                    // 로그인 상태 - "우리가 함께한 지"
+                    labelEl.textContent = isEnPage ? 'Together with you' : '우리가 함께한 지';
                     
                     const joinDate = new Date(memberInfo.appliedAt);
                     const joinDateKST = new Date(joinDate.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
@@ -89,17 +96,16 @@
                     const diffTime = todayKST - joinDateKST;
                     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
                     
-                    numberEl.textContent = diffDays.toLocaleString();
+                    renderDigits(diffDays);
                     return;
                 }
             } catch (e) {}
         }
         
-        // 비로그인 상태 - "자유와혁신의 발걸음"
-        labelEl.textContent = isEnPage ? 'JOURNEY' : '발걸음';
-        textEl.textContent = isEnPage ? 'days of journey' : '일째';
+        // 비로그인 상태 - "자유와혁신의 발걸음" (2025년 6월 6일 기준)
+        labelEl.textContent = isEnPage ? "Freedom & Innovation's Journey" : '자유와혁신의 발걸음';
         
-        const foundingDate = new Date('2025-01-26T00:00:00+09:00');
+        const foundingDate = new Date('2025-06-06T00:00:00+09:00');
         const foundingDateKST = new Date(foundingDate.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
         foundingDateKST.setHours(0, 0, 0, 0);
         
@@ -108,13 +114,9 @@
         todayKST.setHours(0, 0, 0, 0);
         
         const diffTime = todayKST - foundingDateKST;
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
         
-        if (diffDays < 0) {
-            numberEl.textContent = 'D' + diffDays;
-        } else {
-            numberEl.textContent = (diffDays + 1).toLocaleString();
-        }
+        renderDigits(Math.max(1, diffDays));
     }
 
     // DOM 로드 후 실행
