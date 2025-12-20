@@ -98,7 +98,7 @@
 
     document.body.insertAdjacentHTML('beforeend', bannerHTML);
 
-    // 배너 위치 조정 - 1280px 컨텐츠 기준 고정 간격
+    // 배너 위치 조정 - 1280px 컨텐츠 기준
     function adjustBannerPosition() {
         const nav = document.querySelector('nav') || document.querySelector('.nav-container') || document.querySelector('[class*="nav"]');
         const bannerLeft = document.getElementById('side-banner-left');
@@ -112,12 +112,16 @@
         const gap = 16; // 컨텐츠와 배너 사이 간격
         const edgeMargin = 8; // 화면 가장자리 최소 여백
         
-        // 배너가 화면 안에 완전히 들어오는지 계산
-        const sideMargin = (viewportWidth - contentWidth) / 2;
-        const availableSpace = sideMargin - gap; // 컨텐츠 옆 사용 가능 공간
+        // 컨텐츠 영역 시작점 (왼쪽)
+        const contentLeft = (viewportWidth - contentWidth) / 2;
         
-        // 배너가 들어갈 공간이 부족하면 숨김
-        if (availableSpace < bannerWidth + edgeMargin) {
+        // 배너가 화면 안에 들어오는지 확인
+        // 배너 왼쪽 끝 = contentLeft - gap - bannerWidth
+        // 이게 edgeMargin보다 작으면 배너가 화면 밖으로 나감
+        const bannerLeftEdge = contentLeft - gap - bannerWidth;
+        
+        if (bannerLeftEdge < edgeMargin) {
+            // 공간 부족 - 배너 숨김
             bannerLeft.style.display = 'none';
             bannerRight.style.display = 'none';
             return;
@@ -135,15 +139,16 @@
             bannerRight.style.top = topPos;
         }
         
-        // 좌우 위치 계산 - 컨텐츠 바로 옆에 배치
-        // 컨텐츠 왼쪽 끝 = sideMargin
-        // 배너 오른쪽 끝이 컨텐츠 왼쪽 끝에서 gap만큼 떨어지도록
-        const bannerLeftPos = sideMargin - bannerWidth - gap;
-        const bannerRightPos = sideMargin - bannerWidth - gap;
+        // 좌우 위치 - 컨텐츠 바로 옆에 붙임
+        // 왼쪽 배너: 컨텐츠 왼쪽에서 gap만큼 떨어진 곳에 배너 오른쪽 끝이 위치
+        // 즉, 배너 left = contentLeft - gap - bannerWidth
+        bannerLeft.style.left = bannerLeftEdge + 'px';
         
-        // 음수면 화면 밖으로 나가므로 최소 edgeMargin 보장
-        bannerLeft.style.left = Math.max(edgeMargin, bannerLeftPos) + 'px';
-        bannerRight.style.right = Math.max(edgeMargin, bannerRightPos) + 'px';
+        // 오른쪽 배너: 컨텐츠 오른쪽에서 gap만큼 떨어진 곳
+        // right 속성 사용: viewportWidth - contentRight - gap - bannerWidth
+        // = viewportWidth - (contentLeft + contentWidth) - gap - bannerWidth
+        // 간단히: contentLeft - gap - bannerWidth (대칭이므로 동일)
+        bannerRight.style.right = bannerLeftEdge + 'px';
     }
 
     function renderDigits(number) {
