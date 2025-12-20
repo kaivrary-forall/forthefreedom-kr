@@ -225,14 +225,12 @@ const CalendarWidget = {
                 const isSunday = date.getDay() === 0;
                 const isSaturday = date.getDay() === 6;
 
-                // 날짜 셀 클래스
-                let cellClass = 'p-2 sm:p-3 rounded-xl min-h-[80px] sm:min-h-[100px] transition-all';
+                // 날짜 셀 클래스 - 연한 회색 배경으로 칸 구분
+                let cellClass = 'p-2 sm:p-3 rounded-xl min-h-[80px] sm:min-h-[100px] transition-all border border-gray-100';
                 if (isToday) {
-                    cellClass += ' bg-[#a50034] text-white shadow-lg';
-                } else if (dayEvents.length > 0) {
-                    cellClass += ' bg-white hover:shadow-md';
+                    cellClass += ' bg-[#a50034] text-white shadow-lg border-[#a50034]';
                 } else {
-                    cellClass += ' bg-white';
+                    cellClass += ' bg-gray-50';
                 }
 
                 // 날짜 숫자 클래스
@@ -268,14 +266,14 @@ const CalendarWidget = {
                     }
 
                     html += `
-                        <a href="${event.url}" class="block text-xs ${hoverBg} rounded p-0.5 sm:p-1 -mx-0.5 sm:-mx-1 mb-1">
+                        <div class="block text-xs rounded p-0.5 sm:p-1 -mx-0.5 sm:-mx-1 mb-1">
                             <div class="flex items-start gap-1 ${textColor}">
                                 <span class="w-1.5 h-1.5 rounded-full mt-1 flex-shrink-0 ${dotColor}" style="background-color: ${isToday ? 'white' : event.color}"></span>
                                 <span class="font-medium">${event.title}</span>
                             </div>
                             ${timeLocation ? `<div class="ml-2.5 text-[10px] ${subTextColor}">${timeLocation}</div>` : ''}
                             ${event.description && !event.description.startsWith('http') ? `<div class="ml-2.5 text-[10px] ${subTextColor} truncate">${event.description.split('\\n')[0]}</div>` : ''}
-                        </a>
+                        </div>
                     `;
                 });
 
