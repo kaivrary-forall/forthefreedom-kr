@@ -552,7 +552,7 @@ function loadNavigation() {
         // 플로팅 버튼 추가 (초기에는 숨김 상태)
         const floatingButtons = `
             <!-- 플로팅 버튼들 -->
-            <div class="fixed bottom-6 right-6 z-40 flex flex-col space-y-3 opacity-0 transition-opacity duration-300" id="floating-buttons">
+            <div class="fixed z-40 flex flex-col space-y-3 opacity-0 transition-opacity duration-300" id="floating-buttons" style="top: calc(var(--announcement-height, 0px) + var(--nav-height, 56px) + 220px); right: calc(50% - var(--content-max, 1280px)/2 - var(--rail-gap, 16px) - var(--side-width, 140px));">
                 <!-- 당원가입 버튼 -->
                 <a href="https://www.ihappynanum.com/Nanum/api/screen/F7FCRIO2E3" 
                    target="_blank"
@@ -614,6 +614,7 @@ function loadNavigation() {
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
                 backdrop-filter: blur(10px);
                 min-width: 60px;
+                width: var(--side-width, 140px);
             }
             
             .floating-btn:hover {
@@ -626,6 +627,19 @@ function loadNavigation() {
                     padding: 10px 12px;
                     font-size: 12px;
                     min-width: 50px;
+                }
+            }
+            
+            /* 1480px 이하: 플로팅 버튼을 우하단으로 이동 */
+            @media (max-width: 1480px) {
+                #floating-buttons {
+                    top: auto !important;
+                    bottom: 24px !important;
+                    right: 24px !important;
+                    width: auto;
+                }
+                .floating-btn {
+                    width: auto;
                 }
             }
             
