@@ -348,10 +348,6 @@ nav a {
     .hero-section {
         height: 60vh;
     }
-    
-    .max-w-7xl {
-        max-width: 1400px !important;
-    }
 }
 
 /* Accessibility improvements */
