@@ -817,7 +817,9 @@ h1, h2, h3, h4, h5, h6, p, span, div, li, td, th {
 }
 .page-grid > .main-content{ 
   grid-column: 2; 
-  min-width: 0; 
+  min-width: 0;
+  max-width: var(--content-max);
+  width: 100%;
 }
 .page-grid > .side-column.right{ 
   grid-column: 3; 
