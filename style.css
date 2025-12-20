@@ -843,6 +843,23 @@ h1, h2, h3, h4, h5, h6, p, span, div, li, td, th {
   left: calc(50% + var(--content-max)/2 + var(--rail-gap));
 }
 
+/* 1480px 이하: 배너 공간 부족 → 숨김 */
+@media (max-width: 1480px) {
+  #side-banner-left,
+  #side-banner-right {
+    display: none !important;
+  }
+  
+  .page-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .page-grid > .side-column.left,
+  .page-grid > .side-column.right {
+    display: none;
+  }
+}
+
 /* 사이드 배너 카드 스타일 */
 .side-banner-card {
     background: white;
@@ -894,15 +911,4 @@ h1, h2, h3, h4, h5, h6, p, span, div, li, td, th {
 
 .member-btn-secondary:hover {
     background: #e5e7eb;
-}
-
-/* Narrow: 1480px 이하에서 배너 숨김 */
-@media (max-width: 1480px){
-  .page-grid{
-    grid-template-columns: minmax(0, var(--content-max));
-  }
-  .page-grid > .side-column.left,
-  .page-grid > .side-column.right{
-    display: none;
-  }
 }
