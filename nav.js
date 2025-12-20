@@ -341,28 +341,8 @@ function loadNavigation() {
                         </div>
                     </div>
                     
-                    <!-- 오른쪽: 로그인/마이페이지, 언어전환 -->
+                    <!-- 오른쪽: 언어전환 -->
                     <div class="hidden md:flex items-center gap-6">
-                        <!-- 비로그인 상태 -->
-                        <div id="nav-guest" class="flex items-center gap-4">
-                            <a href="${linkPrefix}login.html" class="text-[#212121] hover:text-[#a50034] text-sm transition-colors duration-200">
-                                ${t.login}
-                            </a>
-                            <a href="#" onclick="alert('${t.preparing}'); return false;" class="bg-gray-400 text-white px-4 py-1.5 rounded-full text-sm font-medium cursor-not-allowed">
-                                ${isEnPage ? 'Sign Up' : '회원가입'}
-                            </a>
-                        </div>
-                        <!-- 로그인 상태 -->
-                        <div id="nav-member" class="hidden flex items-center gap-4">
-                            <span id="nav-nickname" class="text-[#212121] text-sm font-medium"></span>
-                            <a href="#" onclick="openMypageModal(); return false;" class="text-[#a50034] text-sm font-medium">
-                                ${t.mypage}
-                            </a>
-                            <button onclick="navLogout()" class="text-gray-500 hover:text-gray-700 text-sm">
-                                ${t.logout}
-                            </button>
-                        </div>
-                        <div class="border-l border-gray-300 h-5"></div>
                         <!-- 언어 전환 -->
                         <div class="language-switcher flex items-center gap-1 text-sm">
                             <a href="${getLanguageSwitchURL('ko')}" 
@@ -498,31 +478,8 @@ function loadNavigation() {
                             </div>
                         </div>
                         
-                        <!-- 로그인/회원 영역 -->
-                        <div class="pt-4 px-3 border-t border-gray-200 mt-4">
-                            <!-- 비로그인 상태 -->
-                            <div id="mobile-nav-guest" class="flex gap-2">
-                                <a href="${linkPrefix}login.html" class="flex-1 bg-gray-100 text-gray-700 text-center py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors">
-                                    ${t.login}
-                                </a>
-                                <a href="#" onclick="alert('${t.preparing}'); return false;" class="flex-1 bg-gray-400 text-white text-center py-3 rounded-lg font-bold cursor-not-allowed">
-                                    ${isEnPage ? 'Sign Up' : '회원가입'}
-                                </a>
-                            </div>
-                            <!-- 로그인 상태 -->
-                            <div id="mobile-nav-member" class="hidden">
-                                <div class="flex items-center justify-between mb-2">
-                                    <span id="mobile-nav-nickname" class="font-medium text-gray-900"></span>
-                                    <button onclick="navLogout()" class="text-sm text-gray-500 hover:text-red-600">${t.logout}</button>
-                                </div>
-                                <a href="#" onclick="openMypageModal(); toggleMobileMenu(); return false;" class="block w-full bg-[#a50034] text-white text-center py-3 rounded-lg font-bold hover:bg-[#8B002C] transition-colors">
-                                    ${t.mypage}
-                                </a>
-                            </div>
-                        </div>
-                        
                         <!-- 당원가입 버튼 -->
-                        <div class="pt-3 px-3">
+                        <div class="pt-4 px-3 border-t border-gray-200 mt-4">
                             <a href="https://www.ihappynanum.com/Nanum/api/screen/F7FCRIO2E3" target="_blank" class="block w-full bg-red-600 text-white text-center py-3 rounded-lg font-bold hover:bg-red-700 transition-colors">
                                 ${t.joinGuide}
                             </a>
