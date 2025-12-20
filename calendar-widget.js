@@ -139,20 +139,20 @@ const CalendarWidget = {
                     </div>
 
                     <!-- 캘린더 그리드 -->
-                    <div class="bg-white rounded-2xl overflow-hidden">
+                    <div class="bg-white rounded-2xl overflow-hidden border border-gray-200">
                         <!-- 요일 헤더 -->
-                        <div class="grid grid-cols-7 border-b border-gray-200">
-                            <div class="text-center text-xs sm:text-sm font-medium text-red-500 py-3 border-r border-gray-200">${isEnPage ? 'Sun' : '일'}</div>
-                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3 border-r border-gray-200">${isEnPage ? 'Mon' : '월'}</div>
-                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3 border-r border-gray-200">${isEnPage ? 'Tue' : '화'}</div>
-                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3 border-r border-gray-200">${isEnPage ? 'Wed' : '수'}</div>
-                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3 border-r border-gray-200">${isEnPage ? 'Thu' : '목'}</div>
-                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3 border-r border-gray-200">${isEnPage ? 'Fri' : '금'}</div>
+                        <div class="grid grid-cols-7 border-b border-gray-200 bg-gray-50">
+                            <div class="text-center text-xs sm:text-sm font-medium text-red-500 py-3">${isEnPage ? 'Sun' : '일'}</div>
+                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3">${isEnPage ? 'Mon' : '월'}</div>
+                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3">${isEnPage ? 'Tue' : '화'}</div>
+                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3">${isEnPage ? 'Wed' : '수'}</div>
+                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3">${isEnPage ? 'Thu' : '목'}</div>
+                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3">${isEnPage ? 'Fri' : '금'}</div>
                             <div class="text-center text-xs sm:text-sm font-medium text-[#004A98] py-3">${isEnPage ? 'Sat' : '토'}</div>
                         </div>
 
                         <!-- 날짜 그리드 -->
-                        <div id="calendar-grid" class="border-l border-gray-200">
+                        <div id="calendar-grid">
                             <div class="text-center text-gray-400 py-8">${isEnPage ? 'Loading...' : '일정을 불러오는 중...'}</div>
                         </div>
                     </div>
@@ -224,11 +224,15 @@ const CalendarWidget = {
                 const isToday = date.getTime() === today.getTime();
                 const isSunday = date.getDay() === 0;
                 const isSaturday = date.getDay() === 6;
+                const isLastWeek = week === 1;
 
-                // 날짜 셀 클래스 - 배경 없이 연한 회색 테두리로 구분
-                let cellClass = 'p-2 sm:p-3 min-h-[80px] sm:min-h-[100px] border-b border-gray-200';
+                // 날짜 셀 클래스 - 내부 구분선만
+                let cellClass = 'p-2 sm:p-3 min-h-[80px] sm:min-h-[100px]';
+                if (!isLastWeek) {
+                    cellClass += ' border-b border-gray-200';
+                }
                 if (!isSaturday) {
-                    cellClass += ' border-r';
+                    cellClass += ' border-r border-gray-200';
                 }
                 if (isToday) {
                     cellClass += ' bg-[#a50034] text-white';
