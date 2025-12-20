@@ -80,6 +80,7 @@ const CalendarWidget = {
 
             this.renderCalendar();
             this.renderEventList();
+            this.updateNavButtons();
 
         } catch (error) {
             console.error('캘린더 로딩 오류:', error);
@@ -129,11 +130,11 @@ const CalendarWidget = {
 
                     <!-- 캘린더 네비게이션 -->
                     <div class="flex items-center justify-between mb-6">
-                        <button onclick="CalendarWidget.prevWeeks()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                        <button id="calendar-prev-btn" onclick="CalendarWidget.prevWeeks()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
                             <i class="fas fa-chevron-left text-gray-600"></i>
                         </button>
                         <h3 id="calendar-title" class="text-lg font-semibold text-gray-800"></h3>
-                        <button onclick="CalendarWidget.nextWeeks()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                        <button id="calendar-next-btn" onclick="CalendarWidget.nextWeeks()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
                             <i class="fas fa-chevron-right text-gray-600"></i>
                         </button>
                     </div>
@@ -171,17 +172,39 @@ const CalendarWidget = {
 
     // 현재 표시 시작점 (offset: 0 = 이번주, -14 = 2주 전, 14 = 2주 후)
     weekOffset: 0,
+    maxOffset: 28,   // 앞으로 4주
+    minOffset: -28,  // 뒤로 4주
 
     // 이전 2주
     prevWeeks: function() {
-        this.weekOffset -= 14;
-        this.renderCalendar();
+        if (this.weekOffset > this.minOffset) {
+            this.weekOffset -= 14;
+            this.renderCalendar();
+            this.updateNavButtons();
+        }
     },
 
     // 다음 2주
     nextWeeks: function() {
-        this.weekOffset += 14;
-        this.renderCalendar();
+        if (this.weekOffset < this.maxOffset) {
+            this.weekOffset += 14;
+            this.renderCalendar();
+            this.updateNavButtons();
+        }
+    },
+
+    // 네비게이션 버튼 상태 업데이트
+    updateNavButtons: function() {
+        const prevBtn = document.getElementById('calendar-prev-btn');
+        const nextBtn = document.getElementById('calendar-next-btn');
+        if (prevBtn) {
+            prevBtn.style.opacity = this.weekOffset <= this.minOffset ? '0.3' : '1';
+            prevBtn.style.pointerEvents = this.weekOffset <= this.minOffset ? 'none' : 'auto';
+        }
+        if (nextBtn) {
+            nextBtn.style.opacity = this.weekOffset >= this.maxOffset ? '0.3' : '1';
+            nextBtn.style.pointerEvents = this.weekOffset >= this.maxOffset ? 'none' : 'auto';
+        }
     },
 
     // 캘린더 그리드 렌더링
