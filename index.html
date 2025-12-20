@@ -1174,7 +1174,7 @@
             const fallbackImage = news.image;
 
             article.innerHTML = `
-                <div class="h-48 flex items-center justify-center relative overflow-hidden ${imageClass}" style="background-size: cover; background-position: center;">
+                <div class="h-48 flex items-center justify-center relative overflow-hidden rounded-t-2xl ${imageClass}" style="background-size: cover; background-position: center;">
                     <picture class="w-full h-full">
                         <source srcset="${fallbackImage.replace('.jpg', '.webp')}" type="image/webp">
                         <img src="${fallbackImage}" 

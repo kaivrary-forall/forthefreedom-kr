@@ -1172,7 +1172,7 @@
             const fallbackImage = news.image;
 
             article.innerHTML = `
-                <div class="h-48 flex items-center justify-center relative overflow-hidden ${imageClass}" style="background-size: cover; background-position: center;">
+                <div class="h-48 flex items-center justify-center relative overflow-hidden rounded-t-2xl ${imageClass}" style="background-size: cover; background-position: center;">
                     <picture class="w-full h-full">
                         <source srcset="${fallbackImage.replace('.jpg', '.webp')}" type="image/webp">
                         <img src="${fallbackImage}" 
@@ -1196,15 +1196,15 @@
                         ${news.title}
                     </h4>
                     <p class="text-gray-600 text-sm mb-4 line-clamp-3">
-                        ${news.excerpt || news.content?.substring(0, 100) + '...' || '내용을 확인해보세요.'}
+                        ${news.excerpt || news.content?.substring(0, 100) + '...' || 'Check the details.'}
                     </p>
                     <div class="flex items-center justify-between">
                         <span class="text-gray-500 text-xs">
-                            ${news.isEmpty ? '내용 없음' : formatDate(news.createdAt)}
+                            ${news.isEmpty ? 'No content' : formatDate(news.createdAt)}
                         </span>
                         <a href="${news.url}" 
                            class="text-red-600 hover:text-red-700 text-sm font-medium">
-                            ${news.isEmpty ? '목록 보기' : '자세히 보기'} →
+                            ${news.isEmpty ? 'View List' : 'Read More'} →
                         </a>
                     </div>
                 </div>
