@@ -36,10 +36,6 @@ function getLanguageSwitchURL(targetLang) {
 }
 
 function loadNavigation() {
-    // 전역 초기화 가드 - 중복 실행 방지
-    if (window.__NAV_INITIALIZED__) return;
-    window.__NAV_INITIALIZED__ = true;
-    
     // 현재 경로 확인하여 하위 폴더 내부인지 감지
     const currentPath = window.location.pathname;
     const isEnPage = currentPath.startsWith('/en/') || currentPath === '/en';
@@ -549,26 +545,10 @@ function loadNavigation() {
             // mobileMenuButton.addEventListener('click', toggleMobileMenu); 
         }
         
-        // 플로팅 버튼 추가 (사이드 배너 아래에 항상 표시)
+        // 플로팅 버튼 추가 (초기에는 숨김 상태)
         const floatingButtons = `
             <!-- 플로팅 버튼들 -->
-            <div class="fixed z-40 flex flex-col space-y-3 transition-opacity duration-300" id="floating-buttons" style="top: calc(var(--announcement-height, 0px) + var(--nav-height, 56px) + 220px); left: calc(50% + var(--content-max, 1280px)/2 + var(--side-gap, 16px));">
-                
-                <!-- 로그인/회원가입 카드 (1592px 이하에서만 표시) -->
-                <div id="floating-member-card" class="floating-member-card">
-                    <div style="width: 40px; height: 40px; margin: 0 auto 8px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                        <svg style="width: 22px; height: 22px; color: #9ca3af;" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                        </svg>
-                    </div>
-                    <a href="${linkPrefix}login.html" class="floating-btn bg-red-600 hover:bg-red-700 text-white shadow-none" style="margin-bottom: 6px; box-shadow: none;">
-                        로그인
-                    </a>
-                    <a href="${linkPrefix}join.html" class="floating-btn bg-gray-100 hover:bg-gray-200 text-gray-700 shadow-none" style="box-shadow: none;">
-                        회원가입
-                    </a>
-                </div>
-                
+            <div class="fixed bottom-6 right-6 z-40 flex flex-col space-y-3 opacity-0 transition-opacity duration-300" id="floating-buttons">
                 <!-- 당원가입 버튼 -->
                 <a href="https://www.ihappynanum.com/Nanum/api/screen/F7FCRIO2E3" 
                    target="_blank"
@@ -617,23 +597,12 @@ function loadNavigation() {
                 backdrop-filter: none !important;
             }
             
-            /* 플로팅 회원 카드 - 기본적으로 숨김 (1592px 이상) */
-            .floating-member-card {
-                display: none;
-                background: white;
-                border-radius: 16px;
-                padding: 14px;
-                text-align: center;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                margin-bottom: 8px;
-            }
-            
             .floating-btn {
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 padding: 12px 16px;
-                border-radius: 16px;
+                border-radius: 50px;
                 text-decoration: none;
                 font-weight: 500;
                 font-size: 14px;
@@ -641,7 +610,6 @@ function loadNavigation() {
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
                 backdrop-filter: blur(10px);
                 min-width: 60px;
-                width: var(--side-width, 140px);
             }
             
             .floating-btn:hover {
@@ -654,22 +622,6 @@ function loadNavigation() {
                     padding: 10px 12px;
                     font-size: 12px;
                     min-width: 50px;
-                }
-            }
-            
-            /* 1592px 이하: 플로팅 버튼을 우하단으로 이동 + 회원카드 표시 */
-            @media (max-width: 1592px) {
-                #floating-buttons {
-                    top: auto !important;
-                    left: auto !important;
-                    bottom: 24px !important;
-                    right: 24px !important;
-                }
-                .floating-btn {
-                    width: auto;
-                }
-                .floating-member-card {
-                    display: block;
                 }
             }
             
@@ -691,11 +643,42 @@ function loadNavigation() {
         // body에 플로팅 버튼 추가
         document.body.insertAdjacentHTML('beforeend', floatingButtons);
         
-        // 플로팅 버튼 항상 표시
+        // 스크롤 이벤트로 플로팅 버튼 표시/숨김 제어
         const floatingButtonsElement = document.getElementById('floating-buttons');
-        if (floatingButtonsElement) {
-            floatingButtonsElement.style.opacity = '1';
-            floatingButtonsElement.style.pointerEvents = 'auto';
+        const navigationElement = document.querySelector('nav');
+        
+        if (floatingButtonsElement && navigationElement) {
+            // 스크롤 이벤트 리스너 추가
+            let ticking = false;
+            
+            function updateFloatingButtons() {
+                const scrollY = window.scrollY || window.pageYOffset;
+                
+                if (scrollY < 200) {
+                    // 스크롤이 200px 미만이면 플로팅 버튼 숨김
+                    floatingButtonsElement.style.opacity = '0';
+                    floatingButtonsElement.style.pointerEvents = 'none';
+                } else {
+                    // 스크롤이 200px 이상이면 플로팅 버튼 표시
+                    floatingButtonsElement.style.opacity = '1';
+                    floatingButtonsElement.style.pointerEvents = 'auto';
+                }
+                
+                ticking = false;
+            }
+            
+            function requestTick() {
+                if (!ticking) {
+                    requestAnimationFrame(updateFloatingButtons);
+                    ticking = true;
+                }
+            }
+            
+            // 스크롤 이벤트 등록
+            window.addEventListener('scroll', requestTick);
+            
+            // 초기 상태 설정
+            updateFloatingButtons();
         }
         
         // 페이지 레이아웃 설정 (body padding-top)
@@ -804,9 +787,6 @@ function checkLoginStatus() {
     const mobileNavMember = document.getElementById('mobile-nav-member');
     const mobileNavNickname = document.getElementById('mobile-nav-nickname');
     
-    // 일수 카운터
-    const dayCounterText = document.getElementById('day-counter-text');
-    const dayCounterNumber = document.getElementById('day-counter-number');
     
     if (token && memberInfo.nickname) {
         // 로그인 상태
@@ -821,47 +801,6 @@ function checkLoginStatus() {
         if (mobileNavMember) mobileNavMember.classList.remove('hidden');
         if (mobileNavNickname) mobileNavNickname.textContent = memberInfo.nickname + (isEnPage ? '' : '님');
         
-        // 일수 카운터 - 회원가입일 기준
-        if (dayCounterText && dayCounterNumber) {
-            if (memberInfo.appliedAt) {
-                // 한국 시간 기준으로 날짜만 비교
-                const joinDate = new Date(memberInfo.appliedAt);
-                const today = new Date();
-                
-                // 한국 시간 기준 날짜 (시간 제외)
-                const joinDateKST = new Date(joinDate.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
-                const todayKST = new Date(today.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
-                
-                // 날짜만 비교 (시간 제거)
-                joinDateKST.setHours(0, 0, 0, 0);
-                todayKST.setHours(0, 0, 0, 0);
-                
-                const diffTime = todayKST - joinDateKST;
-                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                dayCounterText.textContent = isEnPage ? 'With Freedom & Innovation for' : '자유와혁신과 함께한 지';
-                dayCounterNumber.textContent = diffDays.toLocaleString();
-            } else {
-                // appliedAt이 없으면 창당일 기준
-                const foundingDate = new Date('2025-07-12T00:00:00+09:00'); // 한국 시간 명시
-                const today = new Date();
-                
-                // 한국 시간 기준 오늘 날짜
-                const todayKST = new Date(today.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
-                todayKST.setHours(0, 0, 0, 0);
-                
-                const foundingDateKST = new Date(foundingDate.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
-                foundingDateKST.setHours(0, 0, 0, 0);
-                
-                const diffTime = todayKST - foundingDateKST;
-                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                dayCounterText.textContent = isEnPage ? 'With Freedom & Innovation for' : '자유와혁신과 함께한 지';
-                if (diffDays <= 0) {
-                    dayCounterNumber.textContent = 'D' + diffDays;
-                } else {
-                    dayCounterNumber.textContent = diffDays.toLocaleString();
-                }
-            }
-        }
     } else {
         // 비로그인 상태
         if (navGuest) navGuest.classList.remove('hidden');
@@ -873,28 +812,6 @@ function checkLoginStatus() {
         if (mobileNavGuest) mobileNavGuest.classList.remove('hidden');
         if (mobileNavMember) mobileNavMember.classList.add('hidden');
         
-        // 일수 카운터 - 창당일(2025.07.12) 기준
-        if (dayCounterText && dayCounterNumber) {
-            const foundingDate = new Date('2025-07-12T00:00:00+09:00'); // 한국 시간 명시
-            const today = new Date();
-            
-            // 한국 시간 기준 오늘 날짜
-            const todayKST = new Date(today.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
-            todayKST.setHours(0, 0, 0, 0);
-            
-            const foundingDateKST = new Date(foundingDate.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
-            foundingDateKST.setHours(0, 0, 0, 0);
-            
-            const diffTime = todayKST - foundingDateKST;
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-            dayCounterText.textContent = isEnPage ? 'Our Journey,' : '자유와혁신의 발걸음,';
-            // 창당일 전이면 D-day 표시
-            if (diffDays <= 0) {
-                dayCounterNumber.textContent = 'D' + diffDays;
-            } else {
-                dayCounterNumber.textContent = diffDays.toLocaleString();
-            }
-        }
     }
 }
 
@@ -2114,16 +2031,11 @@ window.mpHandleProfileSelect = mpHandleProfileSelect;
 
 // ===== 한줄 공지 바 =====
 async function loadAnnouncementBar() {
-    // 전역 로딩 플래그로 중복 호출 방지 (nav.js 재로드 시에도 유지)
-    if (window.__ANNOUNCEMENT_LOADING__) return;
+    // 이미 공지 바가 있으면 중복 생성 방지
+    if (document.getElementById('announcement-bar')) return;
     
     // 세션에서 닫기 상태 확인
     if (sessionStorage.getItem('announcementClosed')) return;
-    
-    // 기존 공지 바 모두 제거 (중복 생성된 경우 정리)
-    document.querySelectorAll('#announcement-bar').forEach(el => el.remove());
-    
-    window.__ANNOUNCEMENT_LOADING__ = true; // 로딩 시작
     
     try {
         const response = await fetch('https://forthefreedom-kr-production.up.railway.app/api/announcement');
@@ -2181,16 +2093,9 @@ async function loadAnnouncementBar() {
             
             // body padding-top을 nav + 공지바 높이로 설정
             document.body.style.setProperty('padding-top', (navHeight + 40) + 'px', 'important');
-            
-            // 사이드 배너 위치 재정렬 (side-widget.js의 함수)
-            if (typeof window.adjustBannerPosition === 'function') {
-                setTimeout(window.adjustBannerPosition, 100);
-            }
         }
     } catch (error) {
         console.log('공지 로드 실패:', error);
-    } finally {
-        window.__ANNOUNCEMENT_LOADING__ = false; // 로딩 완료
     }
 }
 
@@ -2213,13 +2118,7 @@ function closeAnnouncementBar() {
         document.body.style.transition = 'padding-top 0.3s ease';
         document.body.style.setProperty('padding-top', navHeight + 'px', 'important');
         
-        setTimeout(() => {
-            bar.remove();
-            // 사이드 배너 위치 재정렬
-            if (typeof window.adjustBannerPosition === 'function') {
-                window.adjustBannerPosition();
-            }
-        }, 300);
+        setTimeout(() => bar.remove(), 300);
     }
     sessionStorage.setItem('announcementClosed', 'true');
 }
