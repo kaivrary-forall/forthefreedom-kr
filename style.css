@@ -894,4 +894,55 @@ h1, h2, h3, h4, h5, h6, p, span, div, li, td, th {
 
 .side-banner .member-btn-secondary:hover {
     background: #e5e7eb;
-} 
+}
+
+/* =========================
+   Page Grid (3-column rails)
+   Goal: zoom-invariant layout (no JS left/right calc)
+   ========================= */
+:root{
+  --content-max: 1280px;
+  --side-width: 140px;
+  --rail-gap: 16px;
+  --rail-edge: 8px;
+  --nav-height: 0px;
+  --announcement-height: 0px;
+}
+
+.page-grid{
+  display: grid;
+  grid-template-columns: minmax(var(--rail-edge), 1fr) minmax(0, var(--content-max)) minmax(var(--rail-edge), 1fr);
+  column-gap: var(--rail-gap);
+  align-items: start;
+}
+
+/* Place columns explicitly for wide screens */
+.page-grid > .side-column.left{ grid-column: 1; display:flex; justify-content:flex-end; }
+.page-grid > .main-content{ grid-column: 2; min-width: 0; }
+.page-grid > .side-column.right{ grid-column: 3; display:flex; justify-content:flex-start; }
+
+.side-banner{
+  width: var(--side-width);
+  position: sticky;
+  top: calc(var(--announcement-height) + var(--nav-height) + 16px);
+}
+
+/* Narrow: keep structure, but stack rails below main (no sudden hide) */
+@media (max-width: 1480px){
+  .page-grid{
+    grid-template-columns: minmax(0, var(--content-max));
+    grid-template-rows: auto auto auto;
+    row-gap: var(--rail-gap);
+    padding-left: var(--rail-edge);
+    padding-right: var(--rail-edge);
+  }
+  .page-grid > .main-content{ grid-column: 1; grid-row: 1; }
+  .page-grid > .side-column.left{
+    grid-column: 1; grid-row: 2;
+    justify-content: center;
+  }
+  .page-grid > .side-column.right{
+    grid-column: 1; grid-row: 3;
+    justify-content: center;
+  }
+}
