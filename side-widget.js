@@ -3,13 +3,44 @@
     const isEnPage = window.location.pathname.startsWith('/en/') || window.location.pathname === '/en';
     const linkPrefix = isEnPage ? '../' : '';
 
+    // CSS 변수 기반 위치 계산 - 줌에 안정적
     const bannerHTML = `
         <style>
+            :root {
+                --content-width: 1280px;
+                --banner-width: 140px;
+                --banner-gap: 16px;
+                --nav-height: 56px;
+                --announcement-height: 0px;
+            }
+            
             #side-banner-left, #side-banner-right {
-                display: none;
                 position: fixed;
                 z-index: 40;
+                top: calc(var(--nav-height) + var(--announcement-height) + 24px);
+                width: var(--banner-width);
             }
+            
+            /* 컨텐츠 중심 기준 배치 - calc 사용 */
+            #side-banner-left {
+                /* 화면 중앙에서 왼쪽으로: (컨텐츠폭/2 + gap + 배너폭) */
+                left: calc(50% - var(--content-width)/2 - var(--banner-gap) - var(--banner-width));
+            }
+            
+            #side-banner-right {
+                /* 화면 중앙에서 오른쪽으로: (컨텐츠폭/2 + gap) */
+                left: calc(50% + var(--content-width)/2 + var(--banner-gap));
+            }
+            
+            .side-banner-card {
+                background: white;
+                border-radius: 16px;
+                border: 1px solid #e5e7eb;
+                padding: 14px;
+                width: 100%;
+                text-align: center;
+            }
+            
             .day-digit {
                 display: inline-flex;
                 align-items: center;
@@ -22,14 +53,7 @@
                 font-weight: 700;
                 border-radius: 5px;
             }
-            .side-banner-card {
-                background: white;
-                border-radius: 16px;
-                border: 1px solid #e5e7eb;
-                padding: 14px;
-                width: 140px;
-                text-align: center;
-            }
+            
             .member-btn {
                 display: block;
                 width: 100%;
@@ -40,19 +64,37 @@
                 text-decoration: none;
                 transition: all 0.2s;
             }
+            
             .member-btn-primary {
                 background: #a50034;
                 color: white;
             }
+            
             .member-btn-primary:hover {
                 background: #8a002c;
             }
+            
             .member-btn-secondary {
                 background: #f3f4f6;
                 color: #374151;
             }
+            
             .member-btn-secondary:hover {
                 background: #e5e7eb;
+            }
+            
+            /* 배너가 화면 밖으로 나가면 숨김 */
+            /* 최소 필요 너비: 1280 + (140 + 16) * 2 = 1592px */
+            @media (max-width: 1592px) {
+                #side-banner-left, #side-banner-right {
+                    display: none !important;
+                }
+            }
+            
+            @media (min-width: 1593px) {
+                #side-banner-left, #side-banner-right {
+                    display: block;
+                }
             }
         </style>
 
@@ -98,57 +140,16 @@
 
     document.body.insertAdjacentHTML('beforeend', bannerHTML);
 
-    // 배너 위치 조정 - 1280px 컨텐츠 기준
-    function adjustBannerPosition() {
-        const nav = document.querySelector('nav') || document.querySelector('.nav-container') || document.querySelector('[class*="nav"]');
-        const bannerLeft = document.getElementById('side-banner-left');
-        const bannerRight = document.getElementById('side-banner-right');
+    // CSS 변수 업데이트 함수 - nav/공지 높이 변경 시 호출
+    function updateBannerPosition() {
+        const nav = document.querySelector('nav');
+        const announcement = document.getElementById('announcement-bar');
         
-        if (!bannerLeft || !bannerRight) return;
+        const navHeight = nav ? nav.offsetHeight : 56;
+        const announcementHeight = announcement ? announcement.offsetHeight : 0;
         
-        const viewportWidth = window.innerWidth;
-        const contentWidth = 1280;
-        const bannerWidth = 140;
-        const gap = 16; // 컨텐츠와 배너 사이 간격
-        const edgeMargin = 8; // 화면 가장자리 최소 여백
-        
-        // 컨텐츠 영역 시작점 (왼쪽)
-        const contentLeft = (viewportWidth - contentWidth) / 2;
-        
-        // 배너가 화면 안에 들어오는지 확인
-        // 배너 왼쪽 끝 = contentLeft - gap - bannerWidth
-        // 이게 edgeMargin보다 작으면 배너가 화면 밖으로 나감
-        const bannerLeftEdge = contentLeft - gap - bannerWidth;
-        
-        if (bannerLeftEdge < edgeMargin) {
-            // 공간 부족 - 배너 숨김
-            bannerLeft.style.display = 'none';
-            bannerRight.style.display = 'none';
-            return;
-        }
-        
-        // 배너 표시
-        bannerLeft.style.display = 'block';
-        bannerRight.style.display = 'block';
-        
-        // 상단 위치 (네비게이션 바 아래)
-        if (nav) {
-            const navBottom = nav.getBoundingClientRect().bottom;
-            const topPos = (navBottom + 24) + 'px';
-            bannerLeft.style.top = topPos;
-            bannerRight.style.top = topPos;
-        }
-        
-        // 좌우 위치 - 컨텐츠 바로 옆에 붙임
-        // 왼쪽 배너: 컨텐츠 왼쪽에서 gap만큼 떨어진 곳에 배너 오른쪽 끝이 위치
-        // 즉, 배너 left = contentLeft - gap - bannerWidth
-        bannerLeft.style.left = bannerLeftEdge + 'px';
-        
-        // 오른쪽 배너: 컨텐츠 오른쪽에서 gap만큼 떨어진 곳
-        // right 속성 사용: viewportWidth - contentRight - gap - bannerWidth
-        // = viewportWidth - (contentLeft + contentWidth) - gap - bannerWidth
-        // 간단히: contentLeft - gap - bannerWidth (대칭이므로 동일)
-        bannerRight.style.right = bannerLeftEdge + 'px';
+        document.documentElement.style.setProperty('--nav-height', navHeight + 'px');
+        document.documentElement.style.setProperty('--announcement-height', announcementHeight + 'px');
     }
 
     function renderDigits(number) {
@@ -232,20 +233,21 @@
         location.reload();
     };
 
-    // adjustBannerPosition을 전역으로 노출 (nav.js에서 호출용)
-    window.adjustBannerPosition = adjustBannerPosition;
+    // 전역 노출 (nav.js에서 호출용) - 이제 CSS 변수만 업데이트
+    window.adjustBannerPosition = updateBannerPosition;
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() {
-            adjustBannerPosition();
+            updateBannerPosition();
             updateCounter();
             updateMemberInfo();
         });
     } else {
-        adjustBannerPosition();
+        updateBannerPosition();
         updateCounter();
         updateMemberInfo();
     }
 
-    window.addEventListener('resize', adjustBannerPosition);
+    // 리사이즈 시에도 CSS 변수 업데이트 (nav 높이 변경 대응)
+    window.addEventListener('resize', updateBannerPosition);
 })();
