@@ -114,7 +114,7 @@ const CalendarWidget = {
         const isEnPage = window.location.pathname.startsWith('/en/') || window.location.pathname === '/en';
 
         container.innerHTML = `
-            <section class="py-12 bg-white">
+            <section class="py-12 bg-gray-50">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <!-- 섹션 헤더 -->
                     <div class="flex items-center justify-between mb-8">
@@ -129,17 +129,17 @@ const CalendarWidget = {
 
                     <!-- 캘린더 네비게이션 -->
                     <div class="flex items-center justify-between mb-6">
-                        <button id="cal-prev-btn" onclick="CalendarWidget.prevWeeks()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                        <button onclick="CalendarWidget.prevWeeks()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
                             <i class="fas fa-chevron-left text-gray-600"></i>
                         </button>
                         <h3 id="calendar-title" class="text-lg font-semibold text-gray-800"></h3>
-                        <button id="cal-next-btn" onclick="CalendarWidget.nextWeeks()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                        <button onclick="CalendarWidget.nextWeeks()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
                             <i class="fas fa-chevron-right text-gray-600"></i>
                         </button>
                     </div>
 
                     <!-- 캘린더 그리드 -->
-                    <div class="bg-gray-50 rounded-2xl p-4 sm:p-6 shadow-sm">
+                    <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm">
                         <!-- 요일 헤더 -->
                         <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-4">
                             <div class="text-center text-xs sm:text-sm font-medium text-red-500 py-2">${isEnPage ? 'Sun' : '일'}</div>
@@ -174,13 +174,13 @@ const CalendarWidget = {
 
     // 이전 2주
     prevWeeks: function() {
-        if (this.weekOffset > -28) this.weekOffset -= 14;
+        this.weekOffset -= 14;
         this.renderCalendar();
     },
 
     // 다음 2주
     nextWeeks: function() {
-        if (this.weekOffset < 28) this.weekOffset += 14;
+        this.weekOffset += 14;
         this.renderCalendar();
     },
 
@@ -286,18 +286,6 @@ const CalendarWidget = {
         }
 
         grid.innerHTML = html;
-        
-        // 버튼 상태 업데이트 (한계 도달 시 비활성화)
-        const prevBtn = document.getElementById('cal-prev-btn');
-        const nextBtn = document.getElementById('cal-next-btn');
-        if (prevBtn) {
-            prevBtn.style.opacity = this.weekOffset <= -28 ? '0.3' : '1';
-            prevBtn.style.pointerEvents = this.weekOffset <= -28 ? 'none' : 'auto';
-        }
-        if (nextBtn) {
-            nextBtn.style.opacity = this.weekOffset >= 28 ? '0.3' : '1';
-            nextBtn.style.pointerEvents = this.weekOffset >= 28 ? 'none' : 'auto';
-        }
     },
 
     // 일정 리스트 렌더링
