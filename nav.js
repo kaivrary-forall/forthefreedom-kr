@@ -606,7 +606,7 @@ function loadNavigation() {
                 align-items: center;
                 justify-content: center;
                 padding: 12px 16px;
-                border-radius: 50px;
+                border-radius: 16px;
                 text-decoration: none;
                 font-weight: 500;
                 font-size: 14px;
