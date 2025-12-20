@@ -392,21 +392,6 @@ nav a {
 .swiper-slide > div,
 article,
 button,
-input,
-textarea,
-.bg-white,
-.aspect-square {
-    border-radius: 0 !important;
-}
-
-/* Override Tailwind rounded classes */
-.rounded,
-.rounded-lg,
-.rounded-xl,
-.rounded-full {
-    border-radius: 0 !important;
-}
-
 /* Red Theme Overrides */
 .text-blue-600 { color: #A50034 !important; }
 .text-blue-500 { color: #C7003F !important; }
