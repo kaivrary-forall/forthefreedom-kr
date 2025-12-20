@@ -552,7 +552,7 @@ function loadNavigation() {
         // 플로팅 버튼 추가 (초기에는 숨김 상태)
         const floatingButtons = `
             <!-- 플로팅 버튼들 -->
-            <div class="fixed z-40 flex flex-col space-y-3 opacity-0 transition-opacity duration-300" id="floating-buttons" style="top: calc(var(--announcement-height, 0px) + var(--nav-height, 56px) + 220px); right: calc(50% - var(--content-max, 1280px)/2 - var(--rail-gap, 16px) - var(--side-width, 140px));">
+            <div class="fixed z-40 flex flex-col space-y-3 transition-opacity duration-300" id="floating-buttons" style="top: calc(var(--announcement-height, 0px) + var(--nav-height, 56px) + 220px); right: calc(50% - var(--content-max, 1280px)/2 - var(--rail-gap, 16px) - var(--side-width, 140px));">
                 <!-- 당원가입 버튼 -->
                 <a href="https://www.ihappynanum.com/Nanum/api/screen/F7FCRIO2E3" 
                    target="_blank"
@@ -661,42 +661,11 @@ function loadNavigation() {
         // body에 플로팅 버튼 추가
         document.body.insertAdjacentHTML('beforeend', floatingButtons);
         
-        // 스크롤 이벤트로 플로팅 버튼 표시/숨김 제어
+        // 플로팅 버튼 항상 표시
         const floatingButtonsElement = document.getElementById('floating-buttons');
-        const navigationElement = document.querySelector('nav');
-        
-        if (floatingButtonsElement && navigationElement) {
-            // 스크롤 이벤트 리스너 추가
-            let ticking = false;
-            
-            function updateFloatingButtons() {
-                const scrollY = window.scrollY || window.pageYOffset;
-                
-                if (scrollY < 200) {
-                    // 스크롤이 200px 미만이면 플로팅 버튼 숨김
-                    floatingButtonsElement.style.opacity = '0';
-                    floatingButtonsElement.style.pointerEvents = 'none';
-                } else {
-                    // 스크롤이 200px 이상이면 플로팅 버튼 표시
-                    floatingButtonsElement.style.opacity = '1';
-                    floatingButtonsElement.style.pointerEvents = 'auto';
-                }
-                
-                ticking = false;
-            }
-            
-            function requestTick() {
-                if (!ticking) {
-                    requestAnimationFrame(updateFloatingButtons);
-                    ticking = true;
-                }
-            }
-            
-            // 스크롤 이벤트 등록
-            window.addEventListener('scroll', requestTick);
-            
-            // 초기 상태 설정
-            updateFloatingButtons();
+        if (floatingButtonsElement) {
+            floatingButtonsElement.style.opacity = '1';
+            floatingButtonsElement.style.pointerEvents = 'auto';
         }
         
         // 페이지 레이아웃 설정 (body padding-top)
