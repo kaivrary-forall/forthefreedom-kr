@@ -387,11 +387,6 @@ nav a {
     transform: translateY(0);
 }
 
-/* Conservative Party Theme - No Rounded Corners */
-.policy-card,
-.swiper-slide > div,
-article,
-button,
 /* Red Theme Overrides */
 .text-blue-600 { color: #A50034 !important; }
 .text-blue-500 { color: #C7003F !important; }
@@ -976,4 +971,27 @@ h1, h2, h3, h4, h5, h6, p, span, div, li, td, th {
   .max-w-7xl {
     max-width: 1280px !important;
   }
+}
+
+/* Tailwind text-white 보장 - 빨간 배경에서 흰색 텍스트 (must be last) */
+.text-white {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+/* 빨간 배경 버튼/탭에서 텍스트 흰색 보장 */
+.bg-red-600.text-white,
+.bg-red-700.text-white,
+.bg-\[\#a50034\].text-white,
+.bg-\[\#A50034\].text-white {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+/* 활성 탭/버튼 텍스트 색상 */
+.tab-btn.bg-red-600,
+.region-btn.active,
+button.active {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
 }
