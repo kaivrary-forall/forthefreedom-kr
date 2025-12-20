@@ -810,13 +810,26 @@ h1, h2, h3, h4, h5, h6, p, span, div, li, td, th {
   display: grid;
   grid-template-columns: minmax(var(--rail-edge), 1fr) minmax(0, var(--content-max)) minmax(var(--rail-edge), 1fr);
   column-gap: var(--rail-gap);
-  align-items: start;
+  align-items: stretch; /* stretch로 변경 - 사이드 컬럼이 전체 높이 차지 */
 }
 
 /* Place columns explicitly for wide screens */
-.page-grid > .side-column.left{ grid-column: 1; display:flex; justify-content:flex-end; }
-.page-grid > .main-content{ grid-column: 2; min-width: 0; }
-.page-grid > .side-column.right{ grid-column: 3; display:flex; justify-content:flex-start; }
+.page-grid > .side-column.left{ 
+  grid-column: 1; 
+  display: flex; 
+  justify-content: flex-end;
+  align-items: flex-start; /* 내부 아이템은 상단 정렬 */
+}
+.page-grid > .main-content{ 
+  grid-column: 2; 
+  min-width: 0; 
+}
+.page-grid > .side-column.right{ 
+  grid-column: 3; 
+  display: flex; 
+  justify-content: flex-start;
+  align-items: flex-start; /* 내부 아이템은 상단 정렬 */
+}
 
 .side-banner{
   width: var(--side-width);
