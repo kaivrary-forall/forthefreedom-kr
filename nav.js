@@ -36,6 +36,10 @@ function getLanguageSwitchURL(targetLang) {
 }
 
 function loadNavigation() {
+    // 전역 초기화 가드 - 중복 실행 방지
+    if (window.__NAV_INITIALIZED__) return;
+    window.__NAV_INITIALIZED__ = true;
+    
     // 현재 경로 확인하여 하위 폴더 내부인지 감지
     const currentPath = window.location.pathname;
     const isEnPage = currentPath.startsWith('/en/') || currentPath === '/en';
@@ -2096,19 +2100,17 @@ window.openMpProfileModal = openMpProfileModal;
 window.mpHandleProfileSelect = mpHandleProfileSelect;
 
 // ===== 한줄 공지 바 =====
-let _announcementBarLoading = false; // 로딩 중 플래그
-
 async function loadAnnouncementBar() {
-    // 이미 로딩 중이면 중복 호출 방지
-    if (_announcementBarLoading) return;
-    
-    // 이미 공지 바가 있으면 중복 생성 방지
-    if (document.getElementById('announcement-bar')) return;
+    // 전역 로딩 플래그로 중복 호출 방지 (nav.js 재로드 시에도 유지)
+    if (window.__ANNOUNCEMENT_LOADING__) return;
     
     // 세션에서 닫기 상태 확인
     if (sessionStorage.getItem('announcementClosed')) return;
     
-    _announcementBarLoading = true; // 로딩 시작
+    // 기존 공지 바 모두 제거 (중복 생성된 경우 정리)
+    document.querySelectorAll('#announcement-bar').forEach(el => el.remove());
+    
+    window.__ANNOUNCEMENT_LOADING__ = true; // 로딩 시작
     
     try {
         const response = await fetch('https://forthefreedom-kr-production.up.railway.app/api/announcement');
@@ -2170,7 +2172,7 @@ async function loadAnnouncementBar() {
     } catch (error) {
         console.log('공지 로드 실패:', error);
     } finally {
-        _announcementBarLoading = false; // 로딩 완료
+        window.__ANNOUNCEMENT_LOADING__ = false; // 로딩 완료
     }
 }
 
