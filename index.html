@@ -298,10 +298,12 @@
     <!-- Navigation Component -->
     <div id="navigation-container"></div>
 
-<div class="page-grid" id="page-grid">
-  <aside class="side-column left" aria-label="좌측 사이드 배너">
+    <!-- 사이드 배너 (Grid 밖, fixed 포지션) -->
     <div id="side-banner-left" class="side-banner"></div>
-  </aside>
+    <div id="side-banner-right" class="side-banner"></div>
+
+<div class="page-grid" id="page-grid">
+  <div class="side-column left"></div>
 
   <main class="main-content" id="main-content" role="main">
 
@@ -1049,9 +1051,7 @@
 
   </main>
 
-  <aside class="side-column right" aria-label="우측 사이드 배너">
-    <div id="side-banner-right" class="side-banner"></div>
-  </aside>
+  <div class="side-column right"></div>
 </div>
 
     <!-- Footer (Grid 밖) -->

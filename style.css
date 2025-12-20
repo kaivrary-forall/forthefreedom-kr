@@ -802,7 +802,7 @@ h1, h2, h3, h4, h5, h6, p, span, div, li, td, th {
   --side-width: 140px;
   --rail-gap: 16px;
   --rail-edge: 8px;
-  --nav-height: 0px;
+  --nav-height: 56px;
   --announcement-height: 0px;
 }
 
@@ -810,15 +810,10 @@ h1, h2, h3, h4, h5, h6, p, span, div, li, td, th {
   display: grid;
   grid-template-columns: minmax(var(--rail-edge), 1fr) minmax(0, var(--content-max)) minmax(var(--rail-edge), 1fr);
   column-gap: var(--rail-gap);
-  align-items: stretch; /* stretch로 변경 - 사이드 컬럼이 전체 높이 차지 */
 }
 
-/* Place columns explicitly for wide screens */
 .page-grid > .side-column.left{ 
   grid-column: 1; 
-  display: flex; 
-  justify-content: flex-end;
-  align-items: flex-start; /* 내부 아이템은 상단 정렬 */
 }
 .page-grid > .main-content{ 
   grid-column: 2; 
@@ -826,15 +821,26 @@ h1, h2, h3, h4, h5, h6, p, span, div, li, td, th {
 }
 .page-grid > .side-column.right{ 
   grid-column: 3; 
-  display: flex; 
-  justify-content: flex-start;
-  align-items: flex-start; /* 내부 아이템은 상단 정렬 */
 }
 
+/* 사이드 배너: fixed 포지션으로 화면에 고정 */
 .side-banner{
+  position: fixed;
   width: var(--side-width);
-  position: sticky;
-  top: calc(var(--announcement-height) + var(--nav-height) + 16px);
+  top: calc(var(--announcement-height) + var(--nav-height) + 24px);
+  z-index: 40;
+}
+
+/* 왼쪽 배너: 컨텐츠 왼쪽에 붙임 */
+#side-banner-left {
+  /* 화면 중앙 기준으로 컨텐츠 왼쪽 바깥에 배치 */
+  left: calc(50% - var(--content-max)/2 - var(--rail-gap) - var(--side-width));
+}
+
+/* 오른쪽 배너: 컨텐츠 오른쪽에 붙임 */
+#side-banner-right {
+  /* 화면 중앙 기준으로 컨텐츠 오른쪽 바깥에 배치 */
+  left: calc(50% + var(--content-max)/2 + var(--rail-gap));
 }
 
 /* 사이드 배너 카드 스타일 */
