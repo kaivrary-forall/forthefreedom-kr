@@ -348,6 +348,10 @@ nav a {
     .hero-section {
         height: 60vh;
     }
+    
+    .max-w-7xl {
+        max-width: 1400px !important;
+    }
 }
 
 /* Accessibility improvements */
@@ -789,84 +793,45 @@ h1, h2, h3, h4, h5, h6, p, span, div, li, td, th {
     background: url('../images/hero-image.webp') center/cover no-repeat;
 }
 
-/* =========================
-   Page Grid (3-column rails)
-   Goal: zoom-invariant layout (no JS left/right calc)
-   ========================= */
-:root{
-  --content-max: 1280px;
-  --side-width: 140px;
-  --rail-gap: 16px;
-  --rail-edge: 8px;
-  --nav-height: 56px;
-  --announcement-height: 0px;
+/* ===== 3컬럼 Grid 레이아웃 (사이드 배너 안정화) ===== */
+:root {
+    --content-max: 1280px;
+    --side-width: 140px;
+    --side-gap: 16px;
+    --side-edge: 8px;
+    --sticky-top: 80px; /* nav 높이, JS로 동적 조정 */
 }
 
-.page-grid{
-  display: grid;
-  grid-template-columns: minmax(var(--rail-edge), 1fr) minmax(0, var(--content-max)) minmax(var(--rail-edge), 1fr);
-  column-gap: var(--rail-gap);
+.page-grid {
+    display: grid;
+    grid-template-columns: 
+        minmax(var(--side-edge), 1fr)
+        minmax(0, var(--content-max))
+        minmax(var(--side-edge), 1fr);
+    column-gap: var(--side-gap);
+    align-items: start;
+    min-height: 100vh;
 }
 
-.page-grid > .side-column.left{ 
-  grid-column: 1; 
-}
-.page-grid > .main-content{ 
-  grid-column: 2; 
-  min-width: 0;
-  max-width: var(--content-max);
-  width: 100%;
-}
-.page-grid > .side-column.right{ 
-  grid-column: 3; 
+.page-grid .side-column {
+    position: relative;
+    padding-top: 24px;
 }
 
-/* 사이드 배너: fixed 포지션으로 화면에 고정 */
-.side-banner{
-  position: fixed;
-  width: var(--side-width);
-  top: calc(var(--announcement-height) + var(--nav-height) + 24px);
-  z-index: 40;
+.page-grid .side-column.left {
+    display: flex;
+    justify-content: flex-end;
 }
 
-/* 왼쪽 배너: 컨텐츠 왼쪽에 붙임 */
-#side-banner-left {
-  /* 화면 중앙 기준으로 컨텐츠 왼쪽 바깥에 배치 */
-  left: calc(50% - var(--content-max)/2 - var(--rail-gap) - var(--side-width));
+.page-grid .side-column.right {
+    display: flex;
+    justify-content: flex-start;
 }
 
-/* 오른쪽 배너: 컨텐츠 오른쪽에 붙임 */
-#side-banner-right {
-  /* 화면 중앙 기준으로 컨텐츠 오른쪽 바깥에 배치 */
-  left: calc(50% + var(--content-max)/2 + var(--rail-gap));
-}
-
-/* 1480px 이하: 배너 공간 부족 → 숨김 */
-@media (max-width: 1480px) {
-  #side-banner-left,
-  #side-banner-right {
-    display: none !important;
-  }
-  
-  .page-grid {
-    display: block; /* Grid 해제, 일반 블록으로 */
-  }
-  
-  .page-grid > .side-column.left,
-  .page-grid > .side-column.right {
-    display: none !important;
-  }
-  
-  .page-grid > .main-content {
-    max-width: var(--content-max, 1280px);
-    margin: 0 auto;
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-}
-
-/* 사이드 배너 카드 스타일 */
-.side-banner-card {
+.page-grid .side-banner {
+    width: var(--side-width);
+    position: sticky;
+    top: var(--sticky-top);
     background: white;
     border-radius: 16px;
     border: 1px solid #e5e7eb;
@@ -874,7 +839,22 @@ h1, h2, h3, h4, h5, h6, p, span, div, li, td, th {
     text-align: center;
 }
 
-.day-digit {
+.page-grid .main-content {
+    min-width: 0; /* Grid item overflow 방지 */
+}
+
+/* 사이드 배너 숨김 조건: 뷰포트가 좁을 때 */
+@media (max-width: 1480px) {
+    .page-grid {
+        grid-template-columns: 1fr;
+    }
+    .page-grid .side-column {
+        display: none;
+    }
+}
+
+/* 사이드 배너 내부 스타일 */
+.side-banner .day-digit {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -887,7 +867,7 @@ h1, h2, h3, h4, h5, h6, p, span, div, li, td, th {
     border-radius: 5px;
 }
 
-.member-btn {
+.side-banner .member-btn {
     display: block;
     width: 100%;
     padding: 7px 0;
@@ -898,22 +878,117 @@ h1, h2, h3, h4, h5, h6, p, span, div, li, td, th {
     transition: all 0.2s;
 }
 
-.member-btn-primary {
+.side-banner .member-btn-primary {
     background: #a50034;
     color: white;
 }
 
-.member-btn-primary:hover {
+.side-banner .member-btn-primary:hover {
     background: #8a002c;
 }
 
-.member-btn-secondary {
+.side-banner .member-btn-secondary {
     background: #f3f4f6;
     color: #374151;
-    border: none;
-    cursor: pointer;
+}
+
+.side-banner .member-btn-secondary:hover {
+    background: #e5e7eb;
+} 
+/* =========================
+   사이드 배너 레이아웃 (CSS calc 기반)
+   ========================= */
+:root {
+  --content-max: 1280px;
+  --side-width: 140px;
+  --side-gap: 16px;
+  --nav-height: 56px;
+  --announcement-height: 0px;
+}
+
+/* 사이드 배너 공통 */
+.side-banner {
+  position: fixed;
+  width: var(--side-width);
+  top: calc(var(--announcement-height) + var(--nav-height) + 24px);
+  z-index: 40;
+}
+
+/* 왼쪽 배너 */
+#side-banner-left {
+  left: calc(50% - var(--content-max)/2 - var(--side-gap) - var(--side-width));
+}
+
+/* 오른쪽 배너 */
+#side-banner-right {
+  left: calc(50% + var(--content-max)/2 + var(--side-gap));
+}
+
+/* 사이드 배너 카드 스타일 */
+.side-banner-card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  padding: 14px;
+  text-align: center;
+}
+
+.day-digit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 32px;
+  background: #a50034;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 5px;
+}
+
+.member-btn {
+  display: block;
+  width: 100%;
+  padding: 7px 0;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.member-btn-primary {
+  background: #a50034;
+  color: white;
+}
+
+.member-btn-primary:hover {
+  background: #8a002c;
+}
+
+.member-btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: none;
+  cursor: pointer;
 }
 
 .member-btn-secondary:hover {
-    background: #e5e7eb;
+  background: #e5e7eb;
+}
+
+/* 1592px 이하: 배너 숨김 (1280 + 140*2 + 16*2 = 1592) */
+@media (max-width: 1592px) {
+  #side-banner-left,
+  #side-banner-right,
+  #floating-buttons.side-position {
+    display: none !important;
+  }
+}
+
+/* 1920px 이상에서 max-w-7xl 1400px 확장 제거 - 항상 1280px 유지 */
+@media (min-width: 1920px) {
+  .max-w-7xl {
+    max-width: 1280px !important;
+  }
 }

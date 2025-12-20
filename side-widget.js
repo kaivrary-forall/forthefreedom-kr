@@ -1,24 +1,43 @@
 /**
- * side-widget.js (Grid Rails version)
- * - 기존 기능 유지: 일수 카운터 + 회원 정보
- * - Grid 레이아웃 내 #side-banner-left / #side-banner-right에 렌더링
- * - CSS 변수로 sticky top 조정
+ * side-widget.js (CSS 기반 버전)
+ * - 위치 계산 없음 (CSS calc()로 처리)
+ * - CSS 변수만 업데이트 (nav, announcement 높이)
+ * - 배너 내용 렌더링
  */
 (function () {
     const isEnPage = window.location.pathname.startsWith('/en/') || window.location.pathname === '/en';
     const linkPrefix = isEnPage ? '../' : '';
 
-    function updateStickyTopVars() {
+    // CSS 변수 업데이트
+    function updateCSSVariables() {
         const nav = document.querySelector('#navigation-container nav') || document.querySelector('nav');
         const announcement = document.getElementById('announcement-bar');
         
-        const navH = nav ? Math.ceil(nav.getBoundingClientRect().height) : 0;
+        const navH = nav ? Math.ceil(nav.getBoundingClientRect().height) : 56;
         const annH = announcement ? Math.ceil(announcement.getBoundingClientRect().height) : 0;
         
         document.documentElement.style.setProperty('--nav-height', navH + 'px');
         document.documentElement.style.setProperty('--announcement-height', annH + 'px');
     }
 
+    // 배너 컨테이너 생성
+    function createBannerContainers() {
+        // 이미 존재하면 스킵
+        if (document.getElementById('side-banner-left')) return;
+        
+        const leftBanner = document.createElement('div');
+        leftBanner.id = 'side-banner-left';
+        leftBanner.className = 'side-banner';
+        
+        const rightBanner = document.createElement('div');
+        rightBanner.id = 'side-banner-right';
+        rightBanner.className = 'side-banner';
+        
+        document.body.appendChild(leftBanner);
+        document.body.appendChild(rightBanner);
+    }
+
+    // 일수 카운터 렌더링
     function renderDayCounter(el) {
         if (!el) return;
         
@@ -41,14 +60,12 @@
         }
         
         if (days === 0) {
-            // 창당일 기준
             const foundingDate = new Date('2025-06-06T00:00:00+09:00');
             const today = new Date();
             days = Math.floor((today - foundingDate) / (1000 * 60 * 60 * 24)) + 1;
             days = Math.max(1, days);
         }
         
-        // 4자리 숫자로 패딩
         const numStr = String(days).padStart(4, '0');
         let digitsHTML = '';
         for (let i = 0; i < numStr.length; i++) {
@@ -64,6 +81,7 @@
         `;
     }
 
+    // 회원 정보 렌더링
     function renderMemberInfo(el) {
         if (!el) return;
         
@@ -123,25 +141,26 @@
         location.reload();
     };
 
+    // 초기화
     function init() {
+        createBannerContainers();
+        
         const left = document.getElementById('side-banner-left');
         const right = document.getElementById('side-banner-right');
         
-        // Grid 구조가 없으면 실행 안함
-        if (!left || !right) return;
-        
         renderDayCounter(left);
         renderMemberInfo(right);
-        updateStickyTopVars();
+        updateCSSVariables();
         
-        window.addEventListener('resize', updateStickyTopVars, { passive: true });
+        // 리사이즈 시 CSS 변수 업데이트
+        window.addEventListener('resize', updateCSSVariables, { passive: true });
         
         // DOM 변화 감지 (nav/announcement 동적 로드 대응)
-        const obs = new MutationObserver(() => updateStickyTopVars());
+        const obs = new MutationObserver(() => updateCSSVariables());
         obs.observe(document.body, { childList: true, subtree: true });
         
         // 전역 노출 (nav.js에서 호출용)
-        window.adjustBannerPosition = updateStickyTopVars;
+        window.adjustBannerPosition = updateCSSVariables;
     }
 
     if (document.readyState === 'loading') {

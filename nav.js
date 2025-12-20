@@ -549,10 +549,10 @@ function loadNavigation() {
             // mobileMenuButton.addEventListener('click', toggleMobileMenu); 
         }
         
-        // 플로팅 버튼 추가 (초기에는 숨김 상태)
+        // 플로팅 버튼 추가 (사이드 배너 아래에 항상 표시)
         const floatingButtons = `
             <!-- 플로팅 버튼들 -->
-            <div class="fixed z-40 flex flex-col space-y-3 transition-opacity duration-300" id="floating-buttons" style="top: calc(var(--announcement-height, 0px) + var(--nav-height, 56px) + 220px); left: calc(50% + var(--content-max, 1280px)/2 + var(--rail-gap, 16px));">
+            <div class="fixed z-40 flex flex-col space-y-3 transition-opacity duration-300" id="floating-buttons" style="top: calc(var(--announcement-height, 0px) + var(--nav-height, 56px) + 220px); left: calc(50% + var(--content-max, 1280px)/2 + var(--side-gap, 16px));">
                 <!-- 당원가입 버튼 -->
                 <a href="https://www.ihappynanum.com/Nanum/api/screen/F7FCRIO2E3" 
                    target="_blank"
@@ -630,13 +630,13 @@ function loadNavigation() {
                 }
             }
             
-            /* 1480px 이하: 플로팅 버튼을 우하단으로 이동 */
-            @media (max-width: 1480px) {
+            /* 1592px 이하: 플로팅 버튼을 우하단으로 이동 */
+            @media (max-width: 1592px) {
                 #floating-buttons {
                     top: auto !important;
+                    left: auto !important;
                     bottom: 24px !important;
                     right: 24px !important;
-                    width: auto;
                 }
                 .floating-btn {
                     width: auto;
