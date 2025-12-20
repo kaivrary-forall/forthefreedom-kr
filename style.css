@@ -851,12 +851,17 @@ h1, h2, h3, h4, h5, h6, p, span, div, li, td, th {
   }
   
   .page-grid {
-    grid-template-columns: 1fr;
+    display: block; /* Grid 해제, 일반 블록으로 */
   }
   
   .page-grid > .side-column.left,
   .page-grid > .side-column.right {
-    display: none;
+    display: none !important;
+  }
+  
+  .page-grid > .main-content {
+    max-width: 100%;
+    margin: 0 auto;
   }
 }
 
