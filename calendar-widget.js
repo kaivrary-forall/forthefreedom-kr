@@ -139,20 +139,20 @@ const CalendarWidget = {
                     </div>
 
                     <!-- 캘린더 그리드 -->
-                    <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm">
+                    <div class="bg-white rounded-lg overflow-hidden">
                         <!-- 요일 헤더 -->
-                        <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-4">
-                            <div class="text-center text-xs sm:text-sm font-medium text-red-500 py-2">${isEnPage ? 'Sun' : '일'}</div>
-                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-2">${isEnPage ? 'Mon' : '월'}</div>
-                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-2">${isEnPage ? 'Tue' : '화'}</div>
-                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-2">${isEnPage ? 'Wed' : '수'}</div>
-                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-2">${isEnPage ? 'Thu' : '목'}</div>
-                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-2">${isEnPage ? 'Fri' : '금'}</div>
-                            <div class="text-center text-xs sm:text-sm font-medium text-blue-500 py-2">${isEnPage ? 'Sat' : '토'}</div>
+                        <div class="grid grid-cols-7 border-b border-gray-200">
+                            <div class="text-center text-xs sm:text-sm font-medium text-red-500 py-3 border-r border-gray-200">${isEnPage ? 'Sun' : '일'}</div>
+                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3 border-r border-gray-200">${isEnPage ? 'Mon' : '월'}</div>
+                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3 border-r border-gray-200">${isEnPage ? 'Tue' : '화'}</div>
+                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3 border-r border-gray-200">${isEnPage ? 'Wed' : '수'}</div>
+                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3 border-r border-gray-200">${isEnPage ? 'Thu' : '목'}</div>
+                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3 border-r border-gray-200">${isEnPage ? 'Fri' : '금'}</div>
+                            <div class="text-center text-xs sm:text-sm font-medium text-blue-500 py-3">${isEnPage ? 'Sat' : '토'}</div>
                         </div>
 
                         <!-- 날짜 그리드 -->
-                        <div id="calendar-grid" class="space-y-1 sm:space-y-2">
+                        <div id="calendar-grid" class="border-l border-gray-200">
                             <div class="text-center text-gray-400 py-8">${isEnPage ? 'Loading...' : '일정을 불러오는 중...'}</div>
                         </div>
                     </div>
@@ -213,7 +213,7 @@ const CalendarWidget = {
         let html = '';
 
         for (let week = 0; week < 2; week++) {
-            html += '<div class="grid grid-cols-7 gap-1 sm:gap-2">';
+            html += '<div class="grid grid-cols-7">';
 
             for (let day = 0; day < 7; day++) {
                 const date = new Date(startDate);
@@ -225,12 +225,13 @@ const CalendarWidget = {
                 const isSunday = date.getDay() === 0;
                 const isSaturday = date.getDay() === 6;
 
-                // 날짜 셀 클래스 - 연한 회색 배경으로 칸 구분
-                let cellClass = 'p-2 sm:p-3 rounded-xl min-h-[80px] sm:min-h-[100px] transition-all border border-gray-100';
+                // 날짜 셀 클래스 - 배경 없이 연한 회색 테두리로 구분
+                let cellClass = 'p-2 sm:p-3 min-h-[80px] sm:min-h-[100px] border-b border-gray-200';
+                if (!isSaturday) {
+                    cellClass += ' border-r';
+                }
                 if (isToday) {
-                    cellClass += ' bg-[#a50034] text-white shadow-lg border-[#a50034]';
-                } else {
-                    cellClass += ' bg-gray-50';
+                    cellClass += ' bg-[#a50034] text-white';
                 }
 
                 // 날짜 숫자 클래스
