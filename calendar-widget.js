@@ -142,12 +142,12 @@ const CalendarWidget = {
                     <div class="bg-white rounded-2xl overflow-hidden border border-gray-200">
                         <!-- 요일 헤더 -->
                         <div class="grid grid-cols-7 border-b border-gray-200 bg-white">
-                            <div class="text-center text-xs sm:text-sm font-medium text-red-500 py-3">${isEnPage ? 'Sun' : '일'}</div>
-                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3">${isEnPage ? 'Mon' : '월'}</div>
-                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3">${isEnPage ? 'Tue' : '화'}</div>
-                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3">${isEnPage ? 'Wed' : '수'}</div>
-                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3">${isEnPage ? 'Thu' : '목'}</div>
-                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3">${isEnPage ? 'Fri' : '금'}</div>
+                            <div class="text-center text-xs sm:text-sm font-medium text-red-500 py-3 border-r border-gray-200">${isEnPage ? 'Sun' : '일'}</div>
+                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3 border-r border-gray-200">${isEnPage ? 'Mon' : '월'}</div>
+                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3 border-r border-gray-200">${isEnPage ? 'Tue' : '화'}</div>
+                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3 border-r border-gray-200">${isEnPage ? 'Wed' : '수'}</div>
+                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3 border-r border-gray-200">${isEnPage ? 'Thu' : '목'}</div>
+                            <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3 border-r border-gray-200">${isEnPage ? 'Fri' : '금'}</div>
                             <div class="text-center text-xs sm:text-sm font-medium text-[#004A98] py-3">${isEnPage ? 'Sat' : '토'}</div>
                         </div>
 
