@@ -2096,12 +2096,19 @@ window.openMpProfileModal = openMpProfileModal;
 window.mpHandleProfileSelect = mpHandleProfileSelect;
 
 // ===== 한줄 공지 바 =====
+let _announcementBarLoading = false; // 로딩 중 플래그
+
 async function loadAnnouncementBar() {
+    // 이미 로딩 중이면 중복 호출 방지
+    if (_announcementBarLoading) return;
+    
     // 이미 공지 바가 있으면 중복 생성 방지
     if (document.getElementById('announcement-bar')) return;
     
     // 세션에서 닫기 상태 확인
     if (sessionStorage.getItem('announcementClosed')) return;
+    
+    _announcementBarLoading = true; // 로딩 시작
     
     try {
         const response = await fetch('https://forthefreedom-kr-production.up.railway.app/api/announcement');
@@ -2162,6 +2169,8 @@ async function loadAnnouncementBar() {
         }
     } catch (error) {
         console.log('공지 로드 실패:', error);
+    } finally {
+        _announcementBarLoading = false; // 로딩 완료
     }
 }
 
