@@ -139,7 +139,7 @@ const CalendarWidget = {
                     </div>
 
                     <!-- 캘린더 그리드 -->
-                    <div class="bg-white rounded-lg overflow-hidden">
+                    <div class="bg-white rounded-2xl overflow-hidden">
                         <!-- 요일 헤더 -->
                         <div class="grid grid-cols-7 border-b border-gray-200">
                             <div class="text-center text-xs sm:text-sm font-medium text-red-500 py-3 border-r border-gray-200">${isEnPage ? 'Sun' : '일'}</div>
