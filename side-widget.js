@@ -1,122 +1,152 @@
 /**
  * side-widget.js (Grid Rails version)
- * - No left/right position calculations.
- * - Renders content into #side-banner-left / #side-banner-right which live inside the page grid.
- * - Updates CSS variables (--nav-height, --announcement-height) so sticky top aligns with nav + announcement bar.
+ * - 기존 기능 유지: 일수 카운터 + 회원 정보
+ * - Grid 레이아웃 내 #side-banner-left / #side-banner-right에 렌더링
+ * - CSS 변수로 sticky top 조정
  */
-
 (function () {
-  const LEFT_ID = 'side-banner-left';
-  const RIGHT_ID = 'side-banner-right';
+    const isEnPage = window.location.pathname.startsWith('/en/') || window.location.pathname === '/en';
+    const linkPrefix = isEnPage ? '../' : '';
 
-  function qs(id) {
-    return document.getElementById(id);
-  }
-
-  function updateStickyTopVars() {
-    const nav = document.querySelector('#navigation-container nav') || document.querySelector('nav');
-    const announcement = document.getElementById('announcement-bar');
-
-    const navH = nav ? Math.ceil(nav.getBoundingClientRect().height) : 0;
-    const annH = announcement ? Math.ceil(announcement.getBoundingClientRect().height) : 0;
-
-    document.documentElement.style.setProperty('--nav-height', `${navH}px`);
-    document.documentElement.style.setProperty('--announcement-height', `${annH}px`);
-  }
-
-  function renderDayCounter(el) {
-    // Existing project copy:
-    // "자유와혁신의 발걸음 / 우리가 함께한 지"
-    // If your project has a canonical start date elsewhere, wire it here.
-    const startDateStr = el.getAttribute('data-start-date') || '2025-01-01'; // fallback
-    const start = new Date(startDateStr + 'T00:00:00');
-    const now = new Date();
-
-    const ms = now.getTime() - start.getTime();
-    const days = Math.max(0, Math.floor(ms / (1000 * 60 * 60 * 24)));
-
-    el.innerHTML = `
-      <div class="side-card" style="background:#fff;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.08);padding:14px;">
-        <div style="font-size:12px;color:#666;font-weight:600;line-height:1.25;">자유와혁신의 발걸음</div>
-        <div style="font-size:12px;color:#666;margin-top:2px;line-height:1.25;">우리가 함께한 지</div>
-        <div style="font-size:28px;font-weight:800;margin-top:8px;letter-spacing:-.5px;">${days}<span style="font-size:14px;font-weight:700;margin-left:6px;color:#444;">일</span></div>
-      </div>
-    `;
-  }
-
-  function renderMemberInfo(el) {
-    // Very lightweight: depends on existing project auth storage keys.
-    // If your project uses different keys, adjust only here.
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    const memberInfoRaw = localStorage.getItem('memberInfo') || sessionStorage.getItem('memberInfo');
-    let memberInfo = null;
-    try { memberInfo = memberInfoRaw ? JSON.parse(memberInfoRaw) : null; } catch (e) {}
-
-    const loggedIn = !!token && !!memberInfo;
-
-    if (!loggedIn) {
-      el.innerHTML = `
-        <div class="side-card" style="background:#fff;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.08);padding:14px;">
-          <div style="font-size:12px;color:#666;font-weight:600;">회원</div>
-          <div style="margin-top:10px;display:flex;flex-direction:column;gap:10px;">
-            <a href="login.html" style="display:block;text-align:center;padding:10px 12px;border-radius:10px;background:#111;color:#fff;font-weight:700;text-decoration:none;">로그인</a>
-            <a href="signup.html" style="display:block;text-align:center;padding:10px 12px;border-radius:10px;background:#f2f2f2;color:#111;font-weight:700;text-decoration:none;">회원가입</a>
-          </div>
-        </div>
-      `;
-      return;
+    function updateStickyTopVars() {
+        const nav = document.querySelector('#navigation-container nav') || document.querySelector('nav');
+        const announcement = document.getElementById('announcement-bar');
+        
+        const navH = nav ? Math.ceil(nav.getBoundingClientRect().height) : 0;
+        const annH = announcement ? Math.ceil(announcement.getBoundingClientRect().height) : 0;
+        
+        document.documentElement.style.setProperty('--nav-height', navH + 'px');
+        document.documentElement.style.setProperty('--announcement-height', annH + 'px');
     }
 
-    const name = memberInfo?.name || memberInfo?.nickname || '회원';
-    const email = memberInfo?.email || '';
+    function renderDayCounter(el) {
+        if (!el) return;
+        
+        const token = localStorage.getItem('memberToken');
+        const memberInfoStr = localStorage.getItem('memberInfo');
+        
+        let labelText = isEnPage ? "Our Journey" : '자유와혁신의 발걸음';
+        let days = 0;
+        
+        if (token && memberInfoStr) {
+            try {
+                const memberInfo = JSON.parse(memberInfoStr);
+                if (memberInfo.appliedAt) {
+                    labelText = isEnPage ? 'Together with you' : '우리가 함께한 지';
+                    const joinDate = new Date(memberInfo.appliedAt);
+                    const today = new Date();
+                    days = Math.floor((today - joinDate) / (1000 * 60 * 60 * 24)) + 1;
+                }
+            } catch (e) {}
+        }
+        
+        if (days === 0) {
+            // 창당일 기준
+            const foundingDate = new Date('2025-06-06T00:00:00+09:00');
+            const today = new Date();
+            days = Math.floor((today - foundingDate) / (1000 * 60 * 60 * 24)) + 1;
+            days = Math.max(1, days);
+        }
+        
+        // 4자리 숫자로 패딩
+        const numStr = String(days).padStart(4, '0');
+        let digitsHTML = '';
+        for (let i = 0; i < numStr.length; i++) {
+            digitsHTML += '<span class="day-digit">' + numStr[i] + '</span>';
+        }
+        
+        el.innerHTML = `
+            <div class="side-banner-card">
+                <p style="font-size: 10px; color: #6b7280; margin-bottom: 8px;">${labelText}</p>
+                <div style="display: flex; justify-content: center; gap: 2px; margin-bottom: 4px;">${digitsHTML}</div>
+                <p style="font-size: 11px; color: #9ca3af;">${isEnPage ? 'days' : '일째'}</p>
+            </div>
+        `;
+    }
 
-    el.innerHTML = `
-      <div class="side-card" style="background:#fff;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.08);padding:14px;">
-        <div style="font-size:12px;color:#666;font-weight:600;">회원</div>
-        <div style="margin-top:10px;display:flex;gap:10px;align-items:center;">
-          <div style="width:38px;height:38px;border-radius:50%;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;">
-            ${String(name).trim().slice(0,1)}
-          </div>
-          <div style="min-width:0;">
-            <div style="font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</div>
-            <div style="font-size:12px;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${email}</div>
-          </div>
-        </div>
-        <div style="margin-top:12px;">
-          <a href="mypage.html" style="display:block;text-align:center;padding:10px 12px;border-radius:10px;background:#f2f2f2;color:#111;font-weight:800;text-decoration:none;">내 정보</a>
-        </div>
-      </div>
-    `;
-  }
+    function renderMemberInfo(el) {
+        if (!el) return;
+        
+        const token = localStorage.getItem('memberToken');
+        const memberInfoStr = localStorage.getItem('memberInfo');
+        let memberInfo = null;
+        
+        try {
+            memberInfo = memberInfoStr ? JSON.parse(memberInfoStr) : null;
+        } catch (e) {}
+        
+        const loggedIn = !!token && !!memberInfo && !!memberInfo.nickname;
+        
+        if (!loggedIn) {
+            el.innerHTML = `
+                <div class="side-banner-card">
+                    <div style="width: 50px; height: 50px; margin: 0 auto 10px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                        <svg style="width: 28px; height: 28px; color: #9ca3af;" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <a href="${linkPrefix}login.html" class="member-btn member-btn-primary">${isEnPage ? 'Login' : '로그인'}</a>
+                        <a href="${linkPrefix}join.html" class="member-btn member-btn-secondary">${isEnPage ? 'Sign Up' : '회원가입'}</a>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
+        const name = memberInfo.nickname || memberInfo.name || 'Member';
+        const profileImage = memberInfo.profileImage;
+        
+        const avatarHTML = profileImage 
+            ? `<img src="${profileImage}" style="width: 100%; height: 100%; object-fit: cover;" alt="profile">`
+            : `<svg style="width: 28px; height: 28px; color: #9ca3af;" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+               </svg>`;
+        
+        el.innerHTML = `
+            <div class="side-banner-card">
+                <div style="width: 50px; height: 50px; margin: 0 auto 10px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                    ${avatarHTML}
+                </div>
+                <p style="font-size: 12px; color: #374151; font-weight: 600; margin-bottom: 10px;">${name}</p>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <a href="${linkPrefix}mypage.html" class="member-btn member-btn-primary">${isEnPage ? 'My Page' : '마이페이지'}</a>
+                    <button onclick="logoutMember()" class="member-btn member-btn-secondary">${isEnPage ? 'Logout' : '로그아웃'}</button>
+                </div>
+            </div>
+        `;
+    }
 
-  function init() {
-    const left = qs(LEFT_ID);
-    const right = qs(RIGHT_ID);
+    window.logoutMember = function() {
+        localStorage.removeItem('memberToken');
+        localStorage.removeItem('memberInfo');
+        location.reload();
+    };
 
-    // If this page doesn't have the rails, do nothing.
-    if (!left || !right) return;
+    function init() {
+        const left = document.getElementById('side-banner-left');
+        const right = document.getElementById('side-banner-right');
+        
+        // Grid 구조가 없으면 실행 안함
+        if (!left || !right) return;
+        
+        renderDayCounter(left);
+        renderMemberInfo(right);
+        updateStickyTopVars();
+        
+        window.addEventListener('resize', updateStickyTopVars, { passive: true });
+        
+        // DOM 변화 감지 (nav/announcement 동적 로드 대응)
+        const obs = new MutationObserver(() => updateStickyTopVars());
+        obs.observe(document.body, { childList: true, subtree: true });
+        
+        // 전역 노출 (nav.js에서 호출용)
+        window.adjustBannerPosition = updateStickyTopVars;
+    }
 
-    // Render content
-    renderDayCounter(left);
-    renderMemberInfo(right);
-
-    // Keep sticky top aligned when nav/announcement changes
-    updateStickyTopVars();
-
-    // Recompute on resize and when announcement/nav might change
-    window.addEventListener('resize', updateStickyTopVars, { passive: true });
-
-    // Observe DOM changes to nav / announcement to avoid "jump" after async load.
-    const obs = new MutationObserver(() => updateStickyTopVars());
-    obs.observe(document.body, { childList: true, subtree: true });
-
-    // Expose for other scripts (nav.js) if they want to force refresh after inserting announcement
-    window.adjustBannerPosition = updateStickyTopVars;
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
 })();

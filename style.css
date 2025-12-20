@@ -793,109 +793,6 @@ h1, h2, h3, h4, h5, h6, p, span, div, li, td, th {
     background: url('../images/hero-image.webp') center/cover no-repeat;
 }
 
-/* ===== 3컬럼 Grid 레이아웃 (사이드 배너 안정화) ===== */
-:root {
-    --content-max: 1280px;
-    --side-width: 140px;
-    --side-gap: 16px;
-    --side-edge: 8px;
-    --sticky-top: 80px; /* nav 높이, JS로 동적 조정 */
-}
-
-.page-grid {
-    display: grid;
-    grid-template-columns: 
-        minmax(var(--side-edge), 1fr)
-        minmax(0, var(--content-max))
-        minmax(var(--side-edge), 1fr);
-    column-gap: var(--side-gap);
-    align-items: start;
-    min-height: 100vh;
-}
-
-.page-grid .side-column {
-    position: relative;
-    padding-top: 24px;
-}
-
-.page-grid .side-column.left {
-    display: flex;
-    justify-content: flex-end;
-}
-
-.page-grid .side-column.right {
-    display: flex;
-    justify-content: flex-start;
-}
-
-.page-grid .side-banner {
-    width: var(--side-width);
-    position: sticky;
-    top: var(--sticky-top);
-    background: white;
-    border-radius: 16px;
-    border: 1px solid #e5e7eb;
-    padding: 14px;
-    text-align: center;
-}
-
-.page-grid .main-content {
-    min-width: 0; /* Grid item overflow 방지 */
-}
-
-/* 사이드 배너 숨김 조건: 뷰포트가 좁을 때 */
-@media (max-width: 1480px) {
-    .page-grid {
-        grid-template-columns: 1fr;
-    }
-    .page-grid .side-column {
-        display: none;
-    }
-}
-
-/* 사이드 배너 내부 스타일 */
-.side-banner .day-digit {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 32px;
-    background: #a50034;
-    color: white;
-    font-size: 16px;
-    font-weight: 700;
-    border-radius: 5px;
-}
-
-.side-banner .member-btn {
-    display: block;
-    width: 100%;
-    padding: 7px 0;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 500;
-    text-decoration: none;
-    transition: all 0.2s;
-}
-
-.side-banner .member-btn-primary {
-    background: #a50034;
-    color: white;
-}
-
-.side-banner .member-btn-primary:hover {
-    background: #8a002c;
-}
-
-.side-banner .member-btn-secondary {
-    background: #f3f4f6;
-    color: #374151;
-}
-
-.side-banner .member-btn-secondary:hover {
-    background: #e5e7eb;
-}
-
 /* =========================
    Page Grid (3-column rails)
    Goal: zoom-invariant layout (no JS left/right calc)
@@ -927,22 +824,66 @@ h1, h2, h3, h4, h5, h6, p, span, div, li, td, th {
   top: calc(var(--announcement-height) + var(--nav-height) + 16px);
 }
 
-/* Narrow: keep structure, but stack rails below main (no sudden hide) */
+/* 사이드 배너 카드 스타일 */
+.side-banner-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #e5e7eb;
+    padding: 14px;
+    text-align: center;
+}
+
+.day-digit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 32px;
+    background: #a50034;
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 5px;
+}
+
+.member-btn {
+    display: block;
+    width: 100%;
+    padding: 7px 0;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.member-btn-primary {
+    background: #a50034;
+    color: white;
+}
+
+.member-btn-primary:hover {
+    background: #8a002c;
+}
+
+.member-btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: none;
+    cursor: pointer;
+}
+
+.member-btn-secondary:hover {
+    background: #e5e7eb;
+}
+
+/* Narrow: 1480px 이하에서 배너 숨김 */
 @media (max-width: 1480px){
   .page-grid{
     grid-template-columns: minmax(0, var(--content-max));
-    grid-template-rows: auto auto auto;
-    row-gap: var(--rail-gap);
-    padding-left: var(--rail-edge);
-    padding-right: var(--rail-edge);
   }
-  .page-grid > .main-content{ grid-column: 1; grid-row: 1; }
-  .page-grid > .side-column.left{
-    grid-column: 1; grid-row: 2;
-    justify-content: center;
-  }
+  .page-grid > .side-column.left,
   .page-grid > .side-column.right{
-    grid-column: 1; grid-row: 3;
-    justify-content: center;
+    display: none;
   }
 }
