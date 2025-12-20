@@ -553,6 +553,22 @@ function loadNavigation() {
         const floatingButtons = `
             <!-- 플로팅 버튼들 -->
             <div class="fixed z-40 flex flex-col space-y-3 transition-opacity duration-300" id="floating-buttons" style="top: calc(var(--announcement-height, 0px) + var(--nav-height, 56px) + 220px); left: calc(50% + var(--content-max, 1280px)/2 + var(--side-gap, 16px));">
+                
+                <!-- 로그인/회원가입 카드 (1592px 이하에서만 표시) -->
+                <div id="floating-member-card" class="floating-member-card">
+                    <div style="width: 40px; height: 40px; margin: 0 auto 8px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                        <svg style="width: 22px; height: 22px; color: #9ca3af;" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                    </div>
+                    <a href="${linkPrefix}login.html" class="floating-btn bg-red-600 hover:bg-red-700 text-white shadow-none" style="margin-bottom: 6px; box-shadow: none;">
+                        로그인
+                    </a>
+                    <a href="${linkPrefix}join.html" class="floating-btn bg-gray-100 hover:bg-gray-200 text-gray-700 shadow-none" style="box-shadow: none;">
+                        회원가입
+                    </a>
+                </div>
+                
                 <!-- 당원가입 버튼 -->
                 <a href="https://www.ihappynanum.com/Nanum/api/screen/F7FCRIO2E3" 
                    target="_blank"
@@ -601,6 +617,17 @@ function loadNavigation() {
                 backdrop-filter: none !important;
             }
             
+            /* 플로팅 회원 카드 - 기본적으로 숨김 (1592px 이상) */
+            .floating-member-card {
+                display: none;
+                background: white;
+                border-radius: 16px;
+                padding: 14px;
+                text-align: center;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                margin-bottom: 8px;
+            }
+            
             .floating-btn {
                 display: flex;
                 align-items: center;
@@ -630,7 +657,7 @@ function loadNavigation() {
                 }
             }
             
-            /* 1592px 이하: 플로팅 버튼을 우하단으로 이동 */
+            /* 1592px 이하: 플로팅 버튼을 우하단으로 이동 + 회원카드 표시 */
             @media (max-width: 1592px) {
                 #floating-buttons {
                     top: auto !important;
@@ -640,6 +667,9 @@ function loadNavigation() {
                 }
                 .floating-btn {
                     width: auto;
+                }
+                .floating-member-card {
+                    display: block;
                 }
             }
             
