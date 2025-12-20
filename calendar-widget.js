@@ -148,7 +148,7 @@ const CalendarWidget = {
                             <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3 border-r border-gray-200">${isEnPage ? 'Wed' : '수'}</div>
                             <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3 border-r border-gray-200">${isEnPage ? 'Thu' : '목'}</div>
                             <div class="text-center text-xs sm:text-sm font-medium text-gray-600 py-3 border-r border-gray-200">${isEnPage ? 'Fri' : '금'}</div>
-                            <div class="text-center text-xs sm:text-sm font-medium text-blue-500 py-3">${isEnPage ? 'Sat' : '토'}</div>
+                            <div class="text-center text-xs sm:text-sm font-medium text-[#004A98] py-3">${isEnPage ? 'Sat' : '토'}</div>
                         </div>
 
                         <!-- 날짜 그리드 -->
@@ -241,7 +241,7 @@ const CalendarWidget = {
                 } else if (isSunday) {
                     numClass += ' text-red-500';
                 } else if (isSaturday) {
-                    numClass += ' text-blue-500';
+                    numClass += ' text-[#004A98]';
                 } else {
                     numClass += ' text-gray-800';
                 }
