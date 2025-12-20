@@ -129,11 +129,11 @@ const CalendarWidget = {
 
                     <!-- 캘린더 네비게이션 -->
                     <div class="flex items-center justify-between mb-6">
-                        <button onclick="CalendarWidget.prevWeeks()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                        <button id="cal-prev-btn" onclick="CalendarWidget.prevWeeks()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
                             <i class="fas fa-chevron-left text-gray-600"></i>
                         </button>
                         <h3 id="calendar-title" class="text-lg font-semibold text-gray-800"></h3>
-                        <button onclick="CalendarWidget.nextWeeks()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                        <button id="cal-next-btn" onclick="CalendarWidget.nextWeeks()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
                             <i class="fas fa-chevron-right text-gray-600"></i>
                         </button>
                     </div>
@@ -174,13 +174,13 @@ const CalendarWidget = {
 
     // 이전 2주
     prevWeeks: function() {
-        this.weekOffset -= 14;
+        if (this.weekOffset > -28) this.weekOffset -= 14;
         this.renderCalendar();
     },
 
     // 다음 2주
     nextWeeks: function() {
-        this.weekOffset += 14;
+        if (this.weekOffset < 28) this.weekOffset += 14;
         this.renderCalendar();
     },
 
@@ -286,6 +286,18 @@ const CalendarWidget = {
         }
 
         grid.innerHTML = html;
+        
+        // 버튼 상태 업데이트 (한계 도달 시 비활성화)
+        const prevBtn = document.getElementById('cal-prev-btn');
+        const nextBtn = document.getElementById('cal-next-btn');
+        if (prevBtn) {
+            prevBtn.style.opacity = this.weekOffset <= -28 ? '0.3' : '1';
+            prevBtn.style.pointerEvents = this.weekOffset <= -28 ? 'none' : 'auto';
+        }
+        if (nextBtn) {
+            nextBtn.style.opacity = this.weekOffset >= 28 ? '0.3' : '1';
+            nextBtn.style.pointerEvents = this.weekOffset >= 28 ? 'none' : 'auto';
+        }
     },
 
     // 일정 리스트 렌더링
