@@ -682,14 +682,14 @@
     <!-- News Section -->
     <section class="py-16 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <div class="flex items-center justify-center mb-6">
-                    <div class="w-4 h-4 bg-red-600 mr-4"></div>
-                    <h2 class="text-lg font-medium text-red-600 tracking-wider uppercase">주요 소식</h2>
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">자유와혁신 주요 소식</h2>
+                    <p class="text-gray-500 mt-1">다가오는 소식을 확인하세요</p>
                 </div>
-                <h3 class="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-                    우리들의 활동
-                </h3>
+                <a href="news.html" class="text-[#a50034] hover:text-[#8B002C] font-medium flex items-center gap-1">
+                    전체 소식 보기 <i class="fas fa-arrow-right text-sm"></i>
+                </a>
             </div>
             
             <!-- Loading State -->
@@ -707,15 +707,9 @@
                 <p class="text-gray-600">곧 새로운 소식이 업데이트될 예정입니다.</p>
             </div>
 
-            <!-- 뉴스 컨테이너 -->
-            <div id="news-container" class="grid lg:grid-cols-3 gap-8 hidden">
+            <!-- 뉴스 컨테이너 (2행 3열 = 6개) -->
+            <div id="news-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
                 <!-- 동적으로 생성됨 -->
-            </div>
-            
-            <div class="text-center mt-12">
-                <a class="inline-flex items-center px-8 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors" href="news.html">
-                    전체 소식 보기 <i class="fas fa-arrow-right ml-2"></i>
-                </a>
             </div>
         </div>
     </section>
@@ -1020,16 +1014,19 @@
             });
         }
 
-        // 최신 소식 로드 (API 데이터 + 고정 썸네일)
+        // 최신 소식 로드 (API 데이터 + 고정 썸네일) - 6개
         async function loadLatestNews() {
             try {
                 showNewsLoading();
 
-                // 공지사항, 대변인, 카드뉴스를 병렬로 가져오기
-                const [noticesResponse, spokesmanResponse, cardNewsResponse] = await Promise.all([
+                // 6개 카테고리를 병렬로 가져오기
+                const [noticesResponse, spokesmanResponse, cardNewsResponse, activitiesResponse, galleryResponse, mediaResponse] = await Promise.all([
                     fetch(`${API_BASE}/notices?limit=1&sort=-createdAt`),
                     fetch(`${API_BASE}/spokesperson?limit=1&sort=-createdAt`),
-                    fetch(`${API_BASE}/card-news?limit=1&sort=-createdAt`)
+                    fetch(`${API_BASE}/card-news?limit=1&sort=-createdAt`),
+                    fetch(`${API_BASE}/activities?limit=1&sort=-createdAt`),
+                    fetch(`${API_BASE}/gallery?limit=1&sort=-createdAt`),
+                    fetch(`${API_BASE}/media-coverage?limit=1&sort=-createdAt`)
                 ]);
 
                 const newsItems = [];
@@ -1042,21 +1039,9 @@
                         newsItems.push({
                             ...notice,
                             type: 'notice',
-                            category: notice.category || '공지사항',
-                            image: 'images/flag-pic.jpg', // 고정 이미지
-                            url: 'news/notices.html' // 메인 목록 페이지로 연결
-                        });
-                    } else {
-                        // 공지사항이 없는 경우
-                        newsItems.push({
-                            type: 'notice',
-                            category: '공지사항',
-                            title: '등록된 공지사항이 없습니다',
-                            excerpt: '새로운 공지사항이 곧 업데이트될 예정입니다.',
+                            category: notice.category || '중요',
                             image: 'images/flag-pic.jpg',
-                            url: 'news/notices.html',
-                            createdAt: new Date(),
-                            isEmpty: true
+                            url: 'news/notices.html'
                         });
                     }
                 }
@@ -1070,20 +1055,8 @@
                             ...spokesman,
                             type: 'spokesman',
                             category: '대변인 논평 및 보도자료',
-                            image: 'images/sit-pic.jpg', // 고정 이미지
-                            url: 'news/press-releases.html' // 메인 목록 페이지로 연결
-                        });
-                    } else {
-                        // 대변인 발언이 없는 경우
-                        newsItems.push({
-                            type: 'spokesman',
-                            category: '대변인 논평 및 보도자료',
-                            title: '등록된 대변인 논평이 없습니다',
-                            excerpt: '새로운 대변인 논평이 곧 업데이트될 예정입니다.',
                             image: 'images/sit-pic.jpg',
-                            url: 'news/press-releases.html',
-                            createdAt: new Date(),
-                            isEmpty: true
+                            url: 'news/press-releases.html'
                         });
                     }
                 }
@@ -1097,20 +1070,53 @@
                             ...cardNews,
                             type: 'cardnews',
                             category: '카드뉴스',
-                            image: 'images/activity.jpg', // 고정 이미지
-                            url: 'news/card-news.html' // 메인 목록 페이지로 연결
-                        });
-                    } else {
-                        // 카드뉴스가 없는 경우
-                        newsItems.push({
-                            type: 'cardnews',
-                            category: '카드뉴스',
-                            title: '등록된 카드뉴스가 없습니다',
-                            excerpt: '새로운 카드뉴스가 곧 업데이트될 예정입니다.',
                             image: 'images/activity.jpg',
-                            url: 'news/card-news.html',
-                            createdAt: new Date(),
-                            isEmpty: true
+                            url: 'news/card-news.html'
+                        });
+                    }
+                }
+
+                // 활동 소식 데이터 처리
+                if (activitiesResponse.ok) {
+                    const activitiesData = await activitiesResponse.json();
+                    if (activitiesData.success && activitiesData.data && activitiesData.data.length > 0) {
+                        const activity = activitiesData.data[0];
+                        newsItems.push({
+                            ...activity,
+                            type: 'activity',
+                            category: '활동 소식',
+                            image: 'images/activity2.jpg',
+                            url: 'news/activities.html'
+                        });
+                    }
+                }
+
+                // 갤러리 데이터 처리
+                if (galleryResponse.ok) {
+                    const galleryData = await galleryResponse.json();
+                    if (galleryData.success && galleryData.data && galleryData.data.length > 0) {
+                        const gallery = galleryData.data[0];
+                        newsItems.push({
+                            ...gallery,
+                            type: 'gallery',
+                            category: '갤러리',
+                            image: gallery.images && gallery.images[0] ? gallery.images[0] : 'images/activity3.jpg',
+                            url: 'news/gallery.html'
+                        });
+                    }
+                }
+
+                // 보도자료 데이터 처리
+                if (mediaResponse.ok) {
+                    const mediaData = await mediaResponse.json();
+                    if (mediaData.success && mediaData.data && mediaData.data.length > 0) {
+                        const media = mediaData.data[0];
+                        newsItems.push({
+                            ...media,
+                            type: 'media',
+                            category: '보도자료',
+                            image: 'images/night-pic.jpg',
+                            url: 'news/media.html'
                         });
                     }
                 }
@@ -1251,6 +1257,30 @@
                     textClass: 'text-red-700',
                     badgeClass: 'bg-red-100 text-red-600',
                     title: '중요 공지'
+                },
+                '활동 소식': {
+                    bgClass: 'bg-teal-100',
+                    icon: 'fas fa-running',
+                    iconClass: 'text-teal-600',
+                    textClass: 'text-teal-700',
+                    badgeClass: 'bg-teal-100 text-teal-600',
+                    title: '활동 소식'
+                },
+                '갤러리': {
+                    bgClass: 'bg-indigo-100',
+                    icon: 'fas fa-camera',
+                    iconClass: 'text-indigo-600',
+                    textClass: 'text-indigo-700',
+                    badgeClass: 'bg-indigo-100 text-indigo-600',
+                    title: '갤러리'
+                },
+                '보도자료': {
+                    bgClass: 'bg-gray-100',
+                    icon: 'fas fa-newspaper',
+                    iconClass: 'text-gray-600',
+                    textClass: 'text-gray-700',
+                    badgeClass: 'bg-gray-100 text-gray-600',
+                    title: '보도자료'
                 }
             };
 
@@ -1287,6 +1317,22 @@
                     textClass: 'text-orange-700',
                     badgeClass: 'bg-orange-100 text-orange-600',
                     title: '카드뉴스'
+                },
+                'activity': {
+                    bgClass: 'bg-teal-100',
+                    icon: 'fas fa-running',
+                    iconClass: 'text-teal-600',
+                    textClass: 'text-teal-700',
+                    badgeClass: 'bg-teal-100 text-teal-600',
+                    title: '활동 소식'
+                },
+                'gallery': {
+                    bgClass: 'bg-indigo-100',
+                    icon: 'fas fa-camera',
+                    iconClass: 'text-indigo-600',
+                    textClass: 'text-indigo-700',
+                    badgeClass: 'bg-indigo-100 text-indigo-600',
+                    title: '갤러리'
                 }
             };
 
