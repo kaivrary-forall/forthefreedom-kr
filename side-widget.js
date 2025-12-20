@@ -109,13 +109,15 @@
         const viewportWidth = window.innerWidth;
         const contentWidth = 1280;
         const bannerWidth = 140;
-        const gap = 20;
+        const gap = 16; // 컨텐츠와 배너 사이 간격
+        const edgeMargin = 8; // 화면 가장자리 최소 여백
         
-        // 필요한 최소 너비: 1280 + (140 + 20) * 2 = 1600px
-        const minWidth = contentWidth + (bannerWidth + gap) * 2;
+        // 배너가 화면 안에 완전히 들어오는지 계산
+        const sideMargin = (viewportWidth - contentWidth) / 2;
+        const availableSpace = sideMargin - gap; // 컨텐츠 옆 사용 가능 공간
         
-        if (viewportWidth < minWidth) {
-            // 공간 부족 - 배너 숨김
+        // 배너가 들어갈 공간이 부족하면 숨김
+        if (availableSpace < bannerWidth + edgeMargin) {
             bannerLeft.style.display = 'none';
             bannerRight.style.display = 'none';
             return;
@@ -133,12 +135,15 @@
             bannerRight.style.top = topPos;
         }
         
-        // 좌우 위치 계산
-        const sideMargin = (viewportWidth - contentWidth) / 2;
-        const bannerPosition = sideMargin - bannerWidth - gap;
+        // 좌우 위치 계산 - 컨텐츠 바로 옆에 배치
+        // 컨텐츠 왼쪽 끝 = sideMargin
+        // 배너 오른쪽 끝이 컨텐츠 왼쪽 끝에서 gap만큼 떨어지도록
+        const bannerLeftPos = sideMargin - bannerWidth - gap;
+        const bannerRightPos = sideMargin - bannerWidth - gap;
         
-        bannerLeft.style.left = bannerPosition + 'px';
-        bannerRight.style.right = bannerPosition + 'px';
+        // 음수면 화면 밖으로 나가므로 최소 edgeMargin 보장
+        bannerLeft.style.left = Math.max(edgeMargin, bannerLeftPos) + 'px';
+        bannerRight.style.right = Math.max(edgeMargin, bannerRightPos) + 'px';
     }
 
     function renderDigits(number) {
@@ -221,6 +226,9 @@
         localStorage.removeItem('memberInfo');
         location.reload();
     };
+
+    // adjustBannerPosition을 전역으로 노출 (nav.js에서 호출용)
+    window.adjustBannerPosition = adjustBannerPosition;
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() {

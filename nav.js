@@ -2168,6 +2168,11 @@ async function loadAnnouncementBar() {
             
             // body padding-top을 nav + 공지바 높이로 설정
             document.body.style.setProperty('padding-top', (navHeight + 40) + 'px', 'important');
+            
+            // 사이드 배너 위치 재정렬 (side-widget.js의 함수)
+            if (typeof window.adjustBannerPosition === 'function') {
+                setTimeout(window.adjustBannerPosition, 100);
+            }
         }
     } catch (error) {
         console.log('공지 로드 실패:', error);
@@ -2195,7 +2200,13 @@ function closeAnnouncementBar() {
         document.body.style.transition = 'padding-top 0.3s ease';
         document.body.style.setProperty('padding-top', navHeight + 'px', 'important');
         
-        setTimeout(() => bar.remove(), 300);
+        setTimeout(() => {
+            bar.remove();
+            // 사이드 배너 위치 재정렬
+            if (typeof window.adjustBannerPosition === 'function') {
+                window.adjustBannerPosition();
+            }
+        }, 300);
     }
     sessionStorage.setItem('announcementClosed', 'true');
 }
