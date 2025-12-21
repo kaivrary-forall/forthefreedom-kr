@@ -90,7 +90,6 @@
                 <!-- 카테고리 필터 -->
                 <div class="flex flex-wrap justify-center gap-2 mb-10">
                     <button onclick="filterCommittees('all')" class="filter-btn active px-4 py-2 rounded-full text-sm font-medium bg-primary text-white" data-filter="all">전체</button>
-                    <button onclick="filterCommittees('spokesperson')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300" data-filter="spokesperson">대변인실</button>
                     <button onclick="filterCommittees('special')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300" data-filter="special">특별위원회</button>
                     <button onclick="filterCommittees('policy')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300" data-filter="policy">정책/연구</button>
                     <button onclick="filterCommittees('organization')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300" data-filter="organization">조직/홍보</button>
@@ -110,21 +109,6 @@
     <script>
         // 직능위원회 데이터
         const committees = [
-            // 대변인실
-            { name: '대변인실', slug: 'spokesperson', category: 'spokesperson', categoryName: '대변인실', icon: 'fa-bullhorn',
-              description: '당의 입장과 정책을 국민에게 명확하게 전달하고, 언론 대응 및 성명서 발표를 담당합니다.',
-              members: [
-                { title: '주 대변인', name: '윤태준' },
-                { title: '국제 대변인', name: '김선주' }
-              ]
-            },
-            // 자유연구원
-            { name: '자유연구원', slug: 'research', category: 'policy', categoryName: '정책/연구', icon: 'fa-flask',
-              description: '자유민주주의와 시장경제에 기반한 정책 연구 및 대안을 제시합니다.',
-              members: [
-                { title: '원장', name: '천규승' }
-              ]
-            },
             // 정책/연구 분야
             { name: '정책위원회', slug: 'policy', category: 'policy', categoryName: '정책/연구', icon: 'fa-file-alt',
               description: '당의 핵심 정책을 개발하고 정책 방향을 수립합니다.',
@@ -332,13 +316,6 @@
               description: '문화예술인들의 활동을 지원하고 문화 정책을 연구합니다.',
               members: [
                 { title: '위원장', name: null }
-              ]
-            },
-            // 봉사
-            { name: '자원봉사단', slug: 'volunteer', category: 'volunteer', categoryName: '봉사/동행', icon: 'fa-heart',
-              description: '지역사회 봉사활동과 나눔을 실천합니다.',
-              members: [
-                { title: '단장', name: null }
               ]
             }
         ];

@@ -102,6 +102,7 @@ function loadNavigation() {
         freedomResearch: 'Freedom Research Institute',
         committees: 'Committees',
         localChapters: 'Regional Chapters',
+        volunteerCorps: 'Volunteer Corps',
         staff: 'Staff',
         central: 'Central',
         regional: 'Regional',
@@ -158,6 +159,7 @@ function loadNavigation() {
         freedomResearch: '자유연구원',
         committees: '직능위원회',
         localChapters: '시도당·당협',
+        volunteerCorps: '자원봉사단',
         staff: '일꾼들',
         central: '중앙당',
         regional: '시도당',
@@ -244,6 +246,7 @@ function loadNavigation() {
                                         <a href="${linkPrefix}committees/research/index.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">${t.freedomResearch}</a>
                                         <a href="${linkPrefix}committees/index.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">${t.committees}</a>
                                         <a href="${linkPrefix}local-chapters.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">${t.localChapters}</a>
+                                        <a href="${linkPrefix}committees/volunteer/index.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">${t.volunteerCorps}</a>
                                         <div class="relative group/sub">
                                             <a href="#" class="flex items-center justify-between px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">
                                                 ${t.staff} <i class="fas fa-chevron-right text-xs ml-2"></i>
@@ -421,6 +424,7 @@ function loadNavigation() {
                                 <a href="${linkPrefix}committees/research/index.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">${t.freedomResearch}</a>
                                 <a href="${linkPrefix}committees/index.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">${t.committees}</a>
                                 <a href="${linkPrefix}local-chapters.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">${t.localChapters}</a>
+                                <a href="${linkPrefix}committees/volunteer/index.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">${t.volunteerCorps}</a>
                                 <a href="${linkPrefix}about/people-central.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">${t.central} ${t.staff}</a>
                                 <a href="${linkPrefix}about/people-regional.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">${t.regional} ${t.staff}</a>
                             </div>

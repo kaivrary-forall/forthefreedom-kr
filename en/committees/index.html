@@ -90,7 +90,6 @@
                 <!-- 카테고리 필터 -->
                 <div class="flex flex-wrap justify-center gap-2 mb-10">
                     <button onclick="filterCommittees('all')" class="filter-btn active px-4 py-2 rounded-full text-sm font-medium bg-primary text-white" data-filter="all">All</button>
-                    <button onclick="filterCommittees('spokesperson')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300" data-filter="spokesperson">Spokesperson</button>
                     <button onclick="filterCommittees('special')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300" data-filter="special">Special</button>
                     <button onclick="filterCommittees('policy')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300" data-filter="policy">Policy/Research</button>
                     <button onclick="filterCommittees('organization')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300" data-filter="organization">Organization/PR</button>
@@ -110,21 +109,6 @@
     <script>
         // Committee Data
         const committees = [
-            // Spokesperson Office
-            { name: 'Spokesperson Office', slug: 'spokesperson', category: 'spokesperson', categoryName: 'Spokesperson', icon: 'fa-bullhorn',
-              description: 'Delivers the party\'s positions and policies to the public, handles media responses and press releases.',
-              members: [
-                { title: 'Chief Spokesperson', name: 'Yoon Tae-jun' },
-                { title: 'International Spokesperson', name: 'Kim Sun-ju' }
-              ]
-            },
-            // Freedom Research Institute
-            { name: 'Freedom Research Institute', slug: 'research', category: 'policy', categoryName: 'Policy/Research', icon: 'fa-flask',
-              description: 'Conducts policy research and proposes alternatives based on liberal democracy and market economy.',
-              members: [
-                { title: 'Director', name: 'Cheon Gyu-seung' }
-              ]
-            },
             // Policy/Research
             { name: 'Policy Committee', slug: 'policy', category: 'policy', categoryName: 'Policy/Research', icon: 'fa-file-alt',
               description: 'Develops core party policies and establishes policy directions.',
@@ -332,13 +316,6 @@
               description: 'Supports cultural and artistic activities and studies cultural policies.',
               members: [
                 { title: 'Chairman', name: null }
-              ]
-            },
-            // Volunteer
-            { name: 'Volunteer Corps', slug: 'volunteer', category: 'volunteer', categoryName: 'Volunteer', icon: 'fa-heart',
-              description: 'Practices community service and sharing.',
-              members: [
-                { title: 'Leader', name: null }
               ]
             }
         ];
