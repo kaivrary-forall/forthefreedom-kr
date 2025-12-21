@@ -131,7 +131,7 @@
         <section id="landingSection" class="py-12 hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-8">
-                    <p class="text-gray-600">전국 17개 시·도 지역당부 현황</p>
+                    <p class="text-gray-600">자유와혁신 시·도당 현황</p>
                 </div>
 
                 <div class="grid lg:grid-cols-2 gap-8">
@@ -152,7 +152,7 @@
                                 .status-inactive { fill: #e5e7eb; stroke: #fff; stroke-width: 2; }
                             </style>
                             <!-- 강원 -->
-                            <path onclick="switchProvince('gangwon')" class="map-region status-inactive" d="M450,120 L550,100 L620,150 L600,250 L500,280 L420,240 L400,180 Z"><title>강원</title></path>
+                            <path onclick="switchProvince('gangwon')" class="map-region status-preparing" d="M450,120 L550,100 L620,150 L600,250 L500,280 L420,240 L400,180 Z"><title>강원</title></path>
                             <!-- 경기 -->
                             <path onclick="switchProvince('gyeonggi')" class="map-region status-established" d="M300,180 L400,180 L420,240 L380,300 L300,320 L250,280 L260,200 Z"><title>경기</title></path>
                             <!-- 서울 -->
@@ -170,7 +170,7 @@
                             <!-- 경북 -->
                             <path onclick="switchProvince('gyeongbuk')" class="map-region status-established" d="M500,280 L600,250 L650,350 L620,450 L500,480 L450,400 L520,350 Z"><title>경북</title></path>
                             <!-- 대구 -->
-                            <path onclick="switchProvince('daegu')" class="map-region status-preparing" d="M520,420 L570,420 L580,470 L540,490 L510,460 Z"><title>대구</title></path>
+                            <path onclick="switchProvince('daegu')" class="map-region status-established" d="M520,420 L570,420 L580,470 L540,490 L510,460 Z"><title>대구</title></path>
                             <!-- 전북 -->
                             <path onclick="switchProvince('jeonbuk')" class="map-region status-inactive" d="M180,420 L300,450 L340,410 L360,440 L350,500 L280,530 L160,500 Z"><title>전북</title></path>
                             <!-- 전남 -->
@@ -178,9 +178,9 @@
                             <!-- 광주 -->
                             <path onclick="switchProvince('gwangju')" class="map-region status-inactive" d="M200,540 L250,540 L260,580 L220,600 L190,570 Z"><title>광주</title></path>
                             <!-- 경남 -->
-                            <path onclick="switchProvince('gyeongnam')" class="map-region status-preparing" d="M350,500 L500,480 L540,490 L580,470 L600,550 L550,620 L400,600 L320,560 Z"><title>경남</title></path>
+                            <path onclick="switchProvince('gyeongnam')" class="map-region status-established" d="M350,500 L500,480 L540,490 L580,470 L600,550 L550,620 L400,600 L320,560 Z"><title>경남</title></path>
                             <!-- 울산 -->
-                            <path onclick="switchProvince('ulsan')" class="map-region status-preparing" d="M580,470 L620,450 L650,500 L620,530 L590,500 Z"><title>울산</title></path>
+                            <path onclick="switchProvince('ulsan')" class="map-region status-established" d="M580,470 L620,450 L650,500 L620,530 L590,500 Z"><title>울산</title></path>
                             <!-- 부산 -->
                             <path onclick="switchProvince('busan')" class="map-region status-established" d="M550,580 L600,550 L630,590 L600,630 L560,610 Z"><title>부산</title></path>
                             <!-- 제주 -->
@@ -308,16 +308,16 @@
             { id: 'gyeonggi', name: '경기', fullName: '경기도당', hasData: false, status: 'established', leader: '조성범', leaderTitle: '위원장' },
             { id: 'incheon', name: '인천', fullName: '인천광역시당', hasData: false, status: 'established', leader: '권오용', leaderTitle: '위원장' },
             { id: 'busan', name: '부산', fullName: '부산광역시당', hasData: true, status: 'established', leader: '서미란', leaderTitle: '위원장' },
-            { id: 'daegu', name: '대구', fullName: '대구광역시당', hasData: false, status: 'preparing', leader: '황현정', leaderTitle: '창준위원장' },
+            { id: 'daegu', name: '대구', fullName: '대구광역시당', hasData: false, status: 'established', leader: '황현정', leaderTitle: '위원장' },
             { id: 'daejeon', name: '대전', fullName: '대전광역시당', hasData: false, status: 'preparing', leader: '김재훈', leaderTitle: '창준위원장' },
             { id: 'gwangju', name: '광주', fullName: '광주광역시당', hasData: false, status: 'inactive', leader: null, leaderTitle: null },
-            { id: 'ulsan', name: '울산', fullName: '울산광역시당', hasData: false, status: 'preparing', leader: '지광선', leaderTitle: '창준위원장' },
+            { id: 'ulsan', name: '울산', fullName: '울산광역시당', hasData: false, status: 'established', leader: '지광선', leaderTitle: '위원장' },
             { id: 'sejong', name: '세종', fullName: '세종특별자치시당', hasData: false, status: 'inactive', leader: null, leaderTitle: null },
-            { id: 'gangwon', name: '강원', fullName: '강원특별자치도당', hasData: false, status: 'inactive', leader: null, leaderTitle: null },
+            { id: 'gangwon', name: '강원', fullName: '강원특별자치도당', hasData: false, status: 'preparing', leader: null, leaderTitle: null },
             { id: 'chungbuk', name: '충북', fullName: '충청북도당', hasData: false, status: 'preparing', leader: '김기현', leaderTitle: '창준위원장' },
             { id: 'chungnam', name: '충남', fullName: '충청남도당', hasData: false, status: 'preparing', leader: null, leaderTitle: null },
             { id: 'gyeongbuk', name: '경북', fullName: '경상북도당', hasData: true, status: 'established', leader: '차훈', leaderTitle: '위원장' },
-            { id: 'gyeongnam', name: '경남', fullName: '경상남도당', hasData: false, status: 'preparing', leader: '김진일', leaderTitle: '창준위원장' },
+            { id: 'gyeongnam', name: '경남', fullName: '경상남도당', hasData: false, status: 'established', leader: '김진일', leaderTitle: '위원장' },
             { id: 'jeonbuk', name: '전북', fullName: '전북특별자치도당', hasData: false, status: 'inactive', leader: null, leaderTitle: null },
             { id: 'jeonnam', name: '전남', fullName: '전라남도당', hasData: false, status: 'inactive', leader: null, leaderTitle: null },
             { id: 'jeju', name: '제주', fullName: '제주특별자치도당', hasData: false, status: 'preparing', leader: null, leaderTitle: null }
