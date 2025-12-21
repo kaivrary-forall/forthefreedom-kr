@@ -85,6 +85,7 @@ function loadNavigation() {
         agora: 'Agora',
         members: 'Members',
         support: 'Support',
+        reportCenter: 'Report Center',
         login: 'Login',
         logout: 'Logout',
         // 서브메뉴 - 소개
@@ -143,6 +144,7 @@ function loadNavigation() {
         agora: '아고라',
         members: '당원',
         support: '후원',
+        reportCenter: '제보센터',
         login: '로그인',
         logout: '로그아웃',
         // 서브메뉴 - 소개
@@ -352,6 +354,11 @@ function loadNavigation() {
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- 5. 제보센터 -->
+                            <a href="${linkPrefix}report-center.html" class="text-[#212121] hover:text-[#a50034] font-medium py-2 transition-colors duration-200 text-lg tracking-tight">
+                                ${t.reportCenter}
+                            </a>
                         </div>
                     </div>
                     
@@ -495,6 +502,13 @@ function loadNavigation() {
                                 <a href="${linkPrefix}support-guide.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">${t.supportGuide}</a>
                                 <a href="${linkPrefix}support-receipt.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">${t.receipt}</a>
                             </div>
+                        </div>
+
+                        <!-- 제보센터 메뉴 -->
+                        <div class="mobile-menu-item">
+                            <a href="${linkPrefix}report-center.html" class="w-full flex items-center px-3 py-2 text-lg text-gray-700 hover:bg-gray-50 hover:text-red-600 font-bold">
+                                ${t.reportCenter}
+                            </a>
                         </div>
                         
                         <!-- 당원가입 버튼 -->
