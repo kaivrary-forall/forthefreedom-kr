@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E0H9DY9T0F"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-E0H9DY9T0F');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주요일정 - 자유와혁신</title>
+    
+    <!-- SEO 메타 태그 -->
+    <meta name="description" content="자유와혁신의 주요 일정과 행사 정보를 확인하세요. 당원 모임, 정치 활동, 공개 행사 일정을 제공합니다.">
+    <meta name="keywords" content="자유와혁신, 주요일정, 행사일정, 당원모임, 정치활동, 황교안, 일정표">
+    <meta name="author" content="자유와혁신">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://forthefreedom.kr/news/events.html">
+    
+    <!-- 파비콘 설정 -->
+    <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../images/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../images/favicon.png">
+    <link rel="shortcut icon" type="image/png" href="../images/favicon.png">
+    <link rel="icon" href="../images/favicon.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'party-red': '#A50034',
+                        'party-red-dark': '#8B002C',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Noto Sans KR', 'Inter', sans-serif; }
+        
+        /* 캘린더 스타일 */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background-color: #e5e7eb;
+        }
+        .calendar-header {
+            background-color: #f9fafb;
+            padding: 12px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .calendar-cell {
+            background-color: white;
+            min-height: 100px;
+            padding: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .calendar-cell:hover {
+            background-color: #fef2f2;
+        }
+        .calendar-cell.today {
+            background-color: #A50034;
+        }
+        .calendar-cell.today .date-num {
+            color: white;
+        }
+        .calendar-cell.today .event-dot {
+            background-color: white !important;
+        }
+        .calendar-cell.other-month {
+            background-color: #f9fafb;
+        }
+        .calendar-cell.other-month .date-num {
+            color: #9ca3af;
+        }
+        .calendar-cell.selected {
+            box-shadow: inset 0 0 0 2px #A50034;
+        }
+        .date-num {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .date-num.sunday { color: #ef4444; }
+        .date-num.saturday { color: #3b82f6; }
+        .event-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 2px;
+            flex-shrink: 0;
+        }
+        .event-title-mini {
+            font-size: 11px;
+            line-height: 1.3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        /* 리스트 스크롤 */
+        .event-list-container {
+            max-height: calc(100vh - 300px);
+            min-height: 400px;
+            overflow-y: auto;
+        }
+        
+        /* 스크롤바 스타일 */
+        .event-list-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .event-list-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        .event-list-container::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+        .event-list-container::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+
+        /* 모바일 반응형 */
+        @media (max-width: 1024px) {
+            .calendar-cell {
+                min-height: 70px;
+                padding: 4px;
+            }
+            .event-title-mini {
+                display: none;
+            }
+            .calendar-header {
+                padding: 8px 4px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="navigation-container"></div>
+    <script src="../nav.js"></script>
+
+    <!-- 페이지 헤더 -->
+    <section class="bg-gray-50 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-4">
+                <a href="../index.html" class="hover:text-party-red">홈</a>
+                <span>/</span>
+                <a href="index.html" class="hover:text-party-red">소식</a>
+                <span>/</span>
+                <span class="text-gray-900">주요 일정</span>
+            </nav>
+            <h1 class="text-3xl font-bold text-gray-900">주요 일정</h1>
+            <p class="mt-2 text-gray-600">자유와혁신의 주요 일정을 확인하세요</p>
+        </div>
+    </section>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="bg-white py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- 월 네비게이션 -->
+            <div class="flex items-center justify-between mb-6">
+                <button onclick="EventsPage.prevMonth()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                    <i class="fas fa-chevron-left text-gray-600"></i>
+                </button>
+                <h2 id="month-title" class="text-xl font-bold text-gray-900"></h2>
+                <button onclick="EventsPage.nextMonth()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                    <i class="fas fa-chevron-right text-gray-600"></i>
+                </button>
+            </div>
+
+            <!-- 2열 레이아웃: 캘린더 + 리스트 -->
+            <div class="grid lg:grid-cols-8 gap-6">
+                <!-- 왼쪽: 월간 캘린더 -->
+                <div class="lg:col-span-5">
+                    <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                        <!-- 캘린더 (헤더 + 날짜 통합) -->
+                        <div id="calendar-grid" class="calendar-grid">
+                            <!-- 요일 헤더 (JS에서 함께 렌더링) -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 오른쪽: 일정 리스트 -->
+                <div class="lg:col-span-3">
+                    <div class="bg-gray-50 rounded-xl p-6 sticky top-4">
+                        <h3 id="list-title" class="text-lg font-bold text-gray-900 mb-4">이번 달 일정</h3>
+                        <div id="event-list" class="event-list-container space-y-3">
+                            <div class="text-center text-gray-400 py-8">일정을 불러오는 중...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer-container"></div>
+    <script src="../footer.js"></script>
+    <script src="../side-widget.js"></script>
+
+    <script>
+    const EventsPage = {
+        config: {
+            apiKey: 'AIzaSyA0sZB6XDRiv1oGiZsy5Sj6EfwAoTCwyLY',
+            calendarId: 'c_247b26bfef68b603b79b35081977bd0c9a2980fb904a37569f28a7ba07e82c96@group.calendar.google.com',
+            maxResults: 100
+        },
+
+        events: [],
+        currentYear: new Date().getFullYear(),
+        currentMonth: new Date().getMonth(),
+        selectedDate: null,
+        isEnPage: window.location.pathname.startsWith('/en/') || window.location.pathname === '/en',
+
+        init: function() {
+            this.fetchEvents();
+        },
+
+        // 구글 캘린더에서 일정 가져오기
+        fetchEvents: async function() {
+            // 현재 달의 첫날과 마지막날
+            const firstDay = new Date(this.currentYear, this.currentMonth, 1);
+            const lastDay = new Date(this.currentYear, this.currentMonth + 1, 0);
+            
+            // 캘린더 표시를 위해 앞뒤 여유 추가
+            firstDay.setDate(firstDay.getDate() - 7);
+            lastDay.setDate(lastDay.getDate() + 7);
+
+            const timeMin = firstDay.toISOString();
+            const timeMax = lastDay.toISOString();
+
+            const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(this.config.calendarId)}/events?key=${this.config.apiKey}&timeMin=${timeMin}&timeMax=${timeMax}&maxResults=${this.config.maxResults}&singleEvents=true&orderBy=startTime`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.error) {
+                    console.error('Google Calendar API 오류:', data.error);
+                    this.showError();
+                    return;
+                }
+
+                this.events = (data.items || []).map(event => {
+                    let eventDate, eventTime;
+                    
+                    if (event.start.date) {
+                        eventDate = event.start.date;
+                        eventTime = this.isEnPage ? 'All day' : '종일';
+                    } else if (event.start.dateTime) {
+                        const dt = new Date(event.start.dateTime);
+                        eventDate = dt.toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
+                        eventTime = dt.toLocaleTimeString('ko-KR', { timeZone: 'Asia/Seoul', hour: '2-digit', minute: '2-digit', hour12: false });
+                    }
+                    
+                    return {
+                        id: event.id,
+                        title: event.summary || (this.isEnPage ? '(No title)' : '(제목 없음)'),
+                        date: eventDate,
+                        time: eventTime,
+                        location: event.location || '',
+                        description: event.description || '',
+                        url: event.description && event.description.startsWith('http') 
+                            ? event.description.split('\n')[0] 
+                            : (event.htmlLink || '#'),
+                        color: this.getEventColor(event)
+                    };
+                });
+
+                this.renderCalendar();
+                this.renderEventList();
+
+            } catch (error) {
+                console.error('캘린더 로딩 오류:', error);
+                this.showError();
+            }
+        },
+
+        getEventColor: function(event) {
+            const colors = {
+                '1': '#7986cb', '2': '#33b679', '3': '#8e24aa', '4': '#e67c73',
+                '5': '#f6bf26', '6': '#f4511e', '7': '#039be5', '8': '#616161',
+                '9': '#3f51b5', '10': '#0b8043', '11': '#d50000'
+            };
+            return colors[event.colorId] || '#a50034';
+        },
+
+        // 월간 캘린더 렌더링
+        renderCalendar: function() {
+            const grid = document.getElementById('calendar-grid');
+            const titleEl = document.getElementById('month-title');
+            
+            // 제목 업데이트
+            const monthNames = this.isEnPage 
+                ? ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+                : ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+            
+            titleEl.textContent = this.isEnPage 
+                ? `${monthNames[this.currentMonth]} ${this.currentYear}`
+                : `${this.currentYear}년 ${monthNames[this.currentMonth]}`;
+
+            // 해당 월의 첫 날과 마지막 날
+            const firstDayOfMonth = new Date(this.currentYear, this.currentMonth, 1);
+            const lastDayOfMonth = new Date(this.currentYear, this.currentMonth + 1, 0);
+            
+            // 캘린더 시작일 (첫 주의 일요일)
+            const startDate = new Date(firstDayOfMonth);
+            startDate.setDate(startDate.getDate() - firstDayOfMonth.getDay());
+
+            // 오늘 날짜
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            let html = '';
+            const date = new Date(startDate);
+
+            // 요일 헤더 추가
+            const dayHeaders = this.isEnPage 
+                ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+                : ['일', '월', '화', '수', '목', '금', '토'];
+            
+            dayHeaders.forEach((day, idx) => {
+                let headerClass = 'calendar-header';
+                if (idx === 0) headerClass += ' text-red-500';
+                else if (idx === 6) headerClass += ' text-blue-500';
+                html += `<div class="${headerClass}">${day}</div>`;
+            });
+
+            // 6주 렌더링
+            for (let week = 0; week < 6; week++) {
+                for (let day = 0; day < 7; day++) {
+                    const dateStr = date.toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
+                    const dayEvents = this.events.filter(e => e.date === dateStr);
+                    const isToday = date.toDateString() === today.toDateString();
+                    const isOtherMonth = date.getMonth() !== this.currentMonth;
+                    const isSelected = this.selectedDate === dateStr;
+                    const isSunday = date.getDay() === 0;
+                    const isSaturday = date.getDay() === 6;
+
+                    let cellClass = 'calendar-cell';
+                    if (isToday) cellClass += ' today';
+                    if (isOtherMonth) cellClass += ' other-month';
+                    if (isSelected) cellClass += ' selected';
+
+                    let numClass = 'date-num';
+                    if (!isToday) {
+                        if (isSunday) numClass += ' sunday';
+                        else if (isSaturday) numClass += ' saturday';
+                    }
+
+                    html += `<div class="${cellClass}" onclick="EventsPage.selectDate('${dateStr}')">`;
+                    html += `<div class="${numClass}">${date.getDate()}</div>`;
+                    
+                    // 일정 표시 (최대 3개)
+                    dayEvents.slice(0, 3).forEach(event => {
+                        html += `
+                            <div class="flex items-center gap-1 mb-0.5">
+                                <span class="event-dot" style="background-color: ${event.color}"></span>
+                                <span class="event-title-mini ${isToday ? 'text-white/90' : 'text-gray-700'}">${event.title}</span>
+                            </div>
+                        `;
+                    });
+
+                    if (dayEvents.length > 3) {
+                        html += `<div class="text-xs ${isToday ? 'text-white/70' : 'text-gray-500'}">+${dayEvents.length - 3}${this.isEnPage ? ' more' : '개 더'}</div>`;
+                    }
+
+                    html += '</div>';
+                    date.setDate(date.getDate() + 1);
+                }
+            }
+
+            grid.innerHTML = html;
+        },
+
+        // 일정 리스트 렌더링
+        renderEventList: function(filterDate = null) {
+            const list = document.getElementById('event-list');
+            const titleEl = document.getElementById('list-title');
+            
+            let filteredEvents;
+            
+            if (filterDate) {
+                // 특정 날짜 선택됨
+                filteredEvents = this.events.filter(e => e.date === filterDate);
+                const dateObj = new Date(filterDate + 'T00:00:00');
+                titleEl.textContent = this.isEnPage 
+                    ? `${dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} Events`
+                    : `${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일 일정`;
+            } else {
+                // 해당 월 전체
+                filteredEvents = this.events.filter(e => {
+                    const eventDate = new Date(e.date);
+                    return eventDate.getMonth() === this.currentMonth && eventDate.getFullYear() === this.currentYear;
+                });
+                titleEl.textContent = this.isEnPage ? 'This Month\'s Events' : '이번 달 일정';
+            }
+
+            // 날짜순 정렬
+            filteredEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            if (filteredEvents.length === 0) {
+                list.innerHTML = `<p class="text-gray-500 text-center py-8">${this.isEnPage ? 'No events scheduled.' : '일정이 없습니다.'}</p>`;
+                return;
+            }
+
+            const dayNames = this.isEnPage 
+                ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+                : ['일', '월', '화', '수', '목', '금', '토'];
+
+            let html = '';
+            filteredEvents.forEach(event => {
+                const eventDate = new Date(event.date + 'T00:00:00');
+                
+                html += `
+                    <a href="${event.url}" class="block p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border-l-4" style="border-left-color: ${event.color}">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0 w-12 text-center">
+                                <div class="text-xl font-bold text-gray-800">${eventDate.getDate()}</div>
+                                <div class="text-xs text-gray-500">${dayNames[eventDate.getDay()]}</div>
+                            </div>
+                            <div class="flex-grow min-w-0">
+                                <h4 class="font-semibold text-gray-800">${event.title}</h4>
+                                <div class="text-sm text-gray-500 mt-1">
+                                    <span><i class="far fa-clock mr-1"></i>${event.time}</span>
+                                    ${event.location ? `<span class="ml-2"><i class="fas fa-map-marker-alt mr-1"></i>${event.location}</span>` : ''}
+                                </div>
+                                ${event.description && !event.description.startsWith('http') ? `<p class="text-sm text-gray-600 mt-2 line-clamp-2">${event.description.split('\n')[0]}</p>` : ''}
+                            </div>
+                        </div>
+                    </a>
+                `;
+            });
+
+            list.innerHTML = html;
+        },
+
+        // 날짜 선택
+        selectDate: function(dateStr) {
+            this.selectedDate = dateStr;
+            this.renderCalendar();
+            this.renderEventList(dateStr);
+        },
+
+        // 이전 달
+        prevMonth: function() {
+            this.currentMonth--;
+            if (this.currentMonth < 0) {
+                this.currentMonth = 11;
+                this.currentYear--;
+            }
+            this.selectedDate = null;
+            this.fetchEvents();
+        },
+
+        // 다음 달
+        nextMonth: function() {
+            this.currentMonth++;
+            if (this.currentMonth > 11) {
+                this.currentMonth = 0;
+                this.currentYear++;
+            }
+            this.selectedDate = null;
+            this.fetchEvents();
+        },
+
+        showError: function() {
+            const list = document.getElementById('event-list');
+            const grid = document.getElementById('calendar-grid');
+            const msg = this.isEnPage ? 'Failed to load events.' : '일정을 불러올 수 없습니다.';
+            
+            if (list) list.innerHTML = `<p class="text-red-500 text-center py-8">${msg}</p>`;
+            if (grid) grid.innerHTML = `<div class="col-span-7 text-red-500 text-center py-8">${msg}</div>`;
+        }
+    };
+
+    // 페이지 로드 시 초기화
+    document.addEventListener('DOMContentLoaded', function() {
+        EventsPage.init();
+    });
+    </script>
+</body>
+</html>
