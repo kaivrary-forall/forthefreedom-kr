@@ -128,8 +128,8 @@ const CalendarWidget = {
                         </a>
                     </div>
 
-                    <!-- 캘린더 네비게이션 -->
-                    <div class="flex items-center justify-between mb-6">
+                    <!-- 캘린더 네비게이션 (모바일에서 숨김) -->
+                    <div class="hidden md:flex items-center justify-between mb-6">
                         <button id="calendar-prev-btn" onclick="CalendarWidget.prevWeeks()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
                             <i class="fas fa-chevron-left text-gray-600"></i>
                         </button>
@@ -139,8 +139,8 @@ const CalendarWidget = {
                         </button>
                     </div>
 
-                    <!-- 캘린더 그리드 -->
-                    <div class="bg-white rounded-2xl overflow-hidden border border-gray-200">
+                    <!-- 캘린더 그리드 (모바일에서 숨김) -->
+                    <div class="hidden md:block bg-white rounded-2xl overflow-hidden border border-gray-200">
                         <!-- 요일 헤더 -->
                         <div class="grid grid-cols-7 border-b border-gray-200 bg-white">
                             <div class="text-center text-xs sm:text-sm font-medium text-red-500 py-3 border-r border-gray-200">${isEnPage ? 'Sun' : '일'}</div>
@@ -158,8 +158,18 @@ const CalendarWidget = {
                         </div>
                     </div>
 
-                    <!-- 일정 리스트 -->
-                    <div class="mt-8">
+                    <!-- 모바일 일정 리스트 제목 -->
+                    <div class="md:hidden mb-4">
+                        <h4 class="text-lg font-semibold text-gray-800">${isEnPage ? 'Upcoming Events' : '다가오는 일정'}</h4>
+                    </div>
+
+                    <!-- 일정 리스트 (데스크톱에서는 숨김, 모바일에서만 표시) - 홈 화면용 -->
+                    <div id="event-list-mobile" class="md:hidden space-y-3">
+                        <div class="text-center text-gray-400 py-4">${isEnPage ? 'Loading...' : '일정을 불러오는 중...'}</div>
+                    </div>
+
+                    <!-- 일정 리스트 (데스크톱용 - 기존) -->
+                    <div class="hidden mt-8">
                         <h4 class="text-lg font-semibold text-gray-800 mb-4">${isEnPage ? 'Coming Up' : '다가오는 일정'}</h4>
                         <div id="event-list" class="space-y-3">
                             <div class="text-center text-gray-400 py-4">${isEnPage ? 'Loading...' : '일정을 불러오는 중...'}</div>
@@ -317,7 +327,8 @@ const CalendarWidget = {
     // 일정 리스트 렌더링
     renderEventList: function() {
         const list = document.getElementById('event-list');
-        if (!list) return;
+        const mobileList = document.getElementById('event-list-mobile');
+        if (!list && !mobileList) return;
 
         const isEnPage = window.location.pathname.startsWith('/en/') || window.location.pathname === '/en';
 
@@ -331,7 +342,9 @@ const CalendarWidget = {
             .slice(0, 5);
 
         if (upcomingEvents.length === 0) {
-            list.innerHTML = `<p class="text-gray-500 text-center py-8">${isEnPage ? 'No upcoming events.' : '예정된 일정이 없습니다.'}</p>`;
+            const emptyMsg = `<p class="text-gray-500 text-center py-8">${isEnPage ? 'No upcoming events.' : '예정된 일정이 없습니다.'}</p>`;
+            if (list) list.innerHTML = emptyMsg;
+            if (mobileList) mobileList.innerHTML = emptyMsg;
             return;
         }
 
@@ -362,19 +375,24 @@ const CalendarWidget = {
             `;
         });
 
-        list.innerHTML = html;
+        if (list) list.innerHTML = html;
+        if (mobileList) mobileList.innerHTML = html;
     },
 
     // 오류 표시
     showError: function(message) {
         const grid = document.getElementById('calendar-grid');
         const list = document.getElementById('event-list');
+        const mobileList = document.getElementById('event-list-mobile');
         
         if (grid) {
             grid.innerHTML = `<div class="text-center text-red-500 py-8">${message}</div>`;
         }
         if (list) {
             list.innerHTML = `<div class="text-center text-red-500 py-4">${message}</div>`;
+        }
+        if (mobileList) {
+            mobileList.innerHTML = `<div class="text-center text-red-500 py-4">${message}</div>`;
         }
     }
 };
