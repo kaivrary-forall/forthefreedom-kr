@@ -300,7 +300,8 @@ function loadNavigation() {
                                         </div>
                                         <a href="${linkPrefix}resources.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">${t.resources}</a>
                                         <a href="${linkPrefix}news/personnel.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">${t.personnel}</a>
-                                        <a href="${linkPrefix}news/congratulations.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">${t.celebrations}</a>
+                                        <!-- 경조사 숨김 처리 -->
+                                        <!-- <a href="${linkPrefix}news/congratulations.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">${t.celebrations}</a> -->
                                     </div>
                                 </div>
                             </div>
@@ -451,7 +452,8 @@ function loadNavigation() {
                                 <a href="${linkPrefix}news/gallery.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">${t.gallery}</a>
                                 <a href="${linkPrefix}resources.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">${t.resources}</a>
                                 <a href="${linkPrefix}news/personnel.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">${t.personnel}</a>
-                                <a href="${linkPrefix}news/congratulations.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">${t.celebrations}</a>
+                                <!-- 경조사 숨김 처리 -->
+                                <!-- <a href="${linkPrefix}news/congratulations.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">${t.celebrations}</a> -->
                             </div>
                         </div>
                         
