@@ -139,7 +139,7 @@
                     <div class="bg-white rounded-2xl shadow-lg p-6 border">
                         <div class="flex justify-center gap-6 mb-4 text-sm">
                             <span class="flex items-center gap-2"><span class="w-4 h-4 rounded-full bg-green-500"></span> 창당 완료</span>
-                            <span class="flex items-center gap-2"><span class="w-4 h-4 rounded-full bg-yellow-500"></span> 창당 임박</span>
+                            <span class="flex items-center gap-2"><span class="w-4 h-4 rounded-full bg-yellow-500"></span> Preparatory Committee</span>
                         </div>
                         
                         <!-- 대한민국 지도 SVG -->
@@ -176,7 +176,7 @@
                             <!-- 전남 -->
                             <path onclick="switchProvince('jeonnam')" class="map-region status-inactive" d="M160,500 L280,530 L300,600 L250,680 L120,650 L100,550 Z"><title>전남</title></path>
                             <!-- 광주 -->
-                            <path onclick="switchProvince('gwangju')" class="map-region status-inactive" d="M200,540 L250,540 L260,580 L220,600 L190,570 Z"><title>광주</title></path>
+                            <path onclick="switchProvince('gwangju')" class="map-region status-preparing" d="M200,540 L250,540 L260,580 L220,600 L190,570 Z"><title>광주</title></path>
                             <!-- 경남 -->
                             <path onclick="switchProvince('gyeongnam')" class="map-region status-established" d="M350,500 L500,480 L540,490 L580,470 L600,550 L550,620 L400,600 L320,560 Z"><title>경남</title></path>
                             <!-- 울산 -->
@@ -219,10 +219,10 @@
                             </div>
                         </div>
 
-                        <!-- 창당 임박 -->
+                        <!-- Preparatory Committee -->
                         <div>
                             <h2 class="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-                                <span class="w-3 h-3 rounded-full bg-yellow-500"></span> 창당 임박
+                                <span class="w-3 h-3 rounded-full bg-yellow-500"></span> Preparatory Committee
                             </h2>
                             <div class="grid sm:grid-cols-2 gap-3" id="preparingCards">
                                 <!-- 동적으로 생성됨 -->
@@ -310,17 +310,17 @@
             { id: 'busan', name: '부산', fullName: '부산광역시당', hasData: true, status: 'established', leader: '서미란', leaderTitle: '위원장' },
             { id: 'daegu', name: '대구', fullName: '대구광역시당', hasData: false, status: 'established', leader: '황현정', leaderTitle: '위원장' },
             { id: 'daejeon', name: '대전', fullName: '대전광역시당', hasData: false, status: 'preparing', leader: '김재훈', leaderTitle: '창준위원장' },
-            { id: 'gwangju', name: '광주', fullName: '광주광역시당', hasData: false, status: 'inactive', leader: null, leaderTitle: null },
+            { id: 'gwangju', name: '광주', fullName: '광주광역시당', hasData: false, status: 'preparing', leader: '황현철', leaderTitle: 'Chairman' },
             { id: 'ulsan', name: '울산', fullName: '울산광역시당', hasData: false, status: 'established', leader: '지광선', leaderTitle: '위원장' },
             { id: 'sejong', name: '세종', fullName: '세종특별자치시당', hasData: false, status: 'inactive', leader: null, leaderTitle: null },
-            { id: 'gangwon', name: '강원', fullName: '강원특별자치도당', hasData: false, status: 'preparing', leader: null, leaderTitle: null },
+            { id: 'gangwon', name: '강원', fullName: '강원특별자치도당', hasData: false, status: 'preparing', leader: '이수동', leaderTitle: 'Chairman' },
             { id: 'chungbuk', name: '충북', fullName: '충청북도당', hasData: false, status: 'preparing', leader: '김기현', leaderTitle: '창준위원장' },
-            { id: 'chungnam', name: '충남', fullName: '충청남도당', hasData: false, status: 'preparing', leader: null, leaderTitle: null },
+            { id: 'chungnam', name: '충남', fullName: '충청남도당', hasData: false, status: 'preparing', leader: '강창모', leaderTitle: 'Chairman' },
             { id: 'gyeongbuk', name: '경북', fullName: '경상북도당', hasData: true, status: 'established', leader: '차훈', leaderTitle: '위원장' },
             { id: 'gyeongnam', name: '경남', fullName: '경상남도당', hasData: false, status: 'established', leader: '김진일', leaderTitle: '위원장' },
             { id: 'jeonbuk', name: '전북', fullName: '전북특별자치도당', hasData: false, status: 'inactive', leader: null, leaderTitle: null },
             { id: 'jeonnam', name: '전남', fullName: '전라남도당', hasData: false, status: 'inactive', leader: null, leaderTitle: null },
-            { id: 'jeju', name: '제주', fullName: '제주특별자치도당', hasData: false, status: 'preparing', leader: null, leaderTitle: null }
+            { id: 'jeju', name: '제주', fullName: '제주특별자치도당', hasData: false, status: 'preparing', leader: '이누림', leaderTitle: 'Chairman' }
         ];
 
         let currentProvince = 'seoul';
