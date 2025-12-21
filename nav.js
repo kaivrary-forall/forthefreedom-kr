@@ -98,6 +98,8 @@ function loadNavigation() {
         location: 'Location',
         // 서브메뉴 - 조직
         orgChart: 'Organization Chart',
+        spokespersonOffice: 'Spokesperson Office',
+        freedomResearch: 'Freedom Research Institute',
         committees: 'Committees',
         localChapters: 'Regional Chapters',
         staff: 'Staff',
@@ -152,6 +154,8 @@ function loadNavigation() {
         location: '찾아오시는길',
         // 서브메뉴 - 조직
         orgChart: '조직도',
+        spokespersonOffice: '대변인실',
+        freedomResearch: '자유연구원',
         committees: '직능위원회',
         localChapters: '시도당·당협',
         staff: '일꾼들',
@@ -236,6 +240,8 @@ function loadNavigation() {
                                 <div class="absolute left-0 top-full mt-2 w-56 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0">
                                     <div class="py-2">
                                         <a href="${linkPrefix}about/organization.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">${t.orgChart}</a>
+                                        <a href="${linkPrefix}committees/spokesperson/index.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">${t.spokespersonOffice}</a>
+                                        <a href="${linkPrefix}committees/research/index.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">${t.freedomResearch}</a>
                                         <a href="${linkPrefix}committees/index.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">${t.committees}</a>
                                         <a href="${linkPrefix}local-chapters.html" class="block px-4 py-2 text-base text-[#212121] hover:bg-gray-50 hover:text-[#a50034]">${t.localChapters}</a>
                                         <div class="relative group/sub">
@@ -411,6 +417,8 @@ function loadNavigation() {
                             </button>
                             <div id="org-submenu" class="hidden bg-gray-50 border-l-4 border-red-600 ml-3">
                                 <a href="${linkPrefix}about/organization.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">${t.orgChart}</a>
+                                <a href="${linkPrefix}committees/spokesperson/index.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">${t.spokespersonOffice}</a>
+                                <a href="${linkPrefix}committees/research/index.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">${t.freedomResearch}</a>
                                 <a href="${linkPrefix}committees/index.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">${t.committees}</a>
                                 <a href="${linkPrefix}local-chapters.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">${t.localChapters}</a>
                                 <a href="${linkPrefix}about/people-central.html" class="block px-6 py-2 text-base text-gray-600 hover:bg-gray-100 hover:text-red-600">${t.central} ${t.staff}</a>
