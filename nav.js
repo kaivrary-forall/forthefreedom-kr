@@ -520,10 +520,10 @@ function loadNavigation() {
                         </svg>
                     </div>
                     <a href="${linkPrefix}login.html" class="floating-btn bg-red-600 hover:bg-red-700 text-white shadow-none" style="margin-bottom: 6px; box-shadow: none;">
-                        로그인
+                        ${isEnPage ? 'Login' : '로그인'}
                     </a>
                     <a href="${linkPrefix}join.html" class="floating-btn bg-gray-100 hover:bg-gray-200 text-gray-700 shadow-none" style="box-shadow: none;">
-                        회원가입
+                        ${isEnPage ? 'Sign Up' : '회원가입'}
                     </a>
                 </div>
                 
@@ -531,28 +531,28 @@ function loadNavigation() {
                 <a href="https://www.ihappynanum.com/Nanum/api/screen/F7FCRIO2E3" 
                    target="_blank"
                    class="floating-btn bg-red-600 hover:bg-red-700 text-white shadow-lg"
-                   title="당원가입">
+                   title="${isEnPage ? 'Join Party' : '당원가입'}">
                     <i class="fas fa-user-plus mr-2"></i>
-                    <span class="hidden sm:inline">당원가입</span>
-                    <span class="sm:hidden">가입</span>
+                    <span class="hidden sm:inline">${isEnPage ? 'Join Party' : '당원가입'}</span>
+                    <span class="sm:hidden">${isEnPage ? 'Join' : '가입'}</span>
                 </a>
                 
                 <!-- 후원영수증 신청 버튼 -->
                 <a href="${linkPrefix}support-receipt.html" 
                    class="floating-btn bg-green-600 hover:bg-green-700 text-white shadow-lg"
-                   title="후원영수증 신청">
+                   title="${isEnPage ? 'Tax Receipt' : '후원영수증 신청'}">
                     <i class="fas fa-receipt mr-2"></i>
-                    <span class="hidden sm:inline">영수증신청</span>
-                    <span class="sm:hidden">영수증</span>
+                    <span class="hidden sm:inline">${isEnPage ? 'Receipt' : '영수증신청'}</span>
+                    <span class="sm:hidden">${isEnPage ? 'Receipt' : '영수증'}</span>
                 </a>
                 
                 <!-- 후원하기 버튼 -->
                 <a href="${linkPrefix}support.html" 
                    class="floating-btn bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
-                   title="후원하기">
+                   title="${isEnPage ? 'Donate' : '후원하기'}">
                     <i class="fas fa-heart mr-2"></i>
-                    <span class="hidden sm:inline">후원하기</span>
-                    <span class="sm:hidden">후원</span>
+                    <span class="hidden sm:inline">${isEnPage ? 'Donate' : '후원하기'}</span>
+                    <span class="sm:hidden">${isEnPage ? 'Donate' : '후원'}</span>
                 </a>
             </div>
             
