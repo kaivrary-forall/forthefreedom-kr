@@ -43,6 +43,10 @@
       "use": "@vercel/static"
     },
     {
+      "src": "**/*.mp3",
+      "use": "@vercel/static"
+    },
+    {
       "src": "sitemap.xml",
       "use": "@vercel/static"
     },
@@ -51,7 +55,6 @@
       "use": "@vercel/static"
     }
   ],
-
   "headers": [
     {
       "source": "/(.*)\\.webp",
@@ -85,6 +88,19 @@
         {
           "key": "Content-Type",
           "value": "image/png"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=2592000"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)\\.mp3",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "audio/mpeg"
         },
         {
           "key": "Cache-Control",
@@ -168,4 +184,4 @@
   ],
   "cleanUrls": true,
   "trailingSlash": false
-} 
+}
