@@ -78,8 +78,134 @@
                 <div style="display: flex; justify-content: center; gap: 2px; margin-bottom: 4px;">${digitsHTML}</div>
                 <p style="font-size: 11px; color: #9ca3af;">${isEnPage ? 'days' : '일째'}</p>
             </div>
+            <div class="side-banner-card" id="music-player-widget" style="margin-top: 10px;">
+                <p style="font-size: 10px; color: #6b7280; margin-bottom: 8px;">
+                    <i class="fas fa-music" style="margin-right: 4px;"></i>${isEnPage ? 'Party Song' : '당가'}
+                </p>
+                <div id="music-title" style="font-size: 11px; color: #374151; font-weight: 500; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    ${isEnPage ? 'Freedom & Innovation' : '자유와혁신 당가'}
+                </div>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <button onclick="musicPlayerPrev()" style="width: 28px; height: 28px; border: none; background: #f3f4f6; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-step-backward" style="font-size: 10px; color: #6b7280;"></i>
+                    </button>
+                    <button id="music-play-btn" onclick="musicPlayerToggle()" style="width: 36px; height: 36px; border: none; background: #a50034; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                        <i id="music-play-icon" class="fas fa-play" style="font-size: 12px; color: #fff; margin-left: 2px;"></i>
+                    </button>
+                    <button onclick="musicPlayerNext()" style="width: 28px; height: 28px; border: none; background: #f3f4f6; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-step-forward" style="font-size: 10px; color: #6b7280;"></i>
+                    </button>
+                </div>
+                <div style="margin-top: 8px;">
+                    <div style="width: 100%; height: 4px; background: #e5e7eb; border-radius: 2px; overflow: hidden;">
+                        <div id="music-progress" style="width: 0%; height: 100%; background: #a50034; border-radius: 2px; transition: width 0.3s;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+                        <span id="music-current-time" style="font-size: 9px; color: #9ca3af;">0:00</span>
+                        <span id="music-duration" style="font-size: 9px; color: #9ca3af;">0:00</span>
+                    </div>
+                </div>
+            </div>
         `;
     }
+
+    // 음악 플레이어 관련
+    let musicAudio = null;
+    let musicPlaylist = [
+        { title: '자유와혁신 당가', titleEn: 'Freedom & Innovation', src: '/audio/party-song.mp3' }
+    ];
+    let currentTrackIndex = 0;
+
+    function initMusicPlayer() {
+        if (musicAudio) return;
+        musicAudio = new Audio();
+        musicAudio.volume = 0.7;
+        
+        musicAudio.addEventListener('timeupdate', updateMusicProgress);
+        musicAudio.addEventListener('loadedmetadata', updateMusicDuration);
+        musicAudio.addEventListener('ended', musicPlayerNext);
+        
+        loadTrack(currentTrackIndex);
+    }
+
+    function loadTrack(index) {
+        if (!musicAudio) initMusicPlayer();
+        currentTrackIndex = index;
+        if (currentTrackIndex >= musicPlaylist.length) currentTrackIndex = 0;
+        if (currentTrackIndex < 0) currentTrackIndex = musicPlaylist.length - 1;
+        
+        const track = musicPlaylist[currentTrackIndex];
+        musicAudio.src = track.src;
+        
+        const titleEl = document.getElementById('music-title');
+        if (titleEl) {
+            titleEl.textContent = isEnPage ? track.titleEn : track.title;
+        }
+    }
+
+    function updateMusicProgress() {
+        if (!musicAudio) return;
+        const progress = (musicAudio.currentTime / musicAudio.duration) * 100 || 0;
+        const progressEl = document.getElementById('music-progress');
+        const currentTimeEl = document.getElementById('music-current-time');
+        
+        if (progressEl) progressEl.style.width = progress + '%';
+        if (currentTimeEl) currentTimeEl.textContent = formatTime(musicAudio.currentTime);
+    }
+
+    function updateMusicDuration() {
+        if (!musicAudio) return;
+        const durationEl = document.getElementById('music-duration');
+        if (durationEl) durationEl.textContent = formatTime(musicAudio.duration);
+    }
+
+    function formatTime(seconds) {
+        if (isNaN(seconds)) return '0:00';
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return mins + ':' + (secs < 10 ? '0' : '') + secs;
+    }
+
+    window.musicPlayerToggle = function() {
+        if (!musicAudio) initMusicPlayer();
+        const icon = document.getElementById('music-play-icon');
+        
+        if (musicAudio.paused) {
+            musicAudio.play().catch(e => console.log('Audio play failed:', e));
+            if (icon) {
+                icon.classList.remove('fa-play');
+                icon.classList.add('fa-pause');
+                icon.style.marginLeft = '0';
+            }
+        } else {
+            musicAudio.pause();
+            if (icon) {
+                icon.classList.remove('fa-pause');
+                icon.classList.add('fa-play');
+                icon.style.marginLeft = '2px';
+            }
+        }
+    };
+
+    window.musicPlayerNext = function() {
+        const wasPlaying = musicAudio && !musicAudio.paused;
+        loadTrack(currentTrackIndex + 1);
+        if (wasPlaying) {
+            musicAudio.play().catch(e => console.log('Audio play failed:', e));
+        }
+    };
+
+    window.musicPlayerPrev = function() {
+        const wasPlaying = musicAudio && !musicAudio.paused;
+        if (musicAudio && musicAudio.currentTime > 3) {
+            musicAudio.currentTime = 0;
+        } else {
+            loadTrack(currentTrackIndex - 1);
+        }
+        if (wasPlaying) {
+            musicAudio.play().catch(e => console.log('Audio play failed:', e));
+        }
+    };
 
     // 회원 정보 렌더링
     function renderMemberInfo(el) {
