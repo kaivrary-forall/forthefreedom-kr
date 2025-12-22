@@ -123,7 +123,7 @@
         
         musicAudio.addEventListener('timeupdate', updateMusicProgress);
         musicAudio.addEventListener('loadedmetadata', updateMusicDuration);
-        musicAudio.addEventListener('ended', musicPlayerNext);
+        musicAudio.addEventListener('ended', () => window.musicPlayerNext());
         
         loadTrack(currentTrackIndex);
     }
