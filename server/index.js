@@ -288,6 +288,7 @@ app.use('/api/announcement', require('./routes/announcement'));
 app.use('/api/orgchart', require('./routes/orgchart'));
 app.use('/api/side-cards', require('./routes/sideCards'));
 app.use('/api/popup', require('./routes/popup'));
+app.use('/api/site-settings', require('./routes/siteSettings'));
 
 // 404 에러 핸들링
 app.use('*', (req, res) => {
