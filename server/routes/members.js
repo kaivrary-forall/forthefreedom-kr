@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const Member = require('../models/Member');
+const AdminSlot = require('../models/AdminSlot');
 const { generateToken, authMember } = require('../middleware/authMember');
 const { ADMIN_CREDENTIALS } = require('./auth');
 const { sendVerificationCode } = require('../utils/email');
@@ -361,11 +362,29 @@ router.post('/login', async (req, res) => {
     member.loginCount = (member.loginCount || 0) + 1;
     await member.save();
 
-    // 토큰 생성 (isAdmin 포함)
-    const isAdmin = member.isAdmin === true || member.role === 'admin';
-    const token = generateToken(member._id, isAdmin);
+    // 슬롯 조회 (의자에 앉아있는지 확인)
+    let adminSlot = null;
+    let permissions = [];
+    let isAdmin = member.isAdmin === true || member.role === 'admin';
 
-    console.log('✅ 로그인:', member.userId);
+    try {
+      const slot = await AdminSlot.findOne({ 
+        assignedMemberId: member._id,
+        isActive: true 
+      });
+      if (slot) {
+        adminSlot = slot.slotId;
+        permissions = slot.permissions || [];
+        isAdmin = true; // 슬롯에 앉아있으면 admin
+      }
+    } catch (slotErr) {
+      console.log('슬롯 조회 스킵 (컬렉션 없을 수 있음):', slotErr.message);
+    }
+
+    // 토큰 생성 (슬롯 정보 포함)
+    const token = generateToken(member._id, isAdmin, adminSlot, permissions);
+
+    console.log('✅ 로그인:', member.userId, adminSlot ? `(${adminSlot})` : '');
 
     res.json({
       success: true,
@@ -381,7 +400,10 @@ router.post('/login', async (req, res) => {
           phone: member.phone,
           memberType: member.memberType,
           status: member.status,
-          appliedAt: member.appliedAt
+          appliedAt: member.appliedAt,
+          isAdmin,
+          adminSlot,
+          permissions
         }
       }
     });

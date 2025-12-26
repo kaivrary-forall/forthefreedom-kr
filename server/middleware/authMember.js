@@ -4,9 +4,15 @@ const Member = require('../models/Member');
 const JWT_SECRET = process.env.JWT_SECRET || 'forthefreedom-secret-key-2025';
 const JWT_EXPIRES_IN = '7d'; // 7일
 
-// 토큰 생성
-const generateToken = (memberId, isAdmin = false) => {
-  return jwt.sign({ id: memberId, isAdmin }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+// 토큰 생성 (슬롯 정보 포함)
+const generateToken = (memberId, isAdmin = false, adminSlot = null, permissions = []) => {
+  const payload = { 
+    id: memberId, 
+    isAdmin,
+    adminSlot,
+    permissions
+  };
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 };
 
 // 회원 인증 미들웨어
@@ -26,17 +32,29 @@ const authMember = async (req, res, next) => {
     // 토큰 검증
     const decoded = jwt.verify(token, JWT_SECRET);
 
-    // 🔐 관리자 토큰인 경우 DB 조회 없이 통과
+    // 🔐 관리자 토큰인 경우
     if (decoded.isAdmin) {
-      req.member = {
-        _id: decoded.id,
-        userId: 'admin_00',
-        nickname: '슈퍼관리자',
-        name: '슈퍼관리자',
-        status: 'active',
-        memberType: 'admin',
-        isAdmin: true
-      };
+      // DB에서 실제 회원 조회 (슬롯 정보 포함)
+      const member = await Member.findById(decoded.id);
+      if (member) {
+        req.member = member;
+        req.member.isAdmin = true;
+        req.adminSlot = decoded.adminSlot;
+        req.permissions = decoded.permissions || [];
+      } else {
+        // 레거시 하드코딩 관리자 (fallback)
+        req.member = {
+          _id: decoded.id,
+          userId: 'admin_00',
+          nickname: '슈퍼관리자',
+          name: '슈퍼관리자',
+          status: 'active',
+          memberType: 'admin',
+          isAdmin: true
+        };
+        req.adminSlot = decoded.adminSlot || 'admin_00';
+        req.permissions = decoded.permissions || ['*'];
+      }
       return next();
     }
 
