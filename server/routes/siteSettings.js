@@ -121,6 +121,8 @@ router.get('/footer', async (req, res) => {
 const checkAdmin = async (req, res, next) => {
   try {
     // authMember 미들웨어에서 설정한 member 정보 확인
+    console.log('🔐 checkAdmin - req.member:', JSON.stringify(req.member, null, 2));
+    
     if (!req.member) {
       return res.status(401).json({
         success: false,
@@ -129,11 +131,15 @@ const checkAdmin = async (req, res, next) => {
     }
     
     // admin 권한 체크
+    console.log('🔐 checkAdmin - role:', req.member.role, 'isAdmin:', req.member.isAdmin, 'memberType:', req.member.memberType);
+    
     const isAdmin = 
       req.member.role === 'admin' || 
       req.member.isAdmin === true ||
       req.member.memberType === 'admin' ||
       req.member.memberType === '관리자';
+    
+    console.log('🔐 checkAdmin - isAdmin result:', isAdmin);
     
     if (!isAdmin) {
       return res.status(403).json({
