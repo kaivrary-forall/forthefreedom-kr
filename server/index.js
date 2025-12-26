@@ -290,6 +290,9 @@ app.use('/api/side-cards', require('./routes/sideCards'));
 app.use('/api/popup', require('./routes/popup'));
 app.use('/api/site-settings', require('./routes/siteSettings'));
 
+// 관리자 슬롯(의자) 관리
+app.use('/api/admin/slots', require('./routes/adminSlots'));
+
 // 404 에러 핸들링
 app.use('*', (req, res) => {
   res.status(404).json({
