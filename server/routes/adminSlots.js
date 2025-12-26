@@ -41,6 +41,108 @@ const checkSlotManager = async (req, res, next) => {
 };
 
 // ==========================================
+// 초기 슬롯 생성 (1회용 seed) - 인증 없음, 맨 위에 위치해야 함
+// ==========================================
+router.post('/seed', async (req, res) => {
+  try {
+    // 이미 슬롯이 있으면 스킵
+    const existing = await AdminSlot.countDocuments();
+    if (existing > 0) {
+      return res.json({
+        success: false,
+        message: '이미 슬롯이 존재합니다'
+      });
+    }
+
+    const defaultSlots = [
+      {
+        slotId: 'admin_00',
+        slotName: '슈퍼관리자',
+        description: '전체 시스템 관리 권한 + 의자 배치 권한',
+        permissions: ['*'],
+        canManageSlots: true,
+        isActive: true
+      },
+      {
+        slotId: 'admin_01',
+        slotName: '콘텐츠 관리자',
+        description: '공지사항, 보도자료, 아고라 관리',
+        permissions: ['notices:write', 'spokesperson:write', 'agora:write'],
+        canManageSlots: false,
+        isActive: true
+      },
+      {
+        slotId: 'admin_02',
+        slotName: '사이트 관리자',
+        description: '배너, 사이드카드, 푸터 관리',
+        permissions: ['banners:write', 'sidecards:write', 'footer:write'],
+        canManageSlots: false,
+        isActive: true
+      },
+      {
+        slotId: 'admin_03',
+        slotName: '회원 관리자',
+        description: '회원 승인, 관리',
+        permissions: ['members:read', 'members:write'],
+        canManageSlots: false,
+        isActive: true
+      }
+    ];
+
+    await AdminSlot.insertMany(defaultSlots);
+
+    console.log('✅ 기본 관리자 슬롯 생성 완료');
+
+    res.json({
+      success: true,
+      message: '기본 슬롯이 생성되었습니다',
+      data: defaultSlots
+    });
+  } catch (error) {
+    console.error('슬롯 seed 오류:', error);
+    res.status(500).json({
+      success: false,
+      message: '슬롯 생성 중 오류가 발생했습니다'
+    });
+  }
+});
+
+// ==========================================
+// 회원 검색 (배정용) - /:slotId 보다 먼저
+// ==========================================
+router.get('/search/members', authMember, checkSlotManager, async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q || q.length < 2) {
+      return res.json({ success: true, data: [] });
+    }
+
+    const members = await Member.find({
+      $or: [
+        { userId: new RegExp(q, 'i') },
+        { nickname: new RegExp(q, 'i') },
+        { name: new RegExp(q, 'i') },
+        { email: new RegExp(q, 'i') }
+      ],
+      status: 'active'
+    })
+    .select('_id userId nickname name email')
+    .limit(10);
+
+    res.json({
+      success: true,
+      data: members
+    });
+  } catch (error) {
+    console.error('회원 검색 오류:', error);
+    res.status(500).json({
+      success: false,
+      message: '회원 검색 중 오류가 발생했습니다'
+    });
+  }
+});
+
+// ==========================================
 // 슬롯 목록 조회 (슈퍼관리자만)
 // ==========================================
 router.get('/', authMember, checkSlotManager, async (req, res) => {
@@ -225,108 +327,6 @@ router.put('/:slotId/unassign', authMember, checkSlotManager, async (req, res) =
     res.status(500).json({
       success: false,
       message: '슬롯 해제 중 오류가 발생했습니다'
-    });
-  }
-});
-
-// ==========================================
-// 회원 검색 (배정용)
-// ==========================================
-router.get('/search/members', authMember, checkSlotManager, async (req, res) => {
-  try {
-    const { q } = req.query;
-    if (!q || q.length < 2) {
-      return res.json({ success: true, data: [] });
-    }
-
-    const members = await Member.find({
-      $or: [
-        { userId: new RegExp(q, 'i') },
-        { nickname: new RegExp(q, 'i') },
-        { name: new RegExp(q, 'i') },
-        { email: new RegExp(q, 'i') }
-      ],
-      status: 'active'
-    })
-    .select('_id userId nickname name email')
-    .limit(10);
-
-    res.json({
-      success: true,
-      data: members
-    });
-  } catch (error) {
-    console.error('회원 검색 오류:', error);
-    res.status(500).json({
-      success: false,
-      message: '회원 검색 중 오류가 발생했습니다'
-    });
-  }
-});
-
-// ==========================================
-// 초기 슬롯 생성 (1회용 seed)
-// ==========================================
-router.post('/seed', async (req, res) => {
-  try {
-    // 이미 슬롯이 있으면 스킵
-    const existing = await AdminSlot.countDocuments();
-    if (existing > 0) {
-      return res.json({
-        success: false,
-        message: '이미 슬롯이 존재합니다'
-      });
-    }
-
-    const defaultSlots = [
-      {
-        slotId: 'admin_00',
-        slotName: '슈퍼관리자',
-        description: '전체 시스템 관리 권한 + 의자 배치 권한',
-        permissions: ['*'],
-        canManageSlots: true,
-        isActive: true
-      },
-      {
-        slotId: 'admin_01',
-        slotName: '콘텐츠 관리자',
-        description: '공지사항, 보도자료, 아고라 관리',
-        permissions: ['notices:write', 'spokesperson:write', 'agora:write'],
-        canManageSlots: false,
-        isActive: true
-      },
-      {
-        slotId: 'admin_02',
-        slotName: '사이트 관리자',
-        description: '배너, 사이드카드, 푸터 관리',
-        permissions: ['banners:write', 'sidecards:write', 'footer:write'],
-        canManageSlots: false,
-        isActive: true
-      },
-      {
-        slotId: 'admin_03',
-        slotName: '회원 관리자',
-        description: '회원 승인, 관리',
-        permissions: ['members:read', 'members:write'],
-        canManageSlots: false,
-        isActive: true
-      }
-    ];
-
-    await AdminSlot.insertMany(defaultSlots);
-
-    console.log('✅ 기본 관리자 슬롯 생성 완료');
-
-    res.json({
-      success: true,
-      message: '기본 슬롯이 생성되었습니다',
-      data: defaultSlots
-    });
-  } catch (error) {
-    console.error('슬롯 seed 오류:', error);
-    res.status(500).json({
-      success: false,
-      message: '슬롯 생성 중 오류가 발생했습니다'
     });
   }
 });
