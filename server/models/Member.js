@@ -116,6 +116,17 @@ const memberSchema = new mongoose.Schema({
     // general: 일반회원, party_member: 당원, innovation_member: 혁신당원, position_member: 직분당원
   },
   
+  // === 관리자 권한 ===
+  role: {
+    type: String,
+    enum: ['user', 'admin', 'moderator'],
+    default: 'user'
+  },
+  isAdmin: {
+    type: Boolean,
+    default: false
+  },
+  
   // === 프로필 ===
   bio: {
     type: String,
