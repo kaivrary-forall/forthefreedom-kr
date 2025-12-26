@@ -361,8 +361,9 @@ router.post('/login', async (req, res) => {
     member.loginCount = (member.loginCount || 0) + 1;
     await member.save();
 
-    // 토큰 생성
-    const token = generateToken(member._id);
+    // 토큰 생성 (isAdmin 포함)
+    const isAdmin = member.isAdmin === true || member.role === 'admin';
+    const token = generateToken(member._id, isAdmin);
 
     console.log('✅ 로그인:', member.userId);
 

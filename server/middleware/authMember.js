@@ -5,8 +5,8 @@ const JWT_SECRET = process.env.JWT_SECRET || 'forthefreedom-secret-key-2025';
 const JWT_EXPIRES_IN = '7d'; // 7일
 
 // 토큰 생성
-const generateToken = (memberId) => {
-  return jwt.sign({ id: memberId }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+const generateToken = (memberId, isAdmin = false) => {
+  return jwt.sign({ id: memberId, isAdmin }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 };
 
 // 회원 인증 미들웨어
