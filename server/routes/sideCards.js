@@ -8,8 +8,82 @@ const Activity = require('../models/Activity');
 const MediaCoverage = require('../models/MediaCoverage');
 const Personnel = require('../models/Personnel');
 const Congratulation = require('../models/Congratulation');
+const { authMember } = require('../middleware/authMember');
 
-// 설정 조회
+// ==========================================
+// 관리자 권한 체크 미들웨어
+// ==========================================
+const checkAdmin = async (req, res, next) => {
+  try {
+    console.log('🔐 checkAdmin [sideCards] - req.member:', JSON.stringify(req.member, null, 2));
+    
+    if (!req.member) {
+      return res.status(401).json({
+        success: false,
+        message: '인증이 필요합니다'
+      });
+    }
+    
+    const isAdmin = 
+      req.member.role === 'admin' || 
+      req.member.isAdmin === true ||
+      req.member.memberType === 'admin' ||
+      req.member.memberType === '관리자';
+    
+    console.log('🔐 checkAdmin [sideCards] - isAdmin result:', isAdmin);
+    
+    if (!isAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: '관리자 권한이 필요합니다'
+      });
+    }
+    
+    next();
+  } catch (error) {
+    console.error('권한 확인 오류:', error);
+    res.status(500).json({
+      success: false,
+      message: '권한 확인 중 오류가 발생했습니다'
+    });
+  }
+};
+
+// ==========================================
+// Next.js revalidate 트리거 함수
+// ==========================================
+const triggerRevalidate = async () => {
+  if (!process.env.NEXT_REVALIDATE_URL || !process.env.REVALIDATE_SECRET) {
+    console.log('⚠️ Revalidate 환경변수 미설정 - 스킵');
+    return;
+  }
+  
+  try {
+    const fetch = require('node-fetch');
+    const response = await fetch(process.env.NEXT_REVALIDATE_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-revalidate-secret': process.env.REVALIDATE_SECRET
+      },
+      body: JSON.stringify({ tags: ['sidecards'] })
+    });
+    
+    if (response.ok) {
+      console.log('✅ Next.js revalidate 트리거 성공 [sidecards]');
+    } else {
+      console.error('⚠️ Next.js revalidate 응답 오류:', response.status);
+    }
+  } catch (revalidateError) {
+    console.error('⚠️ Next.js revalidate 트리거 실패:', revalidateError.message);
+  }
+};
+
+// ==========================================
+// 공개 API (인증 불필요)
+// ==========================================
+
+// 설정 조회 - 공개
 router.get('/settings', async (req, res) => {
     try {
         let settings = await SideCardSettings.findOne();
@@ -46,40 +120,7 @@ router.get('/settings', async (req, res) => {
     }
 });
 
-// 설정 업데이트
-router.put('/settings', async (req, res) => {
-    try {
-        const { displayMode, cardCount, pinnedItems, showCategories } = req.body;
-        
-        let settings = await SideCardSettings.findOne();
-        
-        if (!settings) {
-            settings = new SideCardSettings();
-        }
-        
-        if (displayMode !== undefined) settings.displayMode = displayMode;
-        if (cardCount !== undefined) settings.cardCount = cardCount;
-        if (pinnedItems !== undefined) settings.pinnedItems = pinnedItems;
-        if (showCategories !== undefined) settings.showCategories = showCategories;
-        
-        await settings.save();
-        
-        res.json({
-            success: true,
-            data: settings,
-            message: '설정이 업데이트되었습니다'
-        });
-    } catch (error) {
-        console.error('사이드카드 설정 업데이트 오류:', error);
-        res.status(500).json({
-            success: false,
-            message: '설정 업데이트 중 오류가 발생했습니다',
-            error: error.message
-        });
-    }
-});
-
-// 사이드카드 데이터 조회 (설정에 따라 다양한 콘텐츠 반환)
+// 사이드카드 데이터 조회 - 공개
 router.get('/', async (req, res) => {
     try {
         let settings = await SideCardSettings.findOne();
@@ -146,6 +187,54 @@ router.get('/', async (req, res) => {
         });
     }
 });
+
+// ==========================================
+// 관리자 API (인증 + 권한 필요)
+// ==========================================
+
+// 설정 업데이트 (관리자 전용)
+router.put('/settings', authMember, checkAdmin, async (req, res) => {
+    try {
+        console.log('📝 사이드카드 설정 업데이트 요청 (관리자:', req.member?.nickname || req.member?.userId, ')');
+        
+        const { displayMode, cardCount, pinnedItems, showCategories } = req.body;
+        
+        let settings = await SideCardSettings.findOne();
+        
+        if (!settings) {
+            settings = new SideCardSettings();
+        }
+        
+        if (displayMode !== undefined) settings.displayMode = displayMode;
+        if (cardCount !== undefined) settings.cardCount = cardCount;
+        if (pinnedItems !== undefined) settings.pinnedItems = pinnedItems;
+        if (showCategories !== undefined) settings.showCategories = showCategories;
+        
+        await settings.save();
+        
+        console.log('✅ 사이드카드 설정 업데이트 완료');
+        
+        // 즉시반영 트리거
+        await triggerRevalidate();
+        
+        res.json({
+            success: true,
+            data: settings,
+            message: '설정이 업데이트되었습니다'
+        });
+    } catch (error) {
+        console.error('사이드카드 설정 업데이트 오류:', error);
+        res.status(500).json({
+            success: false,
+            message: '설정 업데이트 중 오류가 발생했습니다',
+            error: error.message
+        });
+    }
+});
+
+// ==========================================
+// 헬퍼 함수들
+// ==========================================
 
 // 고정된 아이템 가져오기
 async function getPinnedItems(pinnedItems) {
@@ -343,7 +432,7 @@ async function getLatestItems(showCategories, limit, excludeIds = []) {
                 _id: { $nin: excludeIds }, 
                 status: 'published', 
                 showOnSideCard: true,
-                createdAt: { $lte: now }  // 현재 시간 이전 것만
+                createdAt: { $lte: now }
             })
                 .sort({ createdAt: -1 })
                 .limit(2);
@@ -364,7 +453,7 @@ async function getLatestItems(showCategories, limit, excludeIds = []) {
                 _id: { $nin: excludeIds }, 
                 isActive: true, 
                 showOnSideCard: true,
-                createdAt: { $lte: now }  // 현재 시간 이전 것만
+                createdAt: { $lte: now }
             })
                 .sort({ createdAt: -1 })
                 .limit(2);
@@ -390,7 +479,7 @@ async function getLatestItems(showCategories, limit, excludeIds = []) {
 
 // 랜덤 아이템 가져오기
 async function getRandomItems(showCategories, limit) {
-    const items = await getLatestItems(showCategories, limit * 3); // 많이 가져와서 섞기
+    const items = await getLatestItems(showCategories, limit * 3);
     
     // Fisher-Yates 셔플
     for (let i = items.length - 1; i > 0; i--) {
