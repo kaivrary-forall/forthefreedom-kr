@@ -1,13 +1,13 @@
 const jwt = require('jsonwebtoken');
 const Member = require('../models/Member');
+const AdminSlot = require('../models/AdminSlot');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'forthefreedom-secret-key-2025';
 const JWT_EXPIRES_IN = '7d';
 
-// 토큰 생성 (슬롯 정보 포함)
-const generateToken = (memberId, isAdmin = false, adminSlot = null, permissions = []) => {
-  const payload = { id: memberId, isAdmin, adminSlot, permissions };
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+// 토큰 생성 (권한은 JWT에 넣지 않음 - DB에서 매번 조회)
+const generateToken = (memberId, isAdmin = false) => {
+  return jwt.sign({ id: memberId, isAdmin }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 };
 
 // 회원 인증 미들웨어
@@ -21,26 +21,13 @@ const authMember = async (req, res, next) => {
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, JWT_SECRET);
 
-    if (decoded.isAdmin) {
-      const member = await Member.findById(decoded.id);
-      if (member) {
-        req.member = member;
-        req.member.isAdmin = true;
-        req.adminSlot = decoded.adminSlot;
-        req.permissions = decoded.permissions || [];
-      } else {
-        req.member = { _id: decoded.id, userId: 'admin_00', nickname: '슈퍼관리자', name: '슈퍼관리자', status: 'active', memberType: 'admin', isAdmin: true };
-        req.adminSlot = decoded.adminSlot || 'admin_00';
-        req.permissions = decoded.permissions || ['*'];
-      }
-      return next();
-    }
-
+    // DB에서 회원 조회
     const member = await Member.findById(decoded.id);
     if (!member) {
       return res.status(401).json({ success: false, message: '유효하지 않은 토큰입니다' });
     }
 
+    // 계정 상태 확인
     if (member.status !== 'active') {
       const statusMessages = {
         pending: { message: '승인 대기 중인 계정입니다', code: 'ACCOUNT_PENDING' },
@@ -53,6 +40,27 @@ const authMember = async (req, res, next) => {
 
     req.member = member;
     req.permissions = [];
+    req.adminSlot = null;
+
+    // ==========================================
+    // 🔐 AdminSlot에서 권한 조회 (DB 기반, 매 요청마다)
+    // ==========================================
+    const slot = await AdminSlot.findOne({ 
+      assignedMemberId: member._id,
+      isActive: true 
+    });
+
+    if (slot) {
+      req.member.isAdmin = true;
+      req.adminSlot = slot.slotId;
+      req.permissions = slot.permissions || [];
+      req.canManageSlots = slot.canManageSlots || false;
+    } else if (member.role === 'admin' || member.isAdmin) {
+      // 레거시 호환: AdminSlot 없이 isAdmin인 경우
+      req.member.isAdmin = true;
+      req.permissions = [];
+    }
+
     next();
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
@@ -78,10 +86,17 @@ const optionalAuth = async (req, res, next) => {
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, JWT_SECRET);
     const member = await Member.findById(decoded.id);
-    req.member = member && member.status === 'active' ? member : null;
-    req.permissions = decoded.permissions || [];
+    
+    if (member && member.status === 'active') {
+      req.member = member;
+      const slot = await AdminSlot.findOne({ assignedMemberId: member._id, isActive: true });
+      req.permissions = slot ? slot.permissions : [];
+    } else {
+      req.member = null;
+      req.permissions = [];
+    }
     next();
-  } catch (error) {
+  } catch {
     req.member = null;
     req.permissions = [];
     next();
@@ -89,7 +104,7 @@ const optionalAuth = async (req, res, next) => {
 };
 
 // ==========================================
-// 권한 체크 미들웨어 (부분 권한 enforcement)
+// 권한 체크 미들웨어
 // ==========================================
 const requirePermission = (...requiredPerms) => {
   return (req, res, next) => {
@@ -100,42 +115,23 @@ const requirePermission = (...requiredPerms) => {
     const userPerms = req.permissions || [];
 
     // 전체 권한(*) 있으면 통과
-    if (userPerms.includes('*')) {
-      return next();
-    }
+    if (userPerms.includes('*')) return next();
 
     // 필요한 권한 중 하나라도 있으면 통과
-    const hasPermission = requiredPerms.some(perm => userPerms.includes(perm));
+    if (requiredPerms.some(perm => userPerms.includes(perm))) return next();
 
-    if (!hasPermission) {
-      console.log(`❌ 권한 부족: ${req.member.userId} 필요=[${requiredPerms}] 보유=[${userPerms}]`);
-      return res.status(403).json({
-        success: false,
-        message: `권한이 없습니다 (필요: ${requiredPerms.join(' 또는 ')})`
-      });
-    }
-
-    next();
+    res.status(403).json({
+      success: false,
+      message: `권한이 없습니다 (필요: ${requiredPerms.join(' 또는 ')})`
+    });
   };
 };
 
-// 관리자 여부만 체크 (기존 호환성)
+// 관리자 여부만 체크
 const requireAdmin = (req, res, next) => {
-  if (!req.member) {
-    return res.status(401).json({ success: false, message: '로그인이 필요합니다' });
-  }
-  if (!req.member.isAdmin) {
-    return res.status(403).json({ success: false, message: '관리자 권한이 필요합니다' });
-  }
+  if (!req.member) return res.status(401).json({ success: false, message: '로그인이 필요합니다' });
+  if (!req.member.isAdmin) return res.status(403).json({ success: false, message: '관리자 권한이 필요합니다' });
   next();
 };
 
-module.exports = {
-  generateToken,
-  authMember,
-  optionalAuth,
-  requirePermission,
-  requireAdmin,
-  JWT_SECRET,
-  JWT_EXPIRES_IN
-};
+module.exports = { generateToken, authMember, optionalAuth, requirePermission, requireAdmin, JWT_SECRET, JWT_EXPIRES_IN };
