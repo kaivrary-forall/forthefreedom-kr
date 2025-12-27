@@ -15,7 +15,7 @@ const triggerRevalidate = async () => {
       headers: { 'Content-Type': 'application/json', 'x-revalidate-secret': process.env.REVALIDATE_SECRET },
       body: JSON.stringify({ tags: ['banners'] })
     });
-  } catch (e) { console.error('⚠️ Revalidate 실패:', e.message); }
+  } catch (e) { console.error('Revalidate 실패:', e.message); }
 };
 
 // ==========================================
