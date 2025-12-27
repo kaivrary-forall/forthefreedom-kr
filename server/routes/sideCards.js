@@ -8,7 +8,7 @@ const Activity = require('../models/Activity');
 const MediaCoverage = require('../models/MediaCoverage');
 const Personnel = require('../models/Personnel');
 const Congratulation = require('../models/Congratulation');
-const { authMember } = require('../middleware/authMember');
+const { authMember, requirePermission } = require('../middleware/authMember');
 
 // ==========================================
 // 관리자 권한 체크 미들웨어
@@ -26,9 +26,7 @@ const checkAdmin = async (req, res, next) => {
     
     const isAdmin = 
       req.member.role === 'admin' || 
-      req.member.isAdmin === true ||
-      req.member.memberType === 'admin' ||
-      req.member.memberType === '관리자';
+      req.member.isAdmin === true;
     
     console.log('🔐 checkAdmin [sideCards] - isAdmin result:', isAdmin);
     
@@ -193,7 +191,7 @@ router.get('/', async (req, res) => {
 // ==========================================
 
 // 설정 업데이트 (관리자 전용)
-router.put('/settings', authMember, checkAdmin, async (req, res) => {
+router.put('/settings', authMember, requirePermission('sidecards:write'), async (req, res) => {
     try {
         console.log('📝 사이드카드 설정 업데이트 요청 (관리자:', req.member?.nickname || req.member?.userId, ')');
         
