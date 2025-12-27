@@ -1,54 +1,30 @@
 const mongoose = require('mongoose');
 
 const personnelSchema = new mongoose.Schema({
+  type: {
+    type: String,
+    enum: ['임명', '전보', '퇴임', '승진', '기타'],
+    required: true
+  },
   title: {
     type: String,
-    required: true,
-    trim: true
+    required: true
   },
   content: {
     type: String,
     required: true
   },
-  excerpt: {
-    type: String,
-    required: true,
-    maxlength: 200
+  effectiveDate: {
+    type: Date,
+    required: true
   },
-  category: {
-    type: String,
-    required: true,
-    enum: ['임명', '승진', '전보', '해촉', '징계'],
-    default: '임명'
-  },
-  priority: {
-    type: Number,
-    default: 0
-  },
-  author: {
-    type: String,
-    required: true,
-    default: '관리자'
-  },
-  attachments: [{
-    filename: String,
-    originalName: String,
-    path: String,
-    size: Number,
-    mimeType: String
-  }],
-  status: {
-    type: String,
-    enum: ['draft', 'published'],
-    default: 'published'
-  },
-  showOnSideCard: {
+  isActive: {
     type: Boolean,
     default: true
   },
-  views: {
-    type: Number,
-    default: 0
+  author: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Member'
   },
   createdAt: {
     type: Date,
@@ -60,9 +36,9 @@ const personnelSchema = new mongoose.Schema({
   }
 });
 
-// 인덱스 설정
-personnelSchema.index({ createdAt: -1 });
-personnelSchema.index({ priority: -1 });
-personnelSchema.index({ status: 1 });
+personnelSchema.pre('save', function(next) {
+  this.updatedAt = Date.now();
+  next();
+});
 
 module.exports = mongoose.model('Personnel', personnelSchema);

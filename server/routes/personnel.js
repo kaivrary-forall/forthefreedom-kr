@@ -1,256 +1,131 @@
 const express = require('express');
-const path = require('path');
-const fs = require('fs');
 const router = express.Router();
 const Personnel = require('../models/Personnel');
-const { getAll, getById, deleteById } = require('../controllers/baseController');
+const { authMember, requirePermission } = require('../middleware/authMember');
 
-// 공통 업로드 유틸리티 (한글 파일명 지원)
-const { uploads, createAttachmentsInfo, uploadDir } = require('../utils/upload');
-const upload = uploads.notice; // 공지사항과 같은 업로드 설정 사용
-
-// 인사 발령 목록 조회 (미래 날짜 예약 발행 지원)
+// 인사공고 목록 조회 (공개)
 router.get('/', async (req, res) => {
-    try {
-        const {
-            page = 1,
-            limit = 10,
-            search = '',
-            category = '',
-            status = 'published',
-            sortBy = 'createdAt',
-            sortOrder = 'desc',
-            includeScheduled = 'false'  // 관리자용: 예약 게시물 포함 여부
-        } = req.query;
+  try {
+    const { page = 1, limit = 20, type } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    const query = { isActive: true };
+    if (type) query.type = type;
 
-        const searchConditions = {
-            status: status === 'all' ? { $in: ['draft', 'published'] } : status
-        };
+    const [items, total] = await Promise.all([
+      Personnel.find(query)
+        .sort({ effectiveDate: -1, createdAt: -1 })
+        .skip(skip)
+        .limit(parseInt(limit))
+        .populate('author', 'nickname'),
+      Personnel.countDocuments(query)
+    ]);
 
-        // 예약 발행: 미래 날짜 게시물 제외 (관리자가 아닌 경우)
-        if (includeScheduled !== 'true') {
-            searchConditions.createdAt = { $lte: new Date() };
-        }
-
-        if (search) {
-            searchConditions.$or = [
-                { title: { $regex: search, $options: 'i' } },
-                { content: { $regex: search, $options: 'i' } },
-                { excerpt: { $regex: search, $options: 'i' } }
-            ];
-        }
-
-        if (category) {
-            searchConditions.category = category;
-        }
-
-        const sortOptions = {};
-        sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
-
-        const skip = (parseInt(page) - 1) * parseInt(limit);
-
-        const [items, total] = await Promise.all([
-            Personnel.find(searchConditions)
-                .sort(sortOptions)
-                .skip(skip)
-                .limit(parseInt(limit)),
-            Personnel.countDocuments(searchConditions)
-        ]);
-
-        res.json({
-            success: true,
-            data: items,
-            pagination: {
-                current: parseInt(page),
-                pages: Math.ceil(total / parseInt(limit)),
-                total,
-                hasNext: skip + items.length < total,
-                hasPrev: parseInt(page) > 1
-            },
-            totalPages: Math.ceil(total / parseInt(limit))
-        });
-    } catch (error) {
-        console.error('인사 발령 목록 조회 오류:', error);
-        res.status(500).json({
-            success: false,
-            message: '인사 발령 목록 조회 중 오류가 발생했습니다',
-            error: error.message
-        });
-    }
+    res.json({
+      success: true,
+      data: items,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / parseInt(limit))
+      }
+    });
+  } catch (error) {
+    console.error('인사공고 목록 조회 오류:', error);
+    res.status(500).json({ success: false, message: '서버 오류가 발생했습니다' });
+  }
 });
 
-// 인사 발령 단일 조회
-router.get('/:id', getById(Personnel));
-
-// 🖼️ 이미지 전용 업로드 엔드포인트 (에디터용)
-router.post('/upload-image', upload.single('image'), async (req, res) => {
-    try {
-        console.log('📸 인사발령 이미지 업로드 요청 받음');
-        console.log('📁 파일 정보:', req.file ? req.file.filename : '파일 없음');
-        
-        if (!req.file) {
-            console.log('❌ 파일이 없습니다');
-            return res.status(400).json({
-                success: false,
-                message: '이미지 파일이 필요합니다'
-            });
-        }
-
-        // 업로드된 파일 정보 반환
-        const imageUrl = `http://localhost:9000/uploads/${req.file.filename}`;
-        
-        console.log('✅ 이미지 업로드 성공:', imageUrl);
-        
-        res.json({
-            success: true,
-            data: {
-                filename: req.file.filename,
-                originalName: req.file.originalname,
-                imageUrl: imageUrl,
-                size: req.file.size,
-                mimeType: req.file.mimetype
-            },
-            message: '이미지 업로드 완료'
-        });
-    } catch (error) {
-        console.error('이미지 업로드 오류:', error);
-        res.status(500).json({
-            success: false,
-            message: '이미지 업로드 중 오류가 발생했습니다',
-            error: error.message
-        });
+// 인사공고 상세 조회 (공개)
+router.get('/:id', async (req, res) => {
+  try {
+    const item = await Personnel.findById(req.params.id).populate('author', 'nickname');
+    if (!item) {
+      return res.status(404).json({ success: false, message: '인사공고를 찾을 수 없습니다' });
     }
+    res.json({ success: true, data: item });
+  } catch (error) {
+    console.error('인사공고 상세 조회 오류:', error);
+    res.status(500).json({ success: false, message: '서버 오류가 발생했습니다' });
+  }
 });
 
-// 인사 발령 생성 (파일 업로드 포함)
-router.post('/', upload.array('attachments'), async (req, res) => {
-    try {
-        const { title, content, category, author, excerpt, tags, isImportant, showOnSideCard, createdAt } = req.body;
+// 인사공고 등록 (관리자)
+router.post('/', authMember, requirePermission('notices:write'), async (req, res) => {
+  try {
+    const { type, title, content, effectiveDate } = req.body;
 
-        // 첨부파일 정보 처리 (한글 파일명 자동 복원)
-        const attachments = createAttachmentsInfo(req.files);
-
-        const personnelData = {
-            title,
-            content,
-            category: category || '임명',
-            author: author || '관리자',
-            excerpt,
-            tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
-            isImportant: isImportant === 'true' || isImportant === true,
-            showOnSideCard: showOnSideCard === 'true' || showOnSideCard === true,
-            attachments,
-            status: 'published',
-            publishDate: new Date()
-        };
-        
-        // createdAt이 전달되면 사용 (예약 발행용)
-        if (createdAt) {
-            personnelData.createdAt = new Date(createdAt);
-        }
-
-        const personnel = new Personnel(personnelData);
-        await personnel.save();
-
-        res.status(201).json({
-            success: true,
-            data: personnel,
-            message: '새로운 인사 발령이 생성되었습니다'
-        });
-    } catch (error) {
-        console.error('인사 발령 생성 오류:', error);
-        res.status(500).json({
-            success: false,
-            message: '인사 발령 생성 중 오류가 발생했습니다',
-            error: error.message
-        });
+    if (!type || !title || !content || !effectiveDate) {
+      return res.status(400).json({ success: false, message: '필수 항목을 입력해주세요' });
     }
+
+    const item = new Personnel({
+      type,
+      title,
+      content,
+      effectiveDate: new Date(effectiveDate),
+      author: req.member._id
+    });
+
+    await item.save();
+
+    res.status(201).json({
+      success: true,
+      message: '인사공고가 등록되었습니다',
+      data: item
+    });
+  } catch (error) {
+    console.error('인사공고 등록 오류:', error);
+    res.status(500).json({ success: false, message: '서버 오류가 발생했습니다' });
+  }
 });
 
-// 인사 발령 수정
-router.put('/:id', upload.array('attachments'), async (req, res) => {
-    try {
-        const { title, content, category, author, excerpt, tags, isImportant, showOnSideCard, createdAt, existingAttachments } = req.body;
+// 인사공고 수정 (관리자)
+router.put('/:id', authMember, requirePermission('notices:write'), async (req, res) => {
+  try {
+    const { type, title, content, effectiveDate, isActive } = req.body;
 
-        const updateData = {
-            title,
-            content,
-            category: category || '임명',
-            author: author || '관리자',
-            excerpt,
-            tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
-            isImportant: isImportant === 'true' || isImportant === true,
-            showOnSideCard: showOnSideCard === 'true' || showOnSideCard === true,
-            updatedAt: new Date()
-        };
-        
-        // createdAt 업데이트 (날짜 수정 허용)
-        if (createdAt) {
-            updateData.createdAt = new Date(createdAt);
-        }
-
-        // 기존 인사 발령 조회
-        const existingPersonnel = await Personnel.findById(req.params.id);
-        if (!existingPersonnel) {
-            return res.status(404).json({
-                success: false,
-                message: '인사 발령을 찾을 수 없습니다'
-            });
-        }
-
-        // 첨부파일 처리
-        let finalAttachments = [];
-
-        // 1. 유지할 기존 첨부파일 처리
-        if (existingAttachments) {
-            try {
-                // JSON 문자열로 전달된 경우 파싱
-                const keepAttachments = typeof existingAttachments === 'string' 
-                    ? JSON.parse(existingAttachments) 
-                    : existingAttachments;
-                
-                if (Array.isArray(keepAttachments)) {
-                    finalAttachments = keepAttachments;
-                }
-            } catch (e) {
-                console.log('기존 첨부파일 파싱 오류, 기존 파일 유지:', e.message);
-                finalAttachments = existingPersonnel.attachments || [];
-            }
-        } else {
-            // existingAttachments가 없으면 기존 첨부파일 유지 (새 파일만 추가하는 경우)
-            finalAttachments = existingPersonnel.attachments || [];
-        }
-
-        // 2. 새로 업로드된 첨부파일 추가
-        if (req.files && req.files.length > 0) {
-            const newAttachments = createAttachmentsInfo(req.files);
-            finalAttachments = [...finalAttachments, ...newAttachments];
-        }
-
-        updateData.attachments = finalAttachments;
-
-        const personnel = await Personnel.findByIdAndUpdate(
-            req.params.id,
-            updateData,
-            { new: true, runValidators: true }
-        );
-
-        res.json({
-            success: true,
-            data: personnel,
-            message: '인사 발령이 수정되었습니다'
-        });
-    } catch (error) {
-        console.error('인사 발령 수정 오류:', error);
-        res.status(500).json({
-            success: false,
-            message: '인사 발령 수정 중 오류가 발생했습니다',
-            error: error.message
-        });
+    const item = await Personnel.findById(req.params.id);
+    if (!item) {
+      return res.status(404).json({ success: false, message: '인사공고를 찾을 수 없습니다' });
     }
+
+    if (type) item.type = type;
+    if (title) item.title = title;
+    if (content) item.content = content;
+    if (effectiveDate) item.effectiveDate = new Date(effectiveDate);
+    if (typeof isActive === 'boolean') item.isActive = isActive;
+
+    await item.save();
+
+    res.json({
+      success: true,
+      message: '인사공고가 수정되었습니다',
+      data: item
+    });
+  } catch (error) {
+    console.error('인사공고 수정 오류:', error);
+    res.status(500).json({ success: false, message: '서버 오류가 발생했습니다' });
+  }
 });
 
-// 인사 발령 삭제
-router.delete('/:id', deleteById(Personnel));
+// 인사공고 삭제 (관리자)
+router.delete('/:id', authMember, requirePermission('notices:write'), async (req, res) => {
+  try {
+    const item = await Personnel.findByIdAndDelete(req.params.id);
+    if (!item) {
+      return res.status(404).json({ success: false, message: '인사공고를 찾을 수 없습니다' });
+    }
+
+    res.json({
+      success: true,
+      message: '인사공고가 삭제되었습니다'
+    });
+  } catch (error) {
+    console.error('인사공고 삭제 오류:', error);
+    res.status(500).json({ success: false, message: '서버 오류가 발생했습니다' });
+  }
+});
 
 module.exports = router;
