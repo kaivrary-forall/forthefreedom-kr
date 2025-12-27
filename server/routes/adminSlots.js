@@ -41,10 +41,24 @@ const checkSlotManager = async (req, res, next) => {
 };
 
 // ==========================================
-// 초기 슬롯 생성 (1회용 seed) - 인증 없음, 맨 위에 위치해야 함
+// 초기 슬롯 생성 (1회용 seed) - SETUP KEY 필요
 // ==========================================
 router.post('/seed', async (req, res) => {
+  console.log('🔥 seed hit', new Date().toISOString(), req.originalUrl);
+  
   try {
+    // 셋업 키 확인
+    const key = req.headers['x-setup-key'];
+    const setupKey = process.env.ADMIN_SETUP_KEY || 'freeinno-setup-2025';
+    
+    if (key !== setupKey) {
+      console.log('❌ seed: 셋업 키 불일치');
+      return res.status(401).json({
+        success: false,
+        message: '셋업 키가 필요합니다 (x-setup-key 헤더)'
+      });
+    }
+
     // 이미 슬롯이 있으면 스킵
     const existing = await AdminSlot.countDocuments();
     if (existing > 0) {
@@ -103,6 +117,93 @@ router.post('/seed', async (req, res) => {
     res.status(500).json({
       success: false,
       message: '슬롯 생성 중 오류가 발생했습니다'
+    });
+  }
+});
+
+// ==========================================
+// 초기 admin_00 배정 (1회용 bootstrap) - SETUP KEY 필요
+// ==========================================
+router.post('/bootstrap', async (req, res) => {
+  console.log('🔥 bootstrap hit', new Date().toISOString(), req.originalUrl);
+  
+  try {
+    // 셋업 키 확인
+    const key = req.headers['x-setup-key'];
+    const setupKey = process.env.ADMIN_SETUP_KEY || 'freeinno-setup-2025';
+    
+    if (key !== setupKey) {
+      console.log('❌ bootstrap: 셋업 키 불일치');
+      return res.status(401).json({
+        success: false,
+        message: '셋업 키가 필요합니다 (x-setup-key 헤더)'
+      });
+    }
+
+    const { memberId } = req.body;
+    
+    if (!memberId) {
+      return res.status(400).json({
+        success: false,
+        message: 'memberId가 필요합니다'
+      });
+    }
+
+    // admin_00 슬롯 조회
+    const slot = await AdminSlot.findOne({ slotId: 'admin_00' });
+    if (!slot) {
+      return res.status(404).json({
+        success: false,
+        message: 'admin_00 슬롯이 없습니다. 먼저 /seed를 실행하세요.'
+      });
+    }
+
+    // 이미 배정되어 있으면
+    if (slot.assignedMemberId) {
+      return res.status(400).json({
+        success: false,
+        message: 'admin_00에 이미 회원이 배정되어 있습니다'
+      });
+    }
+
+    // 회원 조회
+    const member = await Member.findById(memberId);
+    if (!member) {
+      return res.status(404).json({
+        success: false,
+        message: '회원을 찾을 수 없습니다'
+      });
+    }
+
+    // 배정
+    slot.assignedMemberId = memberId;
+    slot.assignedAt = new Date();
+    slot.assignedBy = 'bootstrap';
+    slot.note = '초기 설정';
+    await slot.save();
+
+    // 회원의 role/isAdmin 업데이트
+    member.role = 'admin';
+    member.isAdmin = true;
+    await member.save();
+
+    console.log(`✅ Bootstrap 완료: admin_00 ← ${member.userId}`);
+
+    res.json({
+      success: true,
+      message: `${member.nickname}님을 슈퍼관리자(admin_00)에 배정했습니다`,
+      data: {
+        slotId: slot.slotId,
+        memberId: member._id,
+        userId: member.userId,
+        nickname: member.nickname
+      }
+    });
+  } catch (error) {
+    console.error('Bootstrap 오류:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Bootstrap 중 오류가 발생했습니다'
     });
   }
 });
