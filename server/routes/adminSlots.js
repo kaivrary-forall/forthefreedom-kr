@@ -4,7 +4,20 @@ const AdminSlot = require('../models/AdminSlot');
 const Member = require('../models/Member');
 const { authMember } = require('../middleware/authMember');
 
-// ✅ 라우터 진입 로그 (무조건 찍혀야 함)
+// 전체 권한 목록 (시스템에서 사용 가능한 모든 권한)
+const ALL_PERMISSIONS = [
+  { key: 'notices:write', label: '공지사항 관리', category: '콘텐츠' },
+  { key: 'spokesperson:write', label: '보도자료 관리', category: '콘텐츠' },
+  { key: 'agora:write', label: '아고라 관리', category: '콘텐츠' },
+  { key: 'banners:write', label: '배너 관리', category: '사이트' },
+  { key: 'sidecards:write', label: '사이드카드 관리', category: '사이트' },
+  { key: 'footer:write', label: '푸터 관리', category: '사이트' },
+  { key: 'popup:write', label: '팝업 관리', category: '사이트' },
+  { key: 'members:read', label: '회원 조회', category: '회원' },
+  { key: 'members:write', label: '회원 관리', category: '회원' },
+];
+
+// ✅ 라우터 진입 로그
 router.use((req, res, next) => {
   console.log('🟣 ADMIN-SLOTS ROUTER HIT:', req.method, req.originalUrl);
   next();
@@ -215,6 +228,24 @@ router.post('/bootstrap', async (req, res) => {
 });
 
 // ==========================================
+// 전체 권한 목록 조회
+// ==========================================
+router.get('/permissions', authMember, checkSlotManager, async (req, res) => {
+  try {
+    res.json({
+      success: true,
+      data: ALL_PERMISSIONS
+    });
+  } catch (error) {
+    console.error('권한 목록 조회 오류:', error);
+    res.status(500).json({
+      success: false,
+      message: '권한 목록을 불러올 수 없습니다'
+    });
+  }
+});
+
+// ==========================================
 // 회원 검색 (배정용) - /:slotId 보다 먼저
 // ==========================================
 router.get('/search/members', authMember, checkSlotManager, async (req, res) => {
@@ -295,6 +326,62 @@ router.get('/:slotId', authMember, checkSlotManager, async (req, res) => {
     res.status(500).json({
       success: false,
       message: '슬롯 정보를 불러올 수 없습니다'
+    });
+  }
+});
+
+// ==========================================
+// 슬롯 권한 수정
+// ==========================================
+router.put('/:slotId/permissions', authMember, checkSlotManager, async (req, res) => {
+  try {
+    const { permissions, slotName, description } = req.body;
+
+    // 슬롯 조회
+    const slot = await AdminSlot.findOne({ slotId: req.params.slotId });
+    if (!slot) {
+      return res.status(404).json({
+        success: false,
+        message: '슬롯을 찾을 수 없습니다'
+      });
+    }
+
+    // admin_00의 권한은 수정 불가 (항상 전체 권한)
+    if (slot.slotId === 'admin_00') {
+      return res.status(400).json({
+        success: false,
+        message: '슈퍼관리자(admin_00)의 권한은 수정할 수 없습니다'
+      });
+    }
+
+    // 권한 유효성 검사
+    const validPermissions = ALL_PERMISSIONS.map(p => p.key);
+    const invalidPerms = permissions.filter(p => !validPermissions.includes(p));
+    if (invalidPerms.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `잘못된 권한이 포함되어 있습니다: ${invalidPerms.join(', ')}`
+      });
+    }
+
+    // 업데이트
+    slot.permissions = permissions;
+    if (slotName) slot.slotName = slotName;
+    if (description) slot.description = description;
+    await slot.save();
+
+    console.log(`✅ 슬롯 권한 수정: ${slot.slotId} → [${permissions.join(', ')}]`);
+
+    res.json({
+      success: true,
+      message: `${slot.slotName}(${slot.slotId})의 권한이 수정되었습니다`,
+      data: slot
+    });
+  } catch (error) {
+    console.error('슬롯 권한 수정 오류:', error);
+    res.status(500).json({
+      success: false,
+      message: '슬롯 권한 수정 중 오류가 발생했습니다'
     });
   }
 });
