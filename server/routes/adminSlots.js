@@ -4,6 +4,12 @@ const AdminSlot = require('../models/AdminSlot');
 const Member = require('../models/Member');
 const { authMember } = require('../middleware/authMember');
 
+// ✅ 라우터 진입 로그 (무조건 찍혀야 함)
+router.use((req, res, next) => {
+  console.log('🟣 ADMIN-SLOTS ROUTER HIT:', req.method, req.originalUrl);
+  next();
+});
+
 // ==========================================
 // 슈퍼관리자(canManageSlots) 전용 미들웨어
 // ==========================================
