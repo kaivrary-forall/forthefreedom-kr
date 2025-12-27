@@ -537,4 +537,115 @@ router.put('/:slotId/unassign', authMember, checkSlotManager, async (req, res) =
   }
 });
 
+// ==========================================
+// 새 슬롯 추가
+// ==========================================
+router.post('/create', authMember, checkSlotManager, async (req, res) => {
+  try {
+    const { slotName, description } = req.body;
+
+    if (!slotName) {
+      return res.status(400).json({
+        success: false,
+        message: '슬롯 이름이 필요합니다'
+      });
+    }
+
+    // 다음 슬롯 번호 계산
+    const allSlots = await AdminSlot.find().sort({ slotId: -1 });
+    let nextNum = 4; // admin_04부터 시작
+    
+    if (allSlots.length > 0) {
+      const lastSlot = allSlots[0];
+      const match = lastSlot.slotId.match(/admin_(\d+)/);
+      if (match) {
+        nextNum = parseInt(match[1]) + 1;
+      }
+    }
+
+    const slotId = `admin_${String(nextNum).padStart(2, '0')}`;
+
+    // 중복 체크
+    const existing = await AdminSlot.findOne({ slotId });
+    if (existing) {
+      return res.status(400).json({
+        success: false,
+        message: `${slotId}가 이미 존재합니다`
+      });
+    }
+
+    const newSlot = new AdminSlot({
+      slotId,
+      slotName,
+      description: description || '',
+      permissions: [],
+      canManageSlots: false,
+      isActive: true
+    });
+
+    await newSlot.save();
+
+    console.log(`✅ 새 슬롯 생성: ${slotId} - ${slotName}`);
+
+    res.status(201).json({
+      success: true,
+      message: `새 의자(${slotId})가 추가되었습니다`,
+      data: newSlot
+    });
+  } catch (error) {
+    console.error('슬롯 생성 오류:', error);
+    res.status(500).json({
+      success: false,
+      message: '슬롯 생성 중 오류가 발생했습니다'
+    });
+  }
+});
+
+// ==========================================
+// 슬롯 삭제 (비어있는 슬롯만)
+// ==========================================
+router.delete('/:slotId', authMember, checkSlotManager, async (req, res) => {
+  try {
+    const slot = await AdminSlot.findOne({ slotId: req.params.slotId });
+    
+    if (!slot) {
+      return res.status(404).json({
+        success: false,
+        message: '슬롯을 찾을 수 없습니다'
+      });
+    }
+
+    // admin_00~03은 삭제 불가 (기본 슬롯)
+    if (['admin_00', 'admin_01', 'admin_02', 'admin_03'].includes(slot.slotId)) {
+      return res.status(400).json({
+        success: false,
+        message: '기본 슬롯(admin_00~03)은 삭제할 수 없습니다'
+      });
+    }
+
+    // 배정된 회원이 있으면 삭제 불가
+    if (slot.assignedMemberId) {
+      return res.status(400).json({
+        success: false,
+        message: '배정된 회원이 있는 슬롯은 삭제할 수 없습니다. 먼저 해제하세요.'
+      });
+    }
+
+    await AdminSlot.deleteOne({ slotId: req.params.slotId });
+
+    console.log(`✅ 슬롯 삭제: ${slot.slotId}`);
+
+    res.json({
+      success: true,
+      message: `${slot.slotName}(${slot.slotId})이 삭제되었습니다`
+    });
+  } catch (error) {
+    console.error('슬롯 삭제 오류:', error);
+    res.status(500).json({
+      success: false,
+      message: '슬롯 삭제 중 오류가 발생했습니다'
+    });
+  }
+});
+
 module.exports = router;
