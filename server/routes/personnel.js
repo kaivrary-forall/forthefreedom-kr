@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
     const { page = 1, limit = 20, type } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
     
-    const query = { isActive: true };
+    const query = {};
     if (type) query.type = type;
 
     const [items, total] = await Promise.all([
