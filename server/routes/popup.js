@@ -17,9 +17,6 @@ router.get('/', async (req, res) => {
         
         if (popup) {
             console.log('📢 팝업 조회 결과:', popup.title);
-            console.log('📢 titleHtml 조회:', popup.titleHtml);
-            console.log('📢 subtitleHtml 조회:', popup.subtitleHtml);
-            console.log('📢 전체 팝업 데이터:', JSON.stringify(popup, null, 2));
         } else {
             console.log('📢 팝업 없음');
         }
@@ -40,9 +37,14 @@ router.get('/', async (req, res) => {
 // 팝업 생성/수정 (관리자)
 router.post('/', async (req, res) => {
     try {
-        const { title, titleHtml, subtitle, subtitleHtml, defaultTextColor, titleLineHeight, subtitleLineHeight, link, linkText, isActive, christmasMode } = req.body;
+        const { 
+            title, titleHtml, subtitle, subtitleHtml, 
+            defaultTextColor, bgColor, bgOpacity,
+            titleLineHeight, subtitleLineHeight, 
+            link, linkText, isActive, christmasMode 
+        } = req.body;
         
-        console.log('📢 팝업 저장 요청:', { title, titleHtml: titleHtml ? '있음' : '없음', subtitleHtml: subtitleHtml ? '있음' : '없음', christmasMode });
+        console.log('📢 팝업 저장 요청:', { title, bgColor, bgOpacity });
         
         if (!title) {
             return res.status(400).json({
@@ -61,6 +63,8 @@ router.post('/', async (req, res) => {
             popup.subtitle = subtitle || '';
             popup.subtitleHtml = subtitleHtml || subtitle || '';
             popup.defaultTextColor = defaultTextColor || '#ffffff';
+            popup.bgColor = bgColor || '#1f2937';
+            popup.bgOpacity = bgOpacity !== undefined ? bgOpacity : 0.8;
             popup.titleLineHeight = titleLineHeight || 1.2;
             popup.subtitleLineHeight = subtitleLineHeight || 1.6;
             popup.link = link || '';
@@ -76,6 +80,8 @@ router.post('/', async (req, res) => {
                 subtitle: subtitle || '',
                 subtitleHtml: subtitleHtml || subtitle || '',
                 defaultTextColor: defaultTextColor || '#ffffff',
+                bgColor: bgColor || '#1f2937',
+                bgOpacity: bgOpacity !== undefined ? bgOpacity : 0.8,
                 titleLineHeight: titleLineHeight || 1.2,
                 subtitleLineHeight: subtitleLineHeight || 1.6,
                 link: link || '',
@@ -86,8 +92,6 @@ router.post('/', async (req, res) => {
         }
         
         console.log('📢 팝업 저장됨:', popup.title);
-        console.log('📢 titleHtml 저장됨:', popup.titleHtml);
-        console.log('📢 subtitleHtml 저장됨:', popup.subtitleHtml);
         
         res.json({
             success: true,
