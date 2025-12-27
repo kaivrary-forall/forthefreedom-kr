@@ -66,10 +66,16 @@ router.post('/seed', async (req, res) => {
   console.log('🔥 seed hit', new Date().toISOString(), req.originalUrl);
   
   try {
-    // 셋업 키 확인
-    const key = req.headers['x-setup-key'];
-    const setupKey = process.env.ADMIN_SETUP_KEY || 'freeinno-setup-2025';
+    // 셋업 키 확인 (환경변수 필수)
+    const setupKey = process.env.ADMIN_SETUP_KEY;
+    if (!setupKey) {
+      return res.status(500).json({
+        success: false,
+        message: 'ADMIN_SETUP_KEY 환경변수가 설정되지 않았습니다'
+      });
+    }
     
+    const key = req.headers['x-setup-key'];
     if (key !== setupKey) {
       console.log('❌ seed: 셋업 키 불일치');
       return res.status(401).json({
@@ -147,10 +153,16 @@ router.post('/bootstrap', async (req, res) => {
   console.log('🔥 bootstrap hit', new Date().toISOString(), req.originalUrl);
   
   try {
-    // 셋업 키 확인
-    const key = req.headers['x-setup-key'];
-    const setupKey = process.env.ADMIN_SETUP_KEY || 'freeinno-setup-2025';
+    // 셋업 키 확인 (환경변수 필수)
+    const setupKey = process.env.ADMIN_SETUP_KEY;
+    if (!setupKey) {
+      return res.status(500).json({
+        success: false,
+        message: 'ADMIN_SETUP_KEY 환경변수가 설정되지 않았습니다'
+      });
+    }
     
+    const key = req.headers['x-setup-key'];
     if (key !== setupKey) {
       console.log('❌ bootstrap: 셋업 키 불일치');
       return res.status(401).json({
