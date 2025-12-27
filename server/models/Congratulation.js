@@ -29,6 +29,10 @@ const congratulationSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  showOnSideCard: {
+    type: Boolean,
+    default: true
+  },
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Member'

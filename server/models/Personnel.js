@@ -14,11 +14,24 @@ const personnelSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  excerpt: {
+    type: String,
+    default: ''
+  },
   effectiveDate: {
     type: Date,
     required: true
   },
+  status: {
+    type: String,
+    enum: ['draft', 'published'],
+    default: 'published'
+  },
   isActive: {
+    type: Boolean,
+    default: true
+  },
+  showOnSideCard: {
     type: Boolean,
     default: true
   },
