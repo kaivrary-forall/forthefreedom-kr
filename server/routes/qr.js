@@ -1,36 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
+const QRCode = require('../models/QRCode');
 const { authMember, requirePermission } = require('../middleware/authMember');
-
-// QRCode 모델 정의 (models/index.js에 없으면 여기서 직접 정의)
-let QRCode;
-try {
-  QRCode = require('../models').QRCode;
-} catch (e) {
-  // 모델이 없으면 직접 정의
-  const QRCodeSchema = new mongoose.Schema({
-    code: { type: String, unique: true, required: true, index: true },
-    name: { type: String, required: true },
-    type: { type: String, enum: ['url', 'landing', 'vcard'], default: 'url' },
-    targetUrl: String,
-    landingSlug: String,
-    vcardData: {
-      name: String,
-      organization: String,
-      title: String,
-      phone: String,
-      email: String,
-      website: String,
-      address: String,
-      note: String
-    },
-    scans: { type: Number, default: 0 },
-    isActive: { type: Boolean, default: true }
-  }, { timestamps: true });
-  
-  QRCode = mongoose.models.QRCode || mongoose.model('QRCode', QRCodeSchema);
-}
 
 // ==========================================
 // 공개 API (인증 불필요)
