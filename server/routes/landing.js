@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { ObjectId } = require('mongodb');
+const mongoose = require('mongoose');
+const { authMember } = require('../middleware/authMember');
 
 // ==========================================
 // 관리자 권한 체크 미들웨어
@@ -35,9 +36,6 @@ const checkAdmin = async (req, res, next) => {
   }
 };
 
-// authMember 미들웨어 (기존 것 사용)
-const { authMember } = require('../middleware/authMember');
-
 // ==========================================
 // 관리자 API
 // ==========================================
@@ -45,7 +43,7 @@ const { authMember } = require('../middleware/authMember');
 // 랜딩페이지 목록 조회
 router.get('/admin/landing', authMember, checkAdmin, async (req, res) => {
   try {
-    const db = req.app.locals.db;
+    const db = mongoose.connection.db;
     const pages = await db.collection('landingpages')
       .find({})
       .sort({ createdAt: -1 })
@@ -61,7 +59,7 @@ router.get('/admin/landing', authMember, checkAdmin, async (req, res) => {
 // 랜딩페이지 생성
 router.post('/admin/landing', authMember, checkAdmin, async (req, res) => {
   try {
-    const db = req.app.locals.db;
+    const db = mongoose.connection.db;
     const { title, slug, blocks, settings, isActive } = req.body;
 
     // 슬러그 중복 체크
@@ -93,9 +91,9 @@ router.post('/admin/landing', authMember, checkAdmin, async (req, res) => {
 // 랜딩페이지 상세 조회 (관리자)
 router.get('/admin/landing/:id', authMember, checkAdmin, async (req, res) => {
   try {
-    const db = req.app.locals.db;
+    const db = mongoose.connection.db;
     const page = await db.collection('landingpages').findOne({ 
-      _id: new ObjectId(req.params.id) 
+      _id: new mongoose.Types.ObjectId(req.params.id) 
     });
 
     if (!page) {
@@ -112,14 +110,14 @@ router.get('/admin/landing/:id', authMember, checkAdmin, async (req, res) => {
 // 랜딩페이지 수정
 router.put('/admin/landing/:id', authMember, checkAdmin, async (req, res) => {
   try {
-    const db = req.app.locals.db;
+    const db = mongoose.connection.db;
     const { title, slug, blocks, settings, isActive } = req.body;
 
     // 슬러그 중복 체크 (자기 자신 제외)
     if (slug) {
       const existing = await db.collection('landingpages').findOne({ 
         slug, 
-        _id: { $ne: new ObjectId(req.params.id) }
+        _id: { $ne: new mongoose.Types.ObjectId(req.params.id) }
       });
       if (existing) {
         return res.status(400).json({ success: false, message: '이미 사용 중인 슬러그입니다.' });
@@ -136,12 +134,12 @@ router.put('/admin/landing/:id', authMember, checkAdmin, async (req, res) => {
     };
 
     await db.collection('landingpages').updateOne(
-      { _id: new ObjectId(req.params.id) },
+      { _id: new mongoose.Types.ObjectId(req.params.id) },
       { $set: updateData }
     );
 
     const page = await db.collection('landingpages').findOne({ 
-      _id: new ObjectId(req.params.id) 
+      _id: new mongoose.Types.ObjectId(req.params.id) 
     });
 
     res.json({ success: true, page });
@@ -154,10 +152,10 @@ router.put('/admin/landing/:id', authMember, checkAdmin, async (req, res) => {
 // 랜딩페이지 삭제
 router.delete('/admin/landing/:id', authMember, checkAdmin, async (req, res) => {
   try {
-    const db = req.app.locals.db;
+    const db = mongoose.connection.db;
     
     await db.collection('landingpages').deleteOne({ 
-      _id: new ObjectId(req.params.id) 
+      _id: new mongoose.Types.ObjectId(req.params.id) 
     });
 
     res.json({ success: true });
@@ -172,7 +170,7 @@ router.delete('/admin/landing/:id', authMember, checkAdmin, async (req, res) => 
 // ==========================================
 router.get('/landing/:slug', async (req, res) => {
   try {
-    const db = req.app.locals.db;
+    const db = mongoose.connection.db;
     const page = await db.collection('landingpages').findOne({ 
       slug: req.params.slug,
       isActive: true

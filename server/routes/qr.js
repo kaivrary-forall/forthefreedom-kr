@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { ObjectId } = require('mongodb');
+const mongoose = require('mongoose');
+const { authMember } = require('../middleware/authMember');
 
 // ==========================================
 // 관리자 권한 체크 미들웨어
@@ -35,9 +36,6 @@ const checkAdmin = async (req, res, next) => {
   }
 };
 
-// authMember 미들웨어 (기존 것 사용)
-const { authMember } = require('../middleware/authMember');
-
 // ==========================================
 // 관리자 API
 // ==========================================
@@ -45,7 +43,7 @@ const { authMember } = require('../middleware/authMember');
 // QR 목록 조회
 router.get('/admin/qr', authMember, checkAdmin, async (req, res) => {
   try {
-    const db = req.app.locals.db;
+    const db = mongoose.connection.db;
     const qrcodes = await db.collection('qrcodes')
       .find({})
       .sort({ createdAt: -1 })
@@ -61,7 +59,7 @@ router.get('/admin/qr', authMember, checkAdmin, async (req, res) => {
 // QR 생성
 router.post('/admin/qr', authMember, checkAdmin, async (req, res) => {
   try {
-    const db = req.app.locals.db;
+    const db = mongoose.connection.db;
     const { code, name, type, targetUrl, landingSlug, vcardData, isActive } = req.body;
 
     // 코드 중복 체크
@@ -96,9 +94,9 @@ router.post('/admin/qr', authMember, checkAdmin, async (req, res) => {
 // QR 상세 조회
 router.get('/admin/qr/:id', authMember, checkAdmin, async (req, res) => {
   try {
-    const db = req.app.locals.db;
+    const db = mongoose.connection.db;
     const qr = await db.collection('qrcodes').findOne({ 
-      _id: new ObjectId(req.params.id) 
+      _id: new mongoose.Types.ObjectId(req.params.id) 
     });
 
     if (!qr) {
@@ -115,14 +113,14 @@ router.get('/admin/qr/:id', authMember, checkAdmin, async (req, res) => {
 // QR 수정
 router.put('/admin/qr/:id', authMember, checkAdmin, async (req, res) => {
   try {
-    const db = req.app.locals.db;
+    const db = mongoose.connection.db;
     const { code, name, type, targetUrl, landingSlug, vcardData, isActive } = req.body;
 
     // 코드 중복 체크 (자기 자신 제외)
     if (code) {
       const existing = await db.collection('qrcodes').findOne({ 
         code, 
-        _id: { $ne: new ObjectId(req.params.id) }
+        _id: { $ne: new mongoose.Types.ObjectId(req.params.id) }
       });
       if (existing) {
         return res.status(400).json({ success: false, message: '이미 사용 중인 코드입니다.' });
@@ -141,12 +139,12 @@ router.put('/admin/qr/:id', authMember, checkAdmin, async (req, res) => {
     };
 
     await db.collection('qrcodes').updateOne(
-      { _id: new ObjectId(req.params.id) },
+      { _id: new mongoose.Types.ObjectId(req.params.id) },
       { $set: updateData }
     );
 
     const qr = await db.collection('qrcodes').findOne({ 
-      _id: new ObjectId(req.params.id) 
+      _id: new mongoose.Types.ObjectId(req.params.id) 
     });
 
     res.json({ success: true, qr });
@@ -159,14 +157,14 @@ router.put('/admin/qr/:id', authMember, checkAdmin, async (req, res) => {
 // QR 삭제
 router.delete('/admin/qr/:id', authMember, checkAdmin, async (req, res) => {
   try {
-    const db = req.app.locals.db;
+    const db = mongoose.connection.db;
     
     await db.collection('qrcodes').deleteOne({ 
-      _id: new ObjectId(req.params.id) 
+      _id: new mongoose.Types.ObjectId(req.params.id) 
     });
     
     await db.collection('qrscans').deleteMany({ 
-      qrId: new ObjectId(req.params.id) 
+      qrId: new mongoose.Types.ObjectId(req.params.id) 
     });
 
     res.json({ success: true });
@@ -179,9 +177,9 @@ router.delete('/admin/qr/:id', authMember, checkAdmin, async (req, res) => {
 // QR 통계 조회
 router.get('/admin/qr/:id/stats', authMember, checkAdmin, async (req, res) => {
   try {
-    const db = req.app.locals.db;
+    const db = mongoose.connection.db;
     const { period = '30d' } = req.query;
-    const qrId = new ObjectId(req.params.id);
+    const qrId = new mongoose.Types.ObjectId(req.params.id);
 
     let startDate = new Date();
     if (period === '7d') startDate.setDate(startDate.getDate() - 7);
@@ -283,7 +281,7 @@ router.get('/admin/qr/:id/stats', authMember, checkAdmin, async (req, res) => {
 // ==========================================
 router.post('/qr/:code/scan', async (req, res) => {
   try {
-    const db = req.app.locals.db;
+    const db = mongoose.connection.db;
     const { code } = req.params;
     const { userAgent, ip, referer } = req.body;
 
