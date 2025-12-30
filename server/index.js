@@ -1,29 +1,22 @@
 // 환경변수 로딩
 require('dotenv').config();
-
 // Railway Volume 지속성 테스트 - 2025-01-21 - 재배포 후 파일 보존 확인
-
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
 const fs = require('fs');
-
 // 설정 및 데이터베이스
 const config = require('./config/config');
 const connectDB = require('./config/database');
-
 // Express 앱 생성
 const app = express();
-
 // 데이터베이스 연결
 connectDB();
-
 // 미들웨어 설정
 app.use(helmet({
   contentSecurityPolicy: false, // 개발 중에는 비활성화
 }));
-
 // CORS 설정 - 임시로 모든 도메인 허용 (문제 해결 후 제한)
 app.use(cors({
   origin: [
@@ -40,7 +33,6 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   optionsSuccessStatus: 200
 }));
-
 // 조건부 JSON/URL 인코딩 미들웨어 (multipart/form-data는 제외)
 app.use((req, res, next) => {
   const contentType = req.get('content-type') || '';
@@ -58,19 +50,16 @@ app.use((req, res, next) => {
     next();
   }
 });
-
 // 정적 파일 제공 - Railway Volume 경로 사용
 // Railway에서 Volume이 /app/uploads에 마운트되므로 직접 사용
 const uploadsPath = '/app/uploads';
 console.log('업로드 디렉토리 경로:', uploadsPath);
 console.log('Railway Volume 사용:', process.env.UPLOADS_PATH ? 'YES' : 'NO (로컬 개발)');
-
 // Volume 마운트 상태 확인
 console.log('🔍 환경변수 확인:');
 console.log('  - UPLOADS_PATH:', process.env.UPLOADS_PATH || 'undefined');
 console.log('  - NODE_ENV:', process.env.NODE_ENV || 'undefined');
 console.log('  - PWD:', process.env.PWD || 'undefined');
-
 // 실제 디렉토리 상태 확인
 try {
   const stats = fs.statSync(uploadsPath);
@@ -91,13 +80,11 @@ try {
 } catch (error) {
   console.log('❌ uploads 디렉토리 확인 실패:', error.message);
 }
-
 // uploads 디렉토리가 없으면 생성
 if (!fs.existsSync(uploadsPath)) {
   fs.mkdirSync(uploadsPath, { recursive: true });
   console.log('uploads 디렉토리 생성됨');
 }
-
 // uploads 디렉토리의 파일 요청 처리 (개선된 오류 처리 포함)
 app.use('/uploads', (req, res, next) => {
   const requestedFile = req.path.substring(1); // /를 제거
@@ -166,7 +153,6 @@ app.use('/uploads', (req, res, next) => {
     }
   })(req, res, next);
 });
-
 // OPTIONS 요청 처리 (uploads 경로용)
 app.options('/uploads/*', (req, res) => {
   res.set('Access-Control-Allow-Origin', '*');
@@ -175,7 +161,6 @@ app.options('/uploads/*', (req, res) => {
   res.set('Access-Control-Max-Age', '86400'); // 24시간
   res.status(200).end();
 });
-
 // 기본 라우트
 app.get('/api/health', (req, res) => {
   res.json({
@@ -184,7 +169,6 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
-
 // 파일 존재 여부 확인 엔드포인트 (디버깅용)
 app.get('/api/files/check/:filename', (req, res) => {
   const filename = req.params.filename;
@@ -216,7 +200,6 @@ app.get('/api/files/check/:filename', (req, res) => {
     });
   }
 });
-
 // 테스트용 파일 생성 엔드포인트
 app.post('/api/test/create-sample-file', (req, res) => {
   try {
@@ -240,7 +223,6 @@ app.post('/api/test/create-sample-file', (req, res) => {
     });
   }
 });
-
 // API 라우트들
 const { router: authRouter } = require('./routes/auth');
 app.use('/api/auth', authRouter);
@@ -253,35 +235,26 @@ app.use('/api/spokesperson', require('./routes/spokesperson'));
 app.use('/api/policy-committee', require('./routes/policyCommittee'));
 app.use('/api/new-media', require('./routes/newMedia'));
 app.use('/api/media-coverage', require('./routes/mediaCoverage'));
-
 // 추가 콘텐츠 타입 라우트들
 app.use('/api/events', require('./routes/events'));
 app.use('/api/card-news', require('./routes/cardNews'));
 app.use('/api/gallery', require('./routes/gallery'));
 app.use('/api/banners', require('./routes/banners'));
-
 // 회원 관련 라우트
 app.use('/api/members', require('./routes/members'));
 app.use('/api/admin/members', require('./routes/adminMembers'));
-
 // 유틸리티 라우트 (한글 파일명 복원)
 app.use('/api/fix-filenames', require('./routes/fixFilenames'));
-
 // 당협(지역구) 관리 라우트
 app.use('/api/chapters', require('./routes/chapters'));
-
 // 인사 게시판 라우트
 app.use('/api/personnel', require('./routes/personnel'));
-
 // 경조사 라우트
 app.use('/api/congratulations', require('./routes/congratulations'));
-
 // 지원(당협위원장 등) 라우트
 app.use('/api/applications', require('./routes/applications'));
-
 // 게시판 라우트
 app.use('/api/posts', require('./routes/posts'));
-
 // 피드 라우트
 app.use('/api/feed', require('./routes/feed'));
 app.use('/api/announcement', require('./routes/announcement'));
@@ -289,10 +262,12 @@ app.use('/api/orgchart', require('./routes/orgchart'));
 app.use('/api/side-cards', require('./routes/sideCards'));
 app.use('/api/popup', require('./routes/popup'));
 app.use('/api/site-settings', require('./routes/siteSettings'));
-
 // 관리자 슬롯(의자) 관리
 app.use('/api/admin/slots', require('./routes/adminSlots'));
-
+// QR 코드 관리
+app.use('/api', require('./routes/qr'));
+// 랜딩페이지 관리
+app.use('/api', require('./routes/landing'));
 // 404 에러 핸들링
 app.use('*', (req, res) => {
   res.status(404).json({
@@ -300,7 +275,6 @@ app.use('*', (req, res) => {
     message: `경로를 찾을 수 없습니다: ${req.originalUrl}`
   });
 });
-
 // 글로벌 에러 핸들링
 app.use((error, req, res, next) => {
   console.error('서버 에러:', error);
@@ -313,11 +287,9 @@ app.use((error, req, res, next) => {
     stack: config.NODE_ENV === 'production' ? undefined : error.stack
   });
 });
-
 // 서버 시작
 const PORT = config.PORT;
 const HOST = '0.0.0.0'; // Railway에서 외부 접근을 위해 0.0.0.0으로 바인딩
-
 app.listen(PORT, HOST, () => {
   console.log(`🚀 자유와혁신 API 서버가 포트 ${PORT}에서 시작되었습니다`);
   console.log(`🌍 환경: ${config.NODE_ENV}`);
@@ -330,4 +302,4 @@ app.listen(PORT, HOST, () => {
   } else {
     console.log(`📍 Health Check: http://localhost:${PORT}/api/health`);
   }
-}); 
+});
