@@ -265,7 +265,7 @@ app.use('/api/site-settings', require('./routes/siteSettings'));
 // 관리자 슬롯(의자) 관리
 app.use('/api/admin/slots', require('./routes/adminSlots'));
 // QR 코드 관리
-app.use('/api', require('./routes/qr'));
+app.use('/api/qr', require('./routes/qr'));
 // 랜딩페이지 관리
 app.use('/api', require('./routes/landing'));
 // 404 에러 핸들링
