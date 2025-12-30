@@ -268,8 +268,7 @@ app.use('/api/admin/slots', require('./routes/adminSlots'));
 app.use('/api/admin/qr', require('./routes/qr'));
 app.use('/api/qr', require('./routes/qr'));  // scan용 공개 경로
 // 랜딩페이지 관리
-app.use('/api/landing', require('./routes/landing'));
-app.use('/api/admin/landing', require('./routes/landing'));
+app.use('/api', require('./routes/landing'));
 // 404 에러 핸들링
 app.use('*', (req, res) => {
   res.status(404).json({
