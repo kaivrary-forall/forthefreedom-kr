@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+const { authMember, requirePermission } = require('../middleware/authMember');
 
 // Calendar 스키마 정의
 const calendarSchema = new mongoose.Schema({
@@ -18,7 +19,7 @@ const calendarSchema = new mongoose.Schema({
 
 const Calendar = mongoose.models.Calendar || mongoose.model('Calendar', calendarSchema);
 
-// GET /api/calendar - 일정 목록 조회
+// GET /api/calendar - 일정 목록 조회 (공개)
 router.get('/', async (req, res) => {
   try {
     const { year, month, startDate, endDate } = req.query;
@@ -52,7 +53,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/calendar/:id - 특정 일정 조회
+// GET /api/calendar/:id - 특정 일정 조회 (공개)
 router.get('/:id', async (req, res) => {
   try {
     const event = await Calendar.findById(req.params.id);
@@ -78,8 +79,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST /api/calendar - 일정 추가
-router.post('/', async (req, res) => {
+// POST /api/calendar - 일정 추가 (관리자 전용)
+router.post('/', authMember, requirePermission('calendar:write'), async (req, res) => {
   try {
     const { title, date, endDate, description, location, type, isAllDay, color } = req.body;
     
@@ -111,8 +112,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-// PUT /api/calendar/:id - 일정 수정
-router.put('/:id', async (req, res) => {
+// PUT /api/calendar/:id - 일정 수정 (관리자 전용)
+router.put('/:id', authMember, requirePermission('calendar:write'), async (req, res) => {
   try {
     const { title, date, endDate, description, location, type, isAllDay, color } = req.body;
     
@@ -154,8 +155,8 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// DELETE /api/calendar/:id - 일정 삭제
-router.delete('/:id', async (req, res) => {
+// DELETE /api/calendar/:id - 일정 삭제 (관리자 전용)
+router.delete('/:id', authMember, requirePermission('calendar:write'), async (req, res) => {
   try {
     const event = await Calendar.findByIdAndDelete(req.params.id);
     
