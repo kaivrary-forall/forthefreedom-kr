@@ -237,6 +237,7 @@ app.use('/api/new-media', require('./routes/newMedia'));
 app.use('/api/media-coverage', require('./routes/mediaCoverage'));
 // 추가 콘텐츠 타입 라우트들
 app.use('/api/events', require('./routes/events'));
+app.use('/api/calendar', require('./routes/calendar'));
 app.use('/api/card-news', require('./routes/cardNews'));
 app.use('/api/gallery', require('./routes/gallery'));
 app.use('/api/banners', require('./routes/banners'));
