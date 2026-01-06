@@ -1,11 +1,27 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
+const multer = require('multer');
 const Member = require('../models/Member');
 const AdminSlot = require('../models/AdminSlot');
 const { generateToken, authMember } = require('../middleware/authMember');
 const { ADMIN_CREDENTIALS } = require('./auth');
 const { sendVerificationCode } = require('../utils/email');
+const { uploadProfileImage } = require('../utils/cloudinary');
+
+// 프로필 이미지 업로드 설정 (메모리 저장, 10MB 제한)
+const profileUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('이미지 파일만 업로드 가능합니다'), false);
+    }
+  }
+});
+
 // 선택적 인증 미들웨어
 const optionalAuth = async (req, res, next) => {
   try {
@@ -736,7 +752,7 @@ router.post('/me/email/request', authMember, async (req, res) => {
 
     res.json({
       success: true,
-      message: `인증 코드가 발송되었습니다. (오늘 남은 횟수: ${limitCheck.remaining - 1}회)`
+      message: `인증 코드 발송 완료.\n(오늘 남은 횟수: ${limitCheck.remaining - 1}회)`
     });
   } catch (error) {
     console.error('이메일 인증 요청 오류:', error);
@@ -935,4 +951,53 @@ router.put('/profile/bio', authMember, async (req, res) => {
     res.status(500).json({ success: false, message: '자기소개 업데이트에 실패했습니다' });
   }
 });
+
+// ===== 프로필 이미지 업로드 =====
+router.post('/me/profile-image', authMember, profileUpload.single('profileImage'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: '이미지 파일을 선택해주세요'
+      });
+    }
+
+    const memberId = req.member._id;
+
+    // Cloudinary에 업로드
+    const result = await uploadProfileImage(req.file.buffer, memberId);
+
+    if (!result.success) {
+      return res.status(500).json({
+        success: false,
+        message: result.error || '이미지 업로드에 실패했습니다'
+      });
+    }
+
+    // DB 업데이트
+    const member = await Member.findByIdAndUpdate(
+      memberId,
+      { profileImage: result.url },
+      { new: true }
+    );
+
+    console.log('✅ 프로필 이미지 업로드:', member.userId, result.url);
+
+    res.json({
+      success: true,
+      message: '프로필 이미지가 변경되었습니다',
+      data: {
+        profileImage: result.url
+      }
+    });
+
+  } catch (error) {
+    console.error('프로필 이미지 업로드 오류:', error);
+    res.status(500).json({
+      success: false,
+      message: '이미지 업로드 중 오류가 발생했습니다'
+    });
+  }
+});
+
 module.exports = router;
