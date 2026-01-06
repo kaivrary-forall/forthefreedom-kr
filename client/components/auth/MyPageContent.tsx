@@ -487,15 +487,16 @@ export default function MyPageContent() {
         
         {/* 프로필 카드 */}
         <div className="bg-gradient-to-r from-primary to-red-700 text-white rounded-2xl overflow-hidden mb-6">
-          <div className="flex items-stretch">
-            {/* 프로필 이미지 */}
+          <div className="flex items-center p-6 gap-5">
+            {/* 프로필 이미지 - 원형 */}
             <button 
               onClick={() => {
                 setSelectedFile(null)
                 setProfilePreview(null)
+                setCropStep(1)
                 setShowProfileModal(true)
               }}
-              className="w-36 h-36 bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors relative group"
+              className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors relative group flex-shrink-0 overflow-hidden border-4 border-white/30"
             >
               {member.profileImage ? (
                 <img 
@@ -504,16 +505,16 @@ export default function MyPageContent() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <i className="fas fa-user text-white/80 text-5xl"></i>
+                <i className="fas fa-user text-white/80 text-4xl"></i>
               )}
               {/* 호버 시 카메라 아이콘 */}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <i className="fas fa-camera text-white text-2xl"></i>
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-full">
+                <i className="fas fa-camera text-white text-xl"></i>
               </div>
             </button>
             
             {/* 정보 */}
-            <div className="flex-1 p-6 flex flex-col justify-center">
+            <div className="flex-1 flex flex-col justify-center">
               <h1 className="text-2xl font-bold">{member.name || member.nickname}</h1>
               <p className="text-white/80">@{member.nickname}</p>
               {member.role && (
