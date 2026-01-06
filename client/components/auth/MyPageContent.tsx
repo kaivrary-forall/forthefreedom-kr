@@ -326,8 +326,8 @@ export default function MyPageContent() {
             
             {/* 정보 */}
             <div className="flex-1 p-6 flex flex-col justify-center">
-              <h1 className="text-2xl font-bold">{member.nickname}</h1>
-              <p className="text-white/80">@{member.userId}</p>
+              <h1 className="text-2xl font-bold">{member.name || member.nickname}</h1>
+              <p className="text-white/80">@{member.nickname}</p>
               {member.role && (
                 <span className="inline-block mt-2 px-3 py-1 bg-white/20 text-sm rounded-full w-fit">
                   {member.role}
@@ -337,17 +337,17 @@ export default function MyPageContent() {
           </div>
         </div>
 
-        {/* 기본 정보 */}
+        {/* 로그인 정보 */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
           <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <i className="fas fa-user text-gray-400"></i> 기본 정보
+            <i className="fas fa-key text-gray-400"></i> 로그인 정보
           </h2>
           <div className="space-y-3">
             <div className="flex justify-between py-3 border-b border-gray-100">
               <span className="text-gray-500">아이디</span>
               <span className="font-medium">{member.userId}</span>
             </div>
-            <div className="flex justify-between items-center py-3 border-b border-gray-100">
+            <div className="flex justify-between items-center py-3">
               <span className="text-gray-500">비밀번호</span>
               <div className="flex items-center gap-2">
                 <span className="font-medium">••••••••</span>
@@ -359,7 +359,16 @@ export default function MyPageContent() {
                 </button>
               </div>
             </div>
-            <div className="flex justify-between items-center py-3 border-b border-gray-100">
+          </div>
+        </div>
+
+        {/* 커뮤니티 정보 */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+          <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <i className="fas fa-comments text-gray-400"></i> 커뮤니티 정보
+          </h2>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center py-3">
               <span className="text-gray-500">닉네임</span>
               <div className="flex items-center gap-2">
                 <span className="font-medium">{member.nickname}</span>
@@ -377,10 +386,25 @@ export default function MyPageContent() {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* 기본 정보 */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+          <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <i className="fas fa-user text-gray-400"></i> 기본 정보
+          </h2>
+          <div className="space-y-3">
             {member.name && (
               <div className="flex justify-between py-3 border-b border-gray-100">
                 <span className="text-gray-500">이름</span>
                 <span className="font-medium">{member.name}</span>
+              </div>
+            )}
+            {member.phone && (
+              <div className="flex justify-between py-3 border-b border-gray-100">
+                <span className="text-gray-500">휴대전화</span>
+                <span className="font-medium">{member.phone}</span>
               </div>
             )}
             {member.email && (
@@ -401,12 +425,6 @@ export default function MyPageContent() {
                     변경
                   </button>
                 </div>
-              </div>
-            )}
-            {member.phone && (
-              <div className="flex justify-between py-3 border-b border-gray-100">
-                <span className="text-gray-500">연락처</span>
-                <span className="font-medium">{member.phone}</span>
               </div>
             )}
             <div className="flex justify-between py-3">
