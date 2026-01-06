@@ -32,14 +32,12 @@ function canWriteToBoard(memberType, boardType) {
       // 모든 회원 가능
       return true;
     case 'party':
-      // 당원, 혁신당원, 관리자만
+    case 'anonymous':
+      // 당원, 혁신당원, 관리자만 (익명도 당원 이상)
       return ['party_member', 'innovation_member', 'admin'].includes(memberType);
     case 'innovation':
       // 혁신당원, 관리자만
       return ['innovation_member', 'admin'].includes(memberType);
-    case 'anonymous':
-      // 모든 회원 가능 (익명)
-      return true;
     default:
       return false;
   }
