@@ -113,7 +113,7 @@ function MentionDropdown({
             <span>프로필 보기</span>
           </Link>
           <Link
-            href={`/agora?authorNickname=${encodeURIComponent(nickname)}`}
+            href={`/member/${encodeURIComponent(nickname)}/posts`}
             className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
             onClick={() => setIsOpen(false)}
           >
