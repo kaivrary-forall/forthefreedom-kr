@@ -1,5 +1,4 @@
 'use client'
-
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -54,6 +53,13 @@ export default function AgoraDetailAPI() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [commentError, setCommentError] = useState<string | null>(null)
 
+  // 좋아요/싫어요 상태
+  const [isLiked, setIsLiked] = useState(false)
+  const [isDisliked, setIsDisliked] = useState(false)
+  const [likeCount, setLikeCount] = useState(0)
+  const [dislikeCount, setDislikeCount] = useState(0)
+  const [isVoting, setIsVoting] = useState(false)
+
   const loadPost = async () => {
     if (!id) return
     
@@ -61,12 +67,22 @@ export default function AgoraDetailAPI() {
     setError(null)
     
     try {
-      const response = await fetch(`/api/agora/${id}`)
+      const headers: HeadersInit = {}
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+      
+      const response = await fetch(`/api/agora/${id}`, { headers })
       const data = await response.json()
       
       if (data.success && data.post) {
         setPost(data.post)
         setComments(data.comments || [])
+        // 좋아요/싫어요 상태 초기화
+        setLikeCount(data.post.likeCount || 0)
+        setDislikeCount(data.post.dislikeCount || 0)
+        setIsLiked(data.post.isLiked || false)
+        setIsDisliked(data.post.isDisliked || false)
       } else {
         setError(data.error || '게시글을 찾을 수 없습니다.')
       }
@@ -91,6 +107,44 @@ export default function AgoraDetailAPI() {
       hour: '2-digit',
       minute: '2-digit'
     })
+  }
+
+  // 좋아요/싫어요 핸들러
+  const handleVote = async (type: 'like' | 'dislike') => {
+    if (!isLoggedIn || !token) {
+      alert('로그인이 필요합니다')
+      return
+    }
+    
+    if (isVoting) return
+    
+    setIsVoting(true)
+    
+    try {
+      const response = await fetch(`/api/agora/${id}/${type}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      
+      const data = await response.json()
+      
+      if (data.success) {
+        // 서버에서 반환된 값으로 업데이트
+        setLikeCount(data.likeCount)
+        setDislikeCount(data.dislikeCount)
+        setIsLiked(data.isLiked)
+        setIsDisliked(data.isDisliked)
+      } else {
+        alert(data.message || '투표에 실패했습니다')
+      }
+    } catch (err) {
+      console.error('투표 실패:', err)
+      alert('투표 중 오류가 발생했습니다')
+    } finally {
+      setIsVoting(false)
+    }
   }
 
   // 댓글 작성 핸들러
@@ -204,18 +258,28 @@ export default function AgoraDetailAPI() {
       {/* 좋아요/싫어요 */}
       <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-center gap-6">
         <button 
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
-          disabled
+          onClick={() => handleVote('like')}
+          disabled={isVoting}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+            isLiked 
+              ? 'border-primary bg-primary/10 text-primary' 
+              : 'border-gray-200 hover:bg-gray-50 text-gray-600'
+          } ${isVoting ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           <span>👍</span>
-          <span className="text-gray-600">{post.likeCount}</span>
+          <span>{likeCount}</span>
         </button>
         <button 
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
-          disabled
+          onClick={() => handleVote('dislike')}
+          disabled={isVoting}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+            isDisliked 
+              ? 'border-red-500 bg-red-50 text-red-500' 
+              : 'border-gray-200 hover:bg-gray-50 text-gray-600'
+          } ${isVoting ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           <span>👎</span>
-          <span className="text-gray-600">{post.dislikeCount}</span>
+          <span>{dislikeCount}</span>
         </button>
       </div>
 
