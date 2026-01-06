@@ -128,7 +128,6 @@ export default function MemberCommentsPage() {
         </div>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">@{nickname}</h1>
-          <p className="text-gray-500">작성한 댓글</p>
         </div>
       </div>
 
