@@ -180,28 +180,34 @@ export default function MemberMentionsPage() {
       </div>
 
       {/* 탭 네비게이션 */}
-      <div className="flex border-b border-gray-200 mb-6">
+      <div className="flex border-b border-gray-200 mb-6 overflow-x-auto">
         <Link
           href={`/member/${encodeURIComponent(nickname)}`}
-          className="px-4 py-2 text-gray-500 hover:text-gray-700 border-b-2 border-transparent"
+          className="px-4 py-2 text-gray-500 hover:text-gray-700 border-b-2 border-transparent whitespace-nowrap"
         >
           프로필
         </Link>
         <Link
           href={`/member/${encodeURIComponent(nickname)}/posts`}
-          className="px-4 py-2 text-gray-500 hover:text-gray-700 border-b-2 border-transparent"
+          className="px-4 py-2 text-gray-500 hover:text-gray-700 border-b-2 border-transparent whitespace-nowrap"
         >
           작성한 글
         </Link>
         <Link
           href={`/member/${encodeURIComponent(nickname)}/comments`}
-          className="px-4 py-2 text-gray-500 hover:text-gray-700 border-b-2 border-transparent"
+          className="px-4 py-2 text-gray-500 hover:text-gray-700 border-b-2 border-transparent whitespace-nowrap"
         >
           작성한 댓글
         </Link>
-        <span className="px-4 py-2 text-primary font-medium border-b-2 border-primary">
+        <span className="px-4 py-2 text-primary font-medium border-b-2 border-primary whitespace-nowrap">
           언급된 글
         </span>
+        <Link
+          href={`/member/${encodeURIComponent(nickname)}/badges`}
+          className="px-4 py-2 text-gray-500 hover:text-gray-700 border-b-2 border-transparent whitespace-nowrap"
+        >
+          배지
+        </Link>
       </div>
 
       {/* 언급된 글 목록 */}
