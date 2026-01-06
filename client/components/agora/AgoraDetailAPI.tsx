@@ -704,7 +704,9 @@ export default function AgoraDetailAPI() {
                 className="w-8 h-8 rounded-full object-cover"
               />
             )}
-            <span className="font-medium text-gray-700">{post.author.nickname}</span>
+            <MentionDropdown nickname={post.author.nickname}>
+              <span className="font-medium text-gray-700">{post.author.nickname}</span>
+            </MentionDropdown>
           </div>
           <span>•</span>
           <span>{formatDate(post.createdAt)}</span>
