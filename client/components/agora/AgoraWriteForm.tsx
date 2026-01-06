@@ -58,7 +58,7 @@ export default function AgoraWriteForm() {
   // 권한 체크
   const canWriteTo = (board: BoardType): boolean => {
     if (!member) return false
-    const memberType = member.memberType || 'member'
+    const memberType = (member as any).memberType || 'member'
     const option = boardOptions.find(o => o.key === board)
     return option?.requiredType.includes(memberType) || false
   }
