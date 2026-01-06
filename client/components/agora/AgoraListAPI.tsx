@@ -98,7 +98,8 @@ interface Author {
 interface Post {
   _id: string
   boardType: string
-  author: Author
+  author: Author | null
+  authorIp?: string // 익명 게시판용 IP
   title: string
   content: string
   viewCount: number
@@ -116,18 +117,38 @@ interface Pagination {
   totalPages: number
 }
 
-export default function AgoraListAPI() {
-  const { isLoggedIn } = useAuth()
+interface AgoraListAPIProps {
+  boardType?: 'member' | 'party' | 'innovation' | 'anonymous'
+}
+
+// IP 마스킹 함수 (123.456.789.012 → 123.456.***.***) 
+function maskIp(ip: string): string {
+  if (!ip) return '알 수 없음'
+  const parts = ip.split('.')
+  if (parts.length === 4) {
+    return `${parts[0]}.${parts[1]}.*.*`
+  }
+  // IPv6 등 다른 형식
+  return ip.substring(0, Math.min(10, ip.length)) + '***'
+}
+
+export default function AgoraListAPI({ boardType = 'member' }: AgoraListAPIProps) {
+  const { isLoggedIn, member } = useAuth()
   const [posts, setPosts] = useState<Post[]>([])
   const [pagination, setPagination] = useState<Pagination | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
 
+  // boardType 변경 시 페이지 리셋
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [boardType])
+
   useEffect(() => {
     async function loadPosts() {
       setIsLoading(true)
       try {
-        const response = await fetch(`/api/agora?page=${currentPage}&limit=20`)
+        const response = await fetch(`/api/agora?page=${currentPage}&limit=20&boardType=${boardType}`)
         const data = await response.json()
         
         if (data.success) {
@@ -141,7 +162,7 @@ export default function AgoraListAPI() {
       }
     }
     loadPosts()
-  }, [currentPage])
+  }, [currentPage, boardType])
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
@@ -158,6 +179,46 @@ export default function AgoraListAPI() {
     })
   }
 
+  // 글쓰기 권한 체크
+  const canWrite = () => {
+    if (!isLoggedIn || !member) return false
+    
+    const memberType = member.memberType || 'member'
+    
+    switch (boardType) {
+      case 'member':
+        return true // 모든 회원
+      case 'party':
+        return ['party_member', 'innovation_member', 'admin'].includes(memberType)
+      case 'innovation':
+        return ['innovation_member', 'admin'].includes(memberType)
+      case 'anonymous':
+        return true // 모든 회원 (익명으로 작성)
+      default:
+        return false
+    }
+  }
+
+  // 글쓰기 URL
+  const getWriteUrl = () => {
+    if (!isLoggedIn) {
+      return `/login?return=/agora/write?board=${boardType}`
+    }
+    return `/agora/write?board=${boardType}`
+  }
+
+  // 권한 없을 때 메시지
+  const getPermissionMessage = () => {
+    switch (boardType) {
+      case 'party':
+        return '당원만 글을 작성할 수 있습니다'
+      case 'innovation':
+        return '혁신당원만 글을 작성할 수 있습니다'
+      default:
+        return '로그인이 필요합니다'
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="space-y-3">
@@ -168,84 +229,111 @@ export default function AgoraListAPI() {
     )
   }
 
-  if (posts.length === 0) {
-    return (
-      <div className="text-center py-16 text-gray-500">
-        <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-          <span className="text-2xl">📝</span>
-        </div>
-        <p className="text-lg">아직 게시글이 없습니다.</p>
-        <p className="text-sm mt-2">첫 번째 글을 작성해보세요!</p>
-      </div>
-    )
-  }
-
   return (
     <div>
       {/* 상단 글쓰기 버튼 */}
       <div className="flex justify-end mb-4">
-        <Link
-          href={isLoggedIn ? '/agora/write' : '/login?return=/agora/write'}
-          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-medium"
-        >
-          ✏️ 글쓰기
-        </Link>
+        {isLoggedIn && canWrite() ? (
+          <Link
+            href={getWriteUrl()}
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-medium"
+          >
+            ✏️ 글쓰기
+          </Link>
+        ) : isLoggedIn ? (
+          <button
+            disabled
+            className="px-4 py-2 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed font-medium"
+            title={getPermissionMessage()}
+          >
+            ✏️ {getPermissionMessage()}
+          </button>
+        ) : (
+          <Link
+            href={getWriteUrl()}
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-medium"
+          >
+            ✏️ 글쓰기
+          </Link>
+        )}
       </div>
 
       {/* 게시글 목록 */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50 border-b">
-            <tr>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">제목</th>
-              <th className="px-4 py-4 text-center text-sm font-semibold text-gray-900 w-28 hidden sm:table-cell">작성자</th>
-              <th className="px-4 py-4 text-center text-sm font-semibold text-gray-900 w-20 hidden md:table-cell">조회</th>
-              <th className="px-4 py-4 text-center text-sm font-semibold text-gray-900 w-24">날짜</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {posts.map((post) => (
-              <tr key={post._id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4">
-                  <Link 
-                    href={`/agora/${post._id}`}
-                    className="block hover:text-primary transition-colors"
-                  >
-                    <span className="font-medium text-gray-900 line-clamp-1">
-                      {post.title}
-                    </span>
-                    {post.commentCount > 0 && (
-                      <span className="ml-2 text-primary text-sm">[{post.commentCount}]</span>
-                    )}
-                  </Link>
-                </td>
-                <td className="px-4 py-4 text-center hidden sm:table-cell">
-                  <MentionDropdown nickname={post.author.nickname}>
-                    <div className="flex items-center justify-center gap-2">
-                      {post.author.profileImage && (
-                        <img 
-                          src={post.author.profileImage} 
-                          alt={post.author.nickname}
-                          className="w-6 h-6 rounded-full object-cover"
-                        />
-                      )}
-                      <span className="text-sm text-gray-600 truncate max-w-[80px]">
-                        {post.author.nickname}
-                      </span>
-                    </div>
-                  </MentionDropdown>
-                </td>
-                <td className="px-4 py-4 text-center text-sm text-gray-500 hidden md:table-cell">
-                  {post.viewCount}
-                </td>
-                <td className="px-4 py-4 text-center text-sm text-gray-500">
-                  {formatDate(post.createdAt)}
-                </td>
+      {posts.length === 0 ? (
+        <div className="text-center py-16 text-gray-500 bg-white rounded-xl border border-gray-200">
+          <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+            <span className="text-2xl">📝</span>
+          </div>
+          <p className="text-lg">아직 게시글이 없습니다.</p>
+          <p className="text-sm mt-2">첫 번째 글을 작성해보세요!</p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b">
+              <tr>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">제목</th>
+                <th className="px-4 py-4 text-center text-sm font-semibold text-gray-900 w-28 hidden sm:table-cell">
+                  {boardType === 'anonymous' ? 'IP' : '작성자'}
+                </th>
+                <th className="px-4 py-4 text-center text-sm font-semibold text-gray-900 w-20 hidden md:table-cell">조회</th>
+                <th className="px-4 py-4 text-center text-sm font-semibold text-gray-900 w-24">날짜</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {posts.map((post) => (
+                <tr key={post._id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4">
+                    <Link 
+                      href={`/agora/${post._id}`}
+                      className="block hover:text-primary transition-colors"
+                    >
+                      <span className="font-medium text-gray-900 line-clamp-1">
+                        {post.title}
+                      </span>
+                      {post.commentCount > 0 && (
+                        <span className="ml-2 text-primary text-sm">[{post.commentCount}]</span>
+                      )}
+                    </Link>
+                  </td>
+                  <td className="px-4 py-4 text-center hidden sm:table-cell">
+                    {boardType === 'anonymous' ? (
+                      // 익명 게시판 - IP 표시
+                      <span className="text-sm text-gray-500 font-mono">
+                        {maskIp(post.authorIp || '')}
+                      </span>
+                    ) : post.author ? (
+                      // 일반 게시판 - 닉네임 + 드롭다운
+                      <MentionDropdown nickname={post.author.nickname}>
+                        <div className="flex items-center justify-center gap-2">
+                          {post.author.profileImage && (
+                            <img 
+                              src={post.author.profileImage} 
+                              alt={post.author.nickname}
+                              className="w-6 h-6 rounded-full object-cover"
+                            />
+                          )}
+                          <span className="text-sm text-gray-600 truncate max-w-[80px]">
+                            {post.author.nickname}
+                          </span>
+                        </div>
+                      </MentionDropdown>
+                    ) : (
+                      <span className="text-sm text-gray-400">알 수 없음</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-4 text-center text-sm text-gray-500 hidden md:table-cell">
+                    {post.viewCount}
+                  </td>
+                  <td className="px-4 py-4 text-center text-sm text-gray-500">
+                    {formatDate(post.createdAt)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* 페이지네이션 */}
       {pagination && pagination.totalPages > 1 && (
