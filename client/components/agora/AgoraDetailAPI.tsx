@@ -60,6 +60,8 @@ export default function AgoraDetailAPI() {
   const [dislikeCount, setDislikeCount] = useState(0)
   const [isVoting, setIsVoting] = useState(false)
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || ''
+
   const loadPost = async () => {
     if (!id) return
     
@@ -121,7 +123,7 @@ export default function AgoraDetailAPI() {
     setIsVoting(true)
     
     try {
-      const response = await fetch(`/api/posts/${id}/${type}`, {
+      const response = await fetch(`${API_URL}/api/posts/${id}/${type}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
