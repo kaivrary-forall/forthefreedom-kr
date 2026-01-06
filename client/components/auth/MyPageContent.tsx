@@ -17,6 +17,7 @@ export default function MyPageContent() {
   const [showProfileModal, setShowProfileModal] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
+  const [successShouldReload, setSuccessShouldReload] = useState(true)
   
   // 폼 상태
   const [newNickname, setNewNickname] = useState('')
@@ -107,6 +108,7 @@ export default function MyPageContent() {
         }
         setShowNicknameModal(false)
         setSuccessMessage('닉네임이 변경되었습니다')
+        setSuccessShouldReload(true)
         setShowSuccessModal(true)
       } else {
         setNicknameError(data.message || '변경에 실패했습니다')
@@ -148,6 +150,7 @@ export default function MyPageContent() {
         setNewPassword('')
         setNewPasswordConfirm('')
         setSuccessMessage('비밀번호가 변경되었습니다')
+        setSuccessShouldReload(true)
         setShowSuccessModal(true)
       } else {
         setPasswordError(data.message || '변경에 실패했습니다')
@@ -181,9 +184,12 @@ export default function MyPageContent() {
       
       if (data.success) {
         setEmailStep(2)
-        // 남은 횟수 표시
+        // 남은 횟수 표시 - reload 안 함
         if (data.message) {
-          setSuccessMessage(data.message)
+          // 메시지 형식 변경: "인증코드 발송 완료\n(오늘 남은 횟수: X회)"
+          const remaining = data.message.match(/남은 횟수: (\d+)회/)?.[1] || ''
+          setSuccessMessage(`인증코드 발송 완료\n(오늘 남은 횟수: ${remaining}회)`)
+          setSuccessShouldReload(false)
           setShowSuccessModal(true)
         }
       } else {
@@ -231,6 +237,7 @@ export default function MyPageContent() {
         setNewEmail('')
         setEmailCode('')
         setSuccessMessage('이메일이 변경되었습니다')
+        setSuccessShouldReload(true)
         setShowSuccessModal(true)
       } else {
         setEmailError(data.message || '인증에 실패했습니다')
@@ -268,6 +275,7 @@ export default function MyPageContent() {
       
       if (data.success) {
         setSuccessMessage('회원 탈퇴가 완료되었습니다')
+        setSuccessShouldReload(false)
         setShowSuccessModal(true)
         logout()
         setTimeout(() => {
@@ -733,17 +741,17 @@ export default function MyPageContent() {
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/50" onClick={() => {
             setShowSuccessModal(false)
-            window.location.reload()
+            if (successShouldReload) window.location.reload()
           }}></div>
           <div className="relative bg-white rounded-2xl p-8 w-full max-w-sm mx-4 shadow-2xl text-center">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
               <i className="fas fa-check text-green-500 text-3xl"></i>
             </div>
-            <p className="text-lg font-medium text-gray-900 mb-6">{successMessage}</p>
+            <p className="text-lg font-medium text-gray-900 mb-6 whitespace-pre-line">{successMessage}</p>
             <button 
               onClick={() => {
                 setShowSuccessModal(false)
-                window.location.reload()
+                if (successShouldReload) window.location.reload()
               }}
               className="w-full px-4 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark font-medium"
             >
