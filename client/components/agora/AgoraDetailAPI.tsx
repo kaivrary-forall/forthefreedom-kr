@@ -18,6 +18,12 @@ interface Comment {
   author: Author
   content: string
   parentComment?: string | null
+  likes?: string[]
+  dislikes?: string[]
+  likeCount?: number
+  dislikeCount?: number
+  isLiked?: boolean
+  isDisliked?: boolean
   createdAt?: string
   updatedAt?: string
 }
@@ -53,12 +59,19 @@ export default function AgoraDetailAPI() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [commentError, setCommentError] = useState<string | null>(null)
 
+  // 대댓글 상태
+  const [replyingTo, setReplyingTo] = useState<string | null>(null)
+  const [replyContent, setReplyContent] = useState('')
+
   // 좋아요/싫어요 상태
   const [isLiked, setIsLiked] = useState(false)
   const [isDisliked, setIsDisliked] = useState(false)
   const [likeCount, setLikeCount] = useState(0)
   const [dislikeCount, setDislikeCount] = useState(0)
   const [isVoting, setIsVoting] = useState(false)
+
+  // 댓글 좋아요/싫어요 로딩 상태
+  const [votingCommentId, setVotingCommentId] = useState<string | null>(null)
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || ''
 
@@ -111,7 +124,7 @@ export default function AgoraDetailAPI() {
     })
   }
 
-  // 좋아요/싫어요 핸들러
+  // 좋아요/싫어요 핸들러 (게시글)
   const handleVote = async (type: 'like' | 'dislike') => {
     if (!isLoggedIn || !token) {
       alert('로그인이 필요합니다')
@@ -133,7 +146,6 @@ export default function AgoraDetailAPI() {
       const data = await response.json()
       
       if (data.success) {
-        // 서버에서 반환된 값으로 업데이트 (data.data 안에 있음)
         setLikeCount(data.data.likeCount)
         setDislikeCount(data.data.dislikeCount)
         setIsLiked(data.data.isLiked)
@@ -149,9 +161,57 @@ export default function AgoraDetailAPI() {
     }
   }
 
+  // 댓글 좋아요/싫어요 핸들러
+  const handleCommentVote = async (commentId: string, type: 'like' | 'dislike') => {
+    if (!isLoggedIn || !token) {
+      alert('로그인이 필요합니다')
+      return
+    }
+    
+    if (votingCommentId) return
+    
+    setVotingCommentId(commentId)
+    
+    try {
+      const response = await fetch(`${API_URL}/api/posts/${id}/comments/${commentId}/${type}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      
+      const data = await response.json()
+      
+      if (data.success) {
+        // 댓글 목록 업데이트
+        setComments(prev => prev.map(c => {
+          if (c._id === commentId) {
+            return {
+              ...c,
+              likeCount: data.data.likeCount,
+              dislikeCount: data.data.dislikeCount,
+              isLiked: data.data.isLiked,
+              isDisliked: data.data.isDisliked
+            }
+          }
+          return c
+        }))
+      } else {
+        alert(data.message || '투표에 실패했습니다')
+      }
+    } catch (err) {
+      console.error('댓글 투표 실패:', err)
+      alert('투표 중 오류가 발생했습니다')
+    } finally {
+      setVotingCommentId(null)
+    }
+  }
+
   // 댓글 작성 핸들러
-  const handleCommentSubmit = async () => {
-    if (!commentContent.trim()) {
+  const handleCommentSubmit = async (parentCommentId?: string) => {
+    const content = parentCommentId ? replyContent : commentContent
+    
+    if (!content.trim()) {
       setCommentError('댓글 내용을 입력해주세요')
       return
     }
@@ -165,19 +225,27 @@ export default function AgoraDetailAPI() {
     setCommentError(null)
 
     try {
-      const response = await fetch(`/api/agora/${id}/comments`, {
+      const response = await fetch(`${API_URL}/api/posts/${id}/comments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ content: commentContent.trim() })
+        body: JSON.stringify({ 
+          content: content.trim(),
+          parentCommentId: parentCommentId || null
+        })
       })
 
       const data = await response.json()
 
       if (data.success) {
-        setCommentContent('')
+        if (parentCommentId) {
+          setReplyContent('')
+          setReplyingTo(null)
+        } else {
+          setCommentContent('')
+        }
         // 댓글 목록 새로고침
         await loadPost()
       } else {
@@ -190,6 +258,19 @@ export default function AgoraDetailAPI() {
       setIsSubmitting(false)
     }
   }
+
+  // 댓글을 부모/자식으로 정리
+  const organizeComments = (allComments: Comment[]) => {
+    const parentComments = allComments.filter(c => !c.parentComment)
+    const childComments = allComments.filter(c => c.parentComment)
+    
+    return parentComments.map(parent => ({
+      ...parent,
+      replies: childComments.filter(child => child.parentComment === parent._id)
+    }))
+  }
+
+  const organizedComments = organizeComments(comments)
 
   if (isLoading) {
     return (
@@ -218,6 +299,141 @@ export default function AgoraDetailAPI() {
         >
           ← 목록으로 돌아가기
         </Link>
+      </div>
+    )
+  }
+
+  // 댓글 컴포넌트
+  const CommentItem = ({ comment, isReply = false }: { comment: Comment & { replies?: Comment[] }, isReply?: boolean }) => {
+    const author = comment.author?.nickname || comment.author?.userId || '익명'
+    const profileImage = comment.author?.profileImage || ''
+    const memberType = comment.author?.memberType || ''
+    const timeText = comment.createdAt
+      ? new Date(comment.createdAt).toLocaleString('ko-KR', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      : ''
+
+    return (
+      <div className={`${isReply ? 'ml-8 border-l-2 border-gray-200 pl-4' : ''}`}>
+        <div className="bg-white border border-gray-200 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center flex-shrink-0">
+              {profileImage ? (
+                <img
+                  src={profileImage}
+                  alt={author}
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <span className="text-gray-400 text-sm">👤</span>
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-semibold text-gray-900">{author}</span>
+                {memberType && (
+                  <span className="px-1.5 py-0.5 bg-primary/10 text-primary text-xs rounded">
+                    {memberType}
+                  </span>
+                )}
+                {timeText && (
+                  <span className="text-xs text-gray-400">{timeText}</span>
+                )}
+              </div>
+              <div className="mt-1 text-gray-700 whitespace-pre-line break-words">
+                {comment.content || ''}
+              </div>
+              
+              {/* 댓글 액션 버튼 */}
+              <div className="flex items-center gap-4 mt-3">
+                {/* 좋아요 */}
+                <button
+                  onClick={() => handleCommentVote(comment._id, 'like')}
+                  disabled={votingCommentId === comment._id}
+                  className={`flex items-center gap-1 text-xs transition-colors ${
+                    comment.isLiked 
+                      ? 'text-primary font-medium' 
+                      : 'text-gray-500 hover:text-primary'
+                  }`}
+                >
+                  <span>👍</span>
+                  <span>{comment.likeCount || 0}</span>
+                </button>
+                
+                {/* 싫어요 */}
+                <button
+                  onClick={() => handleCommentVote(comment._id, 'dislike')}
+                  disabled={votingCommentId === comment._id}
+                  className={`flex items-center gap-1 text-xs transition-colors ${
+                    comment.isDisliked 
+                      ? 'text-red-500 font-medium' 
+                      : 'text-gray-500 hover:text-red-500'
+                  }`}
+                >
+                  <span>👎</span>
+                  <span>{comment.dislikeCount || 0}</span>
+                </button>
+                
+                {/* 답글 버튼 (대댓글이 아닐 때만) */}
+                {!isReply && isLoggedIn && (
+                  <button
+                    onClick={() => setReplyingTo(replyingTo === comment._id ? null : comment._id)}
+                    className="text-xs text-gray-500 hover:text-primary transition-colors"
+                  >
+                    💬 답글
+                  </button>
+                )}
+              </div>
+              
+              {/* 답글 작성 폼 */}
+              {replyingTo === comment._id && (
+                <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                  <textarea
+                    className="w-full p-2 border border-gray-200 rounded-lg resize-none text-sm focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none"
+                    placeholder={`${author}님에게 답글 작성...`}
+                    rows={2}
+                    value={replyContent}
+                    onChange={(e) => setReplyContent(e.target.value)}
+                    disabled={isSubmitting}
+                  />
+                  <div className="flex justify-end gap-2 mt-2">
+                    <button
+                      onClick={() => {
+                        setReplyingTo(null)
+                        setReplyContent('')
+                      }}
+                      className="px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      취소
+                    </button>
+                    <button
+                      onClick={() => handleCommentSubmit(comment._id)}
+                      disabled={isSubmitting || !replyContent.trim()}
+                      className="px-3 py-1.5 text-xs bg-primary text-white rounded-lg hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {isSubmitting ? '작성 중...' : '답글 작성'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+        
+        {/* 대댓글 목록 */}
+        {comment.replies && comment.replies.length > 0 && (
+          <div className="mt-2 space-y-2">
+            {comment.replies.map(reply => (
+              <CommentItem key={reply._id} comment={reply} isReply={true} />
+            ))}
+          </div>
+        )}
       </div>
     )
   }
@@ -293,66 +509,15 @@ export default function AgoraDetailAPI() {
           </h2>
         </div>
 
-        {comments.length === 0 ? (
+        {organizedComments.length === 0 ? (
           <div className="bg-white border border-gray-200 rounded-xl p-6 text-center text-gray-500">
             댓글이 없습니다.
           </div>
         ) : (
           <div className="space-y-3">
-            {comments.map((c) => {
-              const author = c.author?.nickname || c.author?.userId || '익명'
-              const profileImage = c.author?.profileImage || ''
-              const memberType = c.author?.memberType || ''
-              const timeText = c.createdAt
-                ? new Date(c.createdAt).toLocaleString('ko-KR', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })
-                : ''
-
-              return (
-                <div
-                  key={c._id}
-                  className="bg-white border border-gray-200 rounded-xl p-4"
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="w-9 h-9 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center flex-shrink-0">
-                      {profileImage ? (
-                        <img
-                          src={profileImage}
-                          alt={author}
-                          className="w-full h-full object-cover"
-                          referrerPolicy="no-referrer"
-                        />
-                      ) : (
-                        <span className="text-gray-400 text-sm">👤</span>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-semibold text-gray-900">
-                          {author}
-                        </span>
-                        {memberType && (
-                          <span className="px-1.5 py-0.5 bg-primary/10 text-primary text-xs rounded">
-                            {memberType}
-                          </span>
-                        )}
-                        {timeText && (
-                          <span className="text-xs text-gray-400">{timeText}</span>
-                        )}
-                      </div>
-                      <div className="mt-1 text-gray-700 whitespace-pre-line break-words">
-                        {c.content || ''}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
+            {organizedComments.map((comment) => (
+              <CommentItem key={comment._id} comment={comment} />
+            ))}
           </div>
         )}
 
@@ -373,7 +538,7 @@ export default function AgoraDetailAPI() {
               )}
               <div className="flex justify-end mt-2">
                 <button
-                  onClick={handleCommentSubmit}
+                  onClick={() => handleCommentSubmit()}
                   disabled={isSubmitting || !commentContent.trim()}
                   className="px-4 py-2 bg-primary text-white text-sm rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
