@@ -30,7 +30,7 @@ const boardOptions: { key: BoardType; label: string; description: string; requir
     key: 'anonymous', 
     label: '익명 게시판', 
     description: '익명으로 작성 (IP만 공개)',
-    requiredType: ['member', 'party_member', 'innovation_member', 'admin']
+    requiredType: ['party_member', 'innovation_member', 'admin']
   },
 ]
 
@@ -57,10 +57,26 @@ export default function AgoraWriteForm() {
 
   // 권한 체크
   const canWriteTo = (board: BoardType): boolean => {
-    if (!member) return false
-    const memberType = (member as any).memberType || 'member'
-    const option = boardOptions.find(o => o.key === board)
-    return option?.requiredType.includes(memberType) || false
+    // 로그인 안 되어 있으면 권한 없음
+    if (!isLoggedIn) return false
+    
+    // 회원 게시판은 로그인만 되어 있으면 OK
+    if (board === 'member') {
+      return true
+    }
+    
+    // 당원/혁신당원/익명 게시판은 memberType 체크
+    const memberType = (member as any)?.memberType || 'member'
+    
+    switch (board) {
+      case 'party':
+      case 'anonymous': // 익명도 당원 이상만
+        return ['party_member', 'innovation_member', 'admin'].includes(memberType)
+      case 'innovation':
+        return ['innovation_member', 'admin'].includes(memberType)
+      default:
+        return false
+    }
   }
 
   // 선택된 게시판에 권한 없으면 첫 번째 가능한 게시판으로 변경

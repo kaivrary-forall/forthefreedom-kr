@@ -181,19 +181,23 @@ export default function AgoraListAPI({ boardType = 'member' }: AgoraListAPIProps
 
   // 글쓰기 권한 체크
   const canWrite = () => {
-    if (!isLoggedIn || !member) return false
+    // 로그인 안 되어 있으면 권한 없음
+    if (!isLoggedIn) return false
     
-    const memberType = (member as any).memberType || 'member'
+    // 회원 게시판은 로그인만 되어 있으면 OK
+    if (boardType === 'member') {
+      return true
+    }
+    
+    // 당원/혁신당원/익명 게시판은 memberType 체크
+    const memberType = (member as any)?.memberType || 'member'
     
     switch (boardType) {
-      case 'member':
-        return true // 모든 회원
       case 'party':
+      case 'anonymous': // 익명도 당원 이상만
         return ['party_member', 'innovation_member', 'admin'].includes(memberType)
       case 'innovation':
         return ['innovation_member', 'admin'].includes(memberType)
-      case 'anonymous':
-        return true // 모든 회원 (익명으로 작성)
       default:
         return false
     }
