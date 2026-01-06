@@ -84,7 +84,7 @@ export default function MyPageContent() {
     }
     
     try {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem('memberToken')
       const res = await fetch(`${API_URL}/api/members/me/nickname`, {
         method: 'PUT',
         headers: {
@@ -119,7 +119,7 @@ export default function MyPageContent() {
     }
     
     try {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem('memberToken')
       const res = await fetch(`${API_URL}/api/members/me/password`, {
         method: 'PUT',
         headers: {
@@ -158,7 +158,7 @@ export default function MyPageContent() {
     setEmailError('')
     
     try {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem('memberToken')
       const res = await fetch(`${API_URL}/api/members/me/email/request`, {
         method: 'POST',
         headers: {
@@ -189,7 +189,7 @@ export default function MyPageContent() {
     }
     
     try {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem('memberToken')
       const res = await fetch(`${API_URL}/api/members/me/email/verify`, {
         method: 'POST',
         headers: {
@@ -230,7 +230,7 @@ export default function MyPageContent() {
     }
     
     try {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem('memberToken')
       const res = await fetch(`${API_URL}/api/members/me/withdraw`, {
         method: 'POST',
         headers: {
