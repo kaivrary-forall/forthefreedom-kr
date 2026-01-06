@@ -96,6 +96,13 @@ export default function MyPageContent() {
       const data = await res.json()
       
       if (data.success) {
+        // localStorage의 memberInfo 업데이트
+        const storedInfo = localStorage.getItem('memberInfo')
+        if (storedInfo) {
+          const memberInfo = JSON.parse(storedInfo)
+          memberInfo.nickname = newNickname
+          localStorage.setItem('memberInfo', JSON.stringify(memberInfo))
+        }
         alert('닉네임이 변경되었습니다')
         setShowNicknameModal(false)
         window.location.reload()
@@ -204,6 +211,13 @@ export default function MyPageContent() {
       const data = await res.json()
       
       if (data.success) {
+        // localStorage의 memberInfo 업데이트
+        const storedInfo = localStorage.getItem('memberInfo')
+        if (storedInfo) {
+          const memberInfo = JSON.parse(storedInfo)
+          memberInfo.email = newEmail
+          localStorage.setItem('memberInfo', JSON.stringify(memberInfo))
+        }
         alert('이메일이 변경되었습니다')
         setShowEmailModal(false)
         setEmailStep(1)
