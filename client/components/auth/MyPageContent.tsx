@@ -178,6 +178,10 @@ export default function MyPageContent() {
       
       if (data.success) {
         setEmailStep(2)
+        // 남은 횟수 표시
+        if (data.message) {
+          alert(data.message)
+        }
       } else {
         setEmailError(data.message || '인증 코드 발송에 실패했습니다')
       }
