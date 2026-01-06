@@ -1,9 +1,59 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
+import Cropper from 'react-easy-crop'
+
+// 크롭된 이미지를 canvas로 생성하는 함수
+const createImage = (url: string): Promise<HTMLImageElement> =>
+  new Promise((resolve, reject) => {
+    const image = new Image()
+    image.addEventListener('load', () => resolve(image))
+    image.addEventListener('error', (error) => reject(error))
+    image.setAttribute('crossOrigin', 'anonymous')
+    image.src = url
+  })
+
+async function getCroppedImg(
+  imageSrc: string,
+  pixelCrop: { x: number; y: number; width: number; height: number },
+  rotation = 0
+): Promise<Blob | null> {
+  const image = await createImage(imageSrc)
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
+
+  if (!ctx) return null
+
+  const rotRad = (rotation * Math.PI) / 180
+
+  // 회전된 이미지의 바운딩 박스 계산
+  const sin = Math.abs(Math.sin(rotRad))
+  const cos = Math.abs(Math.cos(rotRad))
+  const bBoxWidth = image.width * cos + image.height * sin
+  const bBoxHeight = image.width * sin + image.height * cos
+
+  canvas.width = bBoxWidth
+  canvas.height = bBoxHeight
+
+  ctx.translate(bBoxWidth / 2, bBoxHeight / 2)
+  ctx.rotate(rotRad)
+  ctx.translate(-image.width / 2, -image.height / 2)
+  ctx.drawImage(image, 0, 0)
+
+  // 크롭 영역 추출
+  const data = ctx.getImageData(pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height)
+
+  canvas.width = pixelCrop.width
+  canvas.height = pixelCrop.height
+  ctx.putImageData(data, 0, 0)
+
+  return new Promise((resolve) => {
+    canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.9)
+  })
+}
 
 export default function MyPageContent() {
   const router = useRouter()
@@ -45,6 +95,12 @@ export default function MyPageContent() {
   const [profileUploading, setProfileUploading] = useState(false)
   const [profilePreview, setProfilePreview] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [cropStep, setCropStep] = useState(1) // 1: 선택, 2: 크롭
+  const [crop, setCrop] = useState({ x: 0, y: 0 })
+  const [zoom, setZoom] = useState(1)
+  const [rotation, setRotation] = useState(0)
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null)
+  const [isDragging, setIsDragging] = useState(false)
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || ''
 
@@ -62,40 +118,77 @@ export default function MyPageContent() {
   // 프로필 이미지 선택
   const handleProfileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file) return
-    
-    // 파일 크기 체크 (10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      alert('파일 크기는 10MB 이하여야 합니다')
-      return
-    }
-    
+    if (file) processFile(file)
+  }
+
+  // 파일 처리 (선택 또는 드롭)
+  const processFile = (file: File) => {
     // 이미지 타입 체크
     if (!file.type.startsWith('image/')) {
       alert('이미지 파일만 업로드 가능합니다')
       return
     }
     
+    // 파일 크기 체크 (10MB - 서버에서 압축)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('파일 크기는 10MB 이하여야 합니다')
+      return
+    }
+    
     setSelectedFile(file)
     
-    // 미리보기 생성
+    // 미리보기 생성 → 크롭 단계로
     const reader = new FileReader()
     reader.onloadend = () => {
       setProfilePreview(reader.result as string)
+      setCropStep(2)
+      setCrop({ x: 0, y: 0 })
+      setZoom(1)
+      setRotation(0)
     }
     reader.readAsDataURL(file)
   }
 
+  // 드래그앤드롭 핸들러
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+    const file = e.dataTransfer.files?.[0]
+    if (file) processFile(file)
+  }
+
+  // 크롭 완료 콜백
+  const onCropComplete = useCallback((croppedArea: any, croppedAreaPixels: any) => {
+    setCroppedAreaPixels(croppedAreaPixels)
+  }, [])
+
   // 프로필 이미지 업로드
   const uploadProfileImage = async () => {
-    if (!selectedFile) return
+    if (!profilePreview || !croppedAreaPixels) return
     
     setProfileUploading(true)
     
     try {
+      // 크롭된 이미지 생성
+      const croppedBlob = await getCroppedImg(profilePreview, croppedAreaPixels, rotation)
+      if (!croppedBlob) {
+        alert('이미지 처리에 실패했습니다')
+        return
+      }
+
       const token = localStorage.getItem('memberToken')
       const formData = new FormData()
-      formData.append('profileImage', selectedFile)
+      formData.append('profileImage', croppedBlob, 'profile.jpg')
       
       const res = await fetch(`${API_URL}/api/members/me/profile-image`, {
         method: 'POST',
@@ -117,6 +210,7 @@ export default function MyPageContent() {
         setShowProfileModal(false)
         setSelectedFile(null)
         setProfilePreview(null)
+        setCropStep(1)
         setSuccessMessage('프로필 이미지가 변경되었습니다')
         setSuccessShouldReload(true)
         setShowSuccessModal(true)
@@ -128,6 +222,16 @@ export default function MyPageContent() {
     } finally {
       setProfileUploading(false)
     }
+  }
+
+  // Step 1로 돌아가기
+  const backToStep1 = () => {
+    setCropStep(1)
+    setProfilePreview(null)
+    setSelectedFile(null)
+    setCrop({ x: 0, y: 0 })
+    setZoom(1)
+    setRotation(0)
   }
 
   // 닉네임 중복 확인
@@ -841,82 +945,153 @@ export default function MyPageContent() {
       {/* 프로필 이미지 변경 모달 */}
       {showProfileModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setShowProfileModal(false)}></div>
-          <div className="relative bg-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
+          <div className="absolute inset-0 bg-black/50" onClick={() => {
+            setShowProfileModal(false)
+            backToStep1()
+          }}></div>
+          <div className="relative bg-white rounded-2xl p-6 w-full max-w-lg mx-4 shadow-2xl">
             <h3 className="text-lg font-bold mb-4">프로필 이미지 변경</h3>
             
-            {/* 현재/미리보기 이미지 */}
-            <div className="flex justify-center mb-6">
-              <div className="w-32 h-32 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border-4 border-gray-200">
-                {profilePreview ? (
-                  <img src={profilePreview} alt="미리보기" className="w-full h-full object-cover" />
-                ) : member?.profileImage ? (
-                  <img src={member.profileImage} alt={member.nickname} className="w-full h-full object-cover" />
-                ) : (
-                  <i className="fas fa-user text-gray-400 text-4xl"></i>
-                )}
-              </div>
-            </div>
-            
-            {/* 파일 선택 영역 */}
-            <label className="block w-full p-6 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-primary hover:bg-gray-50 transition-colors">
-              <div className="text-center">
-                <i className="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
-                <p className="text-sm text-gray-600">클릭하여 이미지 선택</p>
-                <p className="text-xs text-gray-400 mt-1">JPG, PNG, GIF, WebP (최대 10MB)</p>
-              </div>
-              <input 
-                type="file" 
-                accept="image/*" 
-                className="hidden" 
-                onChange={handleProfileSelect}
-              />
-            </label>
-            
-            {/* 선택된 파일 정보 */}
-            {selectedFile && (
-              <div className="mt-4 p-3 bg-gray-50 rounded-lg flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <i className="fas fa-image text-primary"></i>
-                  <div>
-                    <p className="text-sm font-medium truncate max-w-[200px]">{selectedFile.name}</p>
-                    <p className="text-xs text-gray-500">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+            {/* Step 1: 파일 선택 */}
+            {cropStep === 1 && (
+              <>
+                {/* 현재 이미지 */}
+                <div className="flex justify-center mb-6">
+                  <div className="w-32 h-32 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border-4 border-gray-200">
+                    {member?.profileImage ? (
+                      <img src={member.profileImage} alt={member.nickname} className="w-full h-full object-cover" />
+                    ) : (
+                      <i className="fas fa-user text-gray-400 text-4xl"></i>
+                    )}
                   </div>
                 </div>
-                <button 
-                  onClick={() => {
-                    setSelectedFile(null)
-                    setProfilePreview(null)
-                  }}
-                  className="text-gray-400 hover:text-red-500"
+                
+                {/* 드래그앤드롭 영역 */}
+                <label 
+                  className={`block w-full p-8 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
+                    isDragging 
+                      ? 'border-primary bg-primary/10' 
+                      : 'border-gray-300 hover:border-primary hover:bg-gray-50'
+                  }`}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
                 >
-                  <i className="fas fa-times"></i>
-                </button>
-              </div>
+                  <div className="text-center">
+                    <i className={`fas fa-cloud-upload-alt text-4xl mb-3 ${isDragging ? 'text-primary' : 'text-gray-400'}`}></i>
+                    <p className="text-sm text-gray-600 font-medium">
+                      {isDragging ? '여기에 놓으세요!' : '클릭 또는 드래그하여 이미지 업로드'}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-2">JPG, PNG, GIF, WebP (최대 10MB)</p>
+                  </div>
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    className="hidden" 
+                    onChange={handleProfileSelect}
+                  />
+                </label>
+
+                <div className="flex gap-3 mt-6">
+                  <button 
+                    onClick={() => {
+                      setShowProfileModal(false)
+                      backToStep1()
+                    }}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  >
+                    취소
+                  </button>
+                </div>
+              </>
             )}
-            
-            <div className="flex gap-3 mt-6">
-              <button 
-                onClick={() => setShowProfileModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-              >
-                취소
-              </button>
-              <button 
-                onClick={uploadProfileImage}
-                disabled={!selectedFile || profileUploading}
-                className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {profileUploading ? (
-                  <>
-                    <i className="fas fa-spinner fa-spin"></i>
-                    업로드 중...
-                  </>
-                ) : (
-                  '변경하기'
-                )}
-              </button>
-            </div>
+
+            {/* Step 2: 크롭 */}
+            {cropStep === 2 && profilePreview && (
+              <>
+                <div className="flex gap-6">
+                  {/* 크롭 영역 */}
+                  <div className="flex-1">
+                    <div className="relative w-full h-72 bg-gray-900 rounded-lg overflow-hidden">
+                      <Cropper
+                        image={profilePreview}
+                        crop={crop}
+                        zoom={zoom}
+                        rotation={rotation}
+                        aspect={1}
+                        onCropChange={setCrop}
+                        onZoomChange={setZoom}
+                        onCropComplete={onCropComplete}
+                        cropShape="round"
+                        showGrid={false}
+                      />
+                    </div>
+                    
+                    {/* 컨트롤 */}
+                    <div className="mt-4 space-y-3">
+                      {/* 확대/축소 */}
+                      <div className="flex items-center gap-3">
+                        <i className="fas fa-search-minus text-gray-400 w-5"></i>
+                        <input
+                          type="range"
+                          min={1}
+                          max={3}
+                          step={0.1}
+                          value={zoom}
+                          onChange={(e) => setZoom(Number(e.target.value))}
+                          className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary"
+                        />
+                        <i className="fas fa-search-plus text-gray-400 w-5"></i>
+                      </div>
+                      
+                      {/* 회전 */}
+                      <div className="flex items-center justify-center gap-4">
+                        <button 
+                          onClick={() => setRotation(r => r - 90)}
+                          className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
+                        >
+                          <i className="fas fa-undo text-gray-600"></i>
+                        </button>
+                        <span className="text-sm text-gray-500">{rotation}°</span>
+                        <button 
+                          onClick={() => setRotation(r => r + 90)}
+                          className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
+                        >
+                          <i className="fas fa-redo text-gray-600"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 mt-6">
+                  <button 
+                    onClick={backToStep1}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  >
+                    <i className="fas fa-arrow-left mr-2"></i>
+                    뒤로
+                  </button>
+                  <button 
+                    onClick={uploadProfileImage}
+                    disabled={profileUploading}
+                    className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {profileUploading ? (
+                      <>
+                        <i className="fas fa-spinner fa-spin"></i>
+                        업로드 중...
+                      </>
+                    ) : (
+                      <>
+                        <i className="fas fa-check mr-1"></i>
+                        변경하기
+                      </>
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
