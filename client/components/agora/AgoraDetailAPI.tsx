@@ -128,6 +128,14 @@ function MentionDropdown({
             <span>💬</span>
             <span>작성한 댓글</span>
           </Link>
+          <Link
+            href={`/member/${encodeURIComponent(nickname)}/mentions`}
+            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+            onClick={() => setIsOpen(false)}
+          >
+            <span>📢</span>
+            <span>언급된 글</span>
+          </Link>
         </div>
       )}
     </span>
