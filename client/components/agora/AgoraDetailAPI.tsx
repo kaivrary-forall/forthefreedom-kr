@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
@@ -12,7 +12,7 @@ interface Author {
   profileImage?: string
 }
 
-interface Comment {
+interface CommentType {
   _id: string
   post: string
   author: Author
@@ -26,6 +26,7 @@ interface Comment {
   isDisliked?: boolean
   createdAt?: string
   updatedAt?: string
+  replies?: CommentType[]
 }
 
 interface Post {
@@ -44,13 +45,192 @@ interface Post {
   updatedAt: string
 }
 
+// 댓글 아이템 컴포넌트 (외부로 분리)
+function CommentItem({ 
+  comment, 
+  isReply = false,
+  isLoggedIn,
+  onVote,
+  onReply,
+  votingCommentId
+}: { 
+  comment: CommentType
+  isReply?: boolean
+  isLoggedIn: boolean
+  onVote: (commentId: string, type: 'like' | 'dislike') => void
+  onReply: (commentId: string, content: string) => Promise<boolean>
+  votingCommentId: string | null
+}) {
+  const [showReplyForm, setShowReplyForm] = useState(false)
+  const [replyText, setReplyText] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const author = comment.author?.nickname || comment.author?.userId || '익명'
+  const profileImage = comment.author?.profileImage || ''
+  const memberType = comment.author?.memberType || ''
+  const timeText = comment.createdAt
+    ? new Date(comment.createdAt).toLocaleString('ko-KR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : ''
+
+  const handleReplySubmit = async () => {
+    if (!replyText.trim() || isSubmitting) return
+    
+    setIsSubmitting(true)
+    const success = await onReply(comment._id, replyText)
+    setIsSubmitting(false)
+    
+    if (success) {
+      setReplyText('')
+      setShowReplyForm(false)
+    }
+  }
+
+  return (
+    <div className={`${isReply ? 'ml-8 border-l-2 border-gray-200 pl-4' : ''}`}>
+      <div className="bg-white border border-gray-200 rounded-xl p-4">
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center flex-shrink-0">
+            {profileImage ? (
+              <img
+                src={profileImage}
+                alt={author}
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <span className="text-gray-400 text-sm">👤</span>
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-semibold text-gray-900">{author}</span>
+              {memberType && (
+                <span className="px-1.5 py-0.5 bg-primary/10 text-primary text-xs rounded">
+                  {memberType}
+                </span>
+              )}
+              {timeText && (
+                <span className="text-xs text-gray-400">{timeText}</span>
+              )}
+            </div>
+            <div className="mt-1 text-gray-700 whitespace-pre-line break-words">
+              {comment.content || ''}
+            </div>
+            
+            {/* 댓글 액션 버튼 */}
+            <div className="flex items-center gap-4 mt-3">
+              {/* 좋아요 */}
+              <button
+                type="button"
+                onClick={() => onVote(comment._id, 'like')}
+                disabled={votingCommentId === comment._id}
+                className={`flex items-center gap-1 text-xs transition-colors ${
+                  comment.isLiked 
+                    ? 'text-primary font-medium' 
+                    : 'text-gray-500 hover:text-primary'
+                } ${votingCommentId === comment._id ? 'opacity-50' : ''}`}
+              >
+                <span>👍</span>
+                <span>{comment.likeCount || 0}</span>
+              </button>
+              
+              {/* 싫어요 */}
+              <button
+                type="button"
+                onClick={() => onVote(comment._id, 'dislike')}
+                disabled={votingCommentId === comment._id}
+                className={`flex items-center gap-1 text-xs transition-colors ${
+                  comment.isDisliked 
+                    ? 'text-red-500 font-medium' 
+                    : 'text-gray-500 hover:text-red-500'
+                } ${votingCommentId === comment._id ? 'opacity-50' : ''}`}
+              >
+                <span>👎</span>
+                <span>{comment.dislikeCount || 0}</span>
+              </button>
+              
+              {/* 답글 버튼 (대댓글이 아닐 때만) */}
+              {!isReply && isLoggedIn && (
+                <button
+                  type="button"
+                  onClick={() => setShowReplyForm(!showReplyForm)}
+                  className="text-xs text-gray-500 hover:text-primary transition-colors"
+                >
+                  💬 답글
+                </button>
+              )}
+            </div>
+            
+            {/* 답글 작성 폼 */}
+            {showReplyForm && (
+              <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                <textarea
+                  className="w-full p-2 border border-gray-200 rounded-lg resize-none text-sm focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none"
+                  placeholder={`${author}님에게 답글 작성...`}
+                  rows={2}
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  disabled={isSubmitting}
+                />
+                <div className="flex justify-end gap-2 mt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowReplyForm(false)
+                      setReplyText('')
+                    }}
+                    className="px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    취소
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleReplySubmit}
+                    disabled={isSubmitting || !replyText.trim()}
+                    className="px-3 py-1.5 text-xs bg-primary text-white rounded-lg hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {isSubmitting ? '작성 중...' : '답글 작성'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      
+      {/* 대댓글 목록 */}
+      {comment.replies && comment.replies.length > 0 && (
+        <div className="mt-2 space-y-2">
+          {comment.replies.map(reply => (
+            <CommentItem 
+              key={reply._id} 
+              comment={reply} 
+              isReply={true}
+              isLoggedIn={isLoggedIn}
+              onVote={onVote}
+              onReply={onReply}
+              votingCommentId={votingCommentId}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function AgoraDetailAPI() {
   const params = useParams()
   const id = params.id as string
   const { isLoggedIn, token } = useAuth()
   
   const [post, setPost] = useState<Post | null>(null)
-  const [comments, setComments] = useState<Comment[]>([])
+  const [comments, setComments] = useState<CommentType[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
@@ -58,10 +238,6 @@ export default function AgoraDetailAPI() {
   const [commentContent, setCommentContent] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [commentError, setCommentError] = useState<string | null>(null)
-
-  // 대댓글 상태
-  const [replyingTo, setReplyingTo] = useState<string | null>(null)
-  const [replyContent, setReplyContent] = useState('')
 
   // 좋아요/싫어요 상태
   const [isLiked, setIsLiked] = useState(false)
@@ -75,7 +251,7 @@ export default function AgoraDetailAPI() {
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || ''
 
-  const loadPost = async () => {
+  const loadPost = useCallback(async () => {
     if (!id) return
     
     setIsLoading(true)
@@ -107,11 +283,11 @@ export default function AgoraDetailAPI() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [id, token])
 
   useEffect(() => {
     loadPost()
-  }, [id])
+  }, [loadPost])
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
@@ -162,7 +338,7 @@ export default function AgoraDetailAPI() {
   }
 
   // 댓글 좋아요/싫어요 핸들러
-  const handleCommentVote = async (commentId: string, type: 'like' | 'dislike') => {
+  const handleCommentVote = useCallback(async (commentId: string, type: 'like' | 'dislike') => {
     if (!isLoggedIn || !token) {
       alert('로그인이 필요합니다')
       return
@@ -205,13 +381,11 @@ export default function AgoraDetailAPI() {
     } finally {
       setVotingCommentId(null)
     }
-  }
+  }, [isLoggedIn, token, votingCommentId, API_URL, id])
 
-  // 댓글 작성 핸들러
-  const handleCommentSubmit = async (parentCommentId?: string) => {
-    const content = parentCommentId ? replyContent : commentContent
-    
-    if (!content.trim()) {
+  // 댓글/답글 작성 핸들러
+  const handleCommentSubmit = async () => {
+    if (!commentContent.trim()) {
       setCommentError('댓글 내용을 입력해주세요')
       return
     }
@@ -232,21 +406,15 @@ export default function AgoraDetailAPI() {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ 
-          content: content.trim(),
-          parentCommentId: parentCommentId || null
+          content: commentContent.trim(),
+          parentCommentId: null
         })
       })
 
       const data = await response.json()
 
       if (data.success) {
-        if (parentCommentId) {
-          setReplyContent('')
-          setReplyingTo(null)
-        } else {
-          setCommentContent('')
-        }
-        // 댓글 목록 새로고침
+        setCommentContent('')
         await loadPost()
       } else {
         setCommentError(data.message || '댓글 작성에 실패했습니다')
@@ -259,8 +427,44 @@ export default function AgoraDetailAPI() {
     }
   }
 
+  // 답글 작성 핸들러
+  const handleReplySubmit = useCallback(async (parentCommentId: string, content: string): Promise<boolean> => {
+    if (!token) {
+      alert('로그인이 필요합니다')
+      return false
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/api/posts/${id}/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ 
+          content: content.trim(),
+          parentCommentId
+        })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        await loadPost()
+        return true
+      } else {
+        alert(data.message || '답글 작성에 실패했습니다')
+        return false
+      }
+    } catch (err) {
+      console.error('답글 작성 실패:', err)
+      alert('답글 작성 중 오류가 발생했습니다')
+      return false
+    }
+  }, [token, API_URL, id, loadPost])
+
   // 댓글을 부모/자식으로 정리
-  const organizeComments = (allComments: Comment[]) => {
+  const organizeComments = (allComments: CommentType[]) => {
     const parentComments = allComments.filter(c => !c.parentComment)
     const childComments = allComments.filter(c => c.parentComment)
     
@@ -303,141 +507,6 @@ export default function AgoraDetailAPI() {
     )
   }
 
-  // 댓글 컴포넌트
-  const CommentItem = ({ comment, isReply = false }: { comment: Comment & { replies?: Comment[] }, isReply?: boolean }) => {
-    const author = comment.author?.nickname || comment.author?.userId || '익명'
-    const profileImage = comment.author?.profileImage || ''
-    const memberType = comment.author?.memberType || ''
-    const timeText = comment.createdAt
-      ? new Date(comment.createdAt).toLocaleString('ko-KR', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-        })
-      : ''
-
-    return (
-      <div className={`${isReply ? 'ml-8 border-l-2 border-gray-200 pl-4' : ''}`}>
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <div className="flex items-start gap-3">
-            <div className="w-9 h-9 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center flex-shrink-0">
-              {profileImage ? (
-                <img
-                  src={profileImage}
-                  alt={author}
-                  className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <span className="text-gray-400 text-sm">👤</span>
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-semibold text-gray-900">{author}</span>
-                {memberType && (
-                  <span className="px-1.5 py-0.5 bg-primary/10 text-primary text-xs rounded">
-                    {memberType}
-                  </span>
-                )}
-                {timeText && (
-                  <span className="text-xs text-gray-400">{timeText}</span>
-                )}
-              </div>
-              <div className="mt-1 text-gray-700 whitespace-pre-line break-words">
-                {comment.content || ''}
-              </div>
-              
-              {/* 댓글 액션 버튼 */}
-              <div className="flex items-center gap-4 mt-3">
-                {/* 좋아요 */}
-                <button
-                  onClick={() => handleCommentVote(comment._id, 'like')}
-                  disabled={votingCommentId === comment._id}
-                  className={`flex items-center gap-1 text-xs transition-colors ${
-                    comment.isLiked 
-                      ? 'text-primary font-medium' 
-                      : 'text-gray-500 hover:text-primary'
-                  }`}
-                >
-                  <span>👍</span>
-                  <span>{comment.likeCount || 0}</span>
-                </button>
-                
-                {/* 싫어요 */}
-                <button
-                  onClick={() => handleCommentVote(comment._id, 'dislike')}
-                  disabled={votingCommentId === comment._id}
-                  className={`flex items-center gap-1 text-xs transition-colors ${
-                    comment.isDisliked 
-                      ? 'text-red-500 font-medium' 
-                      : 'text-gray-500 hover:text-red-500'
-                  }`}
-                >
-                  <span>👎</span>
-                  <span>{comment.dislikeCount || 0}</span>
-                </button>
-                
-                {/* 답글 버튼 (대댓글이 아닐 때만) */}
-                {!isReply && isLoggedIn && (
-                  <button
-                    onClick={() => setReplyingTo(replyingTo === comment._id ? null : comment._id)}
-                    className="text-xs text-gray-500 hover:text-primary transition-colors"
-                  >
-                    💬 답글
-                  </button>
-                )}
-              </div>
-              
-              {/* 답글 작성 폼 */}
-              {replyingTo === comment._id && (
-                <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                  <textarea
-                    className="w-full p-2 border border-gray-200 rounded-lg resize-none text-sm focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none"
-                    placeholder={`${author}님에게 답글 작성...`}
-                    rows={2}
-                    value={replyContent}
-                    onChange={(e) => setReplyContent(e.target.value)}
-                    disabled={isSubmitting}
-                  />
-                  <div className="flex justify-end gap-2 mt-2">
-                    <button
-                      onClick={() => {
-                        setReplyingTo(null)
-                        setReplyContent('')
-                      }}
-                      className="px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                    >
-                      취소
-                    </button>
-                    <button
-                      onClick={() => handleCommentSubmit(comment._id)}
-                      disabled={isSubmitting || !replyContent.trim()}
-                      className="px-3 py-1.5 text-xs bg-primary text-white rounded-lg hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      {isSubmitting ? '작성 중...' : '답글 작성'}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-        
-        {/* 대댓글 목록 */}
-        {comment.replies && comment.replies.length > 0 && (
-          <div className="mt-2 space-y-2">
-            {comment.replies.map(reply => (
-              <CommentItem key={reply._id} comment={reply} isReply={true} />
-            ))}
-          </div>
-        )}
-      </div>
-    )
-  }
-
   return (
     <article className="bg-white rounded-xl border border-gray-200 overflow-hidden">
       {/* 헤더 */}
@@ -476,6 +545,7 @@ export default function AgoraDetailAPI() {
       {/* 좋아요/싫어요 */}
       <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-center gap-6">
         <button 
+          type="button"
           onClick={() => handleVote('like')}
           disabled={isVoting}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
@@ -488,6 +558,7 @@ export default function AgoraDetailAPI() {
           <span>{likeCount}</span>
         </button>
         <button 
+          type="button"
           onClick={() => handleVote('dislike')}
           disabled={isVoting}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
@@ -516,7 +587,14 @@ export default function AgoraDetailAPI() {
         ) : (
           <div className="space-y-3">
             {organizedComments.map((comment) => (
-              <CommentItem key={comment._id} comment={comment} />
+              <CommentItem 
+                key={comment._id} 
+                comment={comment}
+                isLoggedIn={isLoggedIn}
+                onVote={handleCommentVote}
+                onReply={handleReplySubmit}
+                votingCommentId={votingCommentId}
+              />
             ))}
           </div>
         )}
@@ -538,7 +616,8 @@ export default function AgoraDetailAPI() {
               )}
               <div className="flex justify-end mt-2">
                 <button
-                  onClick={() => handleCommentSubmit()}
+                  type="button"
+                  onClick={handleCommentSubmit}
                   disabled={isSubmitting || !commentContent.trim()}
                   className="px-4 py-2 bg-primary text-white text-sm rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -559,6 +638,7 @@ export default function AgoraDetailAPI() {
                   로그인하기 →
                 </Link>
                 <button
+                  type="button"
                   className="px-4 py-2 bg-primary text-white text-sm rounded-lg opacity-50 cursor-not-allowed"
                   disabled
                 >
