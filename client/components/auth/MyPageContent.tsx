@@ -1,10 +1,93 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import Cropper from 'react-easy-crop'
+
+// 멘션 드롭다운 컴포넌트
+function MentionDropdown({ 
+  nickname, 
+  children,
+  className = ''
+}: { 
+  nickname: string
+  children: React.ReactNode
+  className?: string
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpen])
+
+  return (
+    <span className={`relative inline-block ${className}`} ref={dropdownRef}>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          setIsOpen(!isOpen)
+        }}
+        className="hover:underline cursor-pointer"
+      >
+        {children}
+      </button>
+      
+      {isOpen && (
+        <div className="absolute left-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[140px] py-1">
+          <Link
+            href={`/member/${encodeURIComponent(nickname)}`}
+            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+            onClick={() => setIsOpen(false)}
+          >
+            <span>👤</span>
+            <span>프로필 보기</span>
+          </Link>
+          <Link
+            href={`/member/${encodeURIComponent(nickname)}/posts`}
+            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+            onClick={() => setIsOpen(false)}
+          >
+            <span>📝</span>
+            <span>작성한 글</span>
+          </Link>
+          <Link
+            href={`/member/${encodeURIComponent(nickname)}/comments`}
+            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+            onClick={() => setIsOpen(false)}
+          >
+            <span>💬</span>
+            <span>작성한 댓글</span>
+          </Link>
+          <Link
+            href={`/member/${encodeURIComponent(nickname)}/mentions`}
+            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+            onClick={() => setIsOpen(false)}
+          >
+            <span>📢</span>
+            <span>언급된 글</span>
+          </Link>
+        </div>
+      )}
+    </span>
+  )
+}
 
 // 크롭된 이미지를 canvas로 생성하는 함수
 const createImage = (url: string): Promise<HTMLImageElement> =>
@@ -516,7 +599,9 @@ export default function MyPageContent() {
             {/* 정보 */}
             <div className="flex-1 flex flex-col justify-center">
               <h1 className="text-2xl font-bold">{member.name || member.nickname}</h1>
-              <p className="text-white/80">@{member.nickname}</p>
+              <MentionDropdown nickname={member.nickname}>
+                <p className="text-white/80">@{member.nickname}</p>
+              </MentionDropdown>
               {member.role && (
                 <span className="inline-block mt-2 px-3 py-1 bg-white/20 text-sm rounded-full w-fit">
                   {member.role}
