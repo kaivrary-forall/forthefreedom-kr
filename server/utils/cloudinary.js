@@ -3,7 +3,6 @@
  */
 
 const cloudinary = require('cloudinary').v2;
-const sharp = require('sharp');
 
 // Cloudinary 설정
 cloudinary.config({
@@ -13,38 +12,6 @@ cloudinary.config({
 });
 
 /**
- * 이미지 압축 (2MB 이하로)
- * @param {Buffer} fileBuffer - 원본 파일 버퍼
- * @returns {Promise<Buffer>} - 압축된 파일 버퍼
- */
-async function compressImage(fileBuffer) {
-  let quality = 90;
-  let compressed = await sharp(fileBuffer)
-    .resize(800, 800, { 
-      fit: 'inside', 
-      withoutEnlargement: true 
-    })
-    .jpeg({ quality })
-    .toBuffer();
-  
-  // 2MB 이하가 될 때까지 품질 낮추기
-  while (compressed.length > 2 * 1024 * 1024 && quality > 20) {
-    quality -= 10;
-    compressed = await sharp(fileBuffer)
-      .resize(800, 800, { 
-        fit: 'inside', 
-        withoutEnlargement: true 
-      })
-      .jpeg({ quality })
-      .toBuffer();
-    console.log(`📦 이미지 압축 중... 품질: ${quality}%, 크기: ${(compressed.length / 1024 / 1024).toFixed(2)}MB`);
-  }
-  
-  console.log(`✅ 최종 이미지 크기: ${(compressed.length / 1024 / 1024).toFixed(2)}MB`);
-  return compressed;
-}
-
-/**
  * 프로필 이미지 업로드
  * @param {Buffer} fileBuffer - 파일 버퍼
  * @param {string} memberId - 회원 ID (폴더 구분용)
@@ -52,11 +19,8 @@ async function compressImage(fileBuffer) {
  */
 async function uploadProfileImage(fileBuffer, memberId) {
   try {
-    // 이미지 압축
-    const compressedBuffer = await compressImage(fileBuffer);
-    
     // Buffer를 base64로 변환
-    const base64 = compressedBuffer.toString('base64');
+    const base64 = fileBuffer.toString('base64');
     const dataUri = `data:image/jpeg;base64,${base64}`;
 
     const result = await cloudinary.uploader.upload(dataUri, {
