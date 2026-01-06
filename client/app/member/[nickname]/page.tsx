@@ -145,7 +145,6 @@ export default function MemberProfilePage() {
             <h1 className="text-2xl font-bold text-gray-900">@{nickname}</h1>
             {getMemberTypeBadge(member.memberType)}
           </div>
-          <p className="text-gray-500">프로필</p>
         </div>
       </div>
 
