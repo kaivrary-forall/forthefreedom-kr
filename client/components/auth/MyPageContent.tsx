@@ -15,6 +15,8 @@ export default function MyPageContent() {
   const [showEmailModal, setShowEmailModal] = useState(false)
   const [showWithdrawModal, setShowWithdrawModal] = useState(false)
   const [showProfileModal, setShowProfileModal] = useState(false)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
   
   // 폼 상태
   const [newNickname, setNewNickname] = useState('')
@@ -103,9 +105,9 @@ export default function MyPageContent() {
           memberInfo.nickname = newNickname
           localStorage.setItem('memberInfo', JSON.stringify(memberInfo))
         }
-        alert('닉네임이 변경되었습니다')
         setShowNicknameModal(false)
-        window.location.reload()
+        setSuccessMessage('닉네임이 변경되었습니다')
+        setShowSuccessModal(true)
       } else {
         setNicknameError(data.message || '변경에 실패했습니다')
       }
@@ -141,11 +143,12 @@ export default function MyPageContent() {
       const data = await res.json()
       
       if (data.success) {
-        alert('비밀번호가 변경되었습니다')
         setShowPasswordModal(false)
         setCurrentPassword('')
         setNewPassword('')
         setNewPasswordConfirm('')
+        setSuccessMessage('비밀번호가 변경되었습니다')
+        setShowSuccessModal(true)
       } else {
         setPasswordError(data.message || '변경에 실패했습니다')
       }
@@ -180,7 +183,8 @@ export default function MyPageContent() {
         setEmailStep(2)
         // 남은 횟수 표시
         if (data.message) {
-          alert(data.message)
+          setSuccessMessage(data.message)
+          setShowSuccessModal(true)
         }
       } else {
         setEmailError(data.message || '인증 코드 발송에 실패했습니다')
@@ -222,12 +226,12 @@ export default function MyPageContent() {
           memberInfo.email = newEmail
           localStorage.setItem('memberInfo', JSON.stringify(memberInfo))
         }
-        alert('이메일이 변경되었습니다')
         setShowEmailModal(false)
         setEmailStep(1)
         setNewEmail('')
         setEmailCode('')
-        window.location.reload()
+        setSuccessMessage('이메일이 변경되었습니다')
+        setShowSuccessModal(true)
       } else {
         setEmailError(data.message || '인증에 실패했습니다')
       }
@@ -263,9 +267,12 @@ export default function MyPageContent() {
       const data = await res.json()
       
       if (data.success) {
-        alert('회원 탈퇴가 완료되었습니다')
+        setSuccessMessage('회원 탈퇴가 완료되었습니다')
+        setShowSuccessModal(true)
         logout()
-        router.push('/')
+        setTimeout(() => {
+          router.push('/')
+        }, 2000)
       } else {
         setWithdrawError(data.message || '탈퇴에 실패했습니다')
       }
@@ -717,6 +724,31 @@ export default function MyPageContent() {
                 </div>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* 성공 메시지 모달 */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50" onClick={() => {
+            setShowSuccessModal(false)
+            window.location.reload()
+          }}></div>
+          <div className="relative bg-white rounded-2xl p-8 w-full max-w-sm mx-4 shadow-2xl text-center">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
+              <i className="fas fa-check text-green-500 text-3xl"></i>
+            </div>
+            <p className="text-lg font-medium text-gray-900 mb-6">{successMessage}</p>
+            <button 
+              onClick={() => {
+                setShowSuccessModal(false)
+                window.location.reload()
+              }}
+              className="w-full px-4 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark font-medium"
+            >
+              확인
+            </button>
           </div>
         </div>
       )}
