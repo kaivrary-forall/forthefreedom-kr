@@ -40,6 +40,11 @@ export default function MyPageContent() {
   const [withdrawReason, setWithdrawReason] = useState('')
   const [withdrawPassword, setWithdrawPassword] = useState('')
   const [withdrawError, setWithdrawError] = useState('')
+  
+  // 프로필 이미지 상태
+  const [profileUploading, setProfileUploading] = useState(false)
+  const [profilePreview, setProfilePreview] = useState<string | null>(null)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || ''
 
@@ -52,6 +57,77 @@ export default function MyPageContent() {
   const handleLogout = () => {
     logout()
     router.push('/')
+  }
+
+  // 프로필 이미지 선택
+  const handleProfileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    
+    // 파일 크기 체크 (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('파일 크기는 10MB 이하여야 합니다')
+      return
+    }
+    
+    // 이미지 타입 체크
+    if (!file.type.startsWith('image/')) {
+      alert('이미지 파일만 업로드 가능합니다')
+      return
+    }
+    
+    setSelectedFile(file)
+    
+    // 미리보기 생성
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setProfilePreview(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  // 프로필 이미지 업로드
+  const uploadProfileImage = async () => {
+    if (!selectedFile) return
+    
+    setProfileUploading(true)
+    
+    try {
+      const token = localStorage.getItem('memberToken')
+      const formData = new FormData()
+      formData.append('profileImage', selectedFile)
+      
+      const res = await fetch(`${API_URL}/api/members/me/profile-image`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      })
+      const data = await res.json()
+      
+      if (data.success) {
+        // localStorage의 memberInfo 업데이트
+        const storedInfo = localStorage.getItem('memberInfo')
+        if (storedInfo) {
+          const memberInfo = JSON.parse(storedInfo)
+          memberInfo.profileImage = data.data.profileImage
+          localStorage.setItem('memberInfo', JSON.stringify(memberInfo))
+        }
+        setShowProfileModal(false)
+        setSelectedFile(null)
+        setProfilePreview(null)
+        setSuccessMessage('프로필 이미지가 변경되었습니다')
+        setSuccessShouldReload(true)
+        setShowSuccessModal(true)
+      } else {
+        alert(data.message || '이미지 업로드에 실패했습니다')
+      }
+    } catch (error) {
+      alert('이미지 업로드 중 오류가 발생했습니다')
+    } finally {
+      setProfileUploading(false)
+    }
   }
 
   // 닉네임 중복 확인
@@ -310,8 +386,12 @@ export default function MyPageContent() {
           <div className="flex items-stretch">
             {/* 프로필 이미지 */}
             <button 
-              onClick={() => setShowProfileModal(true)}
-              className="w-36 h-36 bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+              onClick={() => {
+                setSelectedFile(null)
+                setProfilePreview(null)
+                setShowProfileModal(true)
+              }}
+              className="w-36 h-36 bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors relative group"
             >
               {member.profileImage ? (
                 <img 
@@ -322,6 +402,10 @@ export default function MyPageContent() {
               ) : (
                 <i className="fas fa-user text-white/80 text-5xl"></i>
               )}
+              {/* 호버 시 카메라 아이콘 */}
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <i className="fas fa-camera text-white text-2xl"></i>
+              </div>
             </button>
             
             {/* 정보 */}
@@ -750,6 +834,89 @@ export default function MyPageContent() {
                 </div>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* 프로필 이미지 변경 모달 */}
+      {showProfileModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowProfileModal(false)}></div>
+          <div className="relative bg-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
+            <h3 className="text-lg font-bold mb-4">프로필 이미지 변경</h3>
+            
+            {/* 현재/미리보기 이미지 */}
+            <div className="flex justify-center mb-6">
+              <div className="w-32 h-32 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border-4 border-gray-200">
+                {profilePreview ? (
+                  <img src={profilePreview} alt="미리보기" className="w-full h-full object-cover" />
+                ) : member?.profileImage ? (
+                  <img src={member.profileImage} alt={member.nickname} className="w-full h-full object-cover" />
+                ) : (
+                  <i className="fas fa-user text-gray-400 text-4xl"></i>
+                )}
+              </div>
+            </div>
+            
+            {/* 파일 선택 영역 */}
+            <label className="block w-full p-6 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-primary hover:bg-gray-50 transition-colors">
+              <div className="text-center">
+                <i className="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                <p className="text-sm text-gray-600">클릭하여 이미지 선택</p>
+                <p className="text-xs text-gray-400 mt-1">JPG, PNG, GIF, WebP (최대 10MB)</p>
+              </div>
+              <input 
+                type="file" 
+                accept="image/*" 
+                className="hidden" 
+                onChange={handleProfileSelect}
+              />
+            </label>
+            
+            {/* 선택된 파일 정보 */}
+            {selectedFile && (
+              <div className="mt-4 p-3 bg-gray-50 rounded-lg flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <i className="fas fa-image text-primary"></i>
+                  <div>
+                    <p className="text-sm font-medium truncate max-w-[200px]">{selectedFile.name}</p>
+                    <p className="text-xs text-gray-500">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => {
+                    setSelectedFile(null)
+                    setProfilePreview(null)
+                  }}
+                  className="text-gray-400 hover:text-red-500"
+                >
+                  <i className="fas fa-times"></i>
+                </button>
+              </div>
+            )}
+            
+            <div className="flex gap-3 mt-6">
+              <button 
+                onClick={() => setShowProfileModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                취소
+              </button>
+              <button 
+                onClick={uploadProfileImage}
+                disabled={!selectedFile || profileUploading}
+                className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {profileUploading ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin"></i>
+                    업로드 중...
+                  </>
+                ) : (
+                  '변경하기'
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
