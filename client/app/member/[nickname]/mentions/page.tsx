@@ -175,7 +175,6 @@ export default function MemberMentionsPage() {
         </div>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">@{nickname}</h1>
-          <p className="text-gray-500">언급된 글</p>
         </div>
       </div>
 
