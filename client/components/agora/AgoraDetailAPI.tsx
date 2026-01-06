@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
@@ -58,6 +58,43 @@ function formatCommentDate(dateStr: string): string {
   })
 }
 
+// @멘션 파싱 함수
+function parseMentions(content: string): React.ReactNode[] {
+  const mentionRegex = /@([^\s@]+)/g
+  const parts: React.ReactNode[] = []
+  let lastIndex = 0
+  let match
+
+  while ((match = mentionRegex.exec(content)) !== null) {
+    // 멘션 앞의 텍스트
+    if (match.index > lastIndex) {
+      parts.push(content.slice(lastIndex, match.index))
+    }
+    
+    // 멘션을 링크로 변환
+    const nickname = match[1]
+    parts.push(
+      <Link 
+        key={`mention-${match.index}`}
+        href={`/member/${encodeURIComponent(nickname)}`}
+        className="text-primary hover:underline font-medium"
+        onClick={(e) => e.stopPropagation()}
+      >
+        @{nickname}
+      </Link>
+    )
+    
+    lastIndex = match.index + match[0].length
+  }
+  
+  // 나머지 텍스트
+  if (lastIndex < content.length) {
+    parts.push(content.slice(lastIndex))
+  }
+  
+  return parts.length > 0 ? parts : [content]
+}
+
 // 댓글 아이템 컴포넌트
 function CommentItem({ 
   comment, 
@@ -101,7 +138,7 @@ function CommentItem({
   const replyCount = comment.replies?.length || 0
 
   return (
-    <div className={depth > 0 ? 'ml-12' : ''}>
+    <div className={depth > 0 ? 'ml-12 border-l-2 border-gray-300 pl-4' : ''}>
       <div className="flex gap-3 py-2">
         {/* 프로필 이미지 */}
         <div className="w-10 h-10 rounded-full bg-gray-600 overflow-hidden flex items-center justify-center flex-shrink-0">
@@ -123,17 +160,29 @@ function CommentItem({
             {comment.replyToAuthor && (
               <>
                 <span className="text-sm text-gray-500">to</span>
-                <span className="text-sm text-primary">@{comment.replyToAuthor}</span>
+                <Link 
+                  href={`/member/${encodeURIComponent(comment.replyToAuthor)}`}
+                  className="text-sm text-primary hover:underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  @{comment.replyToAuthor}
+                </Link>
                 <span className="text-gray-400">-</span>
               </>
             )}
-            <span className="font-medium text-gray-900 text-sm">@{author}</span>
+            <Link 
+              href={`/member/${encodeURIComponent(author)}`}
+              className="font-medium text-gray-900 text-sm hover:underline"
+              onClick={(e) => e.stopPropagation()}
+            >
+              @{author}
+            </Link>
             <span className="text-xs text-gray-500">{timeText}</span>
           </div>
 
           {/* 내용 */}
           <div className="mt-1 text-gray-800 text-sm whitespace-pre-line break-words">
-            {comment.content || ''}
+            {parseMentions(comment.content || '')}
           </div>
           
           {/* 액션 버튼들 */}
