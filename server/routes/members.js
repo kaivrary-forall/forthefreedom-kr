@@ -1000,6 +1000,41 @@ router.post('/me/profile-image', authMember, profileUpload.single('profileImage'
   }
 });
 
+// ===== 닉네임 검색 (자동완성용) =====
+router.get('/search', async (req, res) => {
+  try {
+    const { q, limit = 10 } = req.query;
+    
+    if (!q || q.length < 1) {
+      return res.json({
+        success: true,
+        data: []
+      });
+    }
+    
+    // 닉네임으로 검색 (대소문자 무시, 부분 일치)
+    const members = await Member.find({
+      nickname: { $regex: q, $options: 'i' },
+      status: 'active'
+    })
+      .select('_id nickname profileImage memberType')
+      .limit(parseInt(limit))
+      .lean();
+    
+    res.json({
+      success: true,
+      data: members
+    });
+    
+  } catch (error) {
+    console.error('회원 검색 오류:', error);
+    res.status(500).json({
+      success: false,
+      message: '회원 검색에 실패했습니다'
+    });
+  }
+});
+
 // ===== 닉네임으로 회원의 게시글 목록 조회 =====
 router.get('/nickname/:nickname/posts', async (req, res) => {
   try {
