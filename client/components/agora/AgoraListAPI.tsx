@@ -183,7 +183,7 @@ export default function AgoraListAPI({ boardType = 'member' }: AgoraListAPIProps
   const canWrite = () => {
     if (!isLoggedIn || !member) return false
     
-    const memberType = member.memberType || 'member'
+    const memberType = (member as any).memberType || 'member'
     
     switch (boardType) {
       case 'member':
