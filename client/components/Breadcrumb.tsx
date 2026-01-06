@@ -236,8 +236,24 @@ export default function Breadcrumb() {
       // 디코딩 실패 시 원본 사용
     }
     
+    // MongoDB ObjectId 패턴 체크 (24자리 hex)
+    const isObjectId = /^[a-f0-9]{24}$/i.test(segment)
+    
     // 매핑된 이름 또는 디코딩된 세그먼트 사용
-    const name = names[segment] || decodedSegment
+    let name = names[segment] || decodedSegment
+    
+    // ObjectId인 경우 이전 세그먼트에 따라 이름 결정
+    if (isObjectId) {
+      const prevSegment = pathSegments[index - 1]
+      if (prevSegment === 'agora') {
+        name = isEnglish ? 'Post' : '게시글'
+      } else if (prevSegment === 'news' || prevSegment === 'press' || prevSegment === 'notices') {
+        name = isEnglish ? 'Article' : '게시글'
+      } else {
+        name = isEnglish ? 'Detail' : '상세'
+      }
+    }
+    
     const isLast = index === pathSegments.length - 1
     
     return { path, name, isLast }
