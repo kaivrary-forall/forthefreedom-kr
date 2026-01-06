@@ -58,6 +58,82 @@ function formatCommentDate(dateStr: string): string {
   })
 }
 
+// 멘션 드롭다운 컴포넌트
+function MentionDropdown({ 
+  nickname, 
+  children,
+  className = ''
+}: { 
+  nickname: string
+  children: React.ReactNode
+  className?: string
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+  const dropdownRef = React.useRef<HTMLDivElement>(null)
+
+  // 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpen])
+
+  return (
+    <span className={`relative inline-block ${className}`} ref={dropdownRef}>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          setIsOpen(!isOpen)
+        }}
+        className="hover:underline cursor-pointer"
+      >
+        {children}
+      </button>
+      
+      {isOpen && (
+        <div className="absolute left-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[140px] py-1">
+          <Link
+            href={`/member/${encodeURIComponent(nickname)}`}
+            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+            onClick={() => setIsOpen(false)}
+          >
+            <span>👤</span>
+            <span>프로필 보기</span>
+          </Link>
+          <Link
+            href={`/agora?authorNickname=${encodeURIComponent(nickname)}`}
+            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+            onClick={() => setIsOpen(false)}
+          >
+            <span>📝</span>
+            <span>작성한 글</span>
+          </Link>
+          <Link
+            href={`/member/${encodeURIComponent(nickname)}/comments`}
+            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+            onClick={() => setIsOpen(false)}
+          >
+            <span>💬</span>
+            <span>작성한 댓글</span>
+          </Link>
+        </div>
+      )}
+    </span>
+  )
+}
+
 // @멘션 파싱 함수
 function parseMentions(content: string): React.ReactNode[] {
   const mentionRegex = /@([^\s@]+)/g
@@ -71,17 +147,12 @@ function parseMentions(content: string): React.ReactNode[] {
       parts.push(content.slice(lastIndex, match.index))
     }
     
-    // 멘션을 링크로 변환
+    // 멘션을 드롭다운으로 변환
     const nickname = match[1]
     parts.push(
-      <Link 
-        key={`mention-${match.index}`}
-        href={`/member/${encodeURIComponent(nickname)}`}
-        className="text-primary hover:underline font-medium"
-        onClick={(e) => e.stopPropagation()}
-      >
-        @{nickname}
-      </Link>
+      <MentionDropdown key={`mention-${match.index}`} nickname={nickname}>
+        <span className="text-primary font-medium">@{nickname}</span>
+      </MentionDropdown>
     )
     
     lastIndex = match.index + match[0].length
@@ -138,7 +209,14 @@ function CommentItem({
   const replyCount = comment.replies?.length || 0
 
   return (
-    <div className={depth > 0 ? 'ml-12 border-l-2 border-gray-300 pl-4' : ''}>
+    <div className={`relative ${depth > 0 ? 'ml-12 pl-4' : ''}`}>
+      {/* ㄴ자 연결선 */}
+      {depth > 0 && (
+        <div 
+          className="absolute left-0 top-0 w-4 h-6 border-l-2 border-b-2 border-gray-300 rounded-bl-lg"
+          style={{ transform: 'translateX(-16px)' }}
+        />
+      )}
       <div className="flex gap-3 py-2">
         {/* 프로필 이미지 */}
         <div className="w-10 h-10 rounded-full bg-gray-600 overflow-hidden flex items-center justify-center flex-shrink-0">
@@ -160,23 +238,15 @@ function CommentItem({
             {comment.replyToAuthor && (
               <>
                 <span className="text-sm text-gray-500">to</span>
-                <Link 
-                  href={`/member/${encodeURIComponent(comment.replyToAuthor)}`}
-                  className="text-sm text-primary hover:underline"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  @{comment.replyToAuthor}
-                </Link>
+                <MentionDropdown nickname={comment.replyToAuthor}>
+                  <span className="text-sm text-primary">@{comment.replyToAuthor}</span>
+                </MentionDropdown>
                 <span className="text-gray-400">-</span>
               </>
             )}
-            <Link 
-              href={`/member/${encodeURIComponent(author)}`}
-              className="font-medium text-gray-900 text-sm hover:underline"
-              onClick={(e) => e.stopPropagation()}
-            >
-              @{author}
-            </Link>
+            <MentionDropdown nickname={author}>
+              <span className="font-medium text-gray-900 text-sm">@{author}</span>
+            </MentionDropdown>
             <span className="text-xs text-gray-500">{timeText}</span>
           </div>
 
