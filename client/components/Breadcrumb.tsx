@@ -99,6 +99,11 @@ const pathNames: Record<string, string> = {
   'profile': '프로필',
   'login': '로그인',
   'register': '회원가입',
+  'member': '회원',
+  'posts': '작성한 글',
+  'comments': '작성한 댓글',
+  'mentions': '언급된 글',
+  'badges': '배지',
 }
 
 // 영어 경로 매핑
@@ -191,6 +196,11 @@ const pathNamesEn: Record<string, string> = {
   'profile': 'Profile',
   'login': 'Login',
   'register': 'Register',
+  'member': 'Member',
+  'posts': 'Posts',
+  'comments': 'Comments',
+  'mentions': 'Mentions',
+  'badges': 'Badges',
 }
 
 export default function Breadcrumb() {
@@ -217,7 +227,17 @@ export default function Breadcrumb() {
     const path = isEnglish 
       ? '/en/' + pathSegments.slice(0, index + 1).join('/')
       : '/' + pathSegments.slice(0, index + 1).join('/')
-    const name = names[segment] || segment
+    
+    // URL 디코딩 (한글 닉네임 등)
+    let decodedSegment = segment
+    try {
+      decodedSegment = decodeURIComponent(segment)
+    } catch (e) {
+      // 디코딩 실패 시 원본 사용
+    }
+    
+    // 매핑된 이름 또는 디코딩된 세그먼트 사용
+    const name = names[segment] || decodedSegment
     const isLast = index === pathSegments.length - 1
     
     return { path, name, isLast }
