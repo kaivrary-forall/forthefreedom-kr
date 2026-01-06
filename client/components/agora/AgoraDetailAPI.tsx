@@ -18,6 +18,7 @@ interface CommentType {
   author: Author
   content: string
   parentComment?: string | null
+  replyToAuthor?: string // 답글 대상 작성자 닉네임
   likes?: string[]
   dislikes?: string[]
   likeCount?: number
@@ -45,7 +46,19 @@ interface Post {
   updatedAt: string
 }
 
-// 댓글 아이템 컴포넌트 (외부로 분리)
+// 날짜 포맷 함수
+function formatCommentDate(dateStr: string): string {
+  const date = new Date(dateStr)
+  return date.toLocaleString('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+// 댓글 아이템 컴포넌트
 function CommentItem({ 
   comment, 
   depth = 0,
@@ -62,21 +75,13 @@ function CommentItem({
   votingCommentId: string | null
 }) {
   const [showReplyForm, setShowReplyForm] = useState(false)
+  const [showReplies, setShowReplies] = useState(true)
   const [replyText, setReplyText] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const author = comment.author?.nickname || comment.author?.userId || '익명'
   const profileImage = comment.author?.profileImage || ''
-  const memberType = comment.author?.memberType || ''
-  const timeText = comment.createdAt
-    ? new Date(comment.createdAt).toLocaleString('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    : ''
+  const timeText = comment.createdAt ? formatCommentDate(comment.createdAt) : ''
 
   const handleReplySubmit = async () => {
     if (!replyText.trim() || isSubmitting) return
@@ -91,95 +96,104 @@ function CommentItem({
     }
   }
 
-  // 최대 2단계까지 답글 허용 (depth 0, 1, 2)
   const canReply = depth < 2
+  const hasReplies = comment.replies && comment.replies.length > 0
+  const replyCount = comment.replies?.length || 0
 
   return (
-    <div className={depth > 0 ? 'ml-6 border-l-2 border-gray-200 pl-4' : ''}>
-      <div className="bg-white border border-gray-200 rounded-xl p-4">
-        <div className="flex items-start gap-3">
-          <div className="w-9 h-9 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center flex-shrink-0">
-            {profileImage ? (
-              <img
-                src={profileImage}
-                alt={author}
-                className="w-full h-full object-cover"
-                referrerPolicy="no-referrer"
-              />
-            ) : (
-              <span className="text-gray-400 text-sm">👤</span>
+    <div className={depth > 0 ? 'ml-12' : ''}>
+      <div className="flex gap-3 py-2">
+        {/* 프로필 이미지 */}
+        <div className="w-10 h-10 rounded-full bg-gray-600 overflow-hidden flex items-center justify-center flex-shrink-0">
+          {profileImage ? (
+            <img
+              src={profileImage}
+              alt={author}
+              className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <span className="text-gray-300 text-lg">👤</span>
+          )}
+        </div>
+
+        <div className="flex-1 min-w-0">
+          {/* 작성자 & 시간 */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {comment.replyToAuthor && (
+              <>
+                <span className="text-sm text-gray-500">to</span>
+                <span className="text-sm text-primary">@{comment.replyToAuthor}</span>
+                <span className="text-gray-400">-</span>
+              </>
+            )}
+            <span className="font-medium text-gray-900 text-sm">@{author}</span>
+            <span className="text-xs text-gray-500">{timeText}</span>
+          </div>
+
+          {/* 내용 */}
+          <div className="mt-1 text-gray-800 text-sm whitespace-pre-line break-words">
+            {comment.content || ''}
+          </div>
+          
+          {/* 액션 버튼들 */}
+          <div className="flex items-center gap-1 mt-2">
+            {/* 좋아요 */}
+            <button
+              type="button"
+              onClick={() => onVote(comment._id, 'like')}
+              disabled={votingCommentId === comment._id}
+              className={`flex items-center gap-1 p-1.5 rounded-full hover:bg-gray-100 transition-colors ${
+                comment.isLiked ? 'text-primary' : 'text-gray-600'
+              } ${votingCommentId === comment._id ? 'opacity-50' : ''}`}
+            >
+              <span>👍</span>
+              <span className="text-xs">{comment.likeCount || 0}</span>
+            </button>
+            
+            {/* 싫어요 */}
+            <button
+              type="button"
+              onClick={() => onVote(comment._id, 'dislike')}
+              disabled={votingCommentId === comment._id}
+              className={`flex items-center gap-1 p-1.5 rounded-full hover:bg-gray-100 transition-colors ${
+                comment.isDisliked ? 'text-red-500' : 'text-gray-600'
+              } ${votingCommentId === comment._id ? 'opacity-50' : ''}`}
+            >
+              <span>👎</span>
+              <span className="text-xs">{comment.dislikeCount || 0}</span>
+            </button>
+            
+            {/* 답글 버튼 */}
+            {canReply && isLoggedIn && (
+              <button
+                type="button"
+                onClick={() => setShowReplyForm(!showReplyForm)}
+                className="ml-2 px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                답글
+              </button>
             )}
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-semibold text-gray-900">{author}</span>
-              {memberType && (
-                <span className="px-1.5 py-0.5 bg-primary/10 text-primary text-xs rounded">
-                  {memberType}
-                </span>
-              )}
-              {timeText && (
-                <span className="text-xs text-gray-400">{timeText}</span>
-              )}
-            </div>
-            <div className="mt-1 text-gray-700 whitespace-pre-line break-words">
-              {comment.content || ''}
-            </div>
-            
-            {/* 댓글 액션 버튼 */}
-            <div className="flex items-center gap-4 mt-3">
-              {/* 좋아요 */}
-              <button
-                type="button"
-                onClick={() => onVote(comment._id, 'like')}
-                disabled={votingCommentId === comment._id}
-                className={`flex items-center gap-1 text-xs transition-colors ${
-                  comment.isLiked 
-                    ? 'text-primary font-medium' 
-                    : 'text-gray-500 hover:text-primary'
-                } ${votingCommentId === comment._id ? 'opacity-50' : ''}`}
-              >
-                <span>👍</span>
-                <span>{comment.likeCount || 0}</span>
-              </button>
-              
-              {/* 싫어요 */}
-              <button
-                type="button"
-                onClick={() => onVote(comment._id, 'dislike')}
-                disabled={votingCommentId === comment._id}
-                className={`flex items-center gap-1 text-xs transition-colors ${
-                  comment.isDisliked 
-                    ? 'text-red-500 font-medium' 
-                    : 'text-gray-500 hover:text-red-500'
-                } ${votingCommentId === comment._id ? 'opacity-50' : ''}`}
-              >
-                <span>👎</span>
-                <span>{comment.dislikeCount || 0}</span>
-              </button>
-              
-              {/* 답글 버튼 (2단계까지만) */}
-              {canReply && isLoggedIn && (
-                <button
-                  type="button"
-                  onClick={() => setShowReplyForm(!showReplyForm)}
-                  className="text-xs text-gray-500 hover:text-primary transition-colors"
-                >
-                  💬 답글
-                </button>
-              )}
-            </div>
-            
-            {/* 답글 작성 폼 */}
-            {showReplyForm && (
-              <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                <textarea
-                  className="w-full p-2 border border-gray-200 rounded-lg resize-none text-sm focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none"
-                  placeholder={`${author}님에게 답글 작성...`}
-                  rows={2}
+          
+          {/* 답글 작성 폼 */}
+          {showReplyForm && (
+            <div className="mt-3 flex gap-3">
+              <div className="w-8 h-8 rounded-full bg-gray-400 flex-shrink-0"></div>
+              <div className="flex-1">
+                <input
+                  type="text"
+                  className="w-full bg-transparent border-b border-gray-300 focus:border-gray-900 outline-none py-1 text-sm"
+                  placeholder={`@${author}님에게 답글 추가...`}
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
                   disabled={isSubmitting}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault()
+                      handleReplySubmit()
+                    }
+                  }}
                 />
                 <div className="flex justify-end gap-2 mt-2">
                   <button
@@ -188,7 +202,7 @@ function CommentItem({
                       setShowReplyForm(false)
                       setReplyText('')
                     }}
-                    className="px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
                   >
                     취소
                   </button>
@@ -196,21 +210,40 @@ function CommentItem({
                     type="button"
                     onClick={handleReplySubmit}
                     disabled={isSubmitting || !replyText.trim()}
-                    className="px-3 py-1.5 text-xs bg-primary text-white rounded-lg hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="px-3 py-1.5 text-sm font-medium bg-primary text-white rounded-full hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
-                    {isSubmitting ? '작성 중...' : '답글 작성'}
+                    {isSubmitting ? '작성 중...' : '답글'}
                   </button>
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
+
+          {/* 답글 토글 버튼 */}
+          {hasReplies && depth === 0 && (
+            <button
+              type="button"
+              onClick={() => setShowReplies(!showReplies)}
+              className="flex items-center gap-1 mt-2 px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/10 rounded-full transition-colors"
+            >
+              <svg 
+                className={`w-4 h-4 transition-transform ${showReplies ? 'rotate-180' : ''}`} 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+              {showReplies ? '답글 숨기기' : `답글 ${replyCount}개`}
+            </button>
+          )}
         </div>
       </div>
       
-      {/* 대댓글 목록 (재귀) */}
-      {comment.replies && comment.replies.length > 0 && (
-        <div className="mt-2 space-y-2">
-          {comment.replies.map(reply => (
+      {/* 대댓글 목록 */}
+      {hasReplies && showReplies && (
+        <div className="space-y-1">
+          {comment.replies!.map(reply => (
             <CommentItem 
               key={reply._id} 
               comment={reply} 
@@ -241,6 +274,7 @@ export default function AgoraDetailAPI() {
   const [commentContent, setCommentContent] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [commentError, setCommentError] = useState<string | null>(null)
+  const [isCommentFocused, setIsCommentFocused] = useState(false)
 
   // 좋아요/싫어요 상태
   const [isLiked, setIsLiked] = useState(false)
@@ -272,7 +306,6 @@ export default function AgoraDetailAPI() {
       if (data.success && data.post) {
         setPost(data.post)
         setComments(data.comments || [])
-        // 좋아요/싫어요 상태 초기화
         setLikeCount(data.post.likeCount || 0)
         setDislikeCount(data.post.dislikeCount || 0)
         setIsLiked(data.post.isLiked || false)
@@ -303,7 +336,7 @@ export default function AgoraDetailAPI() {
     })
   }
 
-  // 좋아요/싫어요 핸들러 (게시글)
+  // 게시글 좋아요/싫어요 핸들러
   const handleVote = async (type: 'like' | 'dislike') => {
     if (!isLoggedIn || !token) {
       alert('로그인이 필요합니다')
@@ -362,7 +395,6 @@ export default function AgoraDetailAPI() {
       const data = await response.json()
       
       if (data.success) {
-        // 댓글 목록 업데이트
         setComments(prev => prev.map(c => {
           if (c._id === commentId) {
             return {
@@ -386,7 +418,7 @@ export default function AgoraDetailAPI() {
     }
   }, [isLoggedIn, token, votingCommentId, API_URL, id])
 
-  // 댓글/답글 작성 핸들러
+  // 댓글 작성 핸들러
   const handleCommentSubmit = async () => {
     if (!commentContent.trim()) {
       setCommentError('댓글 내용을 입력해주세요')
@@ -418,6 +450,7 @@ export default function AgoraDetailAPI() {
 
       if (data.success) {
         setCommentContent('')
+        setIsCommentFocused(false)
         await loadPost()
       } else {
         setCommentError(data.message || '댓글 작성에 실패했습니다')
@@ -466,26 +499,25 @@ export default function AgoraDetailAPI() {
     }
   }, [token, API_URL, id, loadPost])
 
-  // 댓글을 트리 구조로 정리 (재귀)
+  // 댓글을 트리 구조로 정리
   const organizeComments = (allComments: CommentType[]): CommentType[] => {
     const commentMap = new Map<string, CommentType>()
     const rootComments: CommentType[] = []
 
-    // 모든 댓글을 맵에 저장하고 replies 초기화
     allComments.forEach(comment => {
       commentMap.set(comment._id, { ...comment, replies: [] })
     })
 
-    // 부모-자식 관계 연결
     allComments.forEach(comment => {
       const currentComment = commentMap.get(comment._id)!
       if (comment.parentComment) {
         const parentComment = commentMap.get(comment.parentComment)
         if (parentComment) {
+          // 부모 댓글 작성자 정보 저장
+          currentComment.replyToAuthor = parentComment.author?.nickname || parentComment.author?.userId || '익명'
           parentComment.replies = parentComment.replies || []
           parentComment.replies.push(currentComment)
         } else {
-          // 부모가 없으면 루트로
           rootComments.push(currentComment)
         }
       } else {
@@ -595,19 +627,74 @@ export default function AgoraDetailAPI() {
       </div>
 
       {/* 댓글 섹션 */}
-      <section className="px-6 py-6 border-t border-gray-100 bg-gray-50">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-gray-900">
-            💬 댓글 <span className="text-gray-500 font-medium">({comments.length})</span>
-          </h2>
-        </div>
+      <section className="px-6 py-6 border-t border-gray-100">
+        <h2 className="text-base font-medium text-gray-900 mb-6">
+          댓글 {comments.length}개
+        </h2>
 
-        {organizedComments.length === 0 ? (
-          <div className="bg-white border border-gray-200 rounded-xl p-6 text-center text-gray-500">
-            댓글이 없습니다.
+        {/* 댓글 작성 */}
+        {isLoggedIn ? (
+          <div className="flex gap-3 mb-6">
+            <div className="w-10 h-10 rounded-full bg-gray-400 flex-shrink-0"></div>
+            <div className="flex-1">
+              <input
+                type="text"
+                className="w-full bg-transparent border-b border-gray-300 focus:border-gray-900 outline-none py-1 text-sm"
+                placeholder="댓글 추가..."
+                value={commentContent}
+                onChange={(e) => setCommentContent(e.target.value)}
+                onFocus={() => setIsCommentFocused(true)}
+                disabled={isSubmitting}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault()
+                    handleCommentSubmit()
+                  }
+                }}
+              />
+              {isCommentFocused && (
+                <div className="flex justify-end gap-2 mt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsCommentFocused(false)
+                      setCommentContent('')
+                    }}
+                    className="px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    취소
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCommentSubmit}
+                    disabled={isSubmitting || !commentContent.trim()}
+                    className="px-3 py-1.5 text-sm font-medium bg-primary text-white rounded-full hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {isSubmitting ? '작성 중...' : '댓글'}
+                  </button>
+                </div>
+              )}
+              {commentError && (
+                <p className="text-red-500 text-xs mt-2">{commentError}</p>
+              )}
+            </div>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg text-center">
+            <p className="text-sm text-gray-500 mb-2">댓글을 작성하려면 로그인이 필요합니다.</p>
+            <Link href="/login" className="text-sm text-primary hover:underline">
+              로그인하기 →
+            </Link>
+          </div>
+        )}
+
+        {/* 댓글 목록 */}
+        {organizedComments.length === 0 ? (
+          <div className="py-8 text-center text-gray-500 text-sm">
+            아직 댓글이 없습니다. 첫 번째 댓글을 작성해보세요!
+          </div>
+        ) : (
+          <div className="space-y-1">
             {organizedComments.map((comment) => (
               <CommentItem 
                 key={comment._id} 
@@ -621,56 +708,6 @@ export default function AgoraDetailAPI() {
             ))}
           </div>
         )}
-
-        {/* 댓글 작성 */}
-        <div className="mt-4 p-4 bg-white border border-gray-200 rounded-xl">
-          {isLoggedIn ? (
-            <>
-              <textarea
-                className="w-full p-3 border border-gray-200 rounded-lg resize-none text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
-                placeholder="댓글을 작성해주세요..."
-                rows={3}
-                value={commentContent}
-                onChange={(e) => setCommentContent(e.target.value)}
-                disabled={isSubmitting}
-              />
-              {commentError && (
-                <p className="text-red-500 text-sm mt-2">{commentError}</p>
-              )}
-              <div className="flex justify-end mt-2">
-                <button
-                  type="button"
-                  onClick={handleCommentSubmit}
-                  disabled={isSubmitting || !commentContent.trim()}
-                  className="px-4 py-2 bg-primary text-white text-sm rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting ? '작성 중...' : '댓글 작성'}
-                </button>
-              </div>
-            </>
-          ) : (
-            <>
-              <textarea
-                className="w-full p-3 border border-gray-200 rounded-lg resize-none text-sm bg-gray-50"
-                placeholder="댓글을 작성하려면 로그인이 필요합니다."
-                rows={3}
-                disabled
-              />
-              <div className="flex justify-between items-center mt-2">
-                <Link href="/login" className="text-sm text-primary hover:underline">
-                  로그인하기 →
-                </Link>
-                <button
-                  type="button"
-                  className="px-4 py-2 bg-primary text-white text-sm rounded-lg opacity-50 cursor-not-allowed"
-                  disabled
-                >
-                  댓글 작성
-                </button>
-              </div>
-            </>
-          )}
-        </div>
       </section>
 
       {/* 하단 네비게이션 */}
