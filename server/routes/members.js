@@ -1060,6 +1060,113 @@ router.get('/nickname/:nickname/comments', async (req, res) => {
   }
 });
 
+// ===== 닉네임으로 언급된 글/댓글 조회 =====
+router.get('/nickname/:nickname/mentions', async (req, res) => {
+  try {
+    const { nickname } = req.params;
+    const { page = 1, limit = 20 } = req.query;
+    
+    // 닉네임으로 회원 조회
+    const member = await Member.findOne({ nickname })
+      .select('_id nickname profileImage memberType')
+      .lean();
+    
+    if (!member) {
+      return res.status(404).json({
+        success: false,
+        message: '회원을 찾을 수 없습니다'
+      });
+    }
+    
+    const Post = require('../models/Post');
+    const Comment = require('../models/Comment');
+    
+    // @닉네임 패턴 (정규식)
+    const mentionPattern = new RegExp(`@${nickname}(?:\\s|$|[^\\w가-힣])`, 'i');
+    
+    // 게시글에서 @닉네임이 언급된 것 조회
+    const mentionedPosts = await Post.find({ 
+      content: mentionPattern,
+      isDeleted: false,
+      author: { $ne: member._id } // 본인 글 제외
+    })
+      .populate('author', 'nickname profileImage memberType')
+      .select('_id title content boardType viewCount likeCount commentCount createdAt')
+      .sort({ createdAt: -1 })
+      .lean();
+    
+    // 댓글에서 @닉네임이 언급된 것 조회
+    const mentionedComments = await Comment.find({ 
+      content: mentionPattern,
+      isDeleted: false,
+      author: { $ne: member._id } // 본인 댓글 제외
+    })
+      .populate('author', 'nickname profileImage memberType')
+      .populate('post', '_id title')
+      .select('_id content post author createdAt')
+      .sort({ createdAt: -1 })
+      .lean();
+    
+    // 통합 결과 (게시글 + 댓글)
+    const allMentions = [
+      ...mentionedPosts.map(post => ({
+        type: 'post',
+        _id: post._id,
+        title: post.title,
+        content: post.content,
+        author: post.author,
+        boardType: post.boardType,
+        viewCount: post.viewCount,
+        likeCount: post.likeCount,
+        commentCount: post.commentCount,
+        createdAt: post.createdAt
+      })),
+      ...mentionedComments.map(comment => ({
+        type: 'comment',
+        _id: comment._id,
+        content: comment.content,
+        author: comment.author,
+        post: comment.post,
+        createdAt: comment.createdAt
+      }))
+    ];
+    
+    // 최신순 정렬
+    allMentions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    
+    // 페이지네이션
+    const total = allMentions.length;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const paginatedMentions = allMentions.slice(skip, skip + parseInt(limit));
+    
+    res.json({
+      success: true,
+      data: {
+        member: {
+          _id: member._id,
+          nickname: member.nickname,
+          profileImage: member.profileImage,
+          memberType: member.memberType
+        },
+        mentions: paginatedMentions,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          totalPages: Math.ceil(total / parseInt(limit))
+        }
+      }
+    });
+    
+  } catch (error) {
+    console.error('언급된 글 조회 오류:', error);
+    res.status(500).json({
+      success: false,
+      message: '언급된 글을 불러올 수 없습니다'
+    });
+  }
+});
+
 // ===== 닉네임으로 프로필 조회 =====
 router.get('/nickname/:nickname', optionalAuth, async (req, res) => {
   try {
