@@ -1,8 +1,93 @@
 'use client'
 
+import { useState, useEffect, useRef } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
+
+// 멘션 드롭다운 컴포넌트
+function MentionDropdown({ 
+  nickname, 
+  children,
+  className = ''
+}: { 
+  nickname: string
+  children: React.ReactNode
+  className?: string
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpen])
+
+  return (
+    <span className={`relative inline-block ${className}`} ref={dropdownRef}>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          setIsOpen(!isOpen)
+        }}
+        className="hover:underline cursor-pointer"
+      >
+        {children}
+      </button>
+      
+      {isOpen && (
+        <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[140px] py-1">
+          <Link
+            href={`/member/${encodeURIComponent(nickname)}`}
+            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+            onClick={() => setIsOpen(false)}
+          >
+            <span>👤</span>
+            <span>프로필 보기</span>
+          </Link>
+          <Link
+            href={`/member/${encodeURIComponent(nickname)}/posts`}
+            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+            onClick={() => setIsOpen(false)}
+          >
+            <span>📝</span>
+            <span>작성한 글</span>
+          </Link>
+          <Link
+            href={`/member/${encodeURIComponent(nickname)}/comments`}
+            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+            onClick={() => setIsOpen(false)}
+          >
+            <span>💬</span>
+            <span>작성한 댓글</span>
+          </Link>
+          <Link
+            href={`/member/${encodeURIComponent(nickname)}/mentions`}
+            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+            onClick={() => setIsOpen(false)}
+          >
+            <span>📢</span>
+            <span>언급된 글</span>
+          </Link>
+        </div>
+      )}
+    </span>
+  )
+}
 
 export default function SideBannerRight() {
   const pathname = usePathname()
@@ -49,9 +134,11 @@ export default function SideBannerRight() {
         ) : isLoggedIn && member ? (
           // 로그인 상태
           <div className="flex flex-col gap-1.5">
-            <p className="text-xs font-medium text-gray-900 truncate mb-1">
-              @{member.nickname}
-            </p>
+            <MentionDropdown nickname={member.nickname}>
+              <p className="text-xs font-medium text-gray-900 truncate mb-1">
+                @{member.nickname}
+              </p>
+            </MentionDropdown>
             {/* [마이페이지] [로그아웃] 버튼 세로 배치 */}
             <Link
               href={`${linkPrefix}/mypage`}
