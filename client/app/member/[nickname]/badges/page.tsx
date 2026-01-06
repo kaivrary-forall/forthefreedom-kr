@@ -151,7 +151,6 @@ export default function MemberBadgesPage() {
         </div>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">@{nickname}</h1>
-          <p className="text-gray-500">배지 컬렉션</p>
         </div>
       </div>
 
