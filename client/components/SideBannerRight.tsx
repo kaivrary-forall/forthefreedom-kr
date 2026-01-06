@@ -26,8 +26,8 @@ export default function SideBannerRight() {
     >
       {/* 로그인/프로필 영역 */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 text-center">
-        {/* 프로필 아이콘 */}
-        <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
+        {/* 프로필 아이콘 - 버튼 너비와 동일하게 */}
+        <div className="w-full aspect-square mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
           {isLoggedIn && member?.profileImage ? (
             <img 
               src={member.profileImage} 
@@ -35,7 +35,7 @@ export default function SideBannerRight() {
               className="w-full h-full object-cover"
             />
           ) : (
-            <svg className="w-7 h-7 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+            <svg className="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
             </svg>
           )}
@@ -50,7 +50,7 @@ export default function SideBannerRight() {
           // 로그인 상태
           <div className="flex flex-col gap-1.5">
             <p className="text-xs font-medium text-gray-900 truncate mb-1">
-              {member.nickname}
+              @{member.nickname}
             </p>
             {/* [마이페이지] [로그아웃] 버튼 세로 배치 */}
             <Link
