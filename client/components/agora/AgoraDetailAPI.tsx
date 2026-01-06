@@ -121,7 +121,7 @@ export default function AgoraDetailAPI() {
     setIsVoting(true)
     
     try {
-      const response = await fetch(`/api/agora/${id}/${type}`, {
+      const response = await fetch(`/api/posts/${id}/${type}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -131,11 +131,11 @@ export default function AgoraDetailAPI() {
       const data = await response.json()
       
       if (data.success) {
-        // 서버에서 반환된 값으로 업데이트
-        setLikeCount(data.likeCount)
-        setDislikeCount(data.dislikeCount)
-        setIsLiked(data.isLiked)
-        setIsDisliked(data.isDisliked)
+        // 서버에서 반환된 값으로 업데이트 (data.data 안에 있음)
+        setLikeCount(data.data.likeCount)
+        setDislikeCount(data.data.dislikeCount)
+        setIsLiked(data.data.isLiked)
+        setIsDisliked(data.data.isDisliked)
       } else {
         alert(data.message || '투표에 실패했습니다')
       }
