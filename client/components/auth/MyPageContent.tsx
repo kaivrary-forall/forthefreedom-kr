@@ -1045,17 +1045,30 @@ export default function MyPageContent() {
                       </div>
                       
                       {/* 회전 */}
-                      <div className="flex items-center justify-center gap-4">
+                      <div className="flex items-center justify-center gap-3">
                         <button 
                           onClick={() => setRotation(r => r - 90)}
                           className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
+                          title="-90°"
                         >
                           <i className="fas fa-undo text-gray-600"></i>
                         </button>
-                        <span className="text-sm text-gray-500">{rotation}°</span>
+                        <div className="flex items-center">
+                          <input
+                            type="number"
+                            value={rotation}
+                            onChange={(e) => {
+                              const val = parseInt(e.target.value) || 0
+                              setRotation(Math.max(-360, Math.min(360, val)))
+                            }}
+                            className="w-16 text-center text-sm border border-gray-300 rounded-lg py-1 focus:outline-none focus:border-primary"
+                          />
+                          <span className="text-sm text-gray-500 ml-1">°</span>
+                        </div>
                         <button 
                           onClick={() => setRotation(r => r + 90)}
                           className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
+                          title="+90°"
                         >
                           <i className="fas fa-redo text-gray-600"></i>
                         </button>
