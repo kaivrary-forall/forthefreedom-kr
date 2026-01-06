@@ -1035,6 +1035,48 @@ router.get('/search', async (req, res) => {
   }
 });
 
+// ===== 닉네임으로 회원의 배지 목록 조회 =====
+router.get('/nickname/:nickname/badges', async (req, res) => {
+  try {
+    const { nickname } = req.params;
+    
+    // 닉네임으로 회원 조회
+    const member = await Member.findOne({ nickname })
+      .select('_id nickname profileImage memberType badges')
+      .lean();
+    
+    if (!member) {
+      return res.status(404).json({
+        success: false,
+        message: '회원을 찾을 수 없습니다'
+      });
+    }
+    
+    // 배지 목록 (member.badges가 없으면 빈 배열)
+    const badges = member.badges || [];
+    
+    res.json({
+      success: true,
+      data: {
+        member: {
+          _id: member._id,
+          nickname: member.nickname,
+          profileImage: member.profileImage,
+          memberType: member.memberType
+        },
+        badges
+      }
+    });
+    
+  } catch (error) {
+    console.error('회원 배지 조회 오류:', error);
+    res.status(500).json({
+      success: false,
+      message: '배지 목록을 불러올 수 없습니다'
+    });
+  }
+});
+
 // ===== 닉네임으로 회원의 게시글 목록 조회 =====
 router.get('/nickname/:nickname/posts', async (req, res) => {
   try {
