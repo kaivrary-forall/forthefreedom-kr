@@ -142,6 +142,206 @@ function MentionDropdown({
   )
 }
 
+// @멘션 자동완성 입력 컴포넌트
+interface MentionInputProps {
+  value: string
+  onChange: (value: string) => void
+  onFocus?: () => void
+  placeholder?: string
+  disabled?: boolean
+  onKeyDown?: (e: React.KeyboardEvent) => void
+  className?: string
+}
+
+interface SearchMember {
+  _id: string
+  nickname: string
+  profileImage?: string
+  memberType?: string
+}
+
+function MentionInput({ 
+  value, 
+  onChange, 
+  onFocus, 
+  placeholder, 
+  disabled, 
+  onKeyDown,
+  className = ''
+}: MentionInputProps) {
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [suggestions, setSuggestions] = useState<SearchMember[]>([])
+  const [mentionQuery, setMentionQuery] = useState('')
+  const [mentionStartIndex, setMentionStartIndex] = useState(-1)
+  const [selectedIndex, setSelectedIndex] = useState(0)
+  const [isSearching, setIsSearching] = useState(false)
+  const inputRef = React.useRef<HTMLInputElement>(null)
+  const suggestionsRef = React.useRef<HTMLDivElement>(null)
+  
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || ''
+
+  // 닉네임 검색
+  useEffect(() => {
+    if (!mentionQuery || mentionQuery.length < 1) {
+      setSuggestions([])
+      return
+    }
+
+    const searchMembers = async () => {
+      setIsSearching(true)
+      try {
+        const response = await fetch(`${API_URL}/api/members/search?q=${encodeURIComponent(mentionQuery)}&limit=5`)
+        const data = await response.json()
+        if (data.success) {
+          setSuggestions(data.data)
+          setSelectedIndex(0)
+        }
+      } catch (err) {
+        console.error('멘션 검색 실패:', err)
+      } finally {
+        setIsSearching(false)
+      }
+    }
+
+    const debounce = setTimeout(searchMembers, 200)
+    return () => clearTimeout(debounce)
+  }, [mentionQuery, API_URL])
+
+  // 입력 변경 처리
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value
+    const cursorPos = e.target.selectionStart || 0
+    
+    onChange(newValue)
+
+    // @ 감지
+    const textBeforeCursor = newValue.slice(0, cursorPos)
+    const lastAtIndex = textBeforeCursor.lastIndexOf('@')
+    
+    if (lastAtIndex !== -1) {
+      const textAfterAt = textBeforeCursor.slice(lastAtIndex + 1)
+      // @ 이후에 공백이 없으면 검색 모드
+      if (!textAfterAt.includes(' ')) {
+        setMentionStartIndex(lastAtIndex)
+        setMentionQuery(textAfterAt)
+        setShowSuggestions(true)
+        return
+      }
+    }
+    
+    setShowSuggestions(false)
+    setMentionQuery('')
+    setMentionStartIndex(-1)
+  }
+
+  // 멘션 선택
+  const selectMention = (member: SearchMember) => {
+    if (mentionStartIndex === -1) return
+    
+    const beforeMention = value.slice(0, mentionStartIndex)
+    const afterMention = value.slice(mentionStartIndex + mentionQuery.length + 1)
+    const newValue = `${beforeMention}@${member.nickname} ${afterMention}`
+    
+    onChange(newValue)
+    setShowSuggestions(false)
+    setMentionQuery('')
+    setMentionStartIndex(-1)
+    
+    // 커서 위치 조정
+    setTimeout(() => {
+      if (inputRef.current) {
+        const newCursorPos = beforeMention.length + member.nickname.length + 2
+        inputRef.current.setSelectionRange(newCursorPos, newCursorPos)
+        inputRef.current.focus()
+      }
+    }, 0)
+  }
+
+  // 키보드 네비게이션
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (showSuggestions && suggestions.length > 0) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        setSelectedIndex(prev => (prev + 1) % suggestions.length)
+        return
+      }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        setSelectedIndex(prev => (prev - 1 + suggestions.length) % suggestions.length)
+        return
+      }
+      if (e.key === 'Enter' || e.key === 'Tab') {
+        e.preventDefault()
+        selectMention(suggestions[selectedIndex])
+        return
+      }
+      if (e.key === 'Escape') {
+        setShowSuggestions(false)
+        return
+      }
+    }
+    
+    // 기존 onKeyDown 호출
+    if (onKeyDown && !showSuggestions) {
+      onKeyDown(e)
+    }
+  }
+
+  return (
+    <div className="relative">
+      <input
+        ref={inputRef}
+        type="text"
+        className={className}
+        placeholder={placeholder}
+        value={value}
+        onChange={handleChange}
+        onFocus={onFocus}
+        disabled={disabled}
+        onKeyDown={handleKeyDown}
+      />
+      
+      {/* 자동완성 드롭다운 */}
+      {showSuggestions && (suggestions.length > 0 || isSearching) && (
+        <div 
+          ref={suggestionsRef}
+          className="absolute left-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-64 max-h-48 overflow-y-auto"
+        >
+          {isSearching ? (
+            <div className="px-4 py-3 text-sm text-gray-500">검색 중...</div>
+          ) : suggestions.length > 0 ? (
+            suggestions.map((member, index) => (
+              <button
+                key={member._id}
+                type="button"
+                onClick={() => selectMention(member)}
+                className={`w-full flex items-center gap-3 px-4 py-2 text-left transition-colors ${
+                  index === selectedIndex ? 'bg-gray-100' : 'hover:bg-gray-50'
+                }`}
+              >
+                <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center flex-shrink-0">
+                  {member.profileImage ? (
+                    <img 
+                      src={member.profileImage} 
+                      alt={member.nickname}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-gray-400 text-sm">👤</span>
+                  )}
+                </div>
+                <span className="text-sm font-medium text-gray-900">@{member.nickname}</span>
+              </button>
+            ))
+          ) : mentionQuery.length > 0 ? (
+            <div className="px-4 py-3 text-sm text-gray-500">일치하는 회원이 없습니다</div>
+          ) : null}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // @멘션 파싱 함수
 function parseMentions(content: string): React.ReactNode[] {
   const mentionRegex = /@([^\s@]+)/g
@@ -308,12 +508,11 @@ function CommentItem({
             <div className="mt-3 flex gap-3">
               <div className="w-8 h-8 rounded-full bg-gray-400 flex-shrink-0"></div>
               <div className="flex-1">
-                <input
-                  type="text"
+                <MentionInput
                   className="w-full bg-transparent border-b border-gray-300 focus:border-gray-900 outline-none py-1 text-sm"
                   placeholder={`@${author}님에게 답글 추가...`}
                   value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
+                  onChange={(value) => setReplyText(value)}
                   disabled={isSubmitting}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
@@ -766,12 +965,11 @@ export default function AgoraDetailAPI() {
           <div className="flex gap-3 mb-6">
             <div className="w-10 h-10 rounded-full bg-gray-400 flex-shrink-0"></div>
             <div className="flex-1">
-              <input
-                type="text"
+              <MentionInput
                 className="w-full bg-transparent border-b border-gray-300 focus:border-gray-900 outline-none py-1 text-sm"
-                placeholder="댓글 추가..."
+                placeholder="댓글 추가... (@로 멘션)"
                 value={commentContent}
-                onChange={(e) => setCommentContent(e.target.value)}
+                onChange={(value) => setCommentContent(value)}
                 onFocus={() => setIsCommentFocused(true)}
                 disabled={isSubmitting}
                 onKeyDown={(e) => {
