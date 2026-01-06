@@ -1,41 +1,57 @@
-import type { Metadata } from 'next'
-import Link from 'next/link'
+'use client'
+
+import { useState } from 'react'
 import AgoraListAPI from '@/components/agora/AgoraListAPI'
 
-export const metadata: Metadata = {
-  title: '아고라 | 자유와혁신',
-  description: '자유와혁신 자유게시판. 당원과 시민이 자유롭게 의견을 나누는 공간입니다.',
-  openGraph: {
-    title: '아고라 | 자유와혁신',
-    description: '자유와혁신 자유게시판',
-    url: 'https://www.forthefreedom.kr/agora',
-  },
-}
+type BoardType = 'member' | 'party' | 'innovation' | 'anonymous'
+
+const boardTabs: { key: BoardType; label: string; description: string; icon: string }[] = [
+  { key: 'member', label: '회원 게시판', description: '회원이면 누구나 작성할 수 있습니다', icon: '👥' },
+  { key: 'party', label: '당원 게시판', description: '당원만 작성할 수 있습니다', icon: '🏛️' },
+  { key: 'innovation', label: '혁신당원 게시판', description: '혁신당원만 작성할 수 있습니다', icon: '⭐' },
+  { key: 'anonymous', label: '익명 게시판', description: '익명으로 작성됩니다 (IP 공개)', icon: '🎭' },
+]
 
 export default function AgoraPage() {
+  const [activeBoard, setActiveBoard] = useState<BoardType>('member')
+
   return (
-    <div>
-      {/* 히어로 */}
-      <section 
-        className="relative h-[40vh] flex items-center justify-center bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/night-pic.jpg')" }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/20"></div>
-        <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">아고라</h1>
-          <p className="text-xl text-gray-200 drop-shadow">자유롭게 의견을 나누는 공간</p>
-        </div>
-      </section>
+    <div className="max-w-5xl mx-auto px-4 py-8">
+      {/* 페이지 헤더 */}
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-900">아고라</h1>
+        <p className="text-gray-500 mt-1">자유롭게 의견을 나누는 공간</p>
+      </div>
 
-      <main className="relative z-10 bg-white py-12">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* 상단 제목 */}
-          <h2 className="text-xl font-bold text-gray-900 mb-6">자유게시판</h2>
-
-          {/* 게시글 목록 (글쓰기 버튼 포함) */}
-          <AgoraListAPI />
+      {/* 게시판 탭 */}
+      <div className="bg-white rounded-xl border border-gray-200 mb-6">
+        <div className="flex overflow-x-auto">
+          {boardTabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveBoard(tab.key)}
+              className={`flex-1 min-w-[140px] px-4 py-4 text-center transition-colors border-b-2 ${
+                activeBoard === tab.key
+                  ? 'border-primary text-primary bg-primary/5'
+                  : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              <span className="text-xl mb-1 block">{tab.icon}</span>
+              <span className="font-medium text-sm whitespace-nowrap">{tab.label}</span>
+            </button>
+          ))}
         </div>
-      </main>
+        
+        {/* 선택된 게시판 설명 */}
+        <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
+          <p className="text-sm text-gray-600 text-center">
+            {boardTabs.find(t => t.key === activeBoard)?.description}
+          </p>
+        </div>
+      </div>
+
+      {/* 게시글 목록 */}
+      <AgoraListAPI boardType={activeBoard} />
     </div>
   )
 }
