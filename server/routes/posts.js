@@ -160,11 +160,13 @@ router.get('/:id', optionalAuth, async (req, res) => {
       .sort({ createdAt: 1 })
       .lean();
     
-    // 댓글에 좋아요 여부 추가
+    // 댓글에 좋아요/싫어요 여부 추가
     const commentsWithLikes = comments.map(comment => ({
       ...comment,
       likeCount: comment.likes ? comment.likes.length : 0,
-      isLiked: req.memberId ? comment.likes?.some(id => id.toString() === req.memberId) : false
+      dislikeCount: comment.dislikes ? comment.dislikes.length : 0,
+      isLiked: req.memberId ? comment.likes?.some(id => id.toString() === req.memberId) : false,
+      isDisliked: req.memberId ? comment.dislikes?.some(id => id.toString() === req.memberId) : false
     }));
     
     res.json({
@@ -433,7 +435,9 @@ router.post('/:id/comments', authMember, async (req, res) => {
         comment: {
           ...comment.toObject(),
           likeCount: 0,
-          isLiked: false
+          dislikeCount: 0,
+          isLiked: false,
+          isDisliked: false
         }
       }
     });
@@ -493,28 +497,94 @@ router.post('/:postId/comments/:commentId/like', authMember, async (req, res) =>
       return res.status(404).json({ success: false, message: '댓글을 찾을 수 없습니다' });
     }
     
+    // 배열 초기화
+    if (!comment.likes) comment.likes = [];
+    if (!comment.dislikes) comment.dislikes = [];
+    
     const memberIdStr = req.memberId.toString();
     const likeIndex = comment.likes.findIndex(id => id.toString() === memberIdStr);
     
     if (likeIndex > -1) {
+      // 이미 좋아요 → 취소
       comment.likes.splice(likeIndex, 1);
     } else {
+      // 좋아요 추가 + 싫어요 해제
       comment.likes.push(req.memberId);
+      const dislikeIndex = comment.dislikes.findIndex(id => id.toString() === memberIdStr);
+      if (dislikeIndex > -1) {
+        comment.dislikes.splice(dislikeIndex, 1);
+      }
     }
     
     await comment.save();
     
+    // 현재 상태 확인
+    const isNowLiked = comment.likes.some(id => id.toString() === memberIdStr);
+    const isNowDisliked = comment.dislikes.some(id => id.toString() === memberIdStr);
+    
     res.json({
       success: true,
       data: {
-        isLiked: likeIndex === -1,
-        likeCount: comment.likes.length
+        isLiked: isNowLiked,
+        likeCount: comment.likes.length,
+        isDisliked: isNowDisliked,
+        dislikeCount: comment.dislikes.length
       }
     });
     
   } catch (error) {
     console.error('댓글 좋아요 오류:', error);
     res.status(500).json({ success: false, message: '좋아요 처리에 실패했습니다' });
+  }
+});
+
+// ===== 댓글 싫어요 토글 =====
+router.post('/:postId/comments/:commentId/dislike', authMember, async (req, res) => {
+  try {
+    const comment = await Comment.findOne({ _id: req.params.commentId, isDeleted: false });
+    
+    if (!comment) {
+      return res.status(404).json({ success: false, message: '댓글을 찾을 수 없습니다' });
+    }
+    
+    // 배열 초기화
+    if (!comment.likes) comment.likes = [];
+    if (!comment.dislikes) comment.dislikes = [];
+    
+    const memberIdStr = req.memberId.toString();
+    const dislikeIndex = comment.dislikes.findIndex(id => id.toString() === memberIdStr);
+    
+    if (dislikeIndex > -1) {
+      // 이미 싫어요 → 취소
+      comment.dislikes.splice(dislikeIndex, 1);
+    } else {
+      // 싫어요 추가 + 좋아요 해제
+      comment.dislikes.push(req.memberId);
+      const likeIndex = comment.likes.findIndex(id => id.toString() === memberIdStr);
+      if (likeIndex > -1) {
+        comment.likes.splice(likeIndex, 1);
+      }
+    }
+    
+    await comment.save();
+    
+    // 현재 상태 확인
+    const isNowLiked = comment.likes.some(id => id.toString() === memberIdStr);
+    const isNowDisliked = comment.dislikes.some(id => id.toString() === memberIdStr);
+    
+    res.json({
+      success: true,
+      data: {
+        isDisliked: isNowDisliked,
+        dislikeCount: comment.dislikes.length,
+        isLiked: isNowLiked,
+        likeCount: comment.likes.length
+      }
+    });
+    
+  } catch (error) {
+    console.error('댓글 싫어요 오류:', error);
+    res.status(500).json({ success: false, message: '싫어요 처리에 실패했습니다' });
   }
 });
 
