@@ -1,14 +1,20 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function SideBannerRight() {
   const pathname = usePathname()
+  const router = useRouter()
   const isEnPage = pathname?.startsWith('/en')
   const linkPrefix = isEnPage ? '/en' : ''
-  const { member, isLoggedIn, isLoading } = useAuth()
+  const { member, isLoggedIn, isLoading, logout } = useAuth()
+
+  const handleLogout = () => {
+    logout()
+    router.push('/')
+  }
 
   return (
     <div 
@@ -46,12 +52,21 @@ export default function SideBannerRight() {
             <p className="text-xs font-medium text-gray-900 truncate mb-1">
               {member.nickname}
             </p>
-            <Link
-              href={`${linkPrefix}/mypage`}
-              className="block w-full py-2 px-3 text-xs font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors"
-            >
-              {isEnPage ? 'My Page' : '마이페이지'}
-            </Link>
+            {/* [정보] [로그아웃] 버튼 가로 배치 */}
+            <div className="flex gap-1.5">
+              <Link
+                href={`${linkPrefix}/mypage`}
+                className="flex-1 py-2 px-2 text-xs font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors text-center"
+              >
+                {isEnPage ? 'Info' : '정보'}
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="flex-1 py-2 px-2 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                {isEnPage ? 'Logout' : '로그아웃'}
+              </button>
+            </div>
           </div>
         ) : (
           // 비로그인 상태
