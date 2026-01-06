@@ -35,6 +35,12 @@ const commentSchema = new mongoose.Schema({
     ref: 'Member'
   }],
   
+  // 싫어요 (회원 ID 배열)
+  dislikes: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Member'
+  }],
+  
   // 삭제 여부 (soft delete)
   isDeleted: {
     type: Boolean,
@@ -60,6 +66,11 @@ commentSchema.index({ parentComment: 1 });
 // 가상 필드: 좋아요 수
 commentSchema.virtual('likeCount').get(function() {
   return this.likes ? this.likes.length : 0;
+});
+
+// 가상 필드: 싫어요 수
+commentSchema.virtual('dislikeCount').get(function() {
+  return this.dislikes ? this.dislikes.length : 0;
 });
 
 // JSON 변환 시 가상 필드 포함
