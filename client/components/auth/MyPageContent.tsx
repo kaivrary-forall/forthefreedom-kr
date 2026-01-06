@@ -85,7 +85,7 @@ export default function MyPageContent() {
     
     try {
       const token = localStorage.getItem('token')
-      const res = await fetch(`${API_URL}/api/members/nickname`, {
+      const res = await fetch(`${API_URL}/api/members/me/nickname`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -120,7 +120,7 @@ export default function MyPageContent() {
     
     try {
       const token = localStorage.getItem('token')
-      const res = await fetch(`${API_URL}/api/members/password`, {
+      const res = await fetch(`${API_URL}/api/members/me/password`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -159,7 +159,7 @@ export default function MyPageContent() {
     
     try {
       const token = localStorage.getItem('token')
-      const res = await fetch(`${API_URL}/api/members/email/request`, {
+      const res = await fetch(`${API_URL}/api/members/me/email/request`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -190,7 +190,7 @@ export default function MyPageContent() {
     
     try {
       const token = localStorage.getItem('token')
-      const res = await fetch(`${API_URL}/api/members/email/verify`, {
+      const res = await fetch(`${API_URL}/api/members/me/email/verify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -231,7 +231,7 @@ export default function MyPageContent() {
     
     try {
       const token = localStorage.getItem('token')
-      const res = await fetch(`${API_URL}/api/members/withdraw`, {
+      const res = await fetch(`${API_URL}/api/members/me/withdraw`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
