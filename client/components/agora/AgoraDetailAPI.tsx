@@ -48,14 +48,14 @@ interface Post {
 // 댓글 아이템 컴포넌트 (외부로 분리)
 function CommentItem({ 
   comment, 
-  isReply = false,
+  depth = 0,
   isLoggedIn,
   onVote,
   onReply,
   votingCommentId
 }: { 
   comment: CommentType
-  isReply?: boolean
+  depth?: number
   isLoggedIn: boolean
   onVote: (commentId: string, type: 'like' | 'dislike') => void
   onReply: (commentId: string, content: string) => Promise<boolean>
@@ -91,8 +91,11 @@ function CommentItem({
     }
   }
 
+  // 최대 2단계까지 답글 허용 (depth 0, 1, 2)
+  const canReply = depth < 2
+
   return (
-    <div className={`${isReply ? 'ml-8 border-l-2 border-gray-200 pl-4' : ''}`}>
+    <div className={depth > 0 ? 'ml-6 border-l-2 border-gray-200 pl-4' : ''}>
       <div className="bg-white border border-gray-200 rounded-xl p-4">
         <div className="flex items-start gap-3">
           <div className="w-9 h-9 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center flex-shrink-0">
@@ -155,8 +158,8 @@ function CommentItem({
                 <span>{comment.dislikeCount || 0}</span>
               </button>
               
-              {/* 답글 버튼 (대댓글이 아닐 때만) */}
-              {!isReply && isLoggedIn && (
+              {/* 답글 버튼 (2단계까지만) */}
+              {canReply && isLoggedIn && (
                 <button
                   type="button"
                   onClick={() => setShowReplyForm(!showReplyForm)}
@@ -204,14 +207,14 @@ function CommentItem({
         </div>
       </div>
       
-      {/* 대댓글 목록 */}
+      {/* 대댓글 목록 (재귀) */}
       {comment.replies && comment.replies.length > 0 && (
         <div className="mt-2 space-y-2">
           {comment.replies.map(reply => (
             <CommentItem 
               key={reply._id} 
               comment={reply} 
-              isReply={true}
+              depth={depth + 1}
               isLoggedIn={isLoggedIn}
               onVote={onVote}
               onReply={onReply}
@@ -463,15 +466,34 @@ export default function AgoraDetailAPI() {
     }
   }, [token, API_URL, id, loadPost])
 
-  // 댓글을 부모/자식으로 정리
-  const organizeComments = (allComments: CommentType[]) => {
-    const parentComments = allComments.filter(c => !c.parentComment)
-    const childComments = allComments.filter(c => c.parentComment)
-    
-    return parentComments.map(parent => ({
-      ...parent,
-      replies: childComments.filter(child => child.parentComment === parent._id)
-    }))
+  // 댓글을 트리 구조로 정리 (재귀)
+  const organizeComments = (allComments: CommentType[]): CommentType[] => {
+    const commentMap = new Map<string, CommentType>()
+    const rootComments: CommentType[] = []
+
+    // 모든 댓글을 맵에 저장하고 replies 초기화
+    allComments.forEach(comment => {
+      commentMap.set(comment._id, { ...comment, replies: [] })
+    })
+
+    // 부모-자식 관계 연결
+    allComments.forEach(comment => {
+      const currentComment = commentMap.get(comment._id)!
+      if (comment.parentComment) {
+        const parentComment = commentMap.get(comment.parentComment)
+        if (parentComment) {
+          parentComment.replies = parentComment.replies || []
+          parentComment.replies.push(currentComment)
+        } else {
+          // 부모가 없으면 루트로
+          rootComments.push(currentComment)
+        }
+      } else {
+        rootComments.push(currentComment)
+      }
+    })
+
+    return rootComments
   }
 
   const organizedComments = organizeComments(comments)
@@ -590,6 +612,7 @@ export default function AgoraDetailAPI() {
               <CommentItem 
                 key={comment._id} 
                 comment={comment}
+                depth={0}
                 isLoggedIn={isLoggedIn}
                 onVote={handleCommentVote}
                 onReply={handleReplySubmit}
