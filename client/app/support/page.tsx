@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import SupportNoticeModal from '@/components/SupportNoticeModal'
 
 export const metadata: Metadata = {
   title: '후원 안내 | 자유와혁신',
@@ -16,6 +17,9 @@ export const metadata: Metadata = {
 export default function SupportPage() {
   return (
     <div>
+      {/* 후원 안내 팝업 */}
+      <SupportNoticeModal />
+      
       {/* 히어로 */}
       <section 
         className="relative h-[50vh] flex items-center justify-center bg-cover bg-center"
@@ -71,8 +75,6 @@ export default function SupportPage() {
                 * 입금 시 실명으로 입금해 주세요
               </p>
             </div>
-
-
           </div>
         </section>
 
