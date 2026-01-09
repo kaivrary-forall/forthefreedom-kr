@@ -16,18 +16,6 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div>
-      {/* 히어로 섹션 */}
-      <section 
-        className="relative h-[60vh] flex items-center justify-center bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/night-pic.jpg')" }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/20"></div>
-        <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">자유와혁신을 소개합니다</h1>
-          <p className="text-xl text-gray-200 drop-shadow">자유민주주의와 혁신을 통한 새로운 정치</p>
-        </div>
-      </section>
-
       {/* 당 대표 인사말 */}
       <section className="py-12 sm:py-16 lg:py-24 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
