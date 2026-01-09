@@ -31,6 +31,7 @@ export default function MemberProfilePage() {
   const [profileData, setProfileData] = useState<ProfileData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showDropdown, setShowDropdown] = useState(false)
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || ''
 
@@ -124,9 +125,6 @@ export default function MemberProfilePage() {
   }
 
   const { member, postCount, commentCount, followerCount, followingCount } = profileData
-
-  // 드롭다운 상태
-  const [showDropdown, setShowDropdown] = useState(false)
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
