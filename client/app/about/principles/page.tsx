@@ -29,18 +29,6 @@ export default function PrinciplesPage() {
 
   return (
     <div>
-      {/* 히어로 */}
-      <section 
-        className="relative h-[60vh] flex items-center justify-center bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/night-pic.jpg')" }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/20"></div>
-        <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">강령·당헌·당규</h1>
-          <p className="text-xl text-gray-200 drop-shadow">자유민주주의와 혁신을 통한 국가 재건</p>
-        </div>
-      </section>
-
       <main className="relative z-10 bg-white">
         {/* 탭 네비게이션 */}
         <section className="py-8 bg-white border-b border-gray-200">
