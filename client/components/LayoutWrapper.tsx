@@ -7,6 +7,7 @@ import SideBannerLeft from '@/components/SideBannerLeft'
 import SideBannerRight from '@/components/SideBannerRight'
 import TopNoticeBar from '@/components/TopNoticeBar'
 import EntryPopup from '@/components/EntryPopup'
+import LoginModal from '@/components/auth/LoginModal'
 import Breadcrumb from '@/components/Breadcrumb'
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
@@ -35,6 +36,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       </main>
       <Footer />
       <EntryPopup />
+      <LoginModal />
     </>
   )
 }

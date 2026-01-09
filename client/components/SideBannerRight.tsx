@@ -1,105 +1,14 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 
-// 멘션 드롭다운 컴포넌트
-function MentionDropdown({ 
-  nickname, 
-  children,
-  className = ''
-}: { 
-  nickname: string
-  children: React.ReactNode
-  className?: string
-}) {
-  const [isOpen, setIsOpen] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
-
-  // 외부 클릭 시 닫기
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
-      }
-    }
-    
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-    
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isOpen])
-
-  return (
-    <span className={`relative inline-block ${className}`} ref={dropdownRef}>
-      <button
-        type="button"
-        onClick={(e) => {
-          e.preventDefault()
-          e.stopPropagation()
-          setIsOpen(!isOpen)
-        }}
-        className="hover:underline cursor-pointer"
-      >
-        {children}
-      </button>
-      
-      {isOpen && (
-        <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[140px] py-1">
-          <Link
-            href={`/member/${encodeURIComponent(nickname)}`}
-            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-            onClick={() => setIsOpen(false)}
-          >
-            <span>👤</span>
-            <span>프로필 보기</span>
-          </Link>
-          <Link
-            href={`/member/${encodeURIComponent(nickname)}/posts`}
-            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-            onClick={() => setIsOpen(false)}
-          >
-            <span>📝</span>
-            <span>작성한 글</span>
-          </Link>
-          <Link
-            href={`/member/${encodeURIComponent(nickname)}/comments`}
-            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-            onClick={() => setIsOpen(false)}
-          >
-            <span>💬</span>
-            <span>작성한 댓글</span>
-          </Link>
-          <Link
-            href={`/member/${encodeURIComponent(nickname)}/mentions`}
-            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-            onClick={() => setIsOpen(false)}
-          >
-            <span>📢</span>
-            <span>언급된 글</span>
-          </Link>
-        </div>
-      )}
-    </span>
-  )
-}
-
 export default function SideBannerRight() {
   const pathname = usePathname()
-  const router = useRouter()
   const isEnPage = pathname?.startsWith('/en')
   const linkPrefix = isEnPage ? '/en' : ''
-  const { member, isLoggedIn, isLoading, logout } = useAuth()
-
-  const handleLogout = () => {
-    logout()
-    router.push('/')
-  }
+  const { member, isLoggedIn, isLoading, openLoginModal } = useAuth()
 
   return (
     <div 
@@ -111,8 +20,8 @@ export default function SideBannerRight() {
     >
       {/* 로그인/프로필 영역 */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 text-center">
-        {/* 프로필 아이콘 - 버튼 너비와 동일하게 */}
-        <div className="w-full aspect-square mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
+        {/* 프로필 아이콘 */}
+        <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
           {isLoggedIn && member?.profileImage ? (
             <img 
               src={member.profileImage} 
@@ -120,7 +29,7 @@ export default function SideBannerRight() {
               className="w-full h-full object-cover"
             />
           ) : (
-            <svg className="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+            <svg className="w-7 h-7 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
             </svg>
           )}
@@ -134,42 +43,31 @@ export default function SideBannerRight() {
         ) : isLoggedIn && member ? (
           // 로그인 상태
           <div className="flex flex-col gap-1.5">
-            <MentionDropdown nickname={member.nickname}>
-              <p className="text-xs font-medium text-gray-900 truncate mb-1">
-                @{member.nickname}
-              </p>
-            </MentionDropdown>
-            {/* [마이페이지] [로그아웃] 버튼 세로 배치 */}
+            <p className="text-xs font-medium text-gray-900 truncate mb-1">
+              {member.nickname}
+            </p>
             <Link
               href={`${linkPrefix}/mypage`}
               className="block w-full py-2 px-3 text-xs font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors"
             >
               {isEnPage ? 'My Page' : '마이페이지'}
             </Link>
-            <button
-              onClick={handleLogout}
-              className="w-full py-2 px-3 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              {isEnPage ? 'Logout' : '로그아웃'}
-            </button>
           </div>
         ) : (
           // 비로그인 상태
           <div className="flex flex-col gap-1.5">
-            <Link
-              href={`${linkPrefix}/login`}
+            <button
+              onClick={openLoginModal}
               className="block w-full py-2 px-3 text-xs font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors"
             >
               {isEnPage ? 'Login' : '로그인'}
-            </Link>
-            <a
-              href="https://www.ihappynanum.com/Nanum/api/screen/F7FCRIO2E3"
-              target="_blank"
-              rel="noopener noreferrer"
+            </button>
+            <Link
+              href={`${linkPrefix}/register`}
               className="block w-full py-2 px-3 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
             >
               {isEnPage ? 'Sign Up' : '회원가입'}
-            </a>
+            </Link>
           </div>
         )}
       </div>
