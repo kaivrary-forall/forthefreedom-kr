@@ -8,7 +8,7 @@ export default function SideBannerRight() {
   const pathname = usePathname()
   const isEnPage = pathname?.startsWith('/en')
   const linkPrefix = isEnPage ? '/en' : ''
-  const { member, isLoggedIn, isLoading, openLoginModal } = useAuth()
+  const { member, isLoggedIn, isLoading, openLoginModal, logout } = useAuth()
 
   return (
     <div 
@@ -52,6 +52,12 @@ export default function SideBannerRight() {
             >
               {isEnPage ? 'My Page' : '마이페이지'}
             </Link>
+            <button
+              onClick={logout}
+              className="block w-full py-2 px-3 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              {isEnPage ? 'Logout' : '로그아웃'}
+            </button>
           </div>
         ) : (
           // 비로그인 상태
