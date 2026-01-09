@@ -44,7 +44,7 @@ export default function SideBannerRight() {
           // 로그인 상태
           <div className="flex flex-col gap-1.5">
             <p className="text-xs font-medium text-gray-900 truncate mb-1">
-              {member.nickname}
+              @{member.nickname}
             </p>
             <Link
               href={`${linkPrefix}/member/${encodeURIComponent(member.nickname)}`}
