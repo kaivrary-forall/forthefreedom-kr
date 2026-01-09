@@ -47,8 +47,14 @@ export default function SideBannerRight() {
               {member.nickname}
             </p>
             <Link
-              href={`${linkPrefix}/mypage`}
+              href={`${linkPrefix}/member/${encodeURIComponent(member.nickname)}`}
               className="block w-full py-2 px-3 text-xs font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors"
+            >
+              {isEnPage ? 'Social Profile' : '소셜 프로필'}
+            </Link>
+            <Link
+              href={`${linkPrefix}/mypage`}
+              className="block w-full py-2 px-3 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
             >
               {isEnPage ? 'My Page' : '마이페이지'}
             </Link>
