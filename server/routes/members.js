@@ -178,20 +178,21 @@ router.post('/register', async (req, res) => {
         privacy: agreements.privacy,
         marketing: agreements.marketing || false
       },
-      status: 'pending', // 승인 대기 상태
-      appliedAt: new Date()
+      status: 'active', // 바로 활성화
+      memberType: 'member', // 일반 회원
+      approvedAt: new Date()
     });
     await member.save();
-    console.log('✅ 회원가입 신청:', member.userId, member.nickname);
+    console.log('✅ 회원가입 완료:', member.userId, member.nickname);
     res.status(201).json({
       success: true,
-      message: '회원가입 신청이 완료되었습니다. 관리자 승인 후 로그인하실 수 있습니다.',
+      message: '회원가입이 완료되었습니다.',
       data: {
         userId: member.userId,
         nickname: member.nickname,
         name: member.name,
         status: member.status,
-        appliedAt: member.appliedAt
+        memberType: member.memberType
       }
     });
   } catch (error) {
