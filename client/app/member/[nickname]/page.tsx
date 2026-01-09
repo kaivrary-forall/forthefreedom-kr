@@ -31,7 +31,6 @@ export default function MemberProfilePage() {
   const [profileData, setProfileData] = useState<ProfileData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [showDropdown, setShowDropdown] = useState(false)
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || ''
 
@@ -142,55 +141,9 @@ export default function MemberProfilePage() {
           )}
         </div>
         <div>
-          <div className="flex items-center gap-2 relative">
-            <button
-              onClick={() => setShowDropdown(!showDropdown)}
-              className="text-2xl font-bold text-gray-900 hover:text-primary transition-colors flex items-center gap-1"
-            >
-              @{nickname}
-              <svg className={`w-5 h-5 transition-transform ${showDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-gray-900">@{nickname}</h1>
             {getMemberTypeBadge(member.memberType)}
-            
-            {/* 드롭다운 메뉴 */}
-            {showDropdown && (
-              <div className="absolute top-full left-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-200 py-2 min-w-[160px] z-50">
-                <Link
-                  href={`/member/${encodeURIComponent(nickname)}`}
-                  className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-700"
-                  onClick={() => setShowDropdown(false)}
-                >
-                  <span>👤</span>
-                  <span>프로필 보기</span>
-                </Link>
-                <Link
-                  href={`/member/${encodeURIComponent(nickname)}/posts`}
-                  className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-700"
-                  onClick={() => setShowDropdown(false)}
-                >
-                  <span>📝</span>
-                  <span>작성한 글</span>
-                </Link>
-                <Link
-                  href={`/member/${encodeURIComponent(nickname)}/comments`}
-                  className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-700"
-                  onClick={() => setShowDropdown(false)}
-                >
-                  <span>💬</span>
-                  <span>작성한 댓글</span>
-                </Link>
-                <Link
-                  href={`/member/${encodeURIComponent(nickname)}/mentions`}
-                  className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-gray-700"
-                  onClick={() => setShowDropdown(false)}
-                >
-                  <span>📢</span>
-                  <span>언급된 글</span>
-                </Link>
-              </div>
-            )}
           </div>
         </div>
       </div>
