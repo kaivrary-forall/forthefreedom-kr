@@ -1369,4 +1369,131 @@ router.get('/nickname/:nickname', optionalAuth, async (req, res) => {
   }
 });
 
+// ===== 회원가입 - 이메일 인증 코드 발송 =====
+const registerEmailCodes = new Map(); // email -> { code, expiresAt }
+
+router.post('/register/send-email-code', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: '이메일을 입력해주세요.'
+      });
+    }
+
+    // 이메일 형식 검증
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: '올바른 이메일 형식이 아닙니다.'
+      });
+    }
+
+    // 이미 사용 중인 이메일인지 확인
+    const existingMember = await Member.findOne({ email: email.toLowerCase() });
+    if (existingMember) {
+      return res.status(400).json({
+        success: false,
+        message: '이미 사용 중인 이메일입니다.'
+      });
+    }
+
+    // 6자리 인증 코드 생성
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // 인증 코드 저장 (5분 유효)
+    registerEmailCodes.set(email.toLowerCase(), {
+      code,
+      expiresAt: Date.now() + 5 * 60 * 1000
+    });
+
+    // 이메일 발송
+    const sent = await sendVerificationCode(email, code);
+    if (!sent) {
+      return res.status(500).json({
+        success: false,
+        message: '인증 코드 발송에 실패했습니다.'
+      });
+    }
+
+    console.log('✅ 회원가입 이메일 인증코드 발송:', email);
+    
+    res.json({
+      success: true,
+      message: '인증 코드가 발송되었습니다. (5분 유효)'
+    });
+
+  } catch (error) {
+    console.error('회원가입 이메일 인증 오류:', error);
+    res.status(500).json({
+      success: false,
+      message: '인증 코드 발송 중 오류가 발생했습니다.'
+    });
+  }
+});
+
+// ===== 회원가입 - 이메일 인증 코드 확인 =====
+router.post('/register/verify-email-code', async (req, res) => {
+  try {
+    const { email, code } = req.body;
+
+    if (!email || !code) {
+      return res.status(400).json({
+        success: false,
+        message: '이메일과 인증 코드를 입력해주세요.'
+      });
+    }
+
+    const stored = registerEmailCodes.get(email.toLowerCase());
+
+    if (!stored) {
+      return res.status(400).json({
+        success: false,
+        message: '인증 코드가 존재하지 않습니다. 다시 요청해주세요.'
+      });
+    }
+
+    // 만료 확인
+    if (Date.now() > stored.expiresAt) {
+      registerEmailCodes.delete(email.toLowerCase());
+      return res.status(400).json({
+        success: false,
+        message: '인증 코드가 만료되었습니다. 다시 요청해주세요.'
+      });
+    }
+
+    // 코드 일치 확인
+    if (stored.code !== code) {
+      return res.status(400).json({
+        success: false,
+        message: '인증 코드가 일치하지 않습니다.'
+      });
+    }
+
+    // 인증 성공 - 코드는 삭제하지 않고 유지 (회원가입 완료 시 재검증용)
+    // 대신 verified 플래그 추가
+    registerEmailCodes.set(email.toLowerCase(), {
+      ...stored,
+      verified: true
+    });
+
+    console.log('✅ 회원가입 이메일 인증 완료:', email);
+
+    res.json({
+      success: true,
+      message: '이메일 인증이 완료되었습니다.'
+    });
+
+  } catch (error) {
+    console.error('회원가입 이메일 인증 확인 오류:', error);
+    res.status(500).json({
+      success: false,
+      message: '인증 확인 중 오류가 발생했습니다.'
+    });
+  }
+});
+
 module.exports = router;
