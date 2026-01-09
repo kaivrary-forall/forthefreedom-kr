@@ -16,18 +16,6 @@ export const metadata: Metadata = {
 export default function PolicyPage() {
   return (
     <div>
-      {/* 히어로 섹션 */}
-      <section 
-        className="relative h-[70vh] flex items-center justify-center bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/night-pic.jpg')" }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/20"></div>
-        <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 drop-shadow-lg">자유와혁신 정강정책</h1>
-          <p className="text-xl md:text-2xl text-gray-200 drop-shadow">대한민국의 자유민주주의 체제와 혁신적 미래</p>
-        </div>
-      </section>
-
       <main className="relative z-10 bg-white">
         {/* 당의 정체성 */}
         <section className="py-20 bg-white">
