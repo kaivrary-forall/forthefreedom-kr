@@ -1496,4 +1496,143 @@ router.post('/register/verify-email-code', async (req, res) => {
   }
 });
 
+// ===== 당원번호 생성 함수 =====
+async function generatePartyMemberNumber() {
+  const year = new Date().getFullYear();
+  const prefix = `FAIN-${year}-`;
+  
+  // 해당 연도의 마지막 당원번호 찾기
+  const lastMember = await Member.findOne({
+    partyMemberNumber: { $regex: `^${prefix}` }
+  }).sort({ partyMemberNumber: -1 });
+  
+  let nextNumber = 1;
+  if (lastMember && lastMember.partyMemberNumber) {
+    const lastNumber = parseInt(lastMember.partyMemberNumber.split('-')[2]);
+    nextNumber = lastNumber + 1;
+  }
+  
+  return `${prefix}${String(nextNumber).padStart(5, '0')}`;
+}
+
+// ===== 당원증 정보 조회 =====
+router.get('/party-card', authMember, async (req, res) => {
+  try {
+    const memberId = req.member._id || req.memberId;
+    const member = await Member.findById(memberId).select(
+      'name nickname profileImage memberType partyMemberNumber createdAt approvedAt partyJoinedAt'
+    );
+    
+    if (!member) {
+      return res.status(404).json({
+        success: false,
+        message: '회원 정보를 찾을 수 없습니다.'
+      });
+    }
+    
+    // 당원 이상만 당원증 발급 가능
+    if (!['party_member', 'innovation_member', 'admin'].includes(member.memberType)) {
+      return res.status(403).json({
+        success: false,
+        message: '당원 등급 이상만 당원증을 발급받을 수 있습니다.',
+        data: {
+          memberType: member.memberType,
+          isEligible: false
+        }
+      });
+    }
+    
+    // 당원번호가 없으면 생성
+    if (!member.partyMemberNumber) {
+      member.partyMemberNumber = await generatePartyMemberNumber();
+      if (!member.partyJoinedAt) {
+        member.partyJoinedAt = new Date();
+      }
+      await member.save();
+    }
+    
+    res.json({
+      success: true,
+      data: {
+        name: member.name,
+        nickname: member.nickname,
+        profileImage: member.profileImage,
+        memberType: member.memberType,
+        partyMemberNumber: member.partyMemberNumber,
+        partyJoinedAt: member.partyJoinedAt || member.approvedAt || member.createdAt,
+        isEligible: true
+      }
+    });
+    
+  } catch (error) {
+    console.error('당원증 조회 오류:', error);
+    res.status(500).json({
+      success: false,
+      message: '당원증 정보를 불러올 수 없습니다.'
+    });
+  }
+});
+
+// ===== 관리자: 당원 등급 변경 (당원번호 자동 부여) =====
+router.put('/admin/upgrade-to-party/:memberId', authMember, async (req, res) => {
+  try {
+    // 관리자 권한 확인
+    const admin = await Member.findById(req.member._id || req.memberId);
+    if (!admin || admin.memberType !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: '관리자 권한이 필요합니다.'
+      });
+    }
+    
+    const { memberId } = req.params;
+    const { memberType } = req.body; // 'party_member' 또는 'innovation_member'
+    
+    if (!['party_member', 'innovation_member'].includes(memberType)) {
+      return res.status(400).json({
+        success: false,
+        message: '유효하지 않은 등급입니다.'
+      });
+    }
+    
+    const member = await Member.findById(memberId);
+    if (!member) {
+      return res.status(404).json({
+        success: false,
+        message: '회원을 찾을 수 없습니다.'
+      });
+    }
+    
+    // 당원번호 없으면 생성
+    if (!member.partyMemberNumber) {
+      member.partyMemberNumber = await generatePartyMemberNumber();
+      member.partyJoinedAt = new Date();
+    }
+    
+    member.memberType = memberType;
+    await member.save();
+    
+    console.log(`✅ 당원 등급 변경: ${member.nickname} -> ${memberType} (${member.partyMemberNumber})`);
+    
+    res.json({
+      success: true,
+      message: `${member.nickname}님의 등급이 ${memberType === 'party_member' ? '당원' : '혁신당원'}으로 변경되었습니다.`,
+      data: {
+        memberId: member._id,
+        nickname: member.nickname,
+        memberType: member.memberType,
+        partyMemberNumber: member.partyMemberNumber,
+        partyJoinedAt: member.partyJoinedAt
+      }
+    });
+    
+  } catch (error) {
+    console.error('당원 등급 변경 오류:', error);
+    res.status(500).json({
+      success: false,
+      message: '등급 변경 중 오류가 발생했습니다.'
+    });
+  }
+});
+
 module.exports = router;
