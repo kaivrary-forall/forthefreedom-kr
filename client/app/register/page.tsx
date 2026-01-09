@@ -291,15 +291,6 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-md mx-auto">
-        {/* 헤더 */}
-        <div className="text-center mb-8">
-          <Link href="/">
-            <img src="/images/logo.png" alt="자유와혁신" className="h-12 mx-auto mb-4" />
-          </Link>
-          <h1 className="text-2xl font-bold text-gray-900">회원가입</h1>
-          <p className="text-gray-500 mt-2">자유와혁신에 오신 것을 환영합니다</p>
-        </div>
-
         {/* 폼 */}
         <div className="bg-white rounded-2xl shadow-lg p-8">
           <form onSubmit={handleSubmit}>
