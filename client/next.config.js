@@ -4,6 +4,14 @@ const nextConfig = {
   images: {
     unoptimized: true
   },
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: "https://forthefreedom-kr-production.up.railway.app/api/:path*",
+      },
+    ];
+  },
   async redirects() {
     return [
       // 404 박멸: 레거시 URL → 새 URL
@@ -28,5 +36,4 @@ const nextConfig = {
     ]
   }
 }
-
 module.exports = nextConfig
