@@ -581,8 +581,8 @@ export default function MyPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 md:py-16">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6">
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 md:py-20">
         
         {/* 프로필 카드 */}
         <div className="bg-gradient-to-r from-primary to-red-700 text-white rounded-2xl overflow-hidden mb-6">
