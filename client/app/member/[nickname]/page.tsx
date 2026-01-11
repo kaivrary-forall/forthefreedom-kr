@@ -85,7 +85,7 @@ export default function MemberProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 md:py-20">
         <div className="animate-pulse">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-16 h-16 bg-gray-200 rounded-full"></div>
@@ -106,7 +106,7 @@ export default function MemberProfilePage() {
 
   if (error || !profileData) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 md:py-20">
         <div className="text-center py-16">
           <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center">
             <span className="text-2xl">😕</span>
@@ -126,7 +126,7 @@ export default function MemberProfilePage() {
   const { member, postCount, commentCount, followerCount, followingCount } = profileData
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 md:py-20">
       {/* 헤더 */}
       <div className="flex items-center gap-6 mb-6">
         <div className="w-28 h-28 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center border-4 border-white shadow-lg">
