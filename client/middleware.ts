@@ -4,7 +4,25 @@ export function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl
   const id = searchParams.get('id')
 
-  // .html이 아니면 패스
+  /**
+   * ✅ 절대 건드리면 안 되는 경로들 (가장 먼저 탈출)
+   * - /api/* : 백엔드 프록시(rewrites)로 보내야 함
+   * - Next 내부 리소스, 아이콘 등
+   */
+  if (
+    pathname.startsWith('/api') ||
+    pathname.startsWith('/_next') ||
+    pathname === '/favicon.ico' ||
+    pathname === '/robots.txt' ||
+    pathname === '/sitemap.xml'
+  ) {
+    return NextResponse.next()
+  }
+
+  /**
+   * ✅ 이 미들웨어의 목적은 "레거시 .html URL 리다이렉트" 뿐
+   * .html이 아니면 절대 개입하지 않음
+   */
   if (!pathname.endsWith('.html')) {
     return NextResponse.next()
   }
@@ -72,7 +90,7 @@ export function middleware(request: NextRequest) {
 
   // 상세 페이지 리다이렉트 (쿼리 id 필요)
   if (legacyDetailRoutes[pathname]) {
-    const newPath = id 
+    const newPath = id
       ? `${legacyDetailRoutes[pathname]}/${id}`
       : legacyDetailRoutes[pathname]
     return NextResponse.redirect(new URL(newPath, request.url), 301)
@@ -88,7 +106,11 @@ export function middleware(request: NextRequest) {
   return NextResponse.redirect(new URL(newPath, request.url), 301)
 }
 
+/**
+ * ✅ 핵심: 미들웨어 자체가 ".html" 요청에만 걸리게 제한
+ * - 이렇게 하면 /api/*, /mypage, /committees/... 같은 건 아예 미들웨어가 실행되지 않음
+ * - 가장 안전하고, 목적(레거시 .html 리다이렉트)에도 딱 맞음
+ */
 export const config = {
-  // api, _next, favicon 제외한 모든 경로
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/:path*.html'],
 }
