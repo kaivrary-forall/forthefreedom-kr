@@ -1,8 +1,47 @@
 const express = require('express')
 const router = express.Router()
+const jwt = require('jsonwebtoken')
 const FainPost = require('../models/FainPost')
 const Member = require('../models/Member')
-const { auth, optionalAuth } = require('../middleware/auth')
+
+// 회원 인증 미들웨어 (로그인 필수)
+const authMember = (req, res, next) => {
+  try {
+    const authHeader = req.headers['authorization'] || ''
+    if (!authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ success: false, message: '로그인이 필요합니다.' })
+    }
+    
+    const token = authHeader.slice(7)
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    
+    req.member = {
+      id: decoded.memberId || decoded.id,
+      isAdmin: decoded.isAdmin || false
+    }
+    next()
+  } catch (error) {
+    return res.status(401).json({ success: false, message: '유효하지 않은 토큰입니다.' })
+  }
+}
+
+// 선택적 인증 미들웨어 (토큰 있으면 읽고, 없으면 통과)
+const optionalAuth = (req, res, next) => {
+  try {
+    const authHeader = req.headers['authorization'] || ''
+    if (authHeader.startsWith('Bearer ')) {
+      const token = authHeader.slice(7)
+      const decoded = jwt.verify(token, process.env.JWT_SECRET)
+      req.member = {
+        id: decoded.memberId || decoded.id,
+        isAdmin: decoded.isAdmin || false
+      }
+    }
+  } catch (e) {
+    // 무시하고 통과
+  }
+  next()
+}
 
 // ========================================
 // 피드 조회
@@ -61,55 +100,48 @@ router.get('/', optionalAuth, async (req, res) => {
   }
 })
 
-// GET /api/fain/:id - 단일 포스트 조회
-router.get('/:id', optionalAuth, async (req, res) => {
+// GET /api/fain/search - 검색 (/:id 보다 먼저 와야 함)
+router.get('/search', optionalAuth, async (req, res) => {
   try {
-    const post = await FainPost.findById(req.params.id)
-      .populate('author', 'nickname profileImage memberType')
-      .populate({
-        path: 'repostOf',
-        populate: { path: 'author', select: 'nickname profileImage memberType' }
-      })
-      .populate({
-        path: 'replyTo',
-        populate: { path: 'author', select: 'nickname profileImage memberType' }
-      })
+    const { q, page = 1, limit = 20 } = req.query
     
-    if (!post || post.isDeleted) {
-      return res.status(404).json({ success: false, message: '포스트를 찾을 수 없습니다.' })
+    if (!q || q.trim().length === 0) {
+      return res.status(400).json({ success: false, message: '검색어를 입력해주세요.' })
     }
     
-    // 조회수 증가
-    post.viewCount += 1
-    await post.save()
+    const skip = (parseInt(page) - 1) * parseInt(limit)
+    const searchRegex = new RegExp(q.trim(), 'i')
     
-    // 답글들 조회
-    const replies = await FainPost.find({ replyTo: post._id, isDeleted: false })
+    const query = {
+      isDeleted: false,
+      $or: [
+        { content: searchRegex },
+        { hashtags: q.trim().toLowerCase().replace('#', '') }
+      ]
+    }
+    
+    const posts = await FainPost.find(query)
       .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit))
       .populate('author', 'nickname profileImage memberType')
       .lean()
     
-    const repliesWithStatus = replies.map(reply => ({
-      ...reply,
-      isLiked: req.member ? reply.likes?.some(id => id.toString() === req.member.id) : false,
-      isReposted: req.member ? reply.reposts?.some(id => id.toString() === req.member.id) : false,
-      isOwner: req.member ? reply.author?._id?.toString() === req.member.id : false
-    }))
+    const total = await FainPost.countDocuments(query)
     
     res.json({
       success: true,
-      post: {
-        ...post.toObject(),
-        isLiked: req.member ? post.likes?.some(id => id.toString() === req.member.id) : false,
-        isReposted: req.member ? post.reposts?.some(id => id.toString() === req.member.id) : false,
-        isBookmarked: req.member ? post.bookmarks?.some(id => id.toString() === req.member.id) : false,
-        isOwner: req.member ? post.author?._id?.toString() === req.member.id : false
-      },
-      replies: repliesWithStatus
+      posts,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        totalPages: Math.ceil(total / parseInt(limit))
+      }
     })
   } catch (error) {
-    console.error('포스트 조회 실패:', error)
-    res.status(500).json({ success: false, message: '포스트를 불러오는데 실패했습니다.' })
+    console.error('검색 실패:', error)
+    res.status(500).json({ success: false, message: '검색에 실패했습니다.' })
   }
 })
 
@@ -181,12 +213,64 @@ router.get('/user/:nickname', optionalAuth, async (req, res) => {
   }
 })
 
+// GET /api/fain/:id - 단일 포스트 조회
+router.get('/:id', optionalAuth, async (req, res) => {
+  try {
+    const post = await FainPost.findById(req.params.id)
+      .populate('author', 'nickname profileImage memberType')
+      .populate({
+        path: 'repostOf',
+        populate: { path: 'author', select: 'nickname profileImage memberType' }
+      })
+      .populate({
+        path: 'replyTo',
+        populate: { path: 'author', select: 'nickname profileImage memberType' }
+      })
+    
+    if (!post || post.isDeleted) {
+      return res.status(404).json({ success: false, message: '포스트를 찾을 수 없습니다.' })
+    }
+    
+    // 조회수 증가
+    post.viewCount += 1
+    await post.save()
+    
+    // 답글들 조회
+    const replies = await FainPost.find({ replyTo: post._id, isDeleted: false })
+      .sort({ createdAt: -1 })
+      .populate('author', 'nickname profileImage memberType')
+      .lean()
+    
+    const repliesWithStatus = replies.map(reply => ({
+      ...reply,
+      isLiked: req.member ? reply.likes?.some(id => id.toString() === req.member.id) : false,
+      isReposted: req.member ? reply.reposts?.some(id => id.toString() === req.member.id) : false,
+      isOwner: req.member ? reply.author?._id?.toString() === req.member.id : false
+    }))
+    
+    res.json({
+      success: true,
+      post: {
+        ...post.toObject(),
+        isLiked: req.member ? post.likes?.some(id => id.toString() === req.member.id) : false,
+        isReposted: req.member ? post.reposts?.some(id => id.toString() === req.member.id) : false,
+        isBookmarked: req.member ? post.bookmarks?.some(id => id.toString() === req.member.id) : false,
+        isOwner: req.member ? post.author?._id?.toString() === req.member.id : false
+      },
+      replies: repliesWithStatus
+    })
+  } catch (error) {
+    console.error('포스트 조회 실패:', error)
+    res.status(500).json({ success: false, message: '포스트를 불러오는데 실패했습니다.' })
+  }
+})
+
 // ========================================
 // 포스트 작성/수정/삭제
 // ========================================
 
 // POST /api/fain - 새 포스트 작성
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', authMember, async (req, res) => {
   try {
     const { content, images, replyTo, visibility } = req.body
     
@@ -234,7 +318,7 @@ router.post('/', authenticateToken, async (req, res) => {
 })
 
 // DELETE /api/fain/:id - 포스트 삭제
-router.delete('/:id', authenticateToken, async (req, res) => {
+router.delete('/:id', authMember, async (req, res) => {
   try {
     const post = await FainPost.findById(req.params.id)
     
@@ -269,7 +353,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 // ========================================
 
 // POST /api/fain/:id/like - 좋아요 토글
-router.post('/:id/like', authenticateToken, async (req, res) => {
+router.post('/:id/like', authMember, async (req, res) => {
   try {
     const post = await FainPost.findById(req.params.id)
     
@@ -304,7 +388,7 @@ router.post('/:id/like', authenticateToken, async (req, res) => {
 })
 
 // POST /api/fain/:id/repost - 리포스트
-router.post('/:id/repost', authenticateToken, async (req, res) => {
+router.post('/:id/repost', authMember, async (req, res) => {
   try {
     const originalPost = await FainPost.findById(req.params.id)
     
@@ -347,7 +431,7 @@ router.post('/:id/repost', authenticateToken, async (req, res) => {
 })
 
 // POST /api/fain/:id/bookmark - 북마크 토글
-router.post('/:id/bookmark', authenticateToken, async (req, res) => {
+router.post('/:id/bookmark', authMember, async (req, res) => {
   try {
     const post = await FainPost.findById(req.params.id)
     
@@ -373,55 +457,6 @@ router.post('/:id/bookmark', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('북마크 실패:', error)
     res.status(500).json({ success: false, message: '북마크에 실패했습니다.' })
-  }
-})
-
-// ========================================
-// 검색
-// ========================================
-
-// GET /api/fain/search - 검색
-router.get('/search', optionalAuth, async (req, res) => {
-  try {
-    const { q, page = 1, limit = 20 } = req.query
-    
-    if (!q || q.trim().length === 0) {
-      return res.status(400).json({ success: false, message: '검색어를 입력해주세요.' })
-    }
-    
-    const skip = (parseInt(page) - 1) * parseInt(limit)
-    const searchRegex = new RegExp(q.trim(), 'i')
-    
-    const query = {
-      isDeleted: false,
-      $or: [
-        { content: searchRegex },
-        { hashtags: q.trim().toLowerCase().replace('#', '') }
-      ]
-    }
-    
-    const posts = await FainPost.find(query)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(parseInt(limit))
-      .populate('author', 'nickname profileImage memberType')
-      .lean()
-    
-    const total = await FainPost.countDocuments(query)
-    
-    res.json({
-      success: true,
-      posts,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        totalPages: Math.ceil(total / parseInt(limit))
-      }
-    })
-  } catch (error) {
-    console.error('검색 실패:', error)
-    res.status(500).json({ success: false, message: '검색에 실패했습니다.' })
   }
 })
 
