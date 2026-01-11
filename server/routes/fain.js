@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const FainPost = require('../models/FainPost')
 const Member = require('../models/Member')
-const { authenticateToken, optionalAuth } = require('../middleware/auth')
+const { auth, optionalAuth } = require('../middleware/auth')
 
 // ========================================
 // 피드 조회
