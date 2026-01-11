@@ -1,5 +1,4 @@
 'use client'
-
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import AdminSidebar from '@/components/admin/AdminSidebar'
@@ -62,7 +61,6 @@ export default function AdminLandingPage() {
           isActive: false
         })
       })
-
       if (res.ok) {
         const data = await res.json()
         window.location.href = `/admin/landing/${data.page._id}`
@@ -75,7 +73,6 @@ export default function AdminLandingPage() {
   const handleDelete = async (id: string) => {
     if (!token) return
     if (!confirm('정말 삭제하시겠습니까?')) return
-
     try {
       await fetch(`/api/admin/landing/${id}`, { 
         method: 'DELETE',
@@ -154,7 +151,6 @@ export default function AdminLandingPage() {
                       </span>
                     </div>
                   </div>
-
                   <div className="p-4">
                     <h3 className="font-bold text-lg mb-1">{page.title}</h3>
                     <p className="text-sm text-gray-500 mb-3">/l/{page.slug}</p>
@@ -214,7 +210,6 @@ export default function AdminLandingPage() {
               <div className="p-6 border-b">
                 <h2 className="text-xl font-bold">새 랜딩페이지</h2>
               </div>
-
               <form onSubmit={handleCreate} className="p-6 space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -229,7 +224,6 @@ export default function AdminLandingPage() {
                     required
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     URL 슬러그
@@ -249,7 +243,6 @@ export default function AdminLandingPage() {
                     />
                   </div>
                 </div>
-
                 <div className="flex gap-3 pt-4">
                   <button
                     type="button"
