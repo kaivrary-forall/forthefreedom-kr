@@ -21,23 +21,22 @@ export default function PartyMemberCard() {
   const [isEligible, setIsEligible] = useState(true)
   const cardRef = useRef<HTMLDivElement>(null)
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || ''
-
   useEffect(() => {
     const fetchCardData = async () => {
       try {
-        const token = localStorage.getItem('token')
+        const token = localStorage.getItem('memberToken')
         if (!token) {
           setError('로그인이 필요합니다.')
           setIsLoading(false)
           return
         }
 
-        const res = await fetch(`${API_URL}/api/members/party-card`, {
+        const res = await fetch('/api/members/party-card', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         })
+
         const data = await res.json()
 
         if (data.success) {
@@ -58,7 +57,7 @@ export default function PartyMemberCard() {
     }
 
     fetchCardData()
-  }, [API_URL])
+  }, [])
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
