@@ -720,9 +720,9 @@ function GalleryEditor({ images, onChange }: {
 function getDefaultBlockData(type: string): Record<string, unknown> {
   switch (type) {
     case 'hero':
-      return { title: '제목을 입력하세요', subtitle: '', height: '300px', overlay: true }
+      return { title: '', subtitle: '', height: '300px', overlay: false }
     case 'text':
-      return { title: '', content: '내용을 입력하세요', align: 'left' }
+      return { title: '', content: '', align: 'left' }
     case 'image':
       return { imageUrl: '', caption: '', fullWidth: false }
     case 'button':
