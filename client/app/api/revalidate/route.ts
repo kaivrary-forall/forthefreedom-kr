@@ -1,41 +1,27 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { revalidateTag } from 'next/cache'
+import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
-    // 시크릿 검증
-    const secret = request.headers.get('x-revalidate-secret')
-    const expectedSecret = process.env.REVALIDATE_SECRET
+    const body = await request.json().catch(() => ({}));
+    const tags = Array.isArray(body?.tags) ? body.tags : [];
 
-    if (!expectedSecret) {
-      console.warn('REVALIDATE_SECRET not configured')
-      // 개발 환경에서는 시크릿 없이도 허용
-      if (process.env.NODE_ENV === 'production') {
-        return NextResponse.json({ success: false, message: 'Secret not configured' }, { status: 500 })
-      }
-    } else if (secret !== expectedSecret) {
-      return NextResponse.json({ success: false, message: 'Invalid secret' }, { status: 401 })
+    // tags가 없으면 그냥 OK
+    if (tags.length === 0) {
+      return NextResponse.json({ ok: true, revalidated: false, tags: [] });
     }
 
-    const body = await request.json()
-    const tags = body.tags || []
-
-    // 태그별 revalidate
     for (const tag of tags) {
-      await revalidateTag(tag)
-      console.log(`Revalidated tag: ${tag}`)
+      // ✅ revalidateTag는 인자 1개만 받음
+      revalidateTag(tag);
+      console.log(`Revalidated tag: ${tag}`);
     }
 
-    return NextResponse.json({
-      success: true,
-      message: `Revalidated tags: ${tags.join(', ')}`,
-      revalidatedAt: new Date().toISOString()
-    })
-  } catch (error) {
-    console.error('Revalidate error:', error)
-    return NextResponse.json({
-      success: false,
-      message: 'Revalidation failed'
-    }, { status: 500 })
+    return NextResponse.json({ ok: true, revalidated: true, tags });
+  } catch (err: any) {
+    return NextResponse.json(
+      { ok: false, error: err?.message || String(err) },
+      { status: 500 }
+    );
   }
 }
