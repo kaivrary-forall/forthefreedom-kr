@@ -566,7 +566,7 @@ export default function MyPageContent() {
   }
 
   // 임명장 발급 가능 여부 (직책이 있는 경우)
-  const hasPosition = member?.role && member.role !== '일반회원' && member.role !== '당원' && member.role !== '혁신당원'
+  const hasPosition = true
 
   if (isLoading) {
     return (
