@@ -365,7 +365,9 @@ function BlockEditor({
         {/* 히어로 블록 */}
         {block.type === 'hero' && (
           <>
-            <Input label="이미지 URL" value={data.imageUrl as string} onChange={(v) => update('imageUrl', v)} />
+            <Input label="이미지 URL" value={data.imageUrl as string} onChange={(v) => update('imageUrl', v)} placeholder="배경 이미지 (유튜브 없을 때)" />
+            <Input label="유튜브 URL" value={data.youtubeUrl as string} onChange={(v) => update('youtubeUrl', v)} placeholder="https://youtube.com/watch?v=..." />
+            <p className="text-xs text-gray-500 -mt-2">유튜브 URL 입력 시 배경 영상으로 자동재생됩니다</p>
             <Input label="제목" value={data.title as string} onChange={(v) => update('title', v)} />
             <Input label="부제목" value={data.subtitle as string} onChange={(v) => update('subtitle', v)} />
             <Input label="높이" value={data.height as string || '300px'} onChange={(v) => update('height', v)} placeholder="300px" />
