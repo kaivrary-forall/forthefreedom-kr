@@ -1,5 +1,6 @@
 'use client'
-import { useState, useEffect, use, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import AdminSidebar from '@/components/admin/AdminSidebar'
 import LandingPageRenderer from '@/components/landing/LandingPageRenderer'
@@ -36,8 +37,9 @@ const BLOCK_TYPES = [
   { type: 'spacer', label: '여백', icon: 'fas fa-arrows-alt-v', desc: '빈 공간' },
 ]
 
-export default function LandingEditPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+export default function LandingEditPage() {
+  const params = useParams()
+  const id = params.id as string
   const { token } = useAuth()
   const [page, setPage] = useState<LandingPageData | null>(null)
   const [loading, setLoading] = useState(true)
