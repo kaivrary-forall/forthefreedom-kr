@@ -1,5 +1,7 @@
 'use client'
 
+import { useState, useRef } from 'react'
+
 interface LandingPageData {
   _id: string
   slug: string
@@ -89,6 +91,9 @@ function extractYoutubeId(url: string): string | null {
 
 // 히어로 블록
 function HeroBlock({ data }: { data: Record<string, unknown> }) {
+  const [isMuted, setIsMuted] = useState(true)
+  const iframeRef = useRef<HTMLIFrameElement>(null)
+  
   const imageUrl = data.imageUrl as string
   const youtubeUrl = data.youtubeUrl as string
   const title = data.title as string
@@ -110,6 +115,10 @@ function HeroBlock({ data }: { data: Record<string, unknown> }) {
     }
   }
 
+  const toggleMute = () => {
+    setIsMuted(!isMuted)
+  }
+
   // 유튜브 영상이 있는 경우
   if (youtubeId) {
     return (
@@ -121,7 +130,8 @@ function HeroBlock({ data }: { data: Record<string, unknown> }) {
         >
           {/* 유튜브 iframe */}
           <iframe
-            src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`}
+            ref={iframeRef}
+            src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=${isMuted ? 1 : 0}&loop=1&playlist=${youtubeId}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`}
             className="absolute inset-0 w-full h-full"
             style={{ border: 'none' }}
             allow="autoplay; encrypted-media"
@@ -129,11 +139,28 @@ function HeroBlock({ data }: { data: Record<string, unknown> }) {
           />
           
           {/* 오버레이 */}
-          {overlay && <div className="absolute inset-0 bg-black/40 z-10"></div>}
+          {overlay && <div className="absolute inset-0 bg-black/40 z-10 pointer-events-none"></div>}
+          
+          {/* 음소거 토글 버튼 */}
+          <button
+            onClick={toggleMute}
+            className="absolute bottom-4 right-4 z-30 w-10 h-10 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-colors"
+            aria-label={isMuted ? '소리 켜기' : '소리 끄기'}
+          >
+            {isMuted ? (
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+              </svg>
+            ) : (
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+              </svg>
+            )}
+          </button>
           
           {/* 텍스트 콘텐츠 */}
           {(title || subtitle) && (
-            <div className="absolute inset-0 flex items-center justify-center z-20">
+            <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
               <div className="text-center text-white px-4">
                 {title && <h1 className="text-2xl font-bold mb-2 drop-shadow-lg">{title}</h1>}
                 {subtitle && <p className="text-base opacity-90 drop-shadow">{subtitle}</p>}
