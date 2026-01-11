@@ -260,7 +260,7 @@ app.use('/api/posts', require('./routes/posts'));
 app.use('/api/feed', require('./routes/feed'));
 
 // FAIN (소셜 피드) 라우트
-// app.use('/api/fain', require('./routes/fain'));
+app.use('/api/fain', require('./routes/fain'));
 app.use('/api/announcement', require('./routes/announcement'));
 app.use('/api/orgchart', require('./routes/orgchart'));
 app.use('/api/side-cards', require('./routes/sideCards'));
