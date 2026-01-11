@@ -99,48 +99,66 @@ function HeroBlock({ data }: { data: Record<string, unknown> }) {
   
   const youtubeId = extractYoutubeId(youtubeUrl)
 
-  // 비율에 따른 aspect-ratio 계산
-  const getAspectRatio = (ratio: string) => {
+  // 비율에 따른 padding-bottom 계산 (가로 100% 기준)
+  const getPaddingBottom = (ratio: string) => {
     switch (ratio) {
-      case '16:9': return '16 / 9'
-      case '9:16': return '9 / 16'
-      case '4:5': return '4 / 5'
-      case '1:1': return '1 / 1'
-      default: return '16 / 9'
+      case '16:9': return '56.25%'    // 9/16 * 100
+      case '9:16': return '177.78%'   // 16/9 * 100
+      case '4:5': return '125%'       // 5/4 * 100
+      case '1:1': return '100%'
+      default: return '56.25%'
     }
   }
 
+  // 유튜브 영상이 있는 경우
+  if (youtubeId) {
+    return (
+      <div className="relative w-full">
+        {/* 비율 유지 컨테이너 */}
+        <div 
+          className="relative w-full overflow-hidden"
+          style={{ paddingBottom: getPaddingBottom(videoRatio) }}
+        >
+          {/* 유튜브 iframe */}
+          <iframe
+            src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`}
+            className="absolute inset-0 w-full h-full"
+            style={{ border: 'none' }}
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+          />
+          
+          {/* 오버레이 */}
+          {overlay && <div className="absolute inset-0 bg-black/40 z-10"></div>}
+          
+          {/* 텍스트 콘텐츠 */}
+          {(title || subtitle) && (
+            <div className="absolute inset-0 flex items-center justify-center z-20">
+              <div className="text-center text-white px-4">
+                {title && <h1 className="text-2xl font-bold mb-2 drop-shadow-lg">{title}</h1>}
+                {subtitle && <p className="text-base opacity-90 drop-shadow">{subtitle}</p>}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // 이미지 또는 기본 배경인 경우
   return (
     <div 
       className="relative w-full overflow-hidden flex items-center justify-center"
       style={{ 
-        backgroundImage: !youtubeId && imageUrl ? `url(${imageUrl})` : undefined,
-        backgroundColor: !youtubeId && !imageUrl ? '#1a1a1a' : undefined,
+        backgroundImage: imageUrl ? `url(${imageUrl})` : undefined,
+        backgroundColor: !imageUrl ? '#1a1a1a' : undefined,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        height: youtubeId ? 'auto' : height,
-        aspectRatio: youtubeId ? getAspectRatio(videoRatio) : undefined,
+        height
       }}
     >
-      {/* 유튜브 배경 영상 */}
-      {youtubeId && (
-        <div className="absolute inset-0 overflow-hidden">
-          <iframe
-            src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`}
-            className="absolute inset-0 w-full h-full"
-            style={{
-              border: 'none',
-            }}
-            allow="autoplay; encrypted-media"
-            allowFullScreen
-          />
-        </div>
-      )}
-      
-      {/* 오버레이 */}
       {overlay && <div className="absolute inset-0 bg-black/40"></div>}
       
-      {/* 텍스트 콘텐츠 */}
       <div className="relative z-10 text-center text-white px-4">
         {title && <h1 className="text-2xl font-bold mb-2 drop-shadow-lg">{title}</h1>}
         {subtitle && <p className="text-base opacity-90 drop-shadow">{subtitle}</p>}
