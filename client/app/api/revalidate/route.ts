@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
 
     // 태그별 revalidate
     for (const tag of tags) {
-      await revalidateTag(tag, '/')
+      await revalidateTag(tag)
       console.log(`Revalidated tag: ${tag}`)
     }
 
