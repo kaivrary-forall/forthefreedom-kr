@@ -3,16 +3,16 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useAuth } from '@/contexts/AuthContext'
 import Cropper from 'react-easy-crop'
+import { useAuth } from '@/contexts/AuthContext'
 import PartyMemberCard from '@/components/member/PartyMemberCard'
 
 // 멘션 드롭다운 컴포넌트
-function MentionDropdown({ 
-  nickname, 
+function MentionDropdown({
+  nickname,
   children,
-  className = ''
-}: { 
+  className = '',
+}: {
   nickname: string
   children: React.ReactNode
   className?: string
@@ -26,11 +26,11 @@ function MentionDropdown({
         setIsOpen(false)
       }
     }
-    
+
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside)
     }
-    
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
@@ -43,13 +43,13 @@ function MentionDropdown({
         onClick={(e) => {
           e.preventDefault()
           e.stopPropagation()
-          setIsOpen(!isOpen)
+          setIsOpen((v) => !v)
         }}
         className="hover:underline cursor-pointer"
       >
         {children}
       </button>
-      
+
       {isOpen && (
         <div className="absolute left-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[140px] py-1">
           <Link
@@ -108,12 +108,9 @@ async function getCroppedImg(
   const image = await createImage(imageSrc)
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d')
-
   if (!ctx) return null
 
   const rotRad = (rotation * Math.PI) / 180
-
-  // 회전된 이미지의 바운딩 박스 계산
   const sin = Math.abs(Math.sin(rotRad))
   const cos = Math.abs(Math.cos(rotRad))
   const bBoxWidth = image.width * cos + image.height * sin
@@ -127,9 +124,7 @@ async function getCroppedImg(
   ctx.translate(-image.width / 2, -image.height / 2)
   ctx.drawImage(image, 0, 0)
 
-  // 크롭 영역 추출
   const data = ctx.getImageData(pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height)
-
   canvas.width = pixelCrop.width
   canvas.height = pixelCrop.height
   ctx.putImageData(data, 0, 0)
@@ -142,7 +137,7 @@ async function getCroppedImg(
 export default function MyPageContent() {
   const router = useRouter()
   const { member, isLoggedIn, isLoading, logout } = useAuth()
-  
+
   // 모달 상태
   const [showNicknameModal, setShowNicknameModal] = useState(false)
   const [showPasswordModal, setShowPasswordModal] = useState(false)
@@ -150,31 +145,32 @@ export default function MyPageContent() {
   const [showWithdrawModal, setShowWithdrawModal] = useState(false)
   const [showProfileModal, setShowProfileModal] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
+
   const [successMessage, setSuccessMessage] = useState('')
   const [successShouldReload, setSuccessShouldReload] = useState(true)
-  
+
   // 폼 상태
   const [newNickname, setNewNickname] = useState('')
   const [nicknameChecked, setNicknameChecked] = useState(false)
   const [nicknameError, setNicknameError] = useState('')
   const [nicknameSuccess, setNicknameSuccess] = useState('')
-  
+
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [newPasswordConfirm, setNewPasswordConfirm] = useState('')
   const [passwordError, setPasswordError] = useState('')
-  
+
   // 이메일 변경 상태
   const [emailStep, setEmailStep] = useState(1) // 1: 이메일 입력, 2: 코드 입력
   const [newEmail, setNewEmail] = useState('')
   const [emailCode, setEmailCode] = useState('')
   const [emailError, setEmailError] = useState('')
   const [emailSending, setEmailSending] = useState(false)
-  
+
   const [withdrawReason, setWithdrawReason] = useState('')
   const [withdrawPassword, setWithdrawPassword] = useState('')
   const [withdrawError, setWithdrawError] = useState('')
-  
+
   // 프로필 이미지 상태
   const [profileUploading, setProfileUploading] = useState(false)
   const [profilePreview, setProfilePreview] = useState<string | null>(null)
@@ -207,21 +203,17 @@ export default function MyPageContent() {
 
   // 파일 처리 (선택 또는 드롭)
   const processFile = (file: File) => {
-    // 이미지 타입 체크
     if (!file.type.startsWith('image/')) {
       alert('이미지 파일만 업로드 가능합니다')
       return
     }
-    
-    // 파일 크기 체크 (10MB - 서버에서 압축)
     if (file.size > 10 * 1024 * 1024) {
       alert('파일 크기는 10MB 이하여야 합니다')
       return
     }
-    
+
     setSelectedFile(file)
-    
-    // 미리보기 생성 → 크롭 단계로
+
     const reader = new FileReader()
     reader.onloadend = () => {
       setProfilePreview(reader.result as string)
@@ -238,12 +230,10 @@ export default function MyPageContent() {
     e.preventDefault()
     setIsDragging(true)
   }
-
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault()
     setIsDragging(false)
   }
-
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
     setIsDragging(false)
@@ -252,39 +242,35 @@ export default function MyPageContent() {
   }
 
   // 크롭 완료 콜백
-  const onCropComplete = useCallback((croppedArea: any, croppedAreaPixels: any) => {
-    setCroppedAreaPixels(croppedAreaPixels)
+  const onCropComplete = useCallback((_: any, cropped: any) => {
+    setCroppedAreaPixels(cropped)
   }, [])
 
   // 프로필 이미지 업로드
   const uploadProfileImage = async () => {
     if (!profilePreview || !croppedAreaPixels) return
-    
     setProfileUploading(true)
-    
+
     try {
-      // 크롭된 이미지 생성
       const croppedBlob = await getCroppedImg(profilePreview, croppedAreaPixels, rotation)
       if (!croppedBlob) {
         alert('이미지 처리에 실패했습니다')
         return
       }
 
-      const token = localStorage.getItem('memberToken')
+      const token = localStorage.getItem('memberToken') || ''
       const formData = new FormData()
       formData.append('profileImage', croppedBlob, 'profile.jpg')
-      
+
       const res = await fetch(`${API_URL}/api/members/me/profile-image`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
       })
+
       const data = await res.json()
-      
+
       if (data.success) {
-        // localStorage의 memberInfo 업데이트
         const storedInfo = localStorage.getItem('memberInfo')
         if (storedInfo) {
           const memberInfo = JSON.parse(storedInfo)
@@ -295,20 +281,20 @@ export default function MyPageContent() {
         setSelectedFile(null)
         setProfilePreview(null)
         setCropStep(1)
+
         setSuccessMessage('프로필 이미지가 변경되었습니다')
         setSuccessShouldReload(true)
         setShowSuccessModal(true)
       } else {
         alert(data.message || '이미지 업로드에 실패했습니다')
       }
-    } catch (error) {
+    } catch (e) {
       alert('이미지 업로드 중 오류가 발생했습니다')
     } finally {
       setProfileUploading(false)
     }
   }
 
-  // Step 1로 돌아가기
   const backToStep1 = () => {
     setCropStep(1)
     setProfilePreview(null)
@@ -324,11 +310,13 @@ export default function MyPageContent() {
       setNicknameError('닉네임은 2자 이상이어야 합니다')
       return
     }
-    
+
     try {
-      const res = await fetch(`${API_URL}/api/members/check-nickname?nickname=${encodeURIComponent(newNickname)}`)
+      const res = await fetch(
+        `${API_URL}/api/members/check-nickname?nickname=${encodeURIComponent(newNickname)}`
+      )
       const data = await res.json()
-      
+
       if (data.available) {
         setNicknameChecked(true)
         setNicknameSuccess('사용 가능한 닉네임입니다')
@@ -338,7 +326,7 @@ export default function MyPageContent() {
         setNicknameError('이미 사용 중인 닉네임입니다')
         setNicknameSuccess('')
       }
-    } catch (error) {
+    } catch {
       setNicknameError('확인 중 오류가 발생했습니다')
     }
   }
@@ -349,21 +337,20 @@ export default function MyPageContent() {
       setNicknameError('먼저 중복 확인을 해주세요')
       return
     }
-    
+
     try {
-      const token = localStorage.getItem('memberToken')
+      const token = localStorage.getItem('memberToken') || ''
       const res = await fetch(`${API_URL}/api/members/me/nickname`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ nickname: newNickname })
+        body: JSON.stringify({ nickname: newNickname }),
       })
       const data = await res.json()
-      
+
       if (data.success) {
-        // localStorage의 memberInfo 업데이트
         const storedInfo = localStorage.getItem('memberInfo')
         if (storedInfo) {
           const memberInfo = JSON.parse(storedInfo)
@@ -377,7 +364,7 @@ export default function MyPageContent() {
       } else {
         setNicknameError(data.message || '변경에 실패했습니다')
       }
-    } catch (error) {
+    } catch {
       setNicknameError('변경 중 오류가 발생했습니다')
     }
   }
@@ -392,22 +379,19 @@ export default function MyPageContent() {
       setPasswordError('비밀번호는 8자 이상이어야 합니다')
       return
     }
-    
+
     try {
-      const token = localStorage.getItem('memberToken')
+      const token = localStorage.getItem('memberToken') || ''
       const res = await fetch(`${API_URL}/api/members/me/password`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ 
-          currentPassword,
-          newPassword 
-        })
+        body: JSON.stringify({ currentPassword, newPassword }),
       })
       const data = await res.json()
-      
+
       if (data.success) {
         setShowPasswordModal(false)
         setCurrentPassword('')
@@ -419,7 +403,7 @@ export default function MyPageContent() {
       } else {
         setPasswordError(data.message || '변경에 실패했습니다')
       }
-    } catch (error) {
+    } catch {
       setPasswordError('변경 중 오류가 발생했습니다')
     }
   }
@@ -430,27 +414,25 @@ export default function MyPageContent() {
       setEmailError('올바른 이메일 주소를 입력해주세요')
       return
     }
-    
+
     setEmailSending(true)
     setEmailError('')
-    
+
     try {
-      const token = localStorage.getItem('memberToken')
+      const token = localStorage.getItem('memberToken') || ''
       const res = await fetch(`${API_URL}/api/members/me/email/request`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ newEmail })
+        body: JSON.stringify({ newEmail }),
       })
       const data = await res.json()
-      
+
       if (data.success) {
         setEmailStep(2)
-        // 남은 횟수 표시 - reload 안 함
         if (data.message) {
-          // 메시지 형식 변경: "인증코드 발송 완료\n(오늘 남은 횟수: X회)"
           const remaining = data.message.match(/남은 횟수: (\d+)회/)?.[1] || ''
           setSuccessMessage(`인증코드 발송 완료\n(오늘 남은 횟수: ${remaining}회)`)
           setSuccessShouldReload(false)
@@ -459,7 +441,7 @@ export default function MyPageContent() {
       } else {
         setEmailError(data.message || '인증 코드 발송에 실패했습니다')
       }
-    } catch (error) {
+    } catch {
       setEmailError('인증 코드 발송 중 오류가 발생했습니다')
     } finally {
       setEmailSending(false)
@@ -472,24 +454,20 @@ export default function MyPageContent() {
       setEmailError('6자리 인증 코드를 입력해주세요')
       return
     }
-    
+
     try {
-      const token = localStorage.getItem('memberToken')
+      const token = localStorage.getItem('memberToken') || ''
       const res = await fetch(`${API_URL}/api/members/me/email/verify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ 
-          newEmail,
-          code: emailCode 
-        })
+        body: JSON.stringify({ newEmail, code: emailCode }),
       })
       const data = await res.json()
-      
+
       if (data.success) {
-        // localStorage의 memberInfo 업데이트
         const storedInfo = localStorage.getItem('memberInfo')
         if (storedInfo) {
           const memberInfo = JSON.parse(storedInfo)
@@ -506,7 +484,7 @@ export default function MyPageContent() {
       } else {
         setEmailError(data.message || '인증에 실패했습니다')
       }
-    } catch (error) {
+    } catch {
       setEmailError('인증 중 오류가 발생했습니다')
     }
   }
@@ -517,38 +495,31 @@ export default function MyPageContent() {
       setWithdrawError('비밀번호를 입력해주세요')
       return
     }
-    
-    if (!confirm('정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
-      return
-    }
-    
+
+    if (!confirm('정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return
+
     try {
-      const token = localStorage.getItem('memberToken')
+      const token = localStorage.getItem('memberToken') || ''
       const res = await fetch(`${API_URL}/api/members/me/withdraw`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ 
-          password: withdrawPassword,
-          reason: withdrawReason 
-        })
+        body: JSON.stringify({ password: withdrawPassword, reason: withdrawReason }),
       })
       const data = await res.json()
-      
+
       if (data.success) {
         setSuccessMessage('회원 탈퇴가 완료되었습니다')
         setSuccessShouldReload(false)
         setShowSuccessModal(true)
         logout()
-        setTimeout(() => {
-          router.push('/')
-        }, 2000)
+        setTimeout(() => router.push('/'), 2000)
       } else {
         setWithdrawError(data.message || '탈퇴에 실패했습니다')
       }
-    } catch (error) {
+    } catch {
       setWithdrawError('탈퇴 중 오류가 발생했습니다')
     }
   }
@@ -556,24 +527,21 @@ export default function MyPageContent() {
   if (isLoading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
 
-  if (!isLoggedIn || !member) {
-    return null
-  }
+  if (!isLoggedIn || !member) return null
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-3xl mx-auto px-4">
-        
         {/* 프로필 카드 */}
         <div className="bg-gradient-to-r from-primary to-red-700 text-white rounded-2xl overflow-hidden mb-6">
           <div className="flex items-center p-6 gap-5">
             {/* 프로필 이미지 - 원형 */}
-            <button 
+            <button
               onClick={() => {
                 setSelectedFile(null)
                 setProfilePreview(null)
@@ -583,20 +551,19 @@ export default function MyPageContent() {
               className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors relative group flex-shrink-0 overflow-hidden border-4 border-white/30"
             >
               {member.profileImage ? (
-                <img 
-                  src={member.profileImage} 
+                <img
+                  src={member.profileImage}
                   alt={member.nickname}
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <i className="fas fa-user text-white/80 text-4xl"></i>
+                <i className="fas fa-user text-white/80 text-4xl" />
               )}
-              {/* 호버 시 카메라 아이콘 */}
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-full">
-                <i className="fas fa-camera text-white text-xl"></i>
+                <i className="fas fa-camera text-white text-xl" />
               </div>
             </button>
-            
+
             {/* 정보 */}
             <div className="flex-1 flex flex-col justify-center">
               <h1 className="text-2xl font-bold">{member.name || member.nickname}</h1>
@@ -620,7 +587,7 @@ export default function MyPageContent() {
         {/* 로그인 정보 */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
           <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <i className="fas fa-key text-gray-400"></i> 로그인 정보
+            <i className="fas fa-key text-gray-400" /> 로그인 정보
           </h2>
           <div className="space-y-3">
             <div className="flex justify-between py-3 border-b border-gray-100">
@@ -631,7 +598,7 @@ export default function MyPageContent() {
               <span className="text-gray-500">비밀번호</span>
               <div className="flex items-center gap-2">
                 <span className="font-medium">••••••••</span>
-                <button 
+                <button
                   onClick={() => setShowPasswordModal(true)}
                   className="text-sm text-primary hover:underline"
                 >
@@ -645,14 +612,14 @@ export default function MyPageContent() {
         {/* 커뮤니티 정보 */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
           <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <i className="fas fa-comments text-gray-400"></i> 커뮤니티 정보
+            <i className="fas fa-comments text-gray-400" /> 커뮤니티 정보
           </h2>
           <div className="space-y-3">
             <div className="flex justify-between items-center py-3">
               <span className="text-gray-500">닉네임</span>
               <div className="flex items-center gap-2">
                 <span className="font-medium">{member.nickname}</span>
-                <button 
+                <button
                   onClick={() => {
                     setNewNickname('')
                     setNicknameChecked(false)
@@ -672,7 +639,7 @@ export default function MyPageContent() {
         {/* 기본 정보 */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
           <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <i className="fas fa-user text-gray-400"></i> 기본 정보
+            <i className="fas fa-user text-gray-400" /> 기본 정보
           </h2>
           <div className="space-y-3">
             {member.name && (
@@ -692,7 +659,7 @@ export default function MyPageContent() {
                 <span className="text-gray-500">이메일</span>
                 <div className="flex items-center gap-2">
                   <span className="font-medium">{member.email}</span>
-                  <button 
+                  <button
                     onClick={() => {
                       setNewEmail('')
                       setEmailCode('')
@@ -709,9 +676,11 @@ export default function MyPageContent() {
             )}
             <div className="flex justify-between py-3">
               <span className="text-gray-500">상태</span>
-              <span className={`font-medium ${
-                member.status === 'active' ? 'text-green-600' : 'text-yellow-600'
-              }`}>
+              <span
+                className={`font-medium ${
+                  member.status === 'active' ? 'text-green-600' : 'text-yellow-600'
+                }`}
+              >
                 {member.status === 'active' ? '정상' : member.status}
               </span>
             </div>
@@ -720,32 +689,31 @@ export default function MyPageContent() {
 
         {/* 메뉴 */}
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
-          <Link 
+          <Link
             href="/profile"
             className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 border-b border-gray-100"
           >
             <div className="flex items-center gap-3">
-              <i className="fas fa-user-edit text-gray-400"></i>
+              <i className="fas fa-user-edit text-gray-400" />
               <span>프로필 수정</span>
             </div>
-            <i className="fas fa-chevron-right text-gray-300"></i>
+            <i className="fas fa-chevron-right text-gray-300" />
           </Link>
-          <Link 
+
+          <Link
             href="/agora"
             className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 border-b border-gray-100"
           >
             <div className="flex items-center gap-3">
-              <i className="fas fa-comments text-gray-400"></i>
+              <i className="fas fa-comments text-gray-400" />
               <span>내 게시글</span>
             </div>
-            <i className="fas fa-chevron-right text-gray-300"></i>
+            <i className="fas fa-chevron-right text-gray-300" />
           </Link>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center px-6 py-4 hover:bg-gray-50 text-left"
-          >
+
+          <button onClick={handleLogout} className="w-full flex items-center px-6 py-4 hover:bg-gray-50 text-left">
             <div className="flex items-center gap-3">
-              <i className="fas fa-sign-out-alt text-red-400"></i>
+              <i className="fas fa-sign-out-alt text-red-400" />
               <span className="text-red-600">로그아웃</span>
             </div>
           </button>
@@ -754,7 +722,7 @@ export default function MyPageContent() {
         {/* 아주 위험한 구역 */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
           <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <i className="fas fa-exclamation-triangle text-gray-400"></i> 아주 위험한 구역
+            <i className="fas fa-exclamation-triangle text-gray-400" /> 아주 위험한 구역
           </h2>
           <button
             onClick={() => {
@@ -765,7 +733,7 @@ export default function MyPageContent() {
             }}
             className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
           >
-            <i className="fas fa-person-running"></i>
+            <i className="fas fa-person-running" />
             <span>회원 탈퇴</span>
           </button>
         </div>
@@ -773,7 +741,7 @@ export default function MyPageContent() {
         {/* 홈으로 */}
         <div className="text-center">
           <Link href="/" className="text-sm text-gray-500 hover:text-primary">
-            <i className="fas fa-home mr-1"></i> 홈으로 돌아가기
+            <i className="fas fa-home mr-1" /> 홈으로 돌아가기
           </Link>
         </div>
       </div>
@@ -781,14 +749,14 @@ export default function MyPageContent() {
       {/* 닉네임 변경 모달 */}
       {showNicknameModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setShowNicknameModal(false)}></div>
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowNicknameModal(false)} />
           <div className="relative bg-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
             <h3 className="text-lg font-bold mb-4">닉네임 변경</h3>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">새 닉네임</label>
               <div className="flex gap-2">
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={newNickname}
                   onChange={(e) => {
                     setNewNickname(e.target.value)
@@ -799,7 +767,7 @@ export default function MyPageContent() {
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder="2~20자"
                 />
-                <button 
+                <button
                   onClick={checkNickname}
                   className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm whitespace-nowrap"
                 >
@@ -810,13 +778,13 @@ export default function MyPageContent() {
               {nicknameSuccess && <p className="text-green-500 text-sm mt-1">{nicknameSuccess}</p>}
             </div>
             <div className="flex gap-3">
-              <button 
+              <button
                 onClick={() => setShowNicknameModal(false)}
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 취소
               </button>
-              <button 
+              <button
                 onClick={changeNickname}
                 disabled={!nicknameChecked}
                 className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark disabled:bg-gray-300 disabled:cursor-not-allowed"
@@ -831,14 +799,14 @@ export default function MyPageContent() {
       {/* 비밀번호 변경 모달 */}
       {showPasswordModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setShowPasswordModal(false)}></div>
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowPasswordModal(false)} />
           <div className="relative bg-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
             <h3 className="text-lg font-bold mb-4">비밀번호 변경</h3>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">현재 비밀번호</label>
-                <input 
-                  type="password" 
+                <input
+                  type="password"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -846,8 +814,8 @@ export default function MyPageContent() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">새 비밀번호</label>
-                <input 
-                  type="password" 
+                <input
+                  type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -856,8 +824,8 @@ export default function MyPageContent() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">새 비밀번호 확인</label>
-                <input 
-                  type="password" 
+                <input
+                  type="password"
                   value={newPasswordConfirm}
                   onChange={(e) => setNewPasswordConfirm(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -866,16 +834,13 @@ export default function MyPageContent() {
               {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
             </div>
             <div className="flex gap-3 mt-6">
-              <button 
+              <button
                 onClick={() => setShowPasswordModal(false)}
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 취소
               </button>
-              <button 
-                onClick={changePassword}
-                className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark"
-              >
+              <button onClick={changePassword} className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark">
                 변경
               </button>
             </div>
@@ -886,23 +851,15 @@ export default function MyPageContent() {
       {/* 회원 탈퇴 모달 */}
       {showWithdrawModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setShowWithdrawModal(false)}></div>
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowWithdrawModal(false)} />
           <div className="relative bg-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
             <h3 className="text-lg font-bold text-red-600 mb-4 flex items-center gap-2">
-              <i className="fas fa-exclamation-triangle"></i> 회원 탈퇴
+              <i className="fas fa-exclamation-triangle" /> 회원 탈퇴
             </h3>
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 text-sm text-red-700">
-              <p className="font-semibold mb-2">탈퇴 전 확인사항</p>
-              <ul className="space-y-1">
-                <li>• 혁신 당원인 경우 당비 납부가 자동 해지됩니다</li>
-                <li>• 후원/구매 내역은 법적 보관 기간 동안 유지됩니다</li>
-                <li>• 탈퇴 후에도 재가입이 가능합니다</li>
-              </ul>
-            </div>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">탈퇴 사유 (선택)</label>
-                <textarea 
+                <textarea
                   value={withdrawReason}
                   onChange={(e) => setWithdrawReason(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -912,8 +869,8 @@ export default function MyPageContent() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">비밀번호 확인</label>
-                <input 
-                  type="password" 
+                <input
+                  type="password"
                   value={withdrawPassword}
                   onChange={(e) => setWithdrawPassword(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -923,16 +880,13 @@ export default function MyPageContent() {
               {withdrawError && <p className="text-red-500 text-sm">{withdrawError}</p>}
             </div>
             <div className="flex gap-3 mt-6">
-              <button 
+              <button
                 onClick={() => setShowWithdrawModal(false)}
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 취소
               </button>
-              <button 
-                onClick={handleWithdraw}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-              >
+              <button onClick={handleWithdraw} className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
                 탈퇴하기
               </button>
             </div>
@@ -943,18 +897,18 @@ export default function MyPageContent() {
       {/* 이메일 변경 모달 */}
       {showEmailModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setShowEmailModal(false)}></div>
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowEmailModal(false)} />
           <div className="relative bg-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
             <h3 className="text-lg font-bold mb-4">이메일 변경</h3>
-            
+
             {emailStep === 1 ? (
               <>
                 <p className="text-sm text-gray-500 mb-4">새 이메일 주소로 인증 코드가 발송됩니다.</p>
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">현재 이메일</label>
-                    <input 
-                      type="email" 
+                    <input
+                      type="email"
                       value={member?.email || ''}
                       disabled
                       className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-500"
@@ -962,8 +916,8 @@ export default function MyPageContent() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">새 이메일</label>
-                    <input 
-                      type="email" 
+                    <input
+                      type="email"
                       value={newEmail}
                       onChange={(e) => {
                         setNewEmail(e.target.value)
@@ -976,13 +930,10 @@ export default function MyPageContent() {
                   {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
                 </div>
                 <div className="flex gap-3 mt-6">
-                  <button 
-                    onClick={() => setShowEmailModal(false)}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                  >
+                  <button onClick={() => setShowEmailModal(false)} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
                     취소
                   </button>
-                  <button 
+                  <button
                     onClick={requestEmailCode}
                     disabled={emailSending}
                     className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark disabled:bg-gray-300"
@@ -994,14 +945,16 @@ export default function MyPageContent() {
             ) : (
               <>
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 text-sm text-blue-700">
-                  <p>📧 <strong>{newEmail}</strong>으로 인증 코드를 발송했습니다.</p>
+                  <p>
+                    📧 <strong>{newEmail}</strong>으로 인증 코드를 발송했습니다.
+                  </p>
                   <p className="text-xs mt-1">10분 내로 입력해주세요.</p>
                 </div>
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">인증 코드 (6자리)</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={emailCode}
                       onChange={(e) => {
                         setEmailCode(e.target.value.replace(/\D/g, '').slice(0, 6))
@@ -1015,16 +968,10 @@ export default function MyPageContent() {
                   {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
                 </div>
                 <div className="flex gap-3 mt-6">
-                  <button 
-                    onClick={() => setEmailStep(1)}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                  >
+                  <button onClick={() => setEmailStep(1)} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
                     이전
                   </button>
-                  <button 
-                    onClick={verifyEmailCode}
-                    className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark"
-                  >
+                  <button onClick={verifyEmailCode} className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark">
                     확인
                   </button>
                 </div>
@@ -1037,55 +984,53 @@ export default function MyPageContent() {
       {/* 프로필 이미지 변경 모달 */}
       {showProfileModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50" onClick={() => {
-            setShowProfileModal(false)
-            backToStep1()
-          }}></div>
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => {
+              setShowProfileModal(false)
+              backToStep1()
+            }}
+          />
           <div className="relative bg-white rounded-2xl p-6 w-full max-w-lg mx-4 shadow-2xl">
             <h3 className="text-lg font-bold mb-4">프로필 이미지 변경</h3>
-            
+
             {/* Step 1: 파일 선택 */}
             {cropStep === 1 && (
               <>
-                {/* 현재 이미지 */}
                 <div className="flex justify-center mb-6">
                   <div className="w-32 h-32 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border-4 border-gray-200">
                     {member?.profileImage ? (
                       <img src={member.profileImage} alt={member.nickname} className="w-full h-full object-cover" />
                     ) : (
-                      <i className="fas fa-user text-gray-400 text-4xl"></i>
+                      <i className="fas fa-user text-gray-400 text-4xl" />
                     )}
                   </div>
                 </div>
-                
-                {/* 드래그앤드롭 영역 */}
-                <label 
+
+                <label
                   className={`block w-full p-8 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
-                    isDragging 
-                      ? 'border-primary bg-primary/10' 
-                      : 'border-gray-300 hover:border-primary hover:bg-gray-50'
+                    isDragging ? 'border-primary bg-primary/10' : 'border-gray-300 hover:border-primary hover:bg-gray-50'
                   }`}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
                 >
                   <div className="text-center">
-                    <i className={`fas fa-cloud-upload-alt text-4xl mb-3 ${isDragging ? 'text-primary' : 'text-gray-400'}`}></i>
+                    <i
+                      className={`fas fa-cloud-upload-alt text-4xl mb-3 ${
+                        isDragging ? 'text-primary' : 'text-gray-400'
+                      }`}
+                    />
                     <p className="text-sm text-gray-600 font-medium">
                       {isDragging ? '여기에 놓으세요!' : '클릭 또는 드래그하여 이미지 업로드'}
                     </p>
                     <p className="text-xs text-gray-400 mt-2">JPG, PNG, GIF, WebP (최대 10MB)</p>
                   </div>
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    className="hidden" 
-                    onChange={handleProfileSelect}
-                  />
+                  <input type="file" accept="image/*" className="hidden" onChange={handleProfileSelect} />
                 </label>
 
                 <div className="flex gap-3 mt-6">
-                  <button 
+                  <button
                     onClick={() => {
                       setShowProfileModal(false)
                       backToStep1()
@@ -1102,7 +1047,6 @@ export default function MyPageContent() {
             {cropStep === 2 && profilePreview && (
               <>
                 <div className="flex gap-6">
-                  {/* 크롭 영역 */}
                   <div className="flex-1">
                     <div className="relative w-full h-72 bg-gray-900 rounded-lg overflow-hidden">
                       <Cropper
@@ -1118,12 +1062,10 @@ export default function MyPageContent() {
                         showGrid={false}
                       />
                     </div>
-                    
-                    {/* 컨트롤 */}
+
                     <div className="mt-4 space-y-3">
-                      {/* 확대/축소 */}
                       <div className="flex items-center gap-3">
-                        <i className="fas fa-search-minus text-gray-400 w-5"></i>
+                        <i className="fas fa-search-minus text-gray-400 w-5" />
                         <input
                           type="range"
                           min={1}
@@ -1133,17 +1075,16 @@ export default function MyPageContent() {
                           onChange={(e) => setZoom(Number(e.target.value))}
                           className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary"
                         />
-                        <i className="fas fa-search-plus text-gray-400 w-5"></i>
+                        <i className="fas fa-search-plus text-gray-400 w-5" />
                       </div>
-                      
-                      {/* 회전 */}
+
                       <div className="flex items-center justify-center gap-3">
-                        <button 
-                          onClick={() => setRotation(r => r - 90)}
+                        <button
+                          onClick={() => setRotation((r) => r - 90)}
                           className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
                           title="-90°"
                         >
-                          <i className="fas fa-undo text-gray-600"></i>
+                          <i className="fas fa-undo text-gray-600" />
                         </button>
                         <div className="flex items-center">
                           <input
@@ -1157,12 +1098,12 @@ export default function MyPageContent() {
                           />
                           <span className="text-sm text-gray-500 ml-1">°</span>
                         </div>
-                        <button 
-                          onClick={() => setRotation(r => r + 90)}
+                        <button
+                          onClick={() => setRotation((r) => r + 90)}
                           className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
                           title="+90°"
                         >
-                          <i className="fas fa-redo text-gray-600"></i>
+                          <i className="fas fa-redo text-gray-600" />
                         </button>
                       </div>
                     </div>
@@ -1170,26 +1111,23 @@ export default function MyPageContent() {
                 </div>
 
                 <div className="flex gap-3 mt-6">
-                  <button 
-                    onClick={backToStep1}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                  >
-                    <i className="fas fa-arrow-left mr-2"></i>
+                  <button onClick={backToStep1} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    <i className="fas fa-arrow-left mr-2" />
                     뒤로
                   </button>
-                  <button 
+                  <button
                     onClick={uploadProfileImage}
                     disabled={profileUploading}
                     className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {profileUploading ? (
                       <>
-                        <i className="fas fa-spinner fa-spin"></i>
+                        <i className="fas fa-spinner fa-spin" />
                         업로드 중...
                       </>
                     ) : (
                       <>
-                        <i className="fas fa-check mr-1"></i>
+                        <i className="fas fa-check mr-1" />
                         변경하기
                       </>
                     )}
@@ -1204,16 +1142,19 @@ export default function MyPageContent() {
       {/* 성공 메시지 모달 */}
       {showSuccessModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50" onClick={() => {
-            setShowSuccessModal(false)
-            if (successShouldReload) window.location.reload()
-          }}></div>
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => {
+              setShowSuccessModal(false)
+              if (successShouldReload) window.location.reload()
+            }}
+          />
           <div className="relative bg-white rounded-2xl p-8 w-full max-w-sm mx-4 shadow-2xl text-center">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
-              <i className="fas fa-check text-green-500 text-3xl"></i>
+              <i className="fas fa-check text-green-500 text-3xl" />
             </div>
             <p className="text-lg font-medium text-gray-900 mb-6 whitespace-pre-line">{successMessage}</p>
-            <button 
+            <button
               onClick={() => {
                 setShowSuccessModal(false)
                 if (successShouldReload) window.location.reload()
