@@ -95,8 +95,20 @@ function HeroBlock({ data }: { data: Record<string, unknown> }) {
   const subtitle = data.subtitle as string
   const overlay = data.overlay as boolean
   const height = (data.height as string) || '300px'
+  const videoRatio = (data.videoRatio as string) || '16:9'
   
   const youtubeId = extractYoutubeId(youtubeUrl)
+
+  // 비율에 따른 aspect-ratio 계산
+  const getAspectRatio = (ratio: string) => {
+    switch (ratio) {
+      case '16:9': return '16 / 9'
+      case '9:16': return '9 / 16'
+      case '4:5': return '4 / 5'
+      case '1:1': return '1 / 1'
+      default: return '16 / 9'
+    }
+  }
 
   return (
     <div 
@@ -106,7 +118,8 @@ function HeroBlock({ data }: { data: Record<string, unknown> }) {
         backgroundColor: !youtubeId && !imageUrl ? '#1a1a1a' : undefined,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        height 
+        height: youtubeId ? 'auto' : height,
+        aspectRatio: youtubeId ? getAspectRatio(videoRatio) : undefined,
       }}
     >
       {/* 유튜브 배경 영상 */}
@@ -114,12 +127,9 @@ function HeroBlock({ data }: { data: Record<string, unknown> }) {
         <div className="absolute inset-0 overflow-hidden">
           <iframe
             src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+            className="absolute inset-0 w-full h-full"
             style={{
-              width: '200%',
-              height: '200%',
-              minWidth: '100%',
-              minHeight: '100%',
+              border: 'none',
             }}
             allow="autoplay; encrypted-media"
             allowFullScreen
