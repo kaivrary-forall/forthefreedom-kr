@@ -1,5 +1,4 @@
 'use client'
-
 import { useState, useEffect, use, useCallback } from 'react'
 import Link from 'next/link'
 import AdminSidebar from '@/components/admin/AdminSidebar'
@@ -96,7 +95,6 @@ export default function LandingEditPage({ params }: { params: Promise<{ id: stri
       type,
       data: getDefaultBlockData(type)
     }
-
     setPage({
       ...page,
       blocks: [...page.blocks, newBlock]
@@ -185,7 +183,6 @@ export default function LandingEditPage({ params }: { params: Promise<{ id: stri
               <p className="text-sm text-gray-500">/l/{page.slug}</p>
             </div>
           </div>
-
           <div className="flex items-center gap-3">
             <label className="flex items-center gap-2 text-sm">
               <input
