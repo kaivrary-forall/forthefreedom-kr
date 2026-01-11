@@ -64,24 +64,73 @@ function BlockRenderer({ block }: { block: Block }) {
   }
 }
 
+// 유튜브 URL에서 ID 추출 함수
+function extractYoutubeId(url: string): string | null {
+  if (!url) return null
+  
+  // 이미 ID만 있는 경우
+  if (/^[a-zA-Z0-9_-]{11}$/.test(url)) {
+    return url
+  }
+  
+  // 다양한 유튜브 URL 형식 처리
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
+  ]
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern)
+    if (match) return match[1]
+  }
+  
+  return null
+}
+
 // 히어로 블록
 function HeroBlock({ data }: { data: Record<string, unknown> }) {
   const imageUrl = data.imageUrl as string
+  const youtubeUrl = data.youtubeUrl as string
   const title = data.title as string
   const subtitle = data.subtitle as string
   const overlay = data.overlay as boolean
   const height = (data.height as string) || '300px'
+  
+  const youtubeId = extractYoutubeId(youtubeUrl)
 
   return (
     <div 
-      className="relative w-full bg-cover bg-center flex items-center justify-center"
+      className="relative w-full overflow-hidden flex items-center justify-center"
       style={{ 
-        backgroundImage: imageUrl ? `url(${imageUrl})` : undefined,
-        backgroundColor: !imageUrl ? '#1a1a1a' : undefined,
+        backgroundImage: !youtubeId && imageUrl ? `url(${imageUrl})` : undefined,
+        backgroundColor: !youtubeId && !imageUrl ? '#1a1a1a' : undefined,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
         height 
       }}
     >
+      {/* 유튜브 배경 영상 */}
+      {youtubeId && (
+        <div className="absolute inset-0 overflow-hidden">
+          <iframe
+            src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+            style={{
+              width: '200%',
+              height: '200%',
+              minWidth: '100%',
+              minHeight: '100%',
+            }}
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+          />
+        </div>
+      )}
+      
+      {/* 오버레이 */}
       {overlay && <div className="absolute inset-0 bg-black/40"></div>}
+      
+      {/* 텍스트 콘텐츠 */}
       <div className="relative z-10 text-center text-white px-4">
         {title && <h1 className="text-2xl font-bold mb-2 drop-shadow-lg">{title}</h1>}
         {subtitle && <p className="text-base opacity-90 drop-shadow">{subtitle}</p>}
@@ -142,7 +191,7 @@ function ButtonBlock({ data }: { data: Record<string, unknown> }) {
   const url = data.url as string
   const style = (data.style as string) || 'primary'
   const icon = data.icon as string
-  const action = (data.action as string) || 'link' // link, tel, download
+  const action = (data.action as string) || 'link'
 
   const baseClasses = "w-full py-4 px-6 rounded-xl font-semibold text-center flex items-center justify-center gap-2 transition-all active:scale-95"
   
@@ -328,6 +377,5 @@ function GalleryBlock({ data }: { data: Record<string, unknown> }) {
 // 여백 블록
 function SpacerBlock({ data }: { data: Record<string, unknown> }) {
   const height = (data.height as number) || 20
-
   return <div style={{ height: `${height}px` }}></div>
 }
