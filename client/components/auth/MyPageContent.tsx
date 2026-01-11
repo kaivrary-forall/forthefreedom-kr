@@ -5,6 +5,10 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import Cropper from 'react-easy-crop'
+import PartyMemberCard from '@/components/member/PartyMemberCard'
+
+// 탭 타입
+type TabType = 'info' | 'partyCard' | 'appointment'
 
 // 멘션 드롭다운 컴포넌트
 function MentionDropdown({ 
@@ -131,6 +135,7 @@ async function getCroppedImg(
 
   canvas.width = pixelCrop.width
   canvas.height = pixelCrop.height
+
   ctx.putImageData(data, 0, 0)
 
   return new Promise((resolve) => {
@@ -141,6 +146,9 @@ async function getCroppedImg(
 export default function MyPageContent() {
   const router = useRouter()
   const { member, isLoggedIn, isLoading, logout } = useAuth()
+  
+  // 탭 상태
+  const [activeTab, setActiveTab] = useState<TabType>('info')
   
   // 모달 상태
   const [showNicknameModal, setShowNicknameModal] = useState(false)
@@ -280,6 +288,7 @@ export default function MyPageContent() {
         },
         body: formData
       })
+
       const data = await res.json()
       
       if (data.success) {
@@ -359,6 +368,7 @@ export default function MyPageContent() {
         },
         body: JSON.stringify({ nickname: newNickname })
       })
+
       const data = await res.json()
       
       if (data.success) {
@@ -405,6 +415,7 @@ export default function MyPageContent() {
           newPassword 
         })
       })
+
       const data = await res.json()
       
       if (data.success) {
@@ -443,13 +454,13 @@ export default function MyPageContent() {
         },
         body: JSON.stringify({ newEmail })
       })
+
       const data = await res.json()
       
       if (data.success) {
         setEmailStep(2)
         // 남은 횟수 표시 - reload 안 함
         if (data.message) {
-          // 메시지 형식 변경: "인증코드 발송 완료\n(오늘 남은 횟수: X회)"
           const remaining = data.message.match(/남은 횟수: (\d+)회/)?.[1] || ''
           setSuccessMessage(`인증코드 발송 완료\n(오늘 남은 횟수: ${remaining}회)`)
           setSuccessShouldReload(false)
@@ -485,6 +496,7 @@ export default function MyPageContent() {
           code: emailCode 
         })
       })
+
       const data = await res.json()
       
       if (data.success) {
@@ -534,6 +546,7 @@ export default function MyPageContent() {
           reason: withdrawReason 
         })
       })
+
       const data = await res.json()
       
       if (data.success) {
@@ -551,6 +564,9 @@ export default function MyPageContent() {
       setWithdrawError('탈퇴 중 오류가 발생했습니다')
     }
   }
+
+  // 임명장 발급 가능 여부 (직책이 있는 경우)
+  const hasPosition = member?.role && member.role !== '일반회원' && member.role !== '당원' && member.role !== '혁신당원'
 
   if (isLoading) {
     return (
@@ -611,158 +627,233 @@ export default function MyPageContent() {
           </div>
         </div>
 
-        {/* 로그인 정보 */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <i className="fas fa-key text-gray-400"></i> 로그인 정보
-          </h2>
-          <div className="space-y-3">
-            <div className="flex justify-between py-3 border-b border-gray-100">
-              <span className="text-gray-500">아이디</span>
-              <span className="font-medium">{member.userId}</span>
-            </div>
-            <div className="flex justify-between items-center py-3">
-              <span className="text-gray-500">비밀번호</span>
-              <div className="flex items-center gap-2">
-                <span className="font-medium">••••••••</span>
-                <button 
-                  onClick={() => setShowPasswordModal(true)}
-                  className="text-sm text-primary hover:underline"
-                >
-                  변경
-                </button>
-              </div>
-            </div>
+        {/* 탭 네비게이션 */}
+        <div className="bg-white rounded-2xl shadow-lg mb-6 overflow-hidden">
+          <div className="flex border-b border-gray-200">
+            <button
+              onClick={() => setActiveTab('info')}
+              className={`flex-1 py-4 text-center font-medium transition-colors ${
+                activeTab === 'info'
+                  ? 'text-primary border-b-2 border-primary bg-primary/5'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <i className="fas fa-user mr-2"></i>
+              기본 정보
+            </button>
+            <button
+              onClick={() => setActiveTab('partyCard')}
+              className={`flex-1 py-4 text-center font-medium transition-colors ${
+                activeTab === 'partyCard'
+                  ? 'text-primary border-b-2 border-primary bg-primary/5'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <i className="fas fa-id-card mr-2"></i>
+              당원증 발급
+            </button>
+            {hasPosition && (
+              <button
+                onClick={() => setActiveTab('appointment')}
+                className={`flex-1 py-4 text-center font-medium transition-colors ${
+                  activeTab === 'appointment'
+                    ? 'text-primary border-b-2 border-primary bg-primary/5'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <i className="fas fa-certificate mr-2"></i>
+                임명장 발급
+              </button>
+            )}
           </div>
         </div>
 
-        {/* 커뮤니티 정보 */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <i className="fas fa-comments text-gray-400"></i> 커뮤니티 정보
-          </h2>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center py-3">
-              <span className="text-gray-500">닉네임</span>
-              <div className="flex items-center gap-2">
-                <span className="font-medium">{member.nickname}</span>
-                <button 
-                  onClick={() => {
-                    setNewNickname('')
-                    setNicknameChecked(false)
-                    setNicknameError('')
-                    setNicknameSuccess('')
-                    setShowNicknameModal(true)
-                  }}
-                  className="text-sm text-primary hover:underline"
-                >
-                  변경
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 기본 정보 */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <i className="fas fa-user text-gray-400"></i> 기본 정보
-          </h2>
-          <div className="space-y-3">
-            {member.name && (
-              <div className="flex justify-between py-3 border-b border-gray-100">
-                <span className="text-gray-500">이름</span>
-                <span className="font-medium">{member.name}</span>
-              </div>
-            )}
-            {member.phone && (
-              <div className="flex justify-between py-3 border-b border-gray-100">
-                <span className="text-gray-500">휴대전화</span>
-                <span className="font-medium">{member.phone}</span>
-              </div>
-            )}
-            {member.email && (
-              <div className="flex justify-between items-center py-3 border-b border-gray-100">
-                <span className="text-gray-500">이메일</span>
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">{member.email}</span>
-                  <button 
-                    onClick={() => {
-                      setNewEmail('')
-                      setEmailCode('')
-                      setEmailError('')
-                      setEmailStep(1)
-                      setShowEmailModal(true)
-                    }}
-                    className="text-sm text-primary hover:underline"
-                  >
-                    변경
-                  </button>
+        {/* 기본 정보 탭 */}
+        {activeTab === 'info' && (
+          <>
+            {/* 로그인 정보 */}
+            <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+              <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <i className="fas fa-key text-gray-400"></i> 로그인 정보
+              </h2>
+              <div className="space-y-3">
+                <div className="flex justify-between py-3 border-b border-gray-100">
+                  <span className="text-gray-500">아이디</span>
+                  <span className="font-medium">{member.userId}</span>
+                </div>
+                <div className="flex justify-between items-center py-3">
+                  <span className="text-gray-500">비밀번호</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">••••••••</span>
+                    <button 
+                      onClick={() => setShowPasswordModal(true)}
+                      className="text-sm text-primary hover:underline"
+                    >
+                      변경
+                    </button>
+                  </div>
                 </div>
               </div>
-            )}
-            <div className="flex justify-between py-3">
-              <span className="text-gray-500">상태</span>
-              <span className={`font-medium ${
-                member.status === 'active' ? 'text-green-600' : 'text-yellow-600'
-              }`}>
-                {member.status === 'active' ? '정상' : member.status}
-              </span>
+            </div>
+
+            {/* 커뮤니티 정보 */}
+            <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+              <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <i className="fas fa-comments text-gray-400"></i> 커뮤니티 정보
+              </h2>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center py-3">
+                  <span className="text-gray-500">닉네임</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{member.nickname}</span>
+                    <button 
+                      onClick={() => {
+                        setNewNickname('')
+                        setNicknameChecked(false)
+                        setNicknameError('')
+                        setNicknameSuccess('')
+                        setShowNicknameModal(true)
+                      }}
+                      className="text-sm text-primary hover:underline"
+                    >
+                      변경
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 기본 정보 */}
+            <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+              <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <i className="fas fa-user text-gray-400"></i> 기본 정보
+              </h2>
+              <div className="space-y-3">
+                {member.name && (
+                  <div className="flex justify-between py-3 border-b border-gray-100">
+                    <span className="text-gray-500">이름</span>
+                    <span className="font-medium">{member.name}</span>
+                  </div>
+                )}
+                {member.phone && (
+                  <div className="flex justify-between py-3 border-b border-gray-100">
+                    <span className="text-gray-500">휴대전화</span>
+                    <span className="font-medium">{member.phone}</span>
+                  </div>
+                )}
+                {member.email && (
+                  <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                    <span className="text-gray-500">이메일</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{member.email}</span>
+                      <button 
+                        onClick={() => {
+                          setNewEmail('')
+                          setEmailCode('')
+                          setEmailError('')
+                          setEmailStep(1)
+                          setShowEmailModal(true)
+                        }}
+                        className="text-sm text-primary hover:underline"
+                      >
+                        변경
+                      </button>
+                    </div>
+                  </div>
+                )}
+                <div className="flex justify-between py-3">
+                  <span className="text-gray-500">상태</span>
+                  <span className={`font-medium ${
+                    member.status === 'active' ? 'text-green-600' : 'text-yellow-600'
+                  }`}>
+                    {member.status === 'active' ? '정상' : member.status}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* 메뉴 */}
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
+              <Link 
+                href="/profile"
+                className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 border-b border-gray-100"
+              >
+                <div className="flex items-center gap-3">
+                  <i className="fas fa-user-edit text-gray-400"></i>
+                  <span>프로필 수정</span>
+                </div>
+                <i className="fas fa-chevron-right text-gray-300"></i>
+              </Link>
+              <Link 
+                href="/agora"
+                className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 border-b border-gray-100"
+              >
+                <div className="flex items-center gap-3">
+                  <i className="fas fa-comments text-gray-400"></i>
+                  <span>내 게시글</span>
+                </div>
+                <i className="fas fa-chevron-right text-gray-300"></i>
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center px-6 py-4 hover:bg-gray-50 text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <i className="fas fa-sign-out-alt text-red-400"></i>
+                  <span className="text-red-600">로그아웃</span>
+                </div>
+              </button>
+            </div>
+
+            {/* 아주 위험한 구역 */}
+            <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+              <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <i className="fas fa-exclamation-triangle text-gray-400"></i> 아주 위험한 구역
+              </h2>
+              <button
+                onClick={() => {
+                  setWithdrawReason('')
+                  setWithdrawPassword('')
+                  setWithdrawError('')
+                  setShowWithdrawModal(true)
+                }}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <i className="fas fa-person-running"></i>
+                <span>회원 탈퇴</span>
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* 당원증 발급 탭 */}
+        {activeTab === 'partyCard' && (
+          <div className="mb-6">
+            <PartyMemberCard />
+          </div>
+        )}
+
+        {/* 임명장 발급 탭 */}
+        {activeTab === 'appointment' && hasPosition && (
+          <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <i className="fas fa-certificate text-primary"></i>
+              임명장 발급
+            </h3>
+            <div className="bg-gray-50 rounded-xl p-6 text-center">
+              <div className="w-20 h-20 bg-primary/10 rounded-full mx-auto mb-4 flex items-center justify-center">
+                <i className="fas fa-scroll text-3xl text-primary"></i>
+              </div>
+              <p className="text-gray-900 font-medium mb-2">{member.role}</p>
+              <p className="text-gray-500 text-sm mb-6">위 직책에 대한 임명장을 발급받을 수 있습니다.</p>
+              <button className="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition-colors">
+                <i className="fas fa-download mr-2"></i>
+                임명장 다운로드
+              </button>
+              <p className="text-xs text-gray-400 mt-4">* 임명장은 PDF 형식으로 다운로드됩니다.</p>
             </div>
           </div>
-        </div>
-
-        {/* 메뉴 */}
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
-          <Link 
-            href="/profile"
-            className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 border-b border-gray-100"
-          >
-            <div className="flex items-center gap-3">
-              <i className="fas fa-user-edit text-gray-400"></i>
-              <span>프로필 수정</span>
-            </div>
-            <i className="fas fa-chevron-right text-gray-300"></i>
-          </Link>
-          <Link 
-            href="/agora"
-            className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 border-b border-gray-100"
-          >
-            <div className="flex items-center gap-3">
-              <i className="fas fa-comments text-gray-400"></i>
-              <span>내 게시글</span>
-            </div>
-            <i className="fas fa-chevron-right text-gray-300"></i>
-          </Link>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center px-6 py-4 hover:bg-gray-50 text-left"
-          >
-            <div className="flex items-center gap-3">
-              <i className="fas fa-sign-out-alt text-red-400"></i>
-              <span className="text-red-600">로그아웃</span>
-            </div>
-          </button>
-        </div>
-
-        {/* 아주 위험한 구역 */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <i className="fas fa-exclamation-triangle text-gray-400"></i> 아주 위험한 구역
-          </h2>
-          <button
-            onClick={() => {
-              setWithdrawReason('')
-              setWithdrawPassword('')
-              setWithdrawError('')
-              setShowWithdrawModal(true)
-            }}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            <i className="fas fa-person-running"></i>
-            <span>회원 탈퇴</span>
-          </button>
-        </div>
+        )}
 
         {/* 홈으로 */}
         <div className="text-center">
