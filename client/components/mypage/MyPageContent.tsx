@@ -535,8 +535,9 @@ export default function MyPageContent() {
   if (!isLoggedIn || !member) return null
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-3xl mx-auto px-4">
+  <div className="min-h-screen bg-gray-50 py-12">
+    <div className="text-xs text-gray-400 mb-2">MyPageContent v2 mounted</div>
+    <div className="max-w-3xl mx-auto px-4">
         {/* 프로필 카드 */}
         <div className="bg-gradient-to-r from-primary to-red-700 text-white rounded-2xl overflow-hidden mb-6">
           <div className="flex items-center p-6 gap-5">
