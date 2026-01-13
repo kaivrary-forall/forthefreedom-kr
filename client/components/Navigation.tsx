@@ -37,7 +37,7 @@ export default function Navigation() {
     foundingStory: 'Founding Story', policy: 'Policy', logo: 'Logo', location: 'Location',
     // 조직
     orgChart: 'Organization', supremeCouncil: 'Supreme Council', spokesperson: 'Spokesperson',
-    research: 'Research Institute', committees: 'Committees', localChapters: 'Local Chapters',
+    research: 'Research Institute', justiceGuard: 'Justice Guard', committees: 'Committees', localChapters: 'Local Chapters',
     volunteer: 'Freedom Action', staff: 'Staff', central: 'Central', regional: 'Regional',
     // 소식
     notices: 'Notices', statements: 'Statements', mediaCoverage: 'Media Coverage',
@@ -59,7 +59,7 @@ export default function Navigation() {
     foundingStory: '창당 스토리', policy: '정책', logo: '로고', location: '찾아오시는길',
     // 조직
     orgChart: '조직도', supremeCouncil: '최고위원회', spokesperson: '대변인실',
-    research: '자유연구원', committees: '직능위원회', localChapters: '시도당·당협',
+    research: '자유연구원', justiceGuard: '정의수호단', committees: '직능위원회', localChapters: '시도당·당협',
     volunteer: '자유행동', staff: '일꾼들', central: '중앙당', regional: '시도당',
     // 소식
     notices: '공지', statements: '성명', mediaCoverage: '언론보도',
@@ -99,13 +99,10 @@ export default function Navigation() {
         { label: t.supremeCouncil, href: `${linkPrefix}/about/organization?tab=central`, disabled: true },
         { label: t.spokesperson, href: `${linkPrefix}/committees/spokesperson` },
         { label: t.research, href: `${linkPrefix}/committees/research` },
+        { label: t.justiceGuard, href: `${linkPrefix}/committees/justice-guard` },
         { label: t.committees, href: `${linkPrefix}/committees` },
         { label: t.localChapters, href: `${linkPrefix}/local-chapters` },
         { label: t.volunteer, href: `${linkPrefix}/participate/volunteer` },
-        { label: t.staff, href: '#', subItems: [
-          { label: t.central, href: `${linkPrefix}/about/organization?tab=central` },
-          { label: t.regional, href: `${linkPrefix}/about/organization?tab=local` },
-        ]},
       ]
     },
     // 3. 소식
