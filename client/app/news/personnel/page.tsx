@@ -34,24 +34,12 @@ export default function PersonnelPage() {
   const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
 
   return (
-    <div>
-      {/* 히어로 */}
-      <section 
-        className="relative h-[40vh] flex items-center justify-center bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/night-pic.jpg')" }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/20"></div>
-        <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">소식</h1>
-          <p className="text-xl text-gray-200 drop-shadow">자유와혁신의 인사공고</p>
-        </div>
-      </section>
+    <div className="pt-16">
+      {/* 탭 네비게이션 */}
+      <NewsTabs active="personnel" />
 
-      <main className="relative z-10 bg-white">
-        {/* 탭 네비게이션 */}
-        <NewsTabs active="personnel" />
-
-        {/* 인사공고 목록 */}
+      {/* 인사공고 목록 */}
+      <main className="bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {isLoading ? (
             <div className="flex justify-center py-16">
