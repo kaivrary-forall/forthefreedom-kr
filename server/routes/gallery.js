@@ -1,13 +1,25 @@
 const express = require('express');
-const path = require('path');
-const fs = require('fs');
+const multer = require('multer');
 const router = express.Router();
 const { Gallery } = require('../models');
 const { getById, deleteById } = require('../controllers/baseController');
 
-// 공통 업로드 유틸리티 (한글 파일명 지원)
-const { uploads, createAttachmentsInfo, uploadDir } = require('../utils/upload');
-const upload = uploads.gallery;
+// Cloudinary 업로드 유틸리티
+const { uploadGalleryImages, deleteImage } = require('../utils/cloudinary');
+
+// multer 메모리 스토리지 (Cloudinary로 바로 업로드하기 위해)
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 20 * 1024 * 1024 }, // 20MB
+    fileFilter: (req, file, cb) => {
+        const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (allowedMimes.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('지원하지 않는 이미지 형식입니다.'), false);
+        }
+    }
+});
 
 // 포토갤러리 목록 조회
 router.get('/', async (req, res) => {
@@ -98,26 +110,22 @@ router.get('/', async (req, res) => {
 
         console.log(`📊 조회 결과: ${items.length}개 항목 (총 ${total}개)`);
 
-        // 이미지 URL을 절대 경로로 변환
-        const baseURL = process.env.NODE_ENV === 'production' 
-            ? 'https://forthefreedom.kr' 
-            : 'http://localhost:9000';
-
         const transformedItems = items.map(item => {
             const itemObj = item.toObject();
             
-            // attachments의 path를 절대 URL로 변환
+            // attachments에서 이미지 URL 설정
             if (itemObj.attachments && itemObj.attachments.length > 0) {
+                // path가 이미 Cloudinary URL이면 그대로 사용
                 itemObj.attachments = itemObj.attachments.map(attachment => ({
                     ...attachment,
                     url: attachment.path.startsWith('http') 
                         ? attachment.path 
-                        : `${baseURL}${attachment.path}?t=${Date.now()}`
+                        : attachment.url || attachment.path
                 }));
                 
                 // 첫 번째 이미지를 썸네일과 메인 이미지로 설정
-                itemObj.thumbnailUrl = itemObj.attachments[0].url;
-                itemObj.imageUrl = itemObj.attachments[0].url;
+                itemObj.thumbnailUrl = itemObj.attachments[0].url || itemObj.attachments[0].path;
+                itemObj.imageUrl = itemObj.attachments[0].url || itemObj.attachments[0].path;
             }
             
             return itemObj;
@@ -167,25 +175,20 @@ router.get('/:id', async (req, res) => {
         // 조회수 증가
         await Gallery.findByIdAndUpdate(id, { $inc: { views: 1 } });
 
-        // 이미지 URL을 절대 경로로 변환
-        const baseURL = process.env.NODE_ENV === 'production' 
-            ? 'https://forthefreedom.kr' 
-            : 'http://localhost:9000';
-
         const itemObj = item.toObject();
         
-        // attachments의 path를 절대 URL로 변환
+        // attachments에서 이미지 URL 설정
         if (itemObj.attachments && itemObj.attachments.length > 0) {
             itemObj.attachments = itemObj.attachments.map(attachment => ({
                 ...attachment,
                 url: attachment.path.startsWith('http') 
                     ? attachment.path 
-                    : `${baseURL}${attachment.path}?t=${Date.now()}`
+                    : attachment.url || attachment.path
             }));
             
             // 첫 번째 이미지를 썸네일과 메인 이미지로 설정
-            itemObj.thumbnailUrl = itemObj.attachments[0].url;
-            itemObj.imageUrl = itemObj.attachments[0].url;
+            itemObj.thumbnailUrl = itemObj.attachments[0].url || itemObj.attachments[0].path;
+            itemObj.imageUrl = itemObj.attachments[0].url || itemObj.attachments[0].path;
         }
 
         res.json({
@@ -203,7 +206,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// 포토갤러리 생성
+// 포토갤러리 생성 (Cloudinary 업로드)
 router.post('/', upload.array('attachments', 30), async (req, res) => {
     try {
         const galleryData = { ...req.body };
@@ -218,9 +221,11 @@ router.post('/', upload.array('attachments', 30), async (req, res) => {
             galleryData.tags = galleryData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
         }
         
-        // 첨부파일 처리 (한글 파일명 자동 복원)
+        // Cloudinary로 이미지 업로드
         if (req.files && req.files.length > 0) {
-            galleryData.attachments = createAttachmentsInfo(req.files);
+            console.log(`📤 ${req.files.length}개 이미지 Cloudinary 업로드 시작...`);
+            galleryData.attachments = await uploadGalleryImages(req.files, 'freeinno/gallery');
+            console.log(`✅ ${galleryData.attachments.length}개 이미지 업로드 완료`);
         }
         
         const gallery = new Gallery(galleryData);
@@ -240,7 +245,7 @@ router.post('/', upload.array('attachments', 30), async (req, res) => {
     }
 });
 
-// 포토갤러리 수정
+// 포토갤러리 수정 (Cloudinary 업로드)
 router.put('/:id', upload.array('attachments', 30), async (req, res) => {
     try {
         const galleryData = { ...req.body };
@@ -255,9 +260,11 @@ router.put('/:id', upload.array('attachments', 30), async (req, res) => {
             galleryData.tags = galleryData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
         }
         
-        // 첨부파일 처리 (한글 파일명 자동 복원)
+        // 새 이미지가 있으면 Cloudinary로 업로드
         if (req.files && req.files.length > 0) {
-            const newAttachments = createAttachmentsInfo(req.files);
+            console.log(`📤 ${req.files.length}개 이미지 Cloudinary 업로드 시작...`);
+            const newAttachments = await uploadGalleryImages(req.files, 'freeinno/gallery');
+            console.log(`✅ ${newAttachments.length}개 이미지 업로드 완료`);
             galleryData.attachments = newAttachments;
         }
         
@@ -392,4 +399,4 @@ router.patch('/:id/sort-order', async (req, res) => {
     }
 });
 
-module.exports = router; 
+module.exports = router;
