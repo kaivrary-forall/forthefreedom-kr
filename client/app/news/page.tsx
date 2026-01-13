@@ -1,5 +1,4 @@
 'use client'
-
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import NewsTabs from '@/components/news/NewsTabs'
@@ -11,21 +10,23 @@ interface NewsItem {
   excerpt?: string
   category?: string
   imageUrl?: string
+  thumbnailUrl?: string
   author?: string
   publishDate?: string
   createdAt: string
   views?: number
-  source: string // 어느 API에서 왔는지
-  basePath: string // 상세 페이지 경로
+  source: string
+  basePath: string
 }
 
-// API 설정
 const API_SOURCES = [
-  { key: 'notices', api: '/api/notices', name: '공지사항', basePath: '/news/notices' },
-  { key: 'press', api: '/api/spokesperson', name: '보도자료', basePath: '/news/press-releases' },
+  { key: 'notices', api: '/api/notices', name: '공지', basePath: '/news/notices' },
+  { key: 'press', api: '/api/spokesperson', name: '성명', basePath: '/news/press-releases' },
   { key: 'activities', api: '/api/activities', name: '활동소식', basePath: '/news/activities' },
   { key: 'media', api: '/api/media-coverage', name: '언론보도', basePath: '/news/media' },
-  { key: 'events', api: '/api/events', name: '행사안내', basePath: '/news/events' },
+  { key: 'events', api: '/api/events', name: '주요일정', basePath: '/news/events' },
+  { key: 'cardnews', api: '/api/card-news', name: '카드뉴스', basePath: '/news/card-news' },
+  { key: 'gallery', api: '/api/gallery', name: '갤러리', basePath: '/news/gallery' },
 ]
 
 export default function NewsAllPage() {
@@ -37,7 +38,6 @@ export default function NewsAllPage() {
       setIsLoading(true)
       
       try {
-        // 모든 API 동시 호출
         const promises = API_SOURCES.map(async (source) => {
           try {
             const res = await fetch(`${source.api}?limit=5&page=1`)
@@ -47,7 +47,8 @@ export default function NewsAllPage() {
               return data.data.map((item: any) => ({
                 ...item,
                 source: source.name,
-                basePath: source.basePath
+                basePath: source.basePath,
+                imageUrl: item.imageUrl || item.thumbnailUrl || null
               }))
             }
             return []
@@ -59,7 +60,6 @@ export default function NewsAllPage() {
         const results = await Promise.all(promises)
         const allNews = results.flat()
         
-        // 날짜순 정렬 (최신순)
         allNews.sort((a, b) => {
           const dateA = new Date(a.publishDate || a.createdAt).getTime()
           const dateB = new Date(b.publishDate || b.createdAt).getTime()
@@ -87,24 +87,12 @@ export default function NewsAllPage() {
   }
 
   return (
-    <div>
-      {/* 히어로 */}
-      <section 
-        className="relative h-[40vh] flex items-center justify-center bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/night-pic.jpg')" }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/20"></div>
-        <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">소식</h1>
-          <p className="text-xl text-gray-200 drop-shadow">자유와혁신의 모든 소식</p>
-        </div>
-      </section>
+    <div className="pt-16">
+      {/* 탭 네비게이션 */}
+      <NewsTabs active="all" />
 
-      <main className="relative z-10 bg-white">
-        {/* 탭 네비게이션 */}
-        <NewsTabs active="all" />
-
-        {/* 전체 뉴스 목록 */}
+      {/* 전체 뉴스 목록 */}
+      <main className="bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {isLoading ? (
             <div className="space-y-4">
@@ -125,7 +113,6 @@ export default function NewsAllPage() {
                   className="block bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg hover:border-primary/30 transition-all"
                 >
                   <div className="flex gap-6">
-                    {/* 썸네일 */}
                     {item.imageUrl ? (
                       <div className="hidden sm:block w-40 h-28 rounded-lg overflow-hidden flex-shrink-0">
                         <img 
@@ -143,7 +130,6 @@ export default function NewsAllPage() {
                       </div>
                     )}
                     
-                    {/* 콘텐츠 */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs font-medium rounded">
