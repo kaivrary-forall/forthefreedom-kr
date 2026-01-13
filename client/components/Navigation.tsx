@@ -41,8 +41,8 @@ export default function Navigation() {
     volunteer: 'Freedom Action', staff: 'Staff', central: 'Central', regional: 'Regional',
     // 소식
     notices: 'Notices', statements: 'Statements', mediaCoverage: 'Media Coverage',
-    events: 'Events', mediaPromo: 'Media Promo', cardNews: 'Card News', gallery: 'Gallery',
-    resources: 'Resources', personnel: 'Personnel',
+    events: 'Events', cardNews: 'Card News', gallery: 'Gallery',
+    personnel: 'Personnel',
     // 당원
     joinInfo: 'Join Info', joinOnline: 'Join Online', joinFaq: 'FAQ',
     dues: 'Dues', education: 'Education', developing: '(Coming Soon)',
@@ -62,9 +62,9 @@ export default function Navigation() {
     research: '자유연구원', committees: '직능위원회', localChapters: '시도당·당협',
     volunteer: '자유행동', staff: '일꾼들', central: '중앙당', regional: '시도당',
     // 소식
-    notices: '공지사항', statements: '성명서', mediaCoverage: '언론보도',
-    events: '주요일정', mediaPromo: '미디어홍보', cardNews: '카드뉴스', gallery: '포토갤러리',
-    resources: '자료실', personnel: '인사공고',
+    notices: '공지', statements: '성명', mediaCoverage: '언론보도',
+    events: '주요일정', cardNews: '카드뉴스', gallery: '갤러리',
+    personnel: '인사공고',
     // 당원
     joinInfo: '당원가입안내', joinOnline: '당원가입', joinFaq: '당원가입 FAQ',
     dues: '당비납부', education: '당원교육', developing: '(개발중)',
@@ -114,9 +114,9 @@ export default function Navigation() {
       href: `${linkPrefix}/news/notices`,
       subMenu: [
         { label: t.notices, href: `${linkPrefix}/news/notices` },
-        { label: t.statements, href: `${linkPrefix}/news/press-releases` },
-        { label: t.mediaCoverage, href: `${linkPrefix}/news/media` },
         { label: t.events, href: `${linkPrefix}/news/events` },
+        { label: t.mediaCoverage, href: `${linkPrefix}/news/media` },
+        { label: t.statements, href: `${linkPrefix}/news/press-releases` },
         { label: t.cardNews, href: `${linkPrefix}/news/card-news` },
         { label: t.gallery, href: `${linkPrefix}/news/gallery` },
         { label: t.personnel, href: `${linkPrefix}/news/personnel` },
