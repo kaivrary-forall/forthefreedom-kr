@@ -1,13 +1,14 @@
 import Link from 'next/link'
 
 interface NewsTabsProps {
-  active: 'all' | 'notices' | 'press-releases' | 'events' | 'gallery' | 'media' | 'card-news' | 'personnel'
+  active: 'all' | 'notices' | 'press-releases' | 'events' | 'gallery' | 'media' | 'card-news' | 'personnel' | 'activities'
 }
 
 const tabs = [
   { id: 'all', name: '전체', href: '/news' },
   { id: 'notices', name: '공지', href: '/news/notices' },
   { id: 'events', name: '주요일정', href: '/news/events' },
+  { id: 'activities', name: '활동소식', href: '/news/activities' },
   { id: 'media', name: '언론보도', href: '/news/media' },
   { id: 'press-releases', name: '성명', href: '/news/press-releases' },
   { id: 'card-news', name: '카드뉴스', href: '/news/card-news' },
