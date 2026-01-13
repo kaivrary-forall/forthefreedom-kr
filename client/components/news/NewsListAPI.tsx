@@ -30,6 +30,19 @@ interface NewsListAPIProps {
   basePath: string // 예: /news/notices
 }
 
+// 카테고리별 API 경로 매핑
+const API_MAP: Record<string, string> = {
+  'notices': '/api/notices',
+  'activities': '/api/activities',
+  'media-coverage': '/api/media-coverage',
+  'card-news': '/api/card-news',
+  'gallery': '/api/gallery',
+  'events': '/api/events',
+  'spokesperson': '/api/spokesperson',
+  'policy-committee': '/api/policy-committee',
+  'new-media': '/api/new-media',
+}
+
 export default function NewsListAPI({ category, title, basePath }: NewsListAPIProps) {
   const [news, setNews] = useState<NewsItem[]>([])
   const [pagination, setPagination] = useState<Pagination | null>(null)
@@ -40,7 +53,8 @@ export default function NewsListAPI({ category, title, basePath }: NewsListAPIPr
     async function loadNews() {
       setIsLoading(true)
       try {
-        const response = await fetch(`/api/news?category=${category}&limit=10&page=${currentPage}`)
+        const apiPath = API_MAP[category] || `/api/${category}`
+        const response = await fetch(`${apiPath}?limit=10&page=${currentPage}`)
         const data = await response.json()
         
         if (data.success) {
