@@ -45,8 +45,15 @@ router.get('/', async (req, res) => {
         }
 
         const total = await Event.countDocuments(query);
+        
+        // 정렬 파라미터 (관리자: createdAt desc, 사용자: eventDate asc)
+        const sortField = req.query.sort || 'createdAt';
+        const sortOrder = (req.query.order || 'desc').toLowerCase() === 'asc' ? 1 : -1;
+        const sortOptions = { [sortField]: sortOrder };
+        if (sortField !== 'createdAt') sortOptions.createdAt = -1;
+        
         const data = await Event.find(query)
-            .sort({ eventDate: 1, createdAt: -1 })
+            .sort(sortOptions)
             .skip(skip)
             .limit(limit)
             .lean();
