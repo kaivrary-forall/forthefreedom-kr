@@ -1,10 +1,11 @@
 import Link from 'next/link'
 
 interface NewsTabsProps {
-  active: 'notices' | 'press-releases' | 'events' | 'gallery' | 'media' | 'card-news' | 'activities'
+  active: 'all' | 'notices' | 'press-releases' | 'events' | 'gallery' | 'media' | 'card-news' | 'activities'
 }
 
 const tabs = [
+  { id: 'all', name: '전체', href: '/news' },
   { id: 'notices', name: '공지사항', href: '/news/notices' },
   { id: 'press-releases', name: '보도자료', href: '/news/press-releases' },
   { id: 'activities', name: '활동소식', href: '/news/activities' },
