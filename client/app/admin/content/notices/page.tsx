@@ -1,191 +1,182 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import Link from 'next/link'
 import AdminSidebar from '@/components/admin/AdminSidebar'
 import { useAuth } from '@/contexts/AuthContext'
-import QRCode from 'qrcode'
 
-interface QRItem {
+interface NoticeItem {
   _id: string
-  code: string
-  name: string
-  type: 'url' | 'vcard' | 'landing'
-  targetUrl?: string
-  landingSlug?: string
-  vcardData?: {
-    name?: string
-    organization?: string
-    title?: string
-    phone?: string
-    email?: string
-    website?: string
-    address?: string
-    note?: string
-  }
-  scans: number
-  isActive: boolean
+  title: string
+  content: string
+  excerpt: string
+  category: '중요' | '일반' | '긴급'
+  priority: number
+  author: string
+  isImportant: boolean
+  tags: string[]
+  status: 'draft' | 'published'
+  views: number
+  attachments: Array<{
+    filename: string
+    originalName: string
+    path: string
+    url?: string
+  }>
   createdAt: string
 }
 
-interface VCardData {
-  name: string
-  organization: string
-  title: string
-  phone: string
-  email: string
-  website: string
-  address: string
-  note: string
-}
-
-export default function AdminQRPage() {
+export default function AdminNoticesPage() {
   const { token } = useAuth()
-  const [qrList, setQrList] = useState<QRItem[]>([])
+  const [list, setList] = useState<NoticeItem[]>([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
-  const [editingQR, setEditingQR] = useState<QRItem | null>(null)
-  const [qrImages, setQrImages] = useState<Record<string, string>>({})
+  const [editingItem, setEditingItem] = useState<NoticeItem | null>(null)
+  const [uploading, setUploading] = useState(false)
 
   // 폼 상태
   const [formData, setFormData] = useState({
-    code: '',
-    name: '',
-    type: 'url' as 'url' | 'vcard' | 'landing',
-    targetUrl: '',
-    landingSlug: '',
-    vcardData: {
-      name: '',
-      organization: '',
-      title: '',
-      phone: '',
-      email: '',
-      website: '',
-      address: '',
-      note: ''
-    },
-    isActive: true
+    title: '',
+    content: '',
+    excerpt: '',
+    category: '일반' as '중요' | '일반' | '긴급',
+    priority: 0,
+    author: '관리자',
+    isImportant: false,
+    status: 'published' as 'draft' | 'published',
+    tags: ''
   })
 
-  const fetchQRList = useCallback(async () => {
-    if (!token) return
-    
+  // 페이지네이션
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [total, setTotal] = useState(0)
+
+  const fetchList = useCallback(async () => {
     try {
-      const res = await fetch('/api/admin/qr', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
+      const res = await fetch(`/api/notices?page=${currentPage}&limit=10&status=all&sort=createdAt&order=desc`)
       const data = await res.json()
-      if (data.qrcodes) {
-        setQrList(data.qrcodes)
-        // QR 이미지 생성
-        const images: Record<string, string> = {}
-        for (const qr of data.qrcodes) {
-          const url = `${window.location.origin}/qr/${qr.code}`
-          images[qr._id] = await QRCode.toDataURL(url, { width: 150, margin: 1 })
-        }
-        setQrImages(images)
+      if (data.success) {
+        setList(data.data || [])
+        setTotalPages(data.pagination?.pages || 1)
+        setTotal(data.pagination?.total || 0)
       }
     } catch (error) {
-      console.error('Failed to fetch QR list:', error)
+      console.error('Failed to fetch:', error)
     } finally {
       setLoading(false)
     }
-  }, [token])
+  }, [currentPage])
 
   useEffect(() => {
-    fetchQRList()
-  }, [fetchQRList])
+    fetchList()
+  }, [fetchList])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!token) return
     
+    setUploading(true)
+    
     try {
-      const url = editingQR 
-        ? `/api/admin/qr/${editingQR._id}` 
-        : '/api/admin/qr'
+      const payload = {
+        ...formData,
+        tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(t => t) : []
+      }
+
+      const url = editingItem 
+        ? `/api/notices/${editingItem._id}` 
+        : '/api/notices'
       
       const res = await fetch(url, {
-        method: editingQR ? 'PUT' : 'POST',
+        method: editingItem ? 'PUT' : 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}` 
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       })
 
       if (res.ok) {
-        fetchQRList()
+        setCurrentPage(1)
+        await fetchList()
         setShowModal(false)
         resetForm()
+      } else {
+        const error = await res.json()
+        alert(error.message || '저장에 실패했습니다.')
       }
     } catch (error) {
-      console.error('Failed to save QR:', error)
+      console.error('Failed to save:', error)
+      alert('저장 중 오류가 발생했습니다.')
+    } finally {
+      setUploading(false)
     }
   }
 
   const handleDelete = async (id: string) => {
     if (!token) return
     if (!confirm('정말 삭제하시겠습니까?')) return
-
+    
     try {
-      await fetch(`/api/admin/qr/${id}`, { 
+      await fetch(`/api/notices/${id}`, { 
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       })
-      fetchQRList()
+      fetchList()
     } catch (error) {
-      console.error('Failed to delete QR:', error)
+      console.error('Failed to delete:', error)
     }
   }
 
-  const handleEdit = (qr: QRItem) => {
-    setEditingQR(qr)
+  const handleEdit = (item: NoticeItem) => {
+    setEditingItem(item)
     setFormData({
-      code: qr.code,
-      name: qr.name,
-      type: qr.type,
-      targetUrl: qr.targetUrl || '',
-      landingSlug: qr.landingSlug || '',
-      vcardData: {
-        name: qr.vcardData?.name || '',
-        organization: qr.vcardData?.organization || '',
-        title: qr.vcardData?.title || '',
-        phone: qr.vcardData?.phone || '',
-        email: qr.vcardData?.email || '',
-        website: qr.vcardData?.website || '',
-        address: qr.vcardData?.address || '',
-        note: qr.vcardData?.note || ''
-      },
-      isActive: qr.isActive
+      title: item.title,
+      content: item.content,
+      excerpt: item.excerpt || '',
+      category: item.category,
+      priority: item.priority || 0,
+      author: item.author || '관리자',
+      isImportant: item.isImportant || false,
+      status: item.status,
+      tags: item.tags?.join(', ') || ''
     })
     setShowModal(true)
   }
 
   const resetForm = () => {
-    setEditingQR(null)
+    setEditingItem(null)
     setFormData({
-      code: '',
-      name: '',
-      type: 'url',
-      targetUrl: '',
-      landingSlug: '',
-      vcardData: {
-        name: '', organization: '', title: '', phone: '', email: '', website: '', address: '', note: ''
-      },
-      isActive: true
+      title: '',
+      content: '',
+      excerpt: '',
+      category: '일반',
+      priority: 0,
+      author: '관리자',
+      isImportant: false,
+      status: 'published',
+      tags: ''
     })
   }
 
-  const downloadQR = async (qr: QRItem) => {
-    const url = `${window.location.origin}/qr/${qr.code}`
-    const dataUrl = await QRCode.toDataURL(url, { width: 500, margin: 2 })
-    
-    const link = document.createElement('a')
-    link.download = `qr-${qr.code}.png`
-    link.href = dataUrl
-    link.click()
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    })
   }
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case '긴급': return 'bg-red-100 text-red-700'
+      case '중요': return 'bg-orange-100 text-orange-700'
+      case '일반': return 'bg-gray-100 text-gray-700'
+      default: return 'bg-gray-100 text-gray-700'
+    }
+  }
+
+  const categories = ['일반', '중요', '긴급']
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -194,329 +185,260 @@ export default function AdminQRPage() {
       <main className="flex-1 p-8 ml-64">
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-900">QR 코드 관리</h1>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">공지사항 관리</h1>
+              <p className="text-gray-500 mt-1">총 {total}개의 공지사항</p>
+            </div>
             <button
               onClick={() => { resetForm(); setShowModal(true); }}
               className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors flex items-center gap-2"
             >
               <i className="fas fa-plus"></i>
-              새 QR 코드
+              새 공지사항
             </button>
           </div>
 
           {loading ? (
             <div className="text-center py-12">로딩 중...</div>
-          ) : qrList.length === 0 ? (
+          ) : list.length === 0 ? (
             <div className="bg-white rounded-xl p-12 text-center">
-              <i className="fas fa-qrcode text-6xl text-gray-300 mb-4"></i>
-              <p className="text-gray-500">등록된 QR 코드가 없습니다.</p>
+              <i className="fas fa-bullhorn text-6xl text-gray-300 mb-4"></i>
+              <p className="text-gray-500">등록된 공지사항이 없습니다.</p>
             </div>
           ) : (
-            <div className="grid gap-4">
-              {qrList.map((qr) => (
-                <div key={qr._id} className="bg-white rounded-xl p-6 shadow-sm flex items-center gap-6">
-                  {/* QR 이미지 */}
-                  <div className="flex-shrink-0">
-                    {qrImages[qr._id] && (
-                      <img src={qrImages[qr._id]} alt="QR" className="w-24 h-24 rounded-lg border" />
-                    )}
-                  </div>
+            <>
+              <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">제목</th>
+                      <th className="px-4 py-4 text-left text-sm font-medium text-gray-500">카테고리</th>
+                      <th className="px-4 py-4 text-left text-sm font-medium text-gray-500">작성자</th>
+                      <th className="px-4 py-4 text-left text-sm font-medium text-gray-500">조회수</th>
+                      <th className="px-4 py-4 text-left text-sm font-medium text-gray-500">작성일</th>
+                      <th className="px-4 py-4 text-left text-sm font-medium text-gray-500">상태</th>
+                      <th className="px-4 py-4 text-center text-sm font-medium text-gray-500">관리</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {list.map((item) => (
+                      <tr key={item._id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            {item.isImportant && (
+                              <i className="fas fa-thumbtack text-red-500"></i>
+                            )}
+                            <div>
+                              <div className="font-medium text-gray-900 truncate max-w-xs">{item.title}</div>
+                              <div className="text-sm text-gray-500 truncate max-w-xs">{item.excerpt}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4">
+                          <span className={`px-2 py-1 text-xs rounded ${getCategoryColor(item.category)}`}>
+                            {item.category}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-500">{item.author}</td>
+                        <td className="px-4 py-4 text-sm text-gray-500">{item.views}</td>
+                        <td className="px-4 py-4 text-sm text-gray-500">
+                          {formatDate(item.createdAt)}
+                        </td>
+                        <td className="px-4 py-4">
+                          <span className={`px-2 py-1 text-xs rounded ${
+                            item.status === 'published' 
+                              ? 'bg-green-100 text-green-700' 
+                              : 'bg-yellow-100 text-yellow-700'
+                          }`}>
+                            {item.status === 'published' ? '공개' : '비공개'}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="flex justify-center gap-2">
+                            <button
+                              onClick={() => handleEdit(item)}
+                              className="p-2 text-gray-500 hover:text-primary hover:bg-gray-100 rounded"
+                            >
+                              <i className="fas fa-edit"></i>
+                            </button>
+                            <button
+                              onClick={() => handleDelete(item._id)}
+                              className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded"
+                            >
+                              <i className="fas fa-trash"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
-                  {/* 정보 */}
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-bold text-lg">{qr.name}</h3>
-                      <span className={`px-2 py-0.5 rounded text-xs ${
-                        qr.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
-                      }`}>
-                        {qr.isActive ? '활성' : '비활성'}
-                      </span>
-                      <span className="px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-700">
-                        {qr.type === 'url' ? 'URL' : qr.type === 'vcard' ? '명함' : '랜딩페이지'}
-                      </span>
-                    </div>
-                    
-                    <p className="text-sm text-gray-500 mb-1">
-                      코드: <code className="bg-gray-100 px-2 py-0.5 rounded">{qr.code}</code>
-                    </p>
-                    
-                    {qr.type === 'url' && qr.targetUrl && (
-                      <p className="text-sm text-gray-500 truncate max-w-md">
-                        → {qr.targetUrl}
-                      </p>
-                    )}
-                    {qr.type === 'vcard' && qr.vcardData?.name && (
-                      <p className="text-sm text-gray-500">
-                        명함: {qr.vcardData.name} {qr.vcardData.organization && `(${qr.vcardData.organization})`}
-                      </p>
-                    )}
-                    {qr.type === 'landing' && qr.landingSlug && (
-                      <p className="text-sm text-gray-500">
-                        랜딩페이지: /l/{qr.landingSlug}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* 통계 */}
-                  <div className="text-center px-6 border-l">
-                    <p className="text-3xl font-bold text-primary">{qr.scans}</p>
-                    <p className="text-sm text-gray-500">스캔</p>
-                  </div>
-
-                  {/* 액션 */}
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => downloadQR(qr)}
-                      className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-                      title="다운로드"
-                    >
-                      <i className="fas fa-download"></i>
-                    </button>
-                    <Link
-                      href={`/admin/qr/${qr._id}`}
-                      className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-                      title="통계"
-                    >
-                      <i className="fas fa-chart-bar"></i>
-                    </Link>
-                    <button
-                      onClick={() => handleEdit(qr)}
-                      className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-                      title="수정"
-                    >
-                      <i className="fas fa-edit"></i>
-                    </button>
-                    <button
-                      onClick={() => handleDelete(qr._id)}
-                      className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
-                      title="삭제"
-                    >
-                      <i className="fas fa-trash"></i>
-                    </button>
-                  </div>
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-2 mt-8">
+                  <button
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 rounded-lg border hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    이전
+                  </button>
+                  <span className="px-4 py-2 text-gray-600">
+                    {currentPage} / {totalPages}
+                  </span>
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 rounded-lg border hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    다음
+                  </button>
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           )}
         </div>
 
-        {/* 모달 */}
+        {/* 생성/수정 모달 */}
         {showModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto m-4">
-              <div className="p-6 border-b sticky top-0 bg-white">
+            <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4">
+              <div className="p-6 border-b sticky top-0 bg-white z-10">
                 <h2 className="text-xl font-bold">
-                  {editingQR ? 'QR 코드 수정' : '새 QR 코드'}
+                  {editingItem ? '공지사항 수정' : '새 공지사항'}
                 </h2>
               </div>
-
+              
               <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                {/* 기본 정보 */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    이름 (관리용)
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">제목 *</label>
                   <input
                     type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    placeholder="예: 서울시당 당원가입"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">카테고리 *</label>
+                    <select
+                      value={formData.category}
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
+                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    >
+                      {categories.map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">상태</label>
+                    <select
+                      value={formData.status}
+                      onChange={(e) => setFormData({ ...formData, status: e.target.value as 'draft' | 'published' })}
+                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    >
+                      <option value="published">공개</option>
+                      <option value="draft">비공개</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">작성자</label>
+                    <input
+                      type="text"
+                      value={formData.author}
+                      onChange={(e) => setFormData({ ...formData, author: e.target.value })}
+                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">우선순위</label>
+                    <input
+                      type="number"
+                      value={formData.priority}
+                      onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) || 0 })}
+                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      min={0}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">요약</label>
+                  <input
+                    type="text"
+                    value={formData.excerpt}
+                    onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    placeholder="간단한 설명 (500자 이내)"
+                    maxLength={500}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">내용 *</label>
+                  <textarea
+                    value={formData.content}
+                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    rows={10}
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    코드 (URL에 사용)
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <span className="text-gray-500 text-sm">/qr/</span>
-                    <input
-                      type="text"
-                      value={formData.code}
-                      onChange={(e) => setFormData({ ...formData, code: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
-                      className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                      placeholder="seoul-join"
-                      required
-                    />
-                  </div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">태그 (쉼표로 구분)</label>
+                  <input
+                    type="text"
+                    value={formData.tags}
+                    onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    placeholder="예: 당무, 선거, 정책"
+                  />
                 </div>
 
-                {/* 타입 선택 */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">타입</label>
-                  <div className="flex gap-2">
-                    {[
-                      { value: 'url', label: 'URL 링크', icon: 'fas fa-link' },
-                      { value: 'vcard', label: '명함 (vCard)', icon: 'fas fa-id-card' },
-                      { value: 'landing', label: '랜딩페이지', icon: 'fas fa-mobile-alt' },
-                    ].map((opt) => (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => setFormData({ ...formData, type: opt.value as typeof formData.type })}
-                        className={`flex-1 py-3 px-4 rounded-lg border-2 transition-colors ${
-                          formData.type === opt.value
-                            ? 'border-primary bg-primary/5 text-primary'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <i className={`${opt.icon} block text-xl mb-1`}></i>
-                        <span className="text-sm">{opt.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* URL 타입 */}
-                {formData.type === 'url' && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      이동할 URL
-                    </label>
-                    <input
-                      type="url"
-                      value={formData.targetUrl}
-                      onChange={(e) => setFormData({ ...formData, targetUrl: e.target.value })}
-                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                      placeholder="https://www.forthefreedom.kr/participate/join"
-                      required
-                    />
-                  </div>
-                )}
-
-                {/* 랜딩페이지 타입 */}
-                {formData.type === 'landing' && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      랜딩페이지 슬러그
-                    </label>
-                    <div className="flex items-center gap-2">
-                      <span className="text-gray-500 text-sm">/l/</span>
-                      <input
-                        type="text"
-                        value={formData.landingSlug}
-                        onChange={(e) => setFormData({ ...formData, landingSlug: e.target.value })}
-                        className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                        placeholder="seoul-event-2024"
-                        required
-                      />
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1">
-                      <Link href="/admin/landing" className="text-primary hover:underline">
-                        랜딩페이지 관리
-                      </Link>에서 먼저 페이지를 만들어주세요.
-                    </p>
-                  </div>
-                )}
-
-                {/* vCard 타입 */}
-                {formData.type === 'vcard' && (
-                  <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-medium text-gray-700">명함 정보</h4>
-                    <input
-                      type="text"
-                      placeholder="이름"
-                      value={formData.vcardData.name}
-                      onChange={(e) => setFormData({ 
-                        ...formData, 
-                        vcardData: { ...formData.vcardData, name: e.target.value }
-                      })}
-                      className="w-full px-4 py-2 border rounded-lg"
-                      required
-                    />
-                    <input
-                      type="text"
-                      placeholder="소속/회사"
-                      value={formData.vcardData.organization}
-                      onChange={(e) => setFormData({ 
-                        ...formData, 
-                        vcardData: { ...formData.vcardData, organization: e.target.value }
-                      })}
-                      className="w-full px-4 py-2 border rounded-lg"
-                    />
-                    <input
-                      type="text"
-                      placeholder="직함"
-                      value={formData.vcardData.title}
-                      onChange={(e) => setFormData({ 
-                        ...formData, 
-                        vcardData: { ...formData.vcardData, title: e.target.value }
-                      })}
-                      className="w-full px-4 py-2 border rounded-lg"
-                    />
-                    <input
-                      type="tel"
-                      placeholder="전화번호"
-                      value={formData.vcardData.phone}
-                      onChange={(e) => setFormData({ 
-                        ...formData, 
-                        vcardData: { ...formData.vcardData, phone: e.target.value }
-                      })}
-                      className="w-full px-4 py-2 border rounded-lg"
-                    />
-                    <input
-                      type="email"
-                      placeholder="이메일"
-                      value={formData.vcardData.email}
-                      onChange={(e) => setFormData({ 
-                        ...formData, 
-                        vcardData: { ...formData.vcardData, email: e.target.value }
-                      })}
-                      className="w-full px-4 py-2 border rounded-lg"
-                    />
-                    <input
-                      type="url"
-                      placeholder="웹사이트"
-                      value={formData.vcardData.website}
-                      onChange={(e) => setFormData({ 
-                        ...formData, 
-                        vcardData: { ...formData.vcardData, website: e.target.value }
-                      })}
-                      className="w-full px-4 py-2 border rounded-lg"
-                    />
-                    <input
-                      type="text"
-                      placeholder="주소"
-                      value={formData.vcardData.address}
-                      onChange={(e) => setFormData({ 
-                        ...formData, 
-                        vcardData: { ...formData.vcardData, address: e.target.value }
-                      })}
-                      className="w-full px-4 py-2 border rounded-lg"
-                    />
-                  </div>
-                )}
-
-                {/* 활성화 */}
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
-                    id="isActive"
-                    checked={formData.isActive}
-                    onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                    id="isImportant"
+                    checked={formData.isImportant}
+                    onChange={(e) => setFormData({ ...formData, isImportant: e.target.checked })}
                     className="w-4 h-4"
                   />
-                  <label htmlFor="isActive" className="text-sm text-gray-700">
-                    활성화 (비활성화 시 스캔해도 리다이렉트 안 됨)
+                  <label htmlFor="isImportant" className="text-sm text-gray-700">
+                    중요 공지로 고정 (목록 상단에 표시)
                   </label>
                 </div>
 
-                {/* 버튼 */}
                 <div className="flex gap-3 pt-4">
                   <button
                     type="button"
                     onClick={() => { setShowModal(false); resetForm(); }}
                     className="flex-1 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    disabled={uploading}
                   >
                     취소
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+                    className="flex-1 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50"
+                    disabled={uploading}
                   >
-                    {editingQR ? '수정' : '생성'}
+                    {uploading ? (
+                      <>
+                        <i className="fas fa-spinner fa-spin mr-2"></i>
+                        저장 중...
+                      </>
+                    ) : (
+                      editingItem ? '수정' : '등록'
+                    )}
                   </button>
                 </div>
               </form>
