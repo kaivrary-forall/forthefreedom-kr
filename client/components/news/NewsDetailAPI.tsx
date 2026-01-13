@@ -23,8 +23,21 @@ interface NewsDetail {
 interface NewsDetailAPIProps {
   category: string
   title: string
-  backPath: string // 예: /news/notices
-  backLabel: string // 예: 공지사항 목록
+  backPath: string
+  backLabel: string
+}
+
+// 카테고리별 API 경로 매핑
+const API_MAP: Record<string, string> = {
+  'notices': '/api/notices',
+  'activities': '/api/activities',
+  'media-coverage': '/api/media-coverage',
+  'card-news': '/api/card-news',
+  'gallery': '/api/gallery',
+  'events': '/api/events',
+  'spokesperson': '/api/spokesperson',
+  'policy-committee': '/api/policy-committee',
+  'new-media': '/api/new-media',
 }
 
 export default function NewsDetailAPI({ category, title, backPath, backLabel }: NewsDetailAPIProps) {
@@ -43,7 +56,8 @@ export default function NewsDetailAPI({ category, title, backPath, backLabel }: 
       setError(null)
       
       try {
-        const response = await fetch(`/api/news/${id}?category=${category}`)
+        const apiPath = API_MAP[category] || `/api/${category}`
+        const response = await fetch(`${apiPath}/${id}`)
         const data = await response.json()
         
         if (data.success && data.data) {
