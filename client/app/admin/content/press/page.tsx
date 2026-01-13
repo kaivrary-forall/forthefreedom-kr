@@ -1,5 +1,4 @@
 'use client'
-
 import { useState, useEffect, useCallback } from 'react'
 import AdminGuard from '@/components/admin/AdminGuard'
 import AdminSidebar from '@/components/admin/AdminSidebar'
@@ -227,7 +226,7 @@ export default function PressAdminPage() {
       <div className="flex min-h-screen bg-gray-100">
         <AdminSidebar />
         
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-8 ml-64">
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">보도자료 관리</h1>
