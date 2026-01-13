@@ -1,7 +1,7 @@
 'use client'
-
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import NewsTabs from '@/components/news/NewsTabs'
 
 interface Personnel {
   _id: string
@@ -35,78 +35,62 @@ export default function PersonnelPage() {
 
   return (
     <div>
-      {/* 브레드크럼 */}
-      <section className="bg-gray-50 py-8 mt-16">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="text-sm">
-            <ol className="list-none p-0 inline-flex space-x-2">
-              <li className="flex items-center">
-                <Link href="/" className="text-gray-500 hover:text-primary">홈</Link>
-                <i className="fas fa-chevron-right mx-2 text-gray-400"></i>
-              </li>
-              <li className="flex items-center">
-                <Link href="/news/notices" className="text-gray-500 hover:text-primary">정당소식</Link>
-                <i className="fas fa-chevron-right mx-2 text-gray-400"></i>
-              </li>
-              <li className="text-gray-900">인사공고</li>
-            </ol>
-          </nav>
+      {/* 히어로 */}
+      <section 
+        className="relative h-[40vh] flex items-center justify-center bg-cover bg-center"
+        style={{ backgroundImage: "url('/images/night-pic.jpg')" }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/20"></div>
+        <div className="relative z-10 text-center text-white px-4">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">소식</h1>
+          <p className="text-xl text-gray-200 drop-shadow">자유와혁신의 인사공고</p>
         </div>
       </section>
 
-      <main className="bg-white">
-        <section className="py-16">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">인사공고</h1>
-              <p className="text-xl text-gray-600">당직자 임명 및 인사발령 소식을 안내합니다</p>
-            </div>
+      <main className="relative z-10 bg-white">
+        {/* 탭 네비게이션 */}
+        <NewsTabs active="personnel" />
 
-            {isLoading ? (
-              <div className="flex justify-center py-16">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              </div>
-            ) : items.length > 0 ? (
-              <div className="space-y-4">
-                {items.map((item) => (
-                  <div 
-                    key={item._id}
-                    className="bg-white border-l-4 border-primary rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex items-center gap-3 mb-3">
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        item.type === '임명' ? 'bg-blue-100 text-blue-800' : 
-                        item.type === '전보' ? 'bg-yellow-100 text-yellow-800' : 
-                        item.type === '퇴임' ? 'bg-gray-100 text-gray-800' :
-                        item.type === '승진' ? 'bg-green-100 text-green-800' :
-                        'bg-purple-100 text-purple-800'
-                      }`}>
-                        {item.type}
-                      </span>
-                      <span className="text-gray-500 text-sm">{formatDate(item.effectiveDate)}</span>
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
-                    <p className="text-gray-600 whitespace-pre-wrap">{item.content}</p>
+        {/* 인사공고 목록 */}
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          {isLoading ? (
+            <div className="flex justify-center py-16">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : items.length > 0 ? (
+            <div className="space-y-4">
+              {items.map((item) => (
+                <div 
+                  key={item._id}
+                  className="bg-white border-l-4 border-primary rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      item.type === '임명' ? 'bg-blue-100 text-blue-800' : 
+                      item.type === '전보' ? 'bg-yellow-100 text-yellow-800' : 
+                      item.type === '퇴임' ? 'bg-gray-100 text-gray-800' :
+                      item.type === '승진' ? 'bg-green-100 text-green-800' :
+                      'bg-purple-100 text-purple-800'
+                    }`}>
+                      {item.type}
+                    </span>
+                    <span className="text-gray-500 text-sm">{formatDate(item.effectiveDate)}</span>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-16">
-                <div className="text-gray-300 mb-4">
-                  <i className="fas fa-user-tie text-6xl"></i>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
+                  <p className="text-gray-600 whitespace-pre-wrap">{item.content}</p>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">등록된 인사공고가 없습니다</h3>
-                <p className="text-gray-500">새로운 인사공고가 등록되면 여기에 표시됩니다.</p>
-              </div>
-            )}
-
-            <div className="mt-12 text-center">
-              <Link href="/news/notices" className="text-primary hover:underline">
-                <i className="fas fa-arrow-left mr-2"></i>소식으로 돌아가기
-              </Link>
+              ))}
             </div>
-          </div>
-        </section>
+          ) : (
+            <div className="text-center py-16">
+              <div className="text-gray-300 mb-4">
+                <i className="fas fa-user-tie text-6xl"></i>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">등록된 인사공고가 없습니다</h3>
+              <p className="text-gray-500">새로운 인사공고가 등록되면 여기에 표시됩니다.</p>
+            </div>
+          )}
+        </div>
       </main>
     </div>
   )
