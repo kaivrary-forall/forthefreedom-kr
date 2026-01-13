@@ -101,6 +101,9 @@ export default function AdminGalleryPage() {
     status: 'published' as 'draft' | 'published'
   })
 
+  // 드래그앤드롭 상태
+  const [isDragging, setIsDragging] = useState(false)
+
   // 페이지네이션
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
@@ -126,22 +129,53 @@ export default function AdminGalleryPage() {
     fetchGalleryList()
   }, [fetchGalleryList])
 
-  // 파일 선택 시 크롭 모달 열기
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || [])
+  // 파일 처리 공통 함수
+  const processFiles = (files: File[]) => {
     if (files.length === 0) return
 
-    setSelectedFiles(files)
+    // 이미지 파일만 필터링
+    const imageFiles = files.filter(file => file.type.startsWith('image/'))
+    if (imageFiles.length === 0) {
+      alert('이미지 파일만 업로드 가능합니다.')
+      return
+    }
+
+    setSelectedFiles(imageFiles)
     setCroppedBlobs([])
     
     // 첫 번째 이미지부터 크롭 시작
-    const url = URL.createObjectURL(files[0])
+    const url = URL.createObjectURL(imageFiles[0])
     setCropImage(url)
     setCurrentCropIndex(0)
     setCrop({ x: 0, y: 0 })
     setZoom(1)
     setRotation(0)
     setShowCropModal(true)
+  }
+
+  // 파일 선택 시 크롭 모달 열기
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    processFiles(files)
+  }
+
+  // 드래그앤드롭 핸들러
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+    
+    const files = Array.from(e.dataTransfer.files)
+    processFiles(files)
   }
 
   // 크롭 완료 콜백
@@ -533,7 +567,16 @@ export default function AdminGalleryPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     이미지 {editingItem ? '(새로 업로드하면 기존 이미지 대체)' : '*'}
                   </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
+                  <div 
+                    className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                      isDragging 
+                        ? 'border-primary bg-primary/5' 
+                        : 'border-gray-300 hover:border-primary'
+                    }`}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                  >
                     <input
                       type="file"
                       multiple
@@ -543,8 +586,10 @@ export default function AdminGalleryPage() {
                       id="gallery-images"
                     />
                     <label htmlFor="gallery-images" className="cursor-pointer">
-                      <i className="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
-                      <p className="text-gray-600">클릭하여 이미지 선택</p>
+                      <i className={`fas ${isDragging ? 'fa-download' : 'fa-cloud-upload-alt'} text-4xl ${isDragging ? 'text-primary' : 'text-gray-400'} mb-2`}></i>
+                      <p className="text-gray-600">
+                        {isDragging ? '여기에 놓으세요!' : '클릭하거나 이미지를 드래그하세요'}
+                      </p>
                       <p className="text-sm text-gray-400 mt-1">여러 장 선택 가능 (최대 30장)</p>
                       <p className="text-xs text-primary mt-2">📐 각 이미지를 썸네일에 맞게 크롭할 수 있습니다</p>
                     </label>
