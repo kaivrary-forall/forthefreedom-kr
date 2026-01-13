@@ -119,7 +119,7 @@ export default function AdminEventsPage() {
 
   const fetchList = useCallback(async () => {
     try {
-      const res = await fetch(`/api/events?page=${currentPage}&limit=10&status=all`)
+      const res = await fetch(`/api/events?page=${currentPage}&limit=10&status=all&sort=createdAt&order=desc`)
       const data = await res.json()
       if (data.success) {
         setList(data.data || [])
