@@ -14,20 +14,9 @@ export const metadata: Metadata = {
 
 export default function CardNewsPage() {
   return (
-    <div>
-      <section 
-        className="relative h-[40vh] flex items-center justify-center bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/night-pic.jpg')" }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/20"></div>
-        <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">카드뉴스</h1>
-          <p className="text-xl text-gray-200 drop-shadow">한눈에 보는 자유와혁신</p>
-        </div>
-      </section>
-
-      <main className="relative z-10 bg-white">
-        <NewsTabs active="card-news" />
+    <div className="pt-16">
+      <NewsTabs active="card-news" />
+      <main className="bg-white">
         <NewsListAPI 
           category="card-news" 
           title="" 
