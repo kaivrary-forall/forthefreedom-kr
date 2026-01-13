@@ -43,6 +43,19 @@ const API_MAP: Record<string, string> = {
   'new-media': '/api/new-media',
 }
 
+// 카테고리별 응답 데이터 키 매핑
+const DATA_KEY_MAP: Record<string, string> = {
+  'notices': 'data',
+  'activities': 'activities',
+  'media-coverage': 'coverage',
+  'card-news': 'data',
+  'gallery': 'data',
+  'events': 'events',
+  'spokesperson': 'data',
+  'policy-committee': 'data',
+  'new-media': 'data',
+}
+
 export default function NewsListAPI({ category, title, basePath }: NewsListAPIProps) {
   const [news, setNews] = useState<NewsItem[]>([])
   const [pagination, setPagination] = useState<Pagination | null>(null)
@@ -58,7 +71,8 @@ export default function NewsListAPI({ category, title, basePath }: NewsListAPIPr
         const data = await response.json()
         
         if (data.success) {
-          setNews(data.data || [])
+          const dataKey = DATA_KEY_MAP[category] || 'data'
+          setNews(data[dataKey] || [])
           setPagination(data.pagination || null)
         }
       } catch (error) {
