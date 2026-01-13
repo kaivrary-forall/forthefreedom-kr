@@ -3,6 +3,13 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
+interface Attachment {
+  filename?: string
+  originalName?: string
+  path: string
+  url?: string
+}
+
 interface NewsItem {
   _id: string
   title: string
@@ -10,6 +17,8 @@ interface NewsItem {
   excerpt?: string
   category?: string
   imageUrl?: string
+  thumbnailUrl?: string
+  attachments?: Attachment[]
   author?: string
   publishDate?: string
   createdAt: string
@@ -43,6 +52,28 @@ const API_MAP: Record<string, string> = {
   'new-media': '/api/new-media',
 }
 
+// 아이템에서 이미지 URL 추출
+function getImageUrl(item: NewsItem): string | null {
+  // 1. imageUrl이 있으면 사용
+  if (item.imageUrl) return item.imageUrl
+  
+  // 2. thumbnailUrl이 있으면 사용
+  if (item.thumbnailUrl) return item.thumbnailUrl
+  
+  // 3. attachments에서 첫 번째 이미지 URL 추출
+  if (item.attachments && item.attachments.length > 0) {
+    const att = item.attachments[0]
+    // url 필드가 있으면 우선 사용
+    if (att.url) return att.url
+    // path가 http로 시작하면 그대로 사용 (Cloudinary URL)
+    if (att.path && att.path.startsWith('http')) return att.path
+    // 로컬 경로면 null (깨진 이미지)
+    if (att.path && att.path.startsWith('/uploads')) return null
+  }
+  
+  return null
+}
+
 export default function NewsListAPI({ category, title, basePath }: NewsListAPIProps) {
   const [news, setNews] = useState<NewsItem[]>([])
   const [pagination, setPagination] = useState<Pagination | null>(null)
@@ -67,6 +98,7 @@ export default function NewsListAPI({ category, title, basePath }: NewsListAPIPr
         setIsLoading(false)
       }
     }
+
     loadNews()
   }, [category, currentPage])
 
@@ -109,45 +141,52 @@ export default function NewsListAPI({ category, title, basePath }: NewsListAPIPr
       
       {/* 뉴스 목록 */}
       <div className="space-y-4">
-        {news.map((item) => (
-          <Link
-            key={item._id}
-            href={`${basePath}/${item._id}`}
-            className="block bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg hover:border-primary/30 transition-all"
-          >
-            <div className="flex gap-6">
-              {/* 썸네일 */}
-              {item.imageUrl ? (
-                <div className="hidden sm:block w-40 h-28 rounded-lg overflow-hidden flex-shrink-0">
-                  <img 
-                    src={item.imageUrl} 
-                    alt={item.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ) : (
-                <div className="hidden sm:flex w-40 h-28 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 items-center justify-center flex-shrink-0">
-                  <span className="text-3xl">📄</span>
-                </div>
-              )}
-              
-              {/* 콘텐츠 */}
-              <div className="flex-1 min-w-0">
-                <h2 className="text-lg font-bold text-gray-900 mb-2 line-clamp-1 hover:text-primary transition-colors">
-                  {item.title}
-                </h2>
-                <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                  {item.excerpt || item.content?.slice(0, 150)}
-                </p>
-                <div className="flex items-center gap-4 text-xs text-gray-400">
-                  <span>{formatDate(item.publishDate || item.createdAt)}</span>
-                  {item.author && <span>작성자: {item.author}</span>}
-                  {item.views !== undefined && <span>조회 {item.views}</span>}
+        {news.map((item) => {
+          const imageUrl = getImageUrl(item)
+          
+          return (
+            <Link
+              key={item._id}
+              href={`${basePath}/${item._id}`}
+              className="block bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg hover:border-primary/30 transition-all"
+            >
+              <div className="flex gap-6">
+                {/* 썸네일 */}
+                {imageUrl ? (
+                  <div className="hidden sm:block w-40 h-28 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+                    <img 
+                      src={imageUrl} 
+                      alt={item.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none'
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="hidden sm:flex w-40 h-28 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 items-center justify-center flex-shrink-0">
+                    <span className="text-3xl">📄</span>
+                  </div>
+                )}
+                
+                {/* 콘텐츠 */}
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-lg font-bold text-gray-900 mb-2 line-clamp-1 hover:text-primary transition-colors">
+                    {item.title}
+                  </h2>
+                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                    {item.excerpt || item.content?.slice(0, 150)}
+                  </p>
+                  <div className="flex items-center gap-4 text-xs text-gray-400">
+                    <span>{formatDate(item.publishDate || item.createdAt)}</span>
+                    {item.author && <span>작성자: {item.author}</span>}
+                    {item.views !== undefined && <span>조회 {item.views}</span>}
+                  </div>
                 </div>
               </div>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          )
+        })}
       </div>
 
       {/* 페이지네이션 */}
