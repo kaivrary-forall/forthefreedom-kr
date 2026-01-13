@@ -1,57 +1,127 @@
 const express = require('express');
-const path = require('path');
-const fs = require('fs');
+const multer = require('multer');
 const router = express.Router();
 const { MediaCoverage } = require('../models');
-const { getAll, getById, deleteById } = require('../controllers/baseController');
+const { deleteById } = require('../controllers/baseController');
 
-// 공통 업로드 유틸리티 (한글 파일명 지원)
-const { uploads, createAttachmentsInfo, uploadDir } = require('../utils/upload');
-const upload = uploads.mediaCoverage;
+// Cloudinary 업로드 유틸리티
+const { uploadGalleryImages } = require('../utils/cloudinary');
 
-// 언론보도 목록 조회
-router.get('/', getAll(MediaCoverage));
+// multer 메모리 스토리지
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 20 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (allowedMimes.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('지원하지 않는 이미지 형식입니다.'), false);
+        }
+    }
+});
 
-// 언론보도 단일 조회
-router.get('/:id', getById(MediaCoverage));
-
-// 이미지 업로드 엔드포인트
-router.post('/upload-image', upload.single('image'), async (req, res) => {
+// 언론보도 목록 조회 (thumbnailUrl 가공)
+router.get('/', async (req, res) => {
     try {
-        if (!req.file) {
-            return res.status(400).json({
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+        
+        let query = {};
+        if (req.query.status && req.query.status !== 'all') {
+            query.status = req.query.status;
+        } else if (!req.query.status) {
+            query.status = 'published';
+        }
+        
+        if (req.query.mediaType) {
+            query.mediaType = req.query.mediaType;
+        }
+        
+        if (req.query.tone) {
+            query.tone = req.query.tone;
+        }
+
+        const total = await MediaCoverage.countDocuments(query);
+        const data = await MediaCoverage.find(query)
+            .sort({ broadcastDate: -1, createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean();
+
+        // thumbnailUrl 가공
+        const processedData = data.map(item => {
+            const thumbnailUrl = item.attachments?.[0]?.url || item.attachments?.[0]?.path || null;
+            return {
+                ...item,
+                thumbnailUrl,
+                imageUrl: thumbnailUrl
+            };
+        });
+
+        res.json({
+            success: true,
+            data: processedData,
+            pagination: {
+                current: page,
+                pages: Math.ceil(total / limit),
+                total,
+                hasNext: page < Math.ceil(total / limit),
+                hasPrev: page > 1
+            }
+        });
+    } catch (error) {
+        console.error('언론보도 목록 조회 오류:', error);
+        res.status(500).json({
+            success: false,
+            message: '언론보도 목록 조회 중 오류가 발생했습니다'
+        });
+    }
+});
+
+// 언론보도 단일 조회 (thumbnailUrl 가공)
+router.get('/:id', async (req, res) => {
+    try {
+        const item = await MediaCoverage.findByIdAndUpdate(
+            req.params.id,
+            { $inc: { views: 1 } },
+            { new: true }
+        ).lean();
+
+        if (!item) {
+            return res.status(404).json({
                 success: false,
-                message: '이미지 파일이 필요합니다'
+                message: '언론보도를 찾을 수 없습니다'
             });
         }
 
-        const imageUrl = `http://localhost:9000/uploads/${req.file.filename}`;
+        const thumbnailUrl = item.attachments?.[0]?.url || item.attachments?.[0]?.path || null;
         
         res.json({
             success: true,
             data: {
-                filename: req.file.filename,
-                originalName: req.file.originalname,
-                imageUrl: imageUrl,
-                size: req.file.size,
-                mimeType: req.file.mimetype
-            },
-            message: '이미지 업로드 완료'
+                ...item,
+                thumbnailUrl,
+                imageUrl: thumbnailUrl
+            }
         });
     } catch (error) {
-        console.error('이미지 업로드 오류:', error);
+        console.error('언론보도 조회 오류:', error);
         res.status(500).json({
             success: false,
-            message: '이미지 업로드 중 오류가 발생했습니다',
-            error: error.message
+            message: '언론보도 조회 중 오류가 발생했습니다'
         });
     }
 });
 
 // 언론보도 생성
-router.post('/', upload.array('attachments'), async (req, res) => {
+router.post('/', upload.array('attachments', 10), async (req, res) => {
     try {
-        const mediaCoverageData = {
+        console.log('🔍 언론보도 생성 요청');
+        console.log('📁 첨부파일:', req.files ? req.files.length : 0);
+        
+        const data = {
             title: req.body.title,
             content: req.body.content,
             excerpt: req.body.excerpt,
@@ -61,41 +131,40 @@ router.post('/', upload.array('attachments'), async (req, res) => {
             program: req.body.program || '',
             broadcastDate: req.body.broadcastDate ? new Date(req.body.broadcastDate) : new Date(),
             broadcastTime: req.body.broadcastTime || '',
-            category: req.body.category,
+            category: req.body.category || '뉴스',
             tone: req.body.tone || '중립',
             importance: req.body.importance || '중',
             originalUrl: req.body.originalUrl || '',
-            archiveUrl: req.body.archiveUrl || '',
-            keywords: req.body.keywords ? JSON.parse(req.body.keywords) : [],
-            mentionedPersons: req.body.mentionedPersons ? JSON.parse(req.body.mentionedPersons) : [],
-            relatedTopics: req.body.relatedTopics ? JSON.parse(req.body.relatedTopics) : [],
-            summary: req.body.summary || '',
-            impact: req.body.impact || '보통',
-            sentiment: req.body.sentiment ? JSON.parse(req.body.sentiment) : {},
-            priority: parseInt(req.body.priority) || 0,
             author: req.body.author || '미디어팀',
-            screenshots: req.body.screenshots ? JSON.parse(req.body.screenshots) : [],
-            status: req.body.status || 'published',
-            isBreaking: req.body.isBreaking === 'true',
-            responseRequired: req.body.responseRequired === 'true',
-            responseNote: req.body.responseNote || ''
+            status: req.body.status || 'published'
         };
 
-        // 첨부파일 처리 (한글 파일명 자동 복원)
+        // Cloudinary 업로드
         if (req.files && req.files.length > 0) {
-            mediaCoverageData.attachments = createAttachmentsInfo(req.files);
+            console.log('📤 ' + req.files.length + '개 이미지 Cloudinary 업로드 시작...');
+            data.attachments = await uploadGalleryImages(req.files, 'freeinno/media-coverage');
+            console.log('✅ ' + data.attachments.length + '개 이미지 업로드 완료');
         }
 
-        const mediaCoverage = new MediaCoverage(mediaCoverageData);
+        const mediaCoverage = new MediaCoverage(data);
         await mediaCoverage.save();
+
+        // 응답에 thumbnailUrl 포함
+        const thumbnailUrl = data.attachments?.[0]?.url || null;
+
+        console.log('✅ 언론보도 저장 성공:', mediaCoverage._id);
 
         res.status(201).json({
             success: true,
-            data: mediaCoverage,
-            message: '언론보도가 성공적으로 생성되었습니다'
+            data: {
+                ...mediaCoverage.toObject(),
+                thumbnailUrl,
+                imageUrl: thumbnailUrl
+            },
+            message: '언론보도가 생성되었습니다'
         });
     } catch (error) {
-        console.error('언론보도 생성 오류:', error);
+        console.error('❌ 언론보도 생성 오류:', error);
         res.status(400).json({
             success: false,
             message: '언론보도 생성 중 오류가 발생했습니다',
@@ -105,77 +174,75 @@ router.post('/', upload.array('attachments'), async (req, res) => {
 });
 
 // 언론보도 수정
-router.put('/:id', upload.array('attachments'), async (req, res) => {
+router.put('/:id', upload.array('attachments', 10), async (req, res) => {
     try {
+        const { id } = req.params;
+        console.log('🔄 언론보도 수정 요청:', id);
+        
         const updateData = {
             title: req.body.title,
             content: req.body.content,
             excerpt: req.body.excerpt,
             mediaOutlet: req.body.mediaOutlet,
             mediaType: req.body.mediaType,
-            journalist: req.body.journalist,
-            program: req.body.program,
-            broadcastDate: req.body.broadcastDate ? new Date(req.body.broadcastDate) : undefined,
-            broadcastTime: req.body.broadcastTime,
-            category: req.body.category,
-            tone: req.body.tone,
-            importance: req.body.importance,
-            originalUrl: req.body.originalUrl,
-            archiveUrl: req.body.archiveUrl,
-            keywords: req.body.keywords ? JSON.parse(req.body.keywords) : undefined,
-            mentionedPersons: req.body.mentionedPersons ? JSON.parse(req.body.mentionedPersons) : undefined,
-            relatedTopics: req.body.relatedTopics ? JSON.parse(req.body.relatedTopics) : undefined,
-            summary: req.body.summary,
-            impact: req.body.impact,
-            sentiment: req.body.sentiment ? JSON.parse(req.body.sentiment) : undefined,
-            priority: req.body.priority ? parseInt(req.body.priority) : undefined,
-            author: req.body.author,
-            screenshots: req.body.screenshots ? JSON.parse(req.body.screenshots) : undefined,
-            status: req.body.status,
-            isBreaking: req.body.isBreaking === 'true',
-            responseRequired: req.body.responseRequired === 'true',
-            responseNote: req.body.responseNote
+            journalist: req.body.journalist || '',
+            program: req.body.program || '',
+            broadcastTime: req.body.broadcastTime || '',
+            category: req.body.category || '뉴스',
+            tone: req.body.tone || '중립',
+            importance: req.body.importance || '중',
+            originalUrl: req.body.originalUrl || '',
+            author: req.body.author || '미디어팀',
+            status: req.body.status || 'published'
         };
 
-        // undefined 값 제거
-        Object.keys(updateData).forEach(key => {
-            if (updateData[key] === undefined) {
-                delete updateData[key];
-            }
-        });
-
-        // 새 첨부파일이 있으면 추가 (한글 파일명 자동 복원)
-        if (req.files && req.files.length > 0) {
-            const newAttachments = createAttachmentsInfo(req.files);
-
-            if (req.body.replaceAttachments === 'true') {
-                updateData.attachments = newAttachments;
-            } else {
-                const mediaCoverage = await MediaCoverage.findById(req.params.id);
-                updateData.attachments = [...(mediaCoverage.attachments || []), ...newAttachments];
-            }
+        if (req.body.broadcastDate) {
+            updateData.broadcastDate = new Date(req.body.broadcastDate);
         }
 
-        const mediaCoverage = await MediaCoverage.findByIdAndUpdate(
-            req.params.id,
-            updateData,
-            { new: true, runValidators: true }
-        );
-
-        if (!mediaCoverage) {
+        const existing = await MediaCoverage.findById(id);
+        if (!existing) {
             return res.status(404).json({
                 success: false,
                 message: '언론보도를 찾을 수 없습니다'
             });
         }
 
+        // 새 이미지 업로드
+        if (req.files && req.files.length > 0) {
+            console.log('📤 ' + req.files.length + '개 이미지 Cloudinary 업로드 시작...');
+            updateData.attachments = await uploadGalleryImages(req.files, 'freeinno/media-coverage');
+            console.log('✅ ' + updateData.attachments.length + '개 이미지 업로드 완료');
+        } else if (req.body.existingAttachments) {
+            try {
+                updateData.attachments = JSON.parse(req.body.existingAttachments);
+            } catch (e) {
+                console.warn('기존 첨부파일 파싱 오류:', e);
+            }
+        }
+
+        const mediaCoverage = await MediaCoverage.findByIdAndUpdate(
+            id,
+            updateData,
+            { new: true, runValidators: true }
+        );
+
+        // 응답에 thumbnailUrl 포함
+        const thumbnailUrl = mediaCoverage.attachments?.[0]?.url || mediaCoverage.attachments?.[0]?.path || null;
+
+        console.log('✅ 언론보도 수정 성공:', mediaCoverage._id);
+
         res.json({
             success: true,
-            data: mediaCoverage,
-            message: '언론보도가 성공적으로 수정되었습니다'
+            data: {
+                ...mediaCoverage.toObject(),
+                thumbnailUrl,
+                imageUrl: thumbnailUrl
+            },
+            message: '언론보도가 수정되었습니다'
         });
     } catch (error) {
-        console.error('언론보도 수정 오류:', error);
+        console.error('❌ 언론보도 수정 오류:', error);
         res.status(400).json({
             success: false,
             message: '언론보도 수정 중 오류가 발생했습니다',
@@ -185,79 +252,6 @@ router.put('/:id', upload.array('attachments'), async (req, res) => {
 });
 
 // 언론보도 삭제
-router.delete('/:id', deleteById(MediaCoverage));
+router.delete('/:id', deleteById(MediaCoverage, '언론보도'));
 
-// 조회수 증가
-router.post('/:id/view', async (req, res) => {
-    try {
-        await MediaCoverage.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } });
-        res.json({ success: true });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-// 언론사별 통계
-router.get('/stats/outlets', async (req, res) => {
-    try {
-        const stats = await MediaCoverage.aggregate([
-            {
-                $group: {
-                    _id: '$mediaOutlet',
-                    count: { $sum: 1 },
-                    positiveCount: {
-                        $sum: {
-                            $cond: [{ $eq: ['$tone', '긍정'] }, 1, 0]
-                        }
-                    },
-                    negativeCount: {
-                        $sum: {
-                            $cond: [{ $eq: ['$tone', '부정'] }, 1, 0]
-                        }
-                    }
-                }
-            },
-            { $sort: { count: -1 } }
-        ]);
-
-        res.json({
-            success: true,
-            data: stats,
-            message: '언론사별 통계를 가져왔습니다'
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: '통계 조회 중 오류가 발생했습니다',
-            error: error.message
-        });
-    }
-});
-
-// 감정 분석 통계
-router.get('/stats/sentiment', async (req, res) => {
-    try {
-        const stats = await MediaCoverage.aggregate([
-            {
-                $group: {
-                    _id: '$tone',
-                    count: { $sum: 1 }
-                }
-            }
-        ]);
-
-        res.json({
-            success: true,
-            data: stats,
-            message: '감정 분석 통계를 가져왔습니다'
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: '감정 분석 통계 조회 중 오류가 발생했습니다',
-            error: error.message
-        });
-    }
-});
-
-module.exports = router; 
+module.exports = router;
