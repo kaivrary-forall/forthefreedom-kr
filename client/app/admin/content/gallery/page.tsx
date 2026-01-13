@@ -232,7 +232,7 @@ export default function AdminGalleryPage() {
                           alt={item.title}
                           className="w-full h-full object-cover"
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = '/images/placeholder.jpg'
+                            (e.target as HTMLImageElement).style.display = 'none'
                           }}
                         />
                       ) : (
