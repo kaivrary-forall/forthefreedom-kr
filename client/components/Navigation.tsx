@@ -119,7 +119,6 @@ export default function Navigation() {
         { label: t.events, href: `${linkPrefix}/news/events` },
         { label: t.cardNews, href: `${linkPrefix}/news/card-news` },
         { label: t.gallery, href: `${linkPrefix}/news/gallery` },
-        { label: t.resources, href: `${linkPrefix}/news/resources` },
         { label: t.personnel, href: `${linkPrefix}/news/personnel` },
       ]
     },
