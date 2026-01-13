@@ -1,18 +1,18 @@
 import Link from 'next/link'
 
 interface NewsTabsProps {
-  active: 'all' | 'notices' | 'press-releases' | 'events' | 'gallery' | 'media' | 'card-news' | 'activities'
+  active: 'all' | 'notices' | 'press-releases' | 'events' | 'gallery' | 'media' | 'card-news' | 'personnel'
 }
 
 const tabs = [
   { id: 'all', name: '전체', href: '/news' },
-  { id: 'notices', name: '공지사항', href: '/news/notices' },
-  { id: 'press-releases', name: '보도자료', href: '/news/press-releases' },
-  { id: 'activities', name: '활동소식', href: '/news/activities' },
+  { id: 'notices', name: '공지', href: '/news/notices' },
+  { id: 'events', name: '주요일정', href: '/news/events' },
+  { id: 'media', name: '언론보도', href: '/news/media' },
+  { id: 'press-releases', name: '성명', href: '/news/press-releases' },
   { id: 'card-news', name: '카드뉴스', href: '/news/card-news' },
   { id: 'gallery', name: '갤러리', href: '/news/gallery' },
-  { id: 'media', name: '언론보도', href: '/news/media' },
-  { id: 'events', name: '행사안내', href: '/news/events' },
+  { id: 'personnel', name: '인사공고', href: '/news/personnel' },
 ]
 
 export default function NewsTabs({ active }: NewsTabsProps) {
