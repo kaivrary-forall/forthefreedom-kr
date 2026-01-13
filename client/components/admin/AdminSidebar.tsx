@@ -66,6 +66,7 @@ const menuItems: MenuItem[] = [
       { label: '카드뉴스', href: '/admin/content/card-news' },
       { label: '갤러리', href: '/admin/content/gallery' },
       { label: '언론보도', href: '/admin/content/media-coverage' },
+      { label: '행사안내', href: '/admin/content/events' },
       { label: '인사공고', href: '/admin/personnel' },
       { label: '경조사', href: '/admin/congratulations' },
       { label: '배너 관리', href: '/admin/content/banners' },
