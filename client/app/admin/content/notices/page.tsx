@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import AdminSidebar from '@/components/admin/AdminSidebar'
 import { useAuth } from '@/contexts/AuthContext'
+import Cropper from 'react-easy-crop'
 
 interface NoticeItem {
   _id: string
@@ -25,6 +26,50 @@ interface NoticeItem {
   createdAt: string
 }
 
+// 크롭 유틸리티
+const createImage = (url: string): Promise<HTMLImageElement> =>
+  new Promise((resolve, reject) => {
+    const image = new Image()
+    image.addEventListener('load', () => resolve(image))
+    image.addEventListener('error', (error) => reject(error))
+    image.setAttribute('crossOrigin', 'anonymous')
+    image.src = url
+  })
+
+async function getCroppedImg(
+  imageSrc: string,
+  pixelCrop: { x: number; y: number; width: number; height: number },
+  rotation = 0
+): Promise<Blob | null> {
+  const image = await createImage(imageSrc)
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return null
+
+  const rotRad = (rotation * Math.PI) / 180
+  const sin = Math.abs(Math.sin(rotRad))
+  const cos = Math.abs(Math.cos(rotRad))
+  const bBoxWidth = image.width * cos + image.height * sin
+  const bBoxHeight = image.width * sin + image.height * cos
+
+  canvas.width = bBoxWidth
+  canvas.height = bBoxHeight
+
+  ctx.translate(bBoxWidth / 2, bBoxHeight / 2)
+  ctx.rotate(rotRad)
+  ctx.translate(-image.width / 2, -image.height / 2)
+  ctx.drawImage(image, 0, 0)
+
+  const data = ctx.getImageData(pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height)
+  canvas.width = pixelCrop.width
+  canvas.height = pixelCrop.height
+  ctx.putImageData(data, 0, 0)
+
+  return new Promise((resolve) => {
+    canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.9)
+  })
+}
+
 export default function AdminNoticesPage() {
   const { token } = useAuth()
   const [list, setList] = useState<NoticeItem[]>([])
@@ -32,6 +77,21 @@ export default function AdminNoticesPage() {
   const [showModal, setShowModal] = useState(false)
   const [editingItem, setEditingItem] = useState<NoticeItem | null>(null)
   const [uploading, setUploading] = useState(false)
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const [previewUrls, setPreviewUrls] = useState<string[]>([])
+
+  // 드래그앤드롭
+  const [isDragging, setIsDragging] = useState(false)
+
+  // 크롭 상태
+  const [showCropModal, setShowCropModal] = useState(false)
+  const [currentCropIndex, setCurrentCropIndex] = useState(0)
+  const [cropImage, setCropImage] = useState<string | null>(null)
+  const [crop, setCrop] = useState({ x: 0, y: 0 })
+  const [zoom, setZoom] = useState(1)
+  const [rotation, setRotation] = useState(0)
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null)
+  const [croppedBlobs, setCroppedBlobs] = useState<Blob[]>([])
 
   // 폼 상태
   const [formData, setFormData] = useState({
@@ -71,6 +131,89 @@ export default function AdminNoticesPage() {
     fetchList()
   }, [fetchList])
 
+  // 파일 처리
+  const processFiles = (files: File[]) => {
+    if (files.length === 0) return
+
+    const imageFiles = files.filter(file => file.type.startsWith('image/'))
+    if (imageFiles.length === 0) {
+      alert('이미지 파일만 업로드 가능합니다.')
+      return
+    }
+
+    setSelectedFiles(imageFiles)
+    setCroppedBlobs([])
+    
+    const url = URL.createObjectURL(imageFiles[0])
+    setCropImage(url)
+    setCurrentCropIndex(0)
+    setCrop({ x: 0, y: 0 })
+    setZoom(1)
+    setRotation(0)
+    setShowCropModal(true)
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    processFiles(files)
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+    const files = Array.from(e.dataTransfer.files)
+    processFiles(files)
+  }
+
+  const onCropComplete = useCallback((_: any, cropped: any) => {
+    setCroppedAreaPixels(cropped)
+  }, [])
+
+  const confirmCrop = async () => {
+    if (!cropImage || !croppedAreaPixels) return
+
+    const croppedBlob = await getCroppedImg(cropImage, croppedAreaPixels, rotation)
+    if (!croppedBlob) {
+      alert('이미지 처리에 실패했습니다')
+      return
+    }
+
+    const newCroppedBlobs = [...croppedBlobs, croppedBlob]
+    setCroppedBlobs(newCroppedBlobs)
+
+    const nextIndex = currentCropIndex + 1
+    if (nextIndex < selectedFiles.length) {
+      const url = URL.createObjectURL(selectedFiles[nextIndex])
+      setCropImage(url)
+      setCurrentCropIndex(nextIndex)
+      setCrop({ x: 0, y: 0 })
+      setZoom(1)
+      setRotation(0)
+    } else {
+      setShowCropModal(false)
+      const urls = newCroppedBlobs.map(blob => URL.createObjectURL(blob))
+      setPreviewUrls(urls)
+    }
+  }
+
+  const cancelCrop = () => {
+    setShowCropModal(false)
+    setSelectedFiles([])
+    setCroppedBlobs([])
+    setPreviewUrls([])
+    setCropImage(null)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!token) return
@@ -78,9 +221,21 @@ export default function AdminNoticesPage() {
     setUploading(true)
     
     try {
-      const payload = {
-        ...formData,
-        tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(t => t) : []
+      const form = new FormData()
+      form.append('title', formData.title)
+      form.append('content', formData.content)
+      form.append('excerpt', formData.excerpt)
+      form.append('category', formData.category)
+      form.append('priority', formData.priority.toString())
+      form.append('author', formData.author)
+      form.append('isImportant', formData.isImportant.toString())
+      form.append('status', formData.status)
+      if (formData.tags) form.append('tags', formData.tags)
+      
+      if (croppedBlobs.length > 0) {
+        croppedBlobs.forEach((blob, index) => {
+          form.append('attachments', blob, `notice-${index}.jpg`)
+        })
       }
 
       const url = editingItem 
@@ -89,11 +244,8 @@ export default function AdminNoticesPage() {
       
       const res = await fetch(url, {
         method: editingItem ? 'PUT' : 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
-        },
-        body: JSON.stringify(payload)
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: form
       })
 
       if (res.ok) {
@@ -141,6 +293,9 @@ export default function AdminNoticesPage() {
       status: item.status,
       tags: item.tags?.join(', ') || ''
     })
+    setSelectedFiles([])
+    setCroppedBlobs([])
+    setPreviewUrls([])
     setShowModal(true)
   }
 
@@ -157,6 +312,9 @@ export default function AdminNoticesPage() {
       status: 'published',
       tags: ''
     })
+    setSelectedFiles([])
+    setCroppedBlobs([])
+    setPreviewUrls([])
   }
 
   const formatDate = (dateStr: string) => {
@@ -417,6 +575,72 @@ export default function AdminNoticesPage() {
                   </label>
                 </div>
 
+                {/* 이미지 업로드 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    첨부 이미지 {editingItem ? '(새로 업로드하면 기존 이미지 대체)' : ''}
+                  </label>
+                  <div 
+                    className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                      isDragging 
+                        ? 'border-primary bg-primary/5' 
+                        : 'border-gray-300 hover:border-primary'
+                    }`}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                  >
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                      id="notice-images"
+                    />
+                    <label htmlFor="notice-images" className="cursor-pointer">
+                      <i className={`fas ${isDragging ? 'fa-download' : 'fa-cloud-upload-alt'} text-4xl ${isDragging ? 'text-primary' : 'text-gray-400'} mb-2`}></i>
+                      <p className="text-gray-600">
+                        {isDragging ? '여기에 놓으세요!' : '클릭하거나 이미지를 드래그하세요'}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">16:9 비율로 크롭됩니다</p>
+                    </label>
+                  </div>
+                  
+                  {previewUrls.length > 0 && (
+                    <div className="mt-4">
+                      <p className="text-sm text-gray-500 mb-2">크롭된 이미지 ({previewUrls.length}장):</p>
+                      <div className="grid grid-cols-4 gap-2">
+                        {previewUrls.map((url, idx) => (
+                          <div key={idx} className="aspect-video rounded-lg overflow-hidden bg-gray-100">
+                            <img src={url} alt={`preview-${idx}`} className="w-full h-full object-cover" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {editingItem && editingItem.attachments && editingItem.attachments.length > 0 && previewUrls.length === 0 && (
+                    <div className="mt-4">
+                      <p className="text-sm text-gray-500 mb-2">현재 이미지:</p>
+                      <div className="grid grid-cols-4 gap-2">
+                        {editingItem.attachments.map((att, idx) => (
+                          <div key={idx} className="aspect-video rounded-lg overflow-hidden bg-gray-100">
+                            <img 
+                              src={att.url || att.path} 
+                              alt={att.originalName} 
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none'
+                              }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <div className="flex gap-3 pt-4">
                   <button
                     type="button"
@@ -442,6 +666,78 @@ export default function AdminNoticesPage() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* 크롭 모달 */}
+        {showCropModal && cropImage && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60]">
+            <div className="bg-white rounded-2xl w-full max-w-2xl m-4">
+              <div className="p-4 border-b">
+                <h3 className="text-lg font-bold">
+                  이미지 편집 ({currentCropIndex + 1}/{selectedFiles.length})
+                </h3>
+                <p className="text-sm text-gray-500">16:9 비율로 크롭됩니다</p>
+              </div>
+              
+              <div className="relative h-[400px] bg-gray-900">
+                <Cropper
+                  image={cropImage}
+                  crop={crop}
+                  zoom={zoom}
+                  rotation={rotation}
+                  aspect={16 / 9}
+                  onCropChange={setCrop}
+                  onZoomChange={setZoom}
+                  onCropComplete={onCropComplete}
+                />
+              </div>
+
+              <div className="p-4 space-y-4">
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-gray-600 w-16">확대</span>
+                  <input
+                    type="range"
+                    min={1}
+                    max={3}
+                    step={0.1}
+                    value={zoom}
+                    onChange={(e) => setZoom(Number(e.target.value))}
+                    className="flex-1"
+                  />
+                  <span className="text-sm text-gray-500 w-12">{zoom.toFixed(1)}x</span>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-gray-600 w-16">회전</span>
+                  <input
+                    type="range"
+                    min={0}
+                    max={360}
+                    step={1}
+                    value={rotation}
+                    onChange={(e) => setRotation(Number(e.target.value))}
+                    className="flex-1"
+                  />
+                  <span className="text-sm text-gray-500 w-12">{rotation}°</span>
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    onClick={cancelCrop}
+                    className="flex-1 py-3 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  >
+                    취소
+                  </button>
+                  <button
+                    onClick={confirmCrop}
+                    className="flex-1 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark"
+                  >
+                    {currentCropIndex + 1 < selectedFiles.length ? '다음 이미지' : '완료'}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}
