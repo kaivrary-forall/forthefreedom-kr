@@ -1,5 +1,4 @@
 'use client'
-
 import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
@@ -22,6 +21,7 @@ export default function Navigation() {
   const pathname = usePathname()
   const isEnPage = pathname?.startsWith('/en')
   const linkPrefix = isEnPage ? '/en' : ''
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [openSubMenu, setOpenSubMenu] = useState<string | null>(null)
   const [openSubSubMenu, setOpenSubSubMenu] = useState<string | null>(null)
@@ -40,8 +40,7 @@ export default function Navigation() {
     research: 'Research Institute', committees: 'Committees', localChapters: 'Local Chapters',
     volunteer: 'Freedom Action', staff: 'Staff', central: 'Central', regional: 'Regional',
     // 소식
-    notices: 'Notices', pressReleases: 'Press Releases', spokespersonPR: 'Spokesperson',
-    policyCommPR: 'Policy Committee', newMediaPR: 'New Media', mediaCoverage: 'Media Coverage',
+    notices: 'Notices', statements: 'Statements', mediaCoverage: 'Media Coverage',
     events: 'Events', mediaPromo: 'Media Promo', cardNews: 'Card News', gallery: 'Gallery',
     resources: 'Resources', personnel: 'Personnel',
     // 당원
@@ -63,8 +62,7 @@ export default function Navigation() {
     research: '자유연구원', committees: '직능위원회', localChapters: '시도당·당협',
     volunteer: '자유행동', staff: '일꾼들', central: '중앙당', regional: '시도당',
     // 소식
-    notices: '공지사항', pressReleases: '보도자료', spokespersonPR: '대변인',
-    policyCommPR: '정책위원회', newMediaPR: '뉴미디어위원회', mediaCoverage: '언론보도',
+    notices: '공지사항', statements: '성명서', mediaCoverage: '언론보도',
     events: '주요일정', mediaPromo: '미디어홍보', cardNews: '카드뉴스', gallery: '포토갤러리',
     resources: '자료실', personnel: '인사공고',
     // 당원
@@ -116,11 +114,7 @@ export default function Navigation() {
       href: `${linkPrefix}/news/notices`,
       subMenu: [
         { label: t.notices, href: `${linkPrefix}/news/notices` },
-        { label: t.pressReleases, href: `${linkPrefix}/news/press-releases`, subItems: [
-          { label: t.spokespersonPR, href: `${linkPrefix}/news/press-releases?type=spokesperson` },
-          { label: t.policyCommPR, href: `${linkPrefix}/news/press-releases?type=policy` },
-          { label: t.newMediaPR, href: `${linkPrefix}/news/press-releases?type=newmedia` },
-        ]},
+        { label: t.statements, href: `${linkPrefix}/news/press-releases` },
         { label: t.mediaCoverage, href: `${linkPrefix}/news/media` },
         { label: t.events, href: `${linkPrefix}/news/events` },
         { label: t.mediaPromo, href: '#', subItems: [
@@ -180,6 +174,7 @@ export default function Navigation() {
                 <Link href={item.href} className="text-gray-700 hover:text-primary font-medium text-[15px] py-4">
                   {item.label}
                 </Link>
+
                 {/* 1차 서브메뉴 */}
                 {item.subMenu && (
                   <div className="absolute left-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
@@ -258,6 +253,7 @@ export default function Navigation() {
                     </button>
                   )}
                 </div>
+
                 {item.subMenu && openSubMenu === item.label && (
                   <div className="pl-4 pb-2 space-y-1">
                     {item.subMenu.map((sub) => (
