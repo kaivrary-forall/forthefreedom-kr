@@ -1,224 +1,275 @@
 const express = require('express');
-const path = require('path');
-const fs = require('fs');
+const multer = require('multer');
 const router = express.Router();
 const { Event } = require('../models');
-const { getAll, getById, deleteById } = require('../controllers/baseController');
+const { deleteById } = require('../controllers/baseController');
 
-// 공통 업로드 유틸리티 (한글 파일명 지원)
-const { uploads, createAttachmentsInfo, uploadDir } = require('../utils/upload');
-const upload = uploads.event;
+// Cloudinary 업로드 유틸리티
+const { uploadGalleryImages } = require('../utils/cloudinary');
 
-// 주요일정 목록 조회
+// multer 메모리 스토리지
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 20 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (allowedMimes.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('지원하지 않는 이미지 형식입니다.'), false);
+        }
+    }
+});
+
+// 행사 목록 조회 (thumbnailUrl 가공)
 router.get('/', async (req, res) => {
     try {
-        const { year, month, page = 1, limit = 10 } = req.query;
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
         
-        console.log('🔍 Events API 요청 파라미터:');
-        console.log('year:', year, typeof year);
-        console.log('month:', month, typeof month);
-        console.log('page:', page, typeof page);
-        console.log('limit:', limit, typeof limit);
-        
-        // 년도/월별 필터링이 요청된 경우 (캘린더용)
-        if (year && month) {
-            console.log('📅 캘린더용 요청 처리 시작');
-            
-            const startDate = new Date(year, month - 1, 1);
-            const endDate = new Date(year, month, 0, 23, 59, 59, 999);
-            
-            console.log('📍 날짜 범위:', startDate, '~', endDate);
-            
-            const events = await Event.find({
-                eventDate: {
-                    $gte: startDate,
-                    $lte: endDate
-                },
-                status: 'published'
-            }).sort({ eventDate: 1 });
-            
-            console.log('📊 조회된 이벤트 수:', events.length);
-            
-            // 캘린더 형태로 데이터 변환
-            const eventsData = {};
-            events.forEach(event => {
-                // 한국 시간대 기준으로 날짜 키 생성 (UTC+9)
-                const koreaTime = new Date(event.eventDate.getTime() + (9 * 60 * 60 * 1000));
-                const dateKey = koreaTime.toISOString().split('T')[0];
-                
-                if (!eventsData[dateKey]) {
-                    eventsData[dateKey] = [];
-                }
-                
-                // 시간 표시용 (한국 시간대)
-                const timeString = event.eventDate.toLocaleTimeString('ko-KR', { 
-                    hour: '2-digit', 
-                    minute: '2-digit',
-                    hour12: false,
-                    timeZone: 'Asia/Seoul'
-                });
-                
-                console.log(`📅 이벤트 매핑: ${event.title} -> 원본날짜: ${event.eventDate} -> 키: ${dateKey} -> 시간: ${timeString}`);
-                
-                eventsData[dateKey].push({
-                    id: event._id,
-                    title: event.title,
-                    time: timeString,
-                    location: event.eventLocation,
-                    category: event.category,
-                    description: event.excerpt || '',
-                    organizer: event.organizer,
-                    originalDate: event.eventDate.toISOString()
-                });
-            });
-            
-            console.log('📦 변환된 eventsData:', eventsData);
-            console.log('📈 eventsData 키 개수:', Object.keys(eventsData).length);
-            
-            return res.json({
-                success: true,
-                data: eventsData,
-                message: `${year}년 ${month}월 일정을 불러왔습니다`
-            });
+        let query = {};
+        if (req.query.status && req.query.status !== 'all') {
+            query.status = req.query.status;
+        } else if (!req.query.status) {
+            query.status = 'published';
         }
         
-        console.log('📝 일반 목록 조회 처리');
-        
-        // 일반 목록 조회 (관리자용)
-        const skip = (page - 1) * limit;
-        const query = { status: 'published' };
-        
-        const events = await Event.find(query)
-            .sort({ eventDate: -1 })
-            .skip(skip)
-            .limit(parseInt(limit));
-            
+        if (req.query.category) {
+            query.category = req.query.category;
+        }
+
+        // 예정된 행사만 필터링
+        if (req.query.upcoming === 'true') {
+            query.eventDate = { $gte: new Date() };
+        }
+
         const total = await Event.countDocuments(query);
-        
+        const data = await Event.find(query)
+            .sort({ eventDate: 1, createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean();
+
+        // thumbnailUrl 가공
+        const processedData = data.map(item => {
+            const thumbnailUrl = item.attachments?.[0]?.url || item.attachments?.[0]?.path || null;
+            return {
+                ...item,
+                thumbnailUrl,
+                imageUrl: thumbnailUrl
+            };
+        });
+
         res.json({
             success: true,
-            data: events,
+            data: processedData,
             pagination: {
-                total,
-                current: parseInt(page),
+                current: page,
                 pages: Math.ceil(total / limit),
-                limit: parseInt(limit)
-            },
-            message: '주요일정 목록을 조회했습니다'
+                total,
+                hasNext: page < Math.ceil(total / limit),
+                hasPrev: page > 1
+            }
         });
-        
     } catch (error) {
-        console.error('주요일정 조회 오류:', error);
+        console.error('행사 목록 조회 오류:', error);
         res.status(500).json({
             success: false,
-            message: error.message || '주요일정 조회 중 오류가 발생했습니다'
+            message: '행사 목록 조회 중 오류가 발생했습니다'
         });
     }
 });
 
-// 주요일정 단일 조회
-router.get('/:id', getById(Event));
-
-// 주요일정 생성
-router.post('/', upload.array('attachments', 10), async (req, res) => {
+// 행사 단일 조회 (thumbnailUrl 가공)
+router.get('/:id', async (req, res) => {
     try {
-        const eventData = { ...req.body };
-        
-        // 태그 처리
-        if (eventData.tags && typeof eventData.tags === 'string') {
-            eventData.tags = eventData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
-        }
-        
-        // 첨부파일 처리 (한글 파일명 자동 복원)
-        if (req.files && req.files.length > 0) {
-            eventData.attachments = createAttachmentsInfo(req.files);
-        }
-        
-        const event = new Event(eventData);
-        await event.save();
-        
-        res.status(201).json({
-            success: true,
-            message: '주요일정이 생성되었습니다.',
-            data: event
-        });
-    } catch (error) {
-        console.error('주요일정 생성 오류:', error);
-        res.status(400).json({
-            success: false,
-            message: error.message || '주요일정 생성 중 오류가 발생했습니다'
-        });
-    }
-});
-
-// 주요일정 수정
-router.put('/:id', upload.array('attachments', 10), async (req, res) => {
-    try {
-        const eventData = { ...req.body };
-        
-        // 태그 처리
-        if (eventData.tags && typeof eventData.tags === 'string') {
-            eventData.tags = eventData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
-        }
-        
-        // 첨부파일 처리 (한글 파일명 자동 복원)
-        if (req.files && req.files.length > 0) {
-            const newAttachments = createAttachmentsInfo(req.files);
-            eventData.attachments = newAttachments;
-        }
-        
-        const event = await Event.findByIdAndUpdate(req.params.id, eventData, { new: true });
-        
-        if (!event) {
-            return res.status(404).json({
-                success: false,
-                message: '주요일정을 찾을 수 없습니다.'
-            });
-        }
-        
-        res.json({
-            success: true,
-            message: '주요일정이 수정되었습니다.',
-            data: event
-        });
-    } catch (error) {
-        console.error('주요일정 수정 오류:', error);
-        res.status(400).json({
-            success: false,
-            message: error.message || '주요일정 수정 중 오류가 발생했습니다'
-        });
-    }
-});
-
-// 주요일정 삭제
-router.delete('/:id', deleteById(Event, '주요일정'));
-
-// 조회수 증가
-router.patch('/:id/view', async (req, res) => {
-    try {
-        const event = await Event.findByIdAndUpdate(
+        const item = await Event.findByIdAndUpdate(
             req.params.id,
             { $inc: { views: 1 } },
             { new: true }
-        );
-        
-        if (!event) {
+        ).lean();
+
+        if (!item) {
             return res.status(404).json({
                 success: false,
-                message: '주요일정을 찾을 수 없습니다.'
+                message: '행사를 찾을 수 없습니다'
             });
         }
+
+        const thumbnailUrl = item.attachments?.[0]?.url || item.attachments?.[0]?.path || null;
         
         res.json({
             success: true,
-            data: { views: event.views }
+            data: {
+                ...item,
+                thumbnailUrl,
+                imageUrl: thumbnailUrl
+            }
         });
     } catch (error) {
-        res.status(400).json({
+        console.error('행사 조회 오류:', error);
+        res.status(500).json({
             success: false,
-            message: error.message
+            message: '행사 조회 중 오류가 발생했습니다'
         });
     }
 });
 
-module.exports = router; 
+// 행사 생성
+router.post('/', upload.array('attachments', 10), async (req, res) => {
+    try {
+        console.log('🔍 행사 생성 요청');
+        console.log('📁 첨부파일:', req.files ? req.files.length : 0);
+        
+        const data = {
+            title: req.body.title,
+            content: req.body.content,
+            excerpt: req.body.excerpt,
+            category: req.body.category || '당 행사',
+            author: req.body.author || '기획조정실',
+            eventDate: req.body.eventDate ? new Date(req.body.eventDate) : new Date(),
+            eventLocation: req.body.eventLocation,
+            organizer: req.body.organizer || '자유와혁신당',
+            contact: req.body.contact || '',
+            status: req.body.status || 'published'
+        };
+
+        // 종료일 처리
+        if (req.body.endDate) {
+            data.endDate = new Date(req.body.endDate);
+        }
+
+        // 태그 처리
+        if (req.body.tags) {
+            if (Array.isArray(req.body.tags)) {
+                data.tags = req.body.tags;
+            } else {
+                data.tags = req.body.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+            }
+        }
+
+        // Cloudinary 업로드
+        if (req.files && req.files.length > 0) {
+            console.log('📤 ' + req.files.length + '개 이미지 Cloudinary 업로드 시작...');
+            data.attachments = await uploadGalleryImages(req.files, 'freeinno/events');
+            console.log('✅ ' + data.attachments.length + '개 이미지 업로드 완료');
+        }
+
+        const event = new Event(data);
+        await event.save();
+
+        // 응답에 thumbnailUrl 포함
+        const thumbnailUrl = data.attachments?.[0]?.url || null;
+
+        console.log('✅ 행사 저장 성공:', event._id);
+
+        res.status(201).json({
+            success: true,
+            data: {
+                ...event.toObject(),
+                thumbnailUrl,
+                imageUrl: thumbnailUrl
+            },
+            message: '행사가 생성되었습니다'
+        });
+    } catch (error) {
+        console.error('❌ 행사 생성 오류:', error);
+        res.status(400).json({
+            success: false,
+            message: '행사 생성 중 오류가 발생했습니다',
+            error: error.message
+        });
+    }
+});
+
+// 행사 수정
+router.put('/:id', upload.array('attachments', 10), async (req, res) => {
+    try {
+        const { id } = req.params;
+        console.log('🔄 행사 수정 요청:', id);
+        
+        const updateData = {
+            title: req.body.title,
+            content: req.body.content,
+            excerpt: req.body.excerpt,
+            category: req.body.category || '당 행사',
+            author: req.body.author || '기획조정실',
+            eventLocation: req.body.eventLocation,
+            organizer: req.body.organizer || '자유와혁신당',
+            contact: req.body.contact || '',
+            status: req.body.status || 'published'
+        };
+
+        if (req.body.eventDate) {
+            updateData.eventDate = new Date(req.body.eventDate);
+        }
+
+        if (req.body.endDate) {
+            updateData.endDate = new Date(req.body.endDate);
+        }
+
+        // 태그 처리
+        if (req.body.tags) {
+            if (Array.isArray(req.body.tags)) {
+                updateData.tags = req.body.tags;
+            } else {
+                updateData.tags = req.body.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+            }
+        }
+
+        const existing = await Event.findById(id);
+        if (!existing) {
+            return res.status(404).json({
+                success: false,
+                message: '행사를 찾을 수 없습니다'
+            });
+        }
+
+        // 새 이미지 업로드
+        if (req.files && req.files.length > 0) {
+            console.log('📤 ' + req.files.length + '개 이미지 Cloudinary 업로드 시작...');
+            updateData.attachments = await uploadGalleryImages(req.files, 'freeinno/events');
+            console.log('✅ ' + updateData.attachments.length + '개 이미지 업로드 완료');
+        } else if (req.body.existingAttachments) {
+            try {
+                updateData.attachments = JSON.parse(req.body.existingAttachments);
+            } catch (e) {
+                console.warn('기존 첨부파일 파싱 오류:', e);
+            }
+        }
+
+        const event = await Event.findByIdAndUpdate(
+            id,
+            updateData,
+            { new: true, runValidators: true }
+        );
+
+        // 응답에 thumbnailUrl 포함
+        const thumbnailUrl = event.attachments?.[0]?.url || event.attachments?.[0]?.path || null;
+
+        console.log('✅ 행사 수정 성공:', event._id);
+
+        res.json({
+            success: true,
+            data: {
+                ...event.toObject(),
+                thumbnailUrl,
+                imageUrl: thumbnailUrl
+            },
+            message: '행사가 수정되었습니다'
+        });
+    } catch (error) {
+        console.error('❌ 행사 수정 오류:', error);
+        res.status(400).json({
+            success: false,
+            message: '행사 수정 중 오류가 발생했습니다',
+            error: error.message
+        });
+    }
+});
+
+// 행사 삭제
+router.delete('/:id', deleteById(Event, '행사'));
+
+module.exports = router;
