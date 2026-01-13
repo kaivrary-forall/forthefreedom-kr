@@ -117,10 +117,8 @@ export default function Navigation() {
         { label: t.statements, href: `${linkPrefix}/news/press-releases` },
         { label: t.mediaCoverage, href: `${linkPrefix}/news/media` },
         { label: t.events, href: `${linkPrefix}/news/events` },
-        { label: t.mediaPromo, href: '#', subItems: [
-          { label: t.cardNews, href: `${linkPrefix}/news/gallery?type=cardnews` },
-          { label: t.gallery, href: `${linkPrefix}/news/gallery` },
-        ]},
+        { label: t.cardNews, href: `${linkPrefix}/news/card-news` },
+        { label: t.gallery, href: `${linkPrefix}/news/gallery` },
         { label: t.resources, href: `${linkPrefix}/news/resources` },
         { label: t.personnel, href: `${linkPrefix}/news/personnel` },
       ]
