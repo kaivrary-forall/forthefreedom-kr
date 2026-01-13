@@ -1,13 +1,25 @@
 const express = require('express');
-const path = require('path');
-const fs = require('fs');
+const multer = require('multer');
 const router = express.Router();
 const { Activity } = require('../models');
 const { getAll, getById, deleteById } = require('../controllers/baseController');
 
-// 공통 업로드 유틸리티 (한글 파일명 지원)
-const { uploads, createAttachmentsInfo, uploadDir } = require('../utils/upload');
-const upload = uploads.activity;
+// Cloudinary 업로드 유틸리티
+const { uploadGalleryImages } = require('../utils/cloudinary');
+
+// multer 메모리 스토리지 (Cloudinary로 바로 업로드)
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 20 * 1024 * 1024 }, // 20MB
+    fileFilter: (req, file, cb) => {
+        const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (allowedMimes.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('지원하지 않는 이미지 형식입니다.'), false);
+        }
+    }
+});
 
 // 활동자료 목록 조회
 router.get('/', getAll(Activity, '활동자료'));
@@ -15,7 +27,7 @@ router.get('/', getAll(Activity, '활동자료'));
 // 활동자료 단일 조회
 router.get('/:id', getById(Activity, '활동자료'));
 
-// 활동자료 생성 (파일 업로드 포함)
+// 활동자료 생성 (Cloudinary 업로드)
 router.post('/', upload.array('attachments', 10), async (req, res) => {
     try {
         console.log('🔍 활동자료 생성 요청 받음');
@@ -44,9 +56,11 @@ router.post('/', upload.array('attachments', 10), async (req, res) => {
             }
         }
 
-        // 첨부파일 정보 처리 (한글 파일명 자동 복원)
+        // Cloudinary로 이미지 업로드
         if (req.files && req.files.length > 0) {
-            activityData.attachments = createAttachmentsInfo(req.files);
+            console.log(`📤 ${req.files.length}개 이미지 Cloudinary 업로드 시작...`);
+            activityData.attachments = await uploadGalleryImages(req.files, 'freeinno/activities');
+            console.log(`✅ ${activityData.attachments.length}개 이미지 업로드 완료`);
         }
 
         const activity = new Activity(activityData);
@@ -69,7 +83,7 @@ router.post('/', upload.array('attachments', 10), async (req, res) => {
     }
 });
 
-// 활동자료 수정 (파일 업로드 포함)
+// 활동자료 수정 (Cloudinary 업로드)
 router.put('/:id', upload.array('attachments', 10), async (req, res) => {
     try {
         const { id } = req.params;
@@ -103,7 +117,7 @@ router.put('/:id', upload.array('attachments', 10), async (req, res) => {
             }
         }
 
-        // 기존 첨부파일 처리
+        // 기존 활동자료 확인
         const existingActivity = await Activity.findById(id);
         if (!existingActivity) {
             return res.status(404).json({
@@ -112,26 +126,21 @@ router.put('/:id', upload.array('attachments', 10), async (req, res) => {
             });
         }
 
-        // 기존 첨부파일 유지 (삭제된 것 제외)
-        let existingAttachments = existingActivity.attachments || [];
-        
-        // existingAttachments 파라미터가 있으면 처리
-        if (req.body.existingAttachments) {
+        // 새 이미지가 있으면 Cloudinary로 업로드
+        if (req.files && req.files.length > 0) {
+            console.log(`📤 ${req.files.length}개 이미지 Cloudinary 업로드 시작...`);
+            const newAttachments = await uploadGalleryImages(req.files, 'freeinno/activities');
+            console.log(`✅ ${newAttachments.length}개 이미지 업로드 완료`);
+            updateData.attachments = newAttachments;
+        }
+        // 새 이미지가 없고 기존 첨부파일 유지 요청이 있으면
+        else if (req.body.existingAttachments) {
             try {
-                const keepAttachments = JSON.parse(req.body.existingAttachments);
-                existingAttachments = keepAttachments;
+                updateData.attachments = JSON.parse(req.body.existingAttachments);
             } catch (e) {
                 console.warn('기존 첨부파일 파싱 오류:', e);
+                updateData.attachments = existingActivity.attachments || [];
             }
-        }
-        
-        // 새로운 첨부파일 추가 (한글 파일명 자동 복원)
-        if (req.files && req.files.length > 0) {
-            const newAttachments = createAttachmentsInfo(req.files);
-
-            updateData.attachments = [...existingAttachments, ...newAttachments];
-        } else {
-            updateData.attachments = existingAttachments;
         }
 
         const activity = await Activity.findByIdAndUpdate(
@@ -160,4 +169,4 @@ router.put('/:id', upload.array('attachments', 10), async (req, res) => {
 // 활동자료 삭제
 router.delete('/:id', deleteById(Activity, '활동자료'));
 
-module.exports = router; 
+module.exports = router;
