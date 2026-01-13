@@ -62,6 +62,7 @@ const menuItems: MenuItem[] = [
     children: [
       { label: '공지사항', href: '/admin/content/notices' },
       { label: '보도자료', href: '/admin/content/press' },
+      { label: '갤러리', href: '/admin/content/gallery' },
       { label: '인사공고', href: '/admin/personnel' },
       { label: '경조사', href: '/admin/congratulations' },
       { label: '배너 관리', href: '/admin/content/banners' },
@@ -119,7 +120,7 @@ export default function AdminSidebar() {
   }
 
   return (
-    <aside className="w-64 bg-gray-900 min-h-screen flex flex-col">
+    <aside className="w-64 bg-gray-900 min-h-screen flex flex-col fixed left-0 top-0">
       {/* 로고 */}
       <div className="p-6 border-b border-gray-800">
         <Link href="/admin" className="flex items-center gap-3">
@@ -152,7 +153,7 @@ export default function AdminSidebar() {
                   <span>{item.label}</span>
                 </div>
                 <svg 
-                  className={`w-4 h-4 transition-transform ${isMenuOpen(item.href) ? 'rotate-180' : ''}`} 
+                  className={`w-4 h-4 transition-transform ${isMenuOpen(item.href) ? 'rotate-180' : ''}`}
                   fill="none" 
                   stroke="currentColor" 
                   viewBox="0 0 24 24"
@@ -174,6 +175,7 @@ export default function AdminSidebar() {
                 <span>{item.label}</span>
               </Link>
             )}
+
             {item.children && isMenuOpen(item.href) && (
               <div className="ml-8 mt-1 space-y-1">
                 {item.children.map((child) => (
