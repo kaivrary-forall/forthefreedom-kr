@@ -41,8 +41,8 @@ export default function AdminGalleryPage() {
     title: '',
     content: '',
     excerpt: '',
-    category: '행사',
-    author: '사무국',
+    category: '당 행사',
+    author: '홍보팀',
     status: 'published' as 'draft' | 'published'
   })
 
@@ -173,8 +173,8 @@ export default function AdminGalleryPage() {
       title: '',
       content: '',
       excerpt: '',
-      category: '행사',
-      author: '사무국',
+      category: '당 행사',
+      author: '홍보팀',
       status: 'published'
     })
     setSelectedFiles(null)
@@ -189,7 +189,7 @@ export default function AdminGalleryPage() {
     })
   }
 
-  const categories = ['행사', '회의', '활동', '캠페인', '기타']
+  const categories = ['당 행사', '지역활동', '회의', '세미나', '기타']
 
   return (
     <div className="flex min-h-screen bg-gray-100">
