@@ -41,7 +41,7 @@ export default function Navigation() {
     volunteer: 'Freedom Action', staff: 'Staff', central: 'Central', regional: 'Regional',
     // 소식
     notices: 'Notices', statements: 'Statements', mediaCoverage: 'Media Coverage',
-    events: 'Events', cardNews: 'Card News', gallery: 'Gallery',
+    events: 'Events', activities: 'Activities', cardNews: 'Card News', gallery: 'Gallery',
     personnel: 'Personnel',
     // 당원
     joinInfo: 'Join Info', joinOnline: 'Join Online', joinFaq: 'FAQ',
@@ -63,7 +63,7 @@ export default function Navigation() {
     volunteer: '자유행동', staff: '일꾼들', central: '중앙당', regional: '시도당',
     // 소식
     notices: '공지', statements: '성명', mediaCoverage: '언론보도',
-    events: '주요일정', cardNews: '카드뉴스', gallery: '갤러리',
+    events: '주요일정', activities: '활동소식', cardNews: '카드뉴스', gallery: '갤러리',
     personnel: '인사공고',
     // 당원
     joinInfo: '당원가입안내', joinOnline: '당원가입', joinFaq: '당원가입 FAQ',
@@ -115,6 +115,7 @@ export default function Navigation() {
       subMenu: [
         { label: t.notices, href: `${linkPrefix}/news/notices` },
         { label: t.events, href: `${linkPrefix}/news/events` },
+        { label: t.activities, href: `${linkPrefix}/news/activities` },
         { label: t.mediaCoverage, href: `${linkPrefix}/news/media` },
         { label: t.statements, href: `${linkPrefix}/news/press-releases` },
         { label: t.cardNews, href: `${linkPrefix}/news/card-news` },
