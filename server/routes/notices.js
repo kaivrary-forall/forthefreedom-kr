@@ -1,126 +1,266 @@
 const express = require('express');
-const path = require('path');
-const fs = require('fs');
+const multer = require('multer');
 const router = express.Router();
 const { Notice } = require('../models');
-const { getAll, getById } = require('../controllers/baseController');
-const { authMember, requirePermission } = require('../middleware/authMember');
+const { deleteById } = require('../controllers/baseController');
 
-const { uploads, createAttachmentsInfo, uploadDir } = require('../utils/upload');
-const upload = uploads.notice;
+// Cloudinary 업로드 유틸리티
+const { uploadGalleryImages } = require('../utils/cloudinary');
 
-// Next.js revalidate 트리거
-const triggerRevalidate = async () => {
-  if (!process.env.NEXT_REVALIDATE_URL || !process.env.REVALIDATE_SECRET) return;
-  try {
-    const fetch = require('node-fetch');
-    const response = await fetch(process.env.NEXT_REVALIDATE_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-revalidate-secret': process.env.REVALIDATE_SECRET },
-      body: JSON.stringify({ tags: ['notices', 'news'] })
-    });
-    if (response.ok) console.log('✅ Next.js revalidate 트리거 성공 [notices]');
-  } catch (e) { console.error('⚠️ Next.js revalidate 트리거 실패:', e.message); }
-};
+// multer 메모리 스토리지
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 20 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (allowedMimes.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('지원하지 않는 이미지 형식입니다.'), false);
+        }
+    }
+});
 
-// ==========================================
-// 공개 API
-// ==========================================
-router.get('/', getAll(Notice));
-router.get('/:id', getById(Notice));
+// 공지사항 목록 조회 (thumbnailUrl 가공)
+router.get('/', async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+        
+        let query = {};
+        if (req.query.status && req.query.status !== 'all') {
+            query.status = req.query.status;
+        } else if (!req.query.status) {
+            query.status = 'published';
+        }
+        
+        if (req.query.category) {
+            query.category = req.query.category;
+        }
 
-// ==========================================
-// 관리자 API (notices:write 권한 필요)
-// ==========================================
+        const total = await Notice.countDocuments(query);
+        
+        // 정렬 파라미터
+        const sortField = req.query.sort || 'createdAt';
+        const sortOrder = (req.query.order || 'desc').toLowerCase() === 'asc' ? 1 : -1;
+        const sortOptions = { [sortField]: sortOrder };
+        
+        // 중요 공지 우선 정렬
+        if (sortField === 'createdAt') {
+            sortOptions.isImportant = -1;
+            sortOptions.priority = -1;
+        }
+        
+        const data = await Notice.find(query)
+            .sort(sortOptions)
+            .skip(skip)
+            .limit(limit)
+            .lean();
 
-// 이미지 업로드
-router.post('/upload-image', authMember, requirePermission('notices:write'), upload.single('image'), async (req, res) => {
-  try {
-    if (!req.file) return res.status(400).json({ success: false, message: '이미지 파일이 필요합니다' });
-    const baseUrl = process.env.NODE_ENV === 'production' ? process.env.BASE_URL || 'https://forthefreedom-kr-production.up.railway.app' : 'http://localhost:9000';
-    const imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
-    res.json({ success: true, data: { filename: req.file.filename, originalName: req.file.originalname, imageUrl, size: req.file.size, mimeType: req.file.mimetype }, message: '이미지 업로드 완료' });
-  } catch (error) {
-    console.error('이미지 업로드 오류:', error);
-    res.status(500).json({ success: false, message: '이미지 업로드 중 오류가 발생했습니다' });
-  }
+        // thumbnailUrl 가공
+        const processedData = data.map(item => {
+            const thumbnailUrl = item.attachments?.[0]?.url || item.attachments?.[0]?.path || null;
+            return {
+                ...item,
+                thumbnailUrl,
+                imageUrl: thumbnailUrl
+            };
+        });
+
+        res.json({
+            success: true,
+            data: processedData,
+            pagination: {
+                current: page,
+                pages: Math.ceil(total / limit),
+                total,
+                hasNext: page < Math.ceil(total / limit),
+                hasPrev: page > 1
+            }
+        });
+    } catch (error) {
+        console.error('공지사항 목록 조회 오류:', error);
+        res.status(500).json({
+            success: false,
+            message: '공지사항 목록 조회 중 오류가 발생했습니다'
+        });
+    }
+});
+
+// 공지사항 단일 조회 (thumbnailUrl 가공)
+router.get('/:id', async (req, res) => {
+    try {
+        const item = await Notice.findByIdAndUpdate(
+            req.params.id,
+            { $inc: { views: 1 } },
+            { new: true }
+        ).lean();
+
+        if (!item) {
+            return res.status(404).json({
+                success: false,
+                message: '공지사항을 찾을 수 없습니다'
+            });
+        }
+
+        const thumbnailUrl = item.attachments?.[0]?.url || item.attachments?.[0]?.path || null;
+        
+        res.json({
+            success: true,
+            data: {
+                ...item,
+                thumbnailUrl,
+                imageUrl: thumbnailUrl
+            }
+        });
+    } catch (error) {
+        console.error('공지사항 조회 오류:', error);
+        res.status(500).json({
+            success: false,
+            message: '공지사항 조회 중 오류가 발생했습니다'
+        });
+    }
 });
 
 // 공지사항 생성
-router.post('/', authMember, requirePermission('notices:write'), upload.array('attachments'), async (req, res) => {
-  try {
-    const { title, content, category, author, excerpt, tags, isImportant } = req.body;
-    const attachments = createAttachmentsInfo(req.files);
-    let parsedTags = [];
-    if (tags) {
-      if (Array.isArray(tags)) parsedTags = tags;
-      else if (typeof tags === 'string') {
-        try { const p = JSON.parse(tags); parsedTags = Array.isArray(p) ? p : [tags]; }
-        catch { parsedTags = tags.split(',').map(t => t.trim()).filter(t => t); }
-      }
+router.post('/', upload.array('attachments', 10), async (req, res) => {
+    try {
+        console.log('🔍 공지사항 생성 요청');
+        console.log('📁 첨부파일:', req.files ? req.files.length : 0);
+        
+        const data = {
+            title: req.body.title,
+            content: req.body.content,
+            excerpt: req.body.excerpt || '',
+            category: req.body.category || '일반',
+            priority: parseInt(req.body.priority) || 0,
+            author: req.body.author || '관리자',
+            isImportant: req.body.isImportant === 'true',
+            status: req.body.status || 'published'
+        };
+
+        // 태그 처리
+        if (req.body.tags) {
+            if (Array.isArray(req.body.tags)) {
+                data.tags = req.body.tags;
+            } else {
+                data.tags = req.body.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+            }
+        }
+
+        // Cloudinary 업로드
+        if (req.files && req.files.length > 0) {
+            console.log('📤 ' + req.files.length + '개 이미지 Cloudinary 업로드 시작...');
+            data.attachments = await uploadGalleryImages(req.files, 'freeinno/notices');
+            console.log('✅ ' + data.attachments.length + '개 이미지 업로드 완료');
+        }
+
+        const notice = new Notice(data);
+        await notice.save();
+
+        // 응답에 thumbnailUrl 포함
+        const thumbnailUrl = data.attachments?.[0]?.url || null;
+
+        console.log('✅ 공지사항 저장 성공:', notice._id);
+
+        res.status(201).json({
+            success: true,
+            data: {
+                ...notice.toObject(),
+                thumbnailUrl,
+                imageUrl: thumbnailUrl
+            },
+            message: '공지사항이 생성되었습니다'
+        });
+    } catch (error) {
+        console.error('❌ 공지사항 생성 오류:', error);
+        res.status(400).json({
+            success: false,
+            message: '공지사항 생성 중 오류가 발생했습니다',
+            error: error.message
+        });
     }
-    const notice = new Notice({
-      title, content, category, author: author || req.member?.nickname || '관리자',
-      excerpt: excerpt || '', tags: parsedTags, isImportant: isImportant === 'true' || isImportant === true,
-      attachments, status: 'published', publishDate: new Date()
-    });
-    await notice.save();
-    await triggerRevalidate();
-    res.status(201).json({ success: true, data: notice, message: '새로운 공지사항이 생성되었습니다' });
-  } catch (error) {
-    console.error('공지사항 생성 오류:', error);
-    res.status(500).json({ success: false, message: '공지사항 생성 중 오류가 발생했습니다' });
-  }
 });
 
 // 공지사항 수정
-router.put('/:id', authMember, requirePermission('notices:write'), upload.array('attachments'), async (req, res) => {
-  try {
-    const { title, content, category, author, excerpt, tags, isImportant, existingAttachments } = req.body;
-    let parsedTags = [];
-    if (tags) {
-      if (Array.isArray(tags)) parsedTags = tags;
-      else if (typeof tags === 'string') {
-        try { const p = JSON.parse(tags); parsedTags = Array.isArray(p) ? p : [tags]; }
-        catch { parsedTags = tags.split(',').map(t => t.trim()).filter(t => t); }
-      }
+router.put('/:id', upload.array('attachments', 10), async (req, res) => {
+    try {
+        const { id } = req.params;
+        console.log('🔄 공지사항 수정 요청:', id);
+        
+        const updateData = {
+            title: req.body.title,
+            content: req.body.content,
+            excerpt: req.body.excerpt || '',
+            category: req.body.category || '일반',
+            priority: parseInt(req.body.priority) || 0,
+            author: req.body.author || '관리자',
+            isImportant: req.body.isImportant === 'true',
+            status: req.body.status || 'published'
+        };
+
+        // 태그 처리
+        if (req.body.tags) {
+            if (Array.isArray(req.body.tags)) {
+                updateData.tags = req.body.tags;
+            } else {
+                updateData.tags = req.body.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+            }
+        }
+
+        const existing = await Notice.findById(id);
+        if (!existing) {
+            return res.status(404).json({
+                success: false,
+                message: '공지사항을 찾을 수 없습니다'
+            });
+        }
+
+        // 새 이미지 업로드
+        if (req.files && req.files.length > 0) {
+            console.log('📤 ' + req.files.length + '개 이미지 Cloudinary 업로드 시작...');
+            updateData.attachments = await uploadGalleryImages(req.files, 'freeinno/notices');
+            console.log('✅ ' + updateData.attachments.length + '개 이미지 업로드 완료');
+        } else if (req.body.existingAttachments) {
+            try {
+                updateData.attachments = JSON.parse(req.body.existingAttachments);
+            } catch (e) {
+                console.warn('기존 첨부파일 파싱 오류:', e);
+            }
+        }
+
+        const notice = await Notice.findByIdAndUpdate(
+            id,
+            updateData,
+            { new: true, runValidators: true }
+        );
+
+        // 응답에 thumbnailUrl 포함
+        const thumbnailUrl = notice.attachments?.[0]?.url || notice.attachments?.[0]?.path || null;
+
+        console.log('✅ 공지사항 수정 성공:', notice._id);
+
+        res.json({
+            success: true,
+            data: {
+                ...notice.toObject(),
+                thumbnailUrl,
+                imageUrl: thumbnailUrl
+            },
+            message: '공지사항이 수정되었습니다'
+        });
+    } catch (error) {
+        console.error('❌ 공지사항 수정 오류:', error);
+        res.status(400).json({
+            success: false,
+            message: '공지사항 수정 중 오류가 발생했습니다',
+            error: error.message
+        });
     }
-    const existingNotice = await Notice.findById(req.params.id);
-    if (!existingNotice) return res.status(404).json({ success: false, message: '공지사항을 찾을 수 없습니다' });
-
-    let finalAttachments = [];
-    if (existingAttachments) {
-      try {
-        const keep = typeof existingAttachments === 'string' ? JSON.parse(existingAttachments) : existingAttachments;
-        if (Array.isArray(keep)) finalAttachments = keep;
-      } catch { finalAttachments = existingNotice.attachments || []; }
-    } else { finalAttachments = existingNotice.attachments || []; }
-    if (req.files && req.files.length > 0) finalAttachments = [...finalAttachments, ...createAttachmentsInfo(req.files)];
-
-    const notice = await Notice.findByIdAndUpdate(req.params.id, {
-      title, content, category, author: author || req.member?.nickname || '관리자',
-      excerpt: excerpt || '', tags: parsedTags, isImportant: isImportant === 'true' || isImportant === true,
-      attachments: finalAttachments, updatedAt: new Date()
-    }, { new: true, runValidators: true });
-    await triggerRevalidate();
-    res.json({ success: true, data: notice, message: '공지사항이 수정되었습니다' });
-  } catch (error) {
-    console.error('공지사항 수정 오류:', error);
-    res.status(500).json({ success: false, message: '공지사항 수정 중 오류가 발생했습니다' });
-  }
 });
 
 // 공지사항 삭제
-router.delete('/:id', authMember, requirePermission('notices:write'), async (req, res) => {
-  try {
-    const notice = await Notice.findByIdAndDelete(req.params.id);
-    if (!notice) return res.status(404).json({ success: false, message: '공지사항을 찾을 수 없습니다' });
-    await triggerRevalidate();
-    res.json({ success: true, message: '공지사항이 삭제되었습니다' });
-  } catch (error) {
-    console.error('공지사항 삭제 오류:', error);
-    res.status(500).json({ success: false, message: '공지사항 삭제 중 오류가 발생했습니다' });
-  }
-});
+router.delete('/:id', deleteById(Notice, '공지사항'));
 
 module.exports = router;
