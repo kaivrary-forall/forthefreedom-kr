@@ -111,7 +111,7 @@ export default function Navigation() {
     // 3. 소식
     { 
       label: t.news, 
-      href: `${linkPrefix}/news/notices`,
+      href: `${linkPrefix}/news`,
       subMenu: [
         { label: t.notices, href: `${linkPrefix}/news/notices` },
         { label: t.events, href: `${linkPrefix}/news/events` },
