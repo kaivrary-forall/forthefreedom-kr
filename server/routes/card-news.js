@@ -2,7 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const router = express.Router();
 const { CardNews } = require('../models');
-const { getAll, getById, deleteById } = require('../controllers/baseController');
+const { deleteById } = require('../controllers/baseController');
 
 // Cloudinary 업로드 유틸리티
 const { uploadGalleryImages } = require('../utils/cloudinary');
@@ -21,11 +21,95 @@ const upload = multer({
     }
 });
 
-// 카드뉴스 목록 조회
-router.get('/', getAll(CardNews, '카드뉴스'));
+// 카드뉴스 목록 조회 (thumbnailUrl 가공)
+router.get('/', async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+        
+        let query = {};
+        if (req.query.status && req.query.status !== 'all') {
+            query.status = req.query.status;
+        } else if (!req.query.status) {
+            query.status = 'published';
+        }
+        
+        if (req.query.category) {
+            query.category = req.query.category;
+        }
 
-// 카드뉴스 단일 조회
-router.get('/:id', getById(CardNews, '카드뉴스'));
+        const total = await CardNews.countDocuments(query);
+        const data = await CardNews.find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean();
+
+        // thumbnailUrl 가공
+        const processedData = data.map(item => {
+            const thumbnailUrl = item.attachments?.[0]?.url || item.attachments?.[0]?.path || null;
+            return {
+                ...item,
+                thumbnailUrl,
+                imageUrl: thumbnailUrl
+            };
+        });
+
+        res.json({
+            success: true,
+            data: processedData,
+            pagination: {
+                current: page,
+                pages: Math.ceil(total / limit),
+                total,
+                hasNext: page < Math.ceil(total / limit),
+                hasPrev: page > 1
+            }
+        });
+    } catch (error) {
+        console.error('카드뉴스 목록 조회 오류:', error);
+        res.status(500).json({
+            success: false,
+            message: '카드뉴스 목록 조회 중 오류가 발생했습니다'
+        });
+    }
+});
+
+// 카드뉴스 단일 조회 (thumbnailUrl 가공)
+router.get('/:id', async (req, res) => {
+    try {
+        const item = await CardNews.findByIdAndUpdate(
+            req.params.id,
+            { $inc: { views: 1 } },
+            { new: true }
+        ).lean();
+
+        if (!item) {
+            return res.status(404).json({
+                success: false,
+                message: '카드뉴스를 찾을 수 없습니다'
+            });
+        }
+
+        const thumbnailUrl = item.attachments?.[0]?.url || item.attachments?.[0]?.path || null;
+        
+        res.json({
+            success: true,
+            data: {
+                ...item,
+                thumbnailUrl,
+                imageUrl: thumbnailUrl
+            }
+        });
+    } catch (error) {
+        console.error('카드뉴스 조회 오류:', error);
+        res.status(500).json({
+            success: false,
+            message: '카드뉴스 조회 중 오류가 발생했습니다'
+        });
+    }
+});
 
 // 카드뉴스 생성
 router.post('/', upload.array('attachments', 20), async (req, res) => {
@@ -62,11 +146,18 @@ router.post('/', upload.array('attachments', 20), async (req, res) => {
         const cardNews = new CardNews(data);
         await cardNews.save();
 
+        // 응답에 thumbnailUrl 포함
+        const thumbnailUrl = data.attachments?.[0]?.url || null;
+
         console.log('✅ 카드뉴스 저장 성공:', cardNews._id);
 
         res.status(201).json({
             success: true,
-            data: cardNews,
+            data: {
+                ...cardNews.toObject(),
+                thumbnailUrl,
+                imageUrl: thumbnailUrl
+            },
             message: '카드뉴스가 생성되었습니다'
         });
     } catch (error) {
@@ -132,11 +223,18 @@ router.put('/:id', upload.array('attachments', 20), async (req, res) => {
             { new: true, runValidators: true }
         );
 
+        // 응답에 thumbnailUrl 포함
+        const thumbnailUrl = cardNews.attachments?.[0]?.url || cardNews.attachments?.[0]?.path || null;
+
         console.log('✅ 카드뉴스 수정 성공:', cardNews._id);
 
         res.json({
             success: true,
-            data: cardNews,
+            data: {
+                ...cardNews.toObject(),
+                thumbnailUrl,
+                imageUrl: thumbnailUrl
+            },
             message: '카드뉴스가 수정되었습니다'
         });
     } catch (error) {
