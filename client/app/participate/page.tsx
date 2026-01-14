@@ -59,9 +59,9 @@ export default function ParticipatePage() {
         <section className="py-16">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">함께하는 방법</h2>
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">자유와혁신과 함께하는 방법</h2>
               <p className="text-lg text-gray-600">
-                자유와혁신에 참여할 수 있는 다양한 방법을 확인하세요
+                자유와혁신과 다양한 방법으로 함께할 수 있습니다.
               </p>
             </div>
 
