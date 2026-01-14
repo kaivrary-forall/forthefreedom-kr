@@ -6,9 +6,9 @@ type BoardType = 'member' | 'party' | 'innovation' | 'anonymous'
 
 const boardTabs: { key: BoardType; label: string; description: string }[] = [
   { key: 'member', label: '회원 게시판', description: '회원이면 누구나 작성할 수 있습니다' },
-  { key: 'party', label: '당원 게시판', description: '당원만 작성할 수 있습니다' },
-  { key: 'innovation', label: '혁신당원 게시판', description: '혁신당원만 작성할 수 있습니다' },
-  { key: 'anonymous', label: '익명 게시판', description: '당원들이 익명으로 작성할 수 있는 공간입니다 (IP 공개)' },
+  { key: 'party', label: '당원 게시판', description: '당원 이상 작성할 수 있습니다' },
+  { key: 'innovation', label: '혁신당원 게시판', description: '혁신당원 이상 작성할 수 있습니다' },
+  { key: 'anonymous', label: '익명 게시판', description: '당원들의 익명 공간입니다 (단, IP는 공개됩니다)' },
 ]
 
 export default function AgoraPage() {
