@@ -26,6 +26,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       <SideBannerRight />
       <main 
         className="min-h-screen"
+        style={{ paddingTop: 'calc(64px + var(--top-notice-h, 0px))' }}
       >
         {children}
       </main>
