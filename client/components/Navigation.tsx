@@ -129,10 +129,8 @@ export default function Navigation() {
       label: t.members, 
       href: `${linkPrefix}/participate`,
       subMenu: [
-        { label: t.joinInfo, href: `${linkPrefix}/participate/join`, subItems: [
-          { label: t.joinOnline, href: `${linkPrefix}/participate/join` },
-          { label: t.joinFaq, href: `${linkPrefix}/participate/faq` },
-        ]},
+        { label: t.joinOnline, href: `${linkPrefix}/participate/join` },
+        { label: t.joinFaq, href: `${linkPrefix}/participate/faq` },
         { label: `${t.dues} ${t.developing}`, href: '#', disabled: true },
         { label: `${t.education} ${t.developing}`, href: '#', disabled: true },
       ]
