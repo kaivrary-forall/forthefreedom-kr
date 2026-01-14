@@ -14,19 +14,8 @@ export const metadata: Metadata = {
 export default function ReportCenterPage() {
   return (
     <div>
-      {/* 히어로 */}
-      <section 
-        className="relative h-[40vh] flex items-center justify-center bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/night-pic.jpg')" }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/20"></div>
-        <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">제보센터</h1>
-          <p className="text-xl text-gray-200 drop-shadow">부정선거 · 반국가세력 제보</p>
-        </div>
-      </section>
-
-      <main className="relative z-10 bg-white py-16">
+      
+      <main className="bg-white py-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* 준비중 안내 */}
           <div className="bg-white rounded-2xl shadow-lg p-12 border border-gray-100 text-center mb-12">
