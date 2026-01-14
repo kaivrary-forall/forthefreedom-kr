@@ -24,8 +24,8 @@ export default function AboutTabs() {
         className="sticky z-30 bg-white border-b border-gray-200 transition-[top] duration-300 ease-in-out"
         style={{ top: 'calc(64px + var(--top-notice-h, 0px))' }}
       >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex justify-center space-x-0 overflow-x-auto scrollbar-hide">
+        <div className="flex justify-center">
+          <nav className="flex space-x-0 overflow-x-auto scrollbar-hide">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
