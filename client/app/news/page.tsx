@@ -87,7 +87,7 @@ export default function NewsAllPage() {
   }
 
   return (
-    <div className="pt-16">
+    <div>
       {/* 탭 네비게이션 */}
       <NewsTabs active="all" />
 
