@@ -25,7 +25,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       <SideBannerLeft />
       <SideBannerRight />
       <main 
-        className="min-h-screen"
+        className="min-h-screen transition-[padding] duration-300 ease-in-out"
         style={{ paddingTop: 'calc(64px + var(--top-notice-h, 0px))' }}
       >
         {children}
