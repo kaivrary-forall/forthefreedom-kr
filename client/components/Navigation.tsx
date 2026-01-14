@@ -28,7 +28,7 @@ export default function Navigation() {
 
   const t = isEnPage ? {
     // 메인
-    about: 'About', organization: 'Organization', news: 'News', agora: 'Agora',
+    about: 'About', centralParty: 'Central', localChaptersMenu: 'Local', news: 'News', agora: 'Agora',
     fain: 'FAIN', members: 'Members', support: 'Support', reportCenter: 'Report Center',
     joinParty: 'Join Party',
     // 소개
@@ -37,14 +37,14 @@ export default function Navigation() {
     foundingStory: 'Founding Story', policy: 'Policy', logo: 'Logo', location: 'Location',
     // 조직
     orgChart: 'Organization', supremeCouncil: 'Supreme Council', spokesperson: 'Spokesperson',
-    research: 'Research Institute', justiceGuard: 'Justice Guard', committees: 'Committees', localChapters: 'Local Chapters',
+    research: 'Research Institute', justiceGuard: 'Justice Guard', committees: 'Committees',
     volunteer: 'Freedom Action', staff: 'Staff', central: 'Central', regional: 'Regional',
     // 소식
     notices: 'Notices', statements: 'Statements', mediaCoverage: 'Media Coverage',
     events: 'Events', activities: 'Activities', cardNews: 'Card News', gallery: 'Gallery',
     personnel: 'Personnel',
     // 당원
-    joinInfo: 'Join Info', joinOnline: 'Join Online', joinFaq: 'FAQ',
+    joinOnline: 'Join Online', joinFaq: 'FAQ',
     dues: 'Dues', education: 'Education', developing: '(Coming Soon)',
     // 후원
     supportGuide: 'Guide', receipt: 'Receipt',
@@ -59,14 +59,14 @@ export default function Navigation() {
     foundingStory: '창당 스토리', policy: '정책', logo: '로고', location: '찾아오시는길',
     // 조직
     orgChart: '조직도', supremeCouncil: '최고위원회', spokesperson: '대변인실',
-    research: '자유연구원', justiceGuard: '정의수호단', committees: '직능위원회', localChapters: '시도당·당협',
+    research: '자유연구원', justiceGuard: '정의수호단', committees: '직능위원회',
     volunteer: '자유행동', staff: '일꾼들', central: '중앙당', regional: '시도당',
     // 소식
     notices: '공지', statements: '성명', mediaCoverage: '언론보도',
     events: '주요일정', activities: '활동소식', cardNews: '카드뉴스', gallery: '갤러리',
     personnel: '인사공고',
     // 당원
-    joinInfo: '당원가입안내', joinOnline: '당원가입', joinFaq: '당원가입 FAQ',
+    joinOnline: '당원가입', joinFaq: '당원가입 Q&A',
     dues: '당비납부', education: '당원교육', developing: '(개발중)',
     // 후원
     supportGuide: '후원 안내', receipt: '후원영수증',
@@ -90,9 +90,9 @@ export default function Navigation() {
         { label: t.location, href: `${linkPrefix}/about/location` },
       ]
     },
-    // 2. 조직
+    // 2. 중앙당
     { 
-      label: t.organization, 
+      label: t.centralParty, 
       href: `${linkPrefix}/about/organization`,
       subMenu: [
         { label: t.orgChart, href: `${linkPrefix}/about/organization` },
@@ -101,11 +101,12 @@ export default function Navigation() {
         { label: t.research, href: `${linkPrefix}/committees/research` },
         { label: t.justiceGuard, href: `${linkPrefix}/committees/justice-guard` },
         { label: t.committees, href: `${linkPrefix}/committees` },
-        { label: t.localChapters, href: `${linkPrefix}/local-chapters` },
         { label: t.volunteer, href: `${linkPrefix}/participate/volunteer` },
       ]
     },
-    // 3. 소식
+    // 3. 시도당·당협
+    { label: t.localChaptersMenu, href: `${linkPrefix}/local-chapters` },
+    // 4. 소식
     { 
       label: t.news, 
       href: `${linkPrefix}/news`,
@@ -120,11 +121,11 @@ export default function Navigation() {
         { label: t.personnel, href: `${linkPrefix}/news/personnel` },
       ]
     },
-    // 4. 아고라
+    // 5. 아고라
     { label: t.agora, href: `${linkPrefix}/agora` },
-    // 5. FAIN
+    // 6. FAIN
     { label: t.fain, href: `${linkPrefix}/fain` },
-    // 6. 당원
+    // 7. 당원
     { 
       label: t.members, 
       href: `${linkPrefix}/participate`,
@@ -135,7 +136,7 @@ export default function Navigation() {
         { label: `${t.education} ${t.developing}`, href: '#', disabled: true },
       ]
     },
-    // 7. 후원
+    // 8. 후원
     { 
       label: t.support, 
       href: `${linkPrefix}/support`,
@@ -144,7 +145,7 @@ export default function Navigation() {
         { label: t.receipt, href: `${linkPrefix}/support/receipt` },
       ]
     },
-    // 8. 제보센터
+    // 9. 제보센터
     { label: t.reportCenter, href: `${linkPrefix}/report-center` },
   ]
 
