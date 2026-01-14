@@ -10,17 +10,20 @@ export default function AboutTabs() {
   const [activeTab, setActiveTab] = useState<TabType>('greeting')
 
   const tabs: { id: TabType; label: string }[] = [
-    { id: 'greeting', label: '당대표 인사' },
-    { id: 'founding', label: '창당 스토리' },
+    { id: 'greeting', label: '당대표 인사말' },
+    { id: 'founding', label: '창당스토리' },
     { id: 'identity', label: '정체성' },
-    { id: 'values', label: '핵심 가치' },
-    { id: 'vision', label: '미래 비전' },
+    { id: 'values', label: '핵심가치' },
+    { id: 'vision', label: '미래비전' },
   ]
 
   return (
-    <div className="pt-16">
+    <div style={{ paddingTop: 'calc(64px + var(--top-notice-h, 0px))' }}>
       {/* 탭 네비게이션 */}
-      <div className="sticky top-16 z-30 bg-white border-b border-gray-200">
+      <div 
+        className="sticky z-30 bg-white border-b border-gray-200"
+        style={{ top: 'calc(64px + var(--top-notice-h, 0px))' }}
+      >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="flex space-x-0 overflow-x-auto scrollbar-hide">
             {tabs.map((tab) => (
