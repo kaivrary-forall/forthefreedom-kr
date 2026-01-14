@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import ParticipateTabs from '@/components/participate/ParticipateTabs'
 
 export const metadata: Metadata = {
   title: '참여하기 | 자유와혁신',
@@ -53,7 +54,8 @@ const participationWays = [
 export default function ParticipatePage() {
   return (
     <div>
-
+      <ParticipateTabs active="participate" />
+      
       <main className="bg-white">
         {/* 참여 방법 */}
         <section className="py-16">
@@ -106,20 +108,6 @@ export default function ParticipatePage() {
                 온라인 당원가입
               </a>
             </div>
-          </div>
-        </section>
-
-        {/* FAQ 링크 */}
-        <section className="py-12 bg-white">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p className="text-gray-600 mb-4">가입에 관해 궁금한 점이 있으신가요?</p>
-            <Link 
-              href="/participate/faq"
-              className="inline-flex items-center gap-2 text-primary font-semibold hover:underline"
-            >
-              <i className="fas fa-question-circle"></i>
-              자주 묻는 질문 보기
-            </Link>
           </div>
         </section>
       </main>
