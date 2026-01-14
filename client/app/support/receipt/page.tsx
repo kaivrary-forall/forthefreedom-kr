@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import SupportTabs from '@/components/support/SupportTabs'
 
 export const metadata: Metadata = {
   title: '영수증 신청 | 자유와혁신',
@@ -9,18 +10,9 @@ export const metadata: Metadata = {
 export default function SupportReceiptPage() {
   return (
     <div>
-      {/* 히어로 */}
-      <section 
-        className="relative h-[40vh] flex items-center justify-center bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/flag-pic.jpg')" }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/20"></div>
-        <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">영수증 신청</h1>
-        </div>
-      </section>
+      <SupportTabs active="receipt" />
 
-      <main className="relative z-10 bg-white">
+      <main className="bg-white">
         <section className="py-16">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -98,23 +90,6 @@ export default function SupportReceiptPage() {
                   </p>
                 </div>
               </div>
-            </div>
-
-            {/* 네비게이션 */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8 border-t">
-              <Link 
-                href="/support"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-              >
-                <i className="fas fa-arrow-left"></i>
-                후원 안내로 돌아가기
-              </Link>
-              <Link 
-                href="/support/guide"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 border-2 border-primary text-primary rounded-lg font-semibold hover:bg-primary hover:text-white transition-colors"
-              >
-                후원 방법 안내
-              </Link>
             </div>
           </div>
         </section>
