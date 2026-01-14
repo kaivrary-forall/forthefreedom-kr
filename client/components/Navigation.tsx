@@ -50,7 +50,7 @@ export default function Navigation() {
     supportGuide: 'Guide', receipt: 'Receipt',
   } : {
     // 메인
-    about: '소개', organization: '조직', news: '소식', agora: '아고라',
+    about: '소개', centralParty: '중앙당', localChaptersMenu: '시도당·당협', news: '소식', agora: '아고라',
     fain: 'FAIN', members: '당원', support: '후원', reportCenter: '제보센터',
     joinParty: '당원가입',
     // 소개
