@@ -31,13 +31,18 @@ export default function PersonnelPage() {
     loadData()
   }, [])
 
-  const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return ''
+    const date = new Date(dateStr)
+    if (isNaN(date.getTime())) return ''
+    return date.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
+  }
 
   return (
     <div>
       <NewsTabs active="personnel" />
       <main className="bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {isLoading ? (
             <div className="flex justify-center py-16">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -59,7 +64,9 @@ export default function PersonnelPage() {
                     }`}>
                       {item.type}
                     </span>
-                    <span className="text-gray-500 text-sm">{formatDate(item.effectiveDate)}</span>
+                    <span className="text-gray-500 text-sm">
+                      {formatDate(item.effectiveDate) || formatDate(item.createdAt)}
+                    </span>
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
                   <p className="text-gray-600 whitespace-pre-wrap">{item.content}</p>
