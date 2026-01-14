@@ -50,31 +50,7 @@ export default function AboutTabs() {
         {activeTab === 'identity' && <IdentityContent />}
         {activeTab === 'values' && <ValuesContent />}
         {activeTab === 'vision' && <VisionContent />}
-
-        {/* CTA 섹션 (공통) */}
-        <section className="py-20 bg-primary text-white">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-4xl font-bold mb-6">자유민주주의 체제 수호에 동참하세요</h2>
-            <p className="text-xl text-red-100 mb-8 leading-relaxed">
-              반국가세력에 맞서 자유와혁신을 지지하는 모든 분들과 함께 자유민주주의 체제를 지키기 위해 노력하겠습니다.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a 
-                href="https://www.ihappynanum.com/Nanum/api/screen/F7FCRIO2E3"
-                target="_blank" rel="noopener noreferrer"
-                className="bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-              >
-                당원가입
-              </a>
-              <Link 
-                href="/about/policy"
-                className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary transition-colors"
-              >
-                정강정책 보기
-              </Link>
-            </div>
-          </div>
-        </section>
+        
       </main>
     </div>
   )
