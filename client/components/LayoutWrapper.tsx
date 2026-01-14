@@ -1,5 +1,4 @@
 'use client'
-
 import { usePathname } from 'next/navigation'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
@@ -8,7 +7,6 @@ import SideBannerRight from '@/components/SideBannerRight'
 import TopNoticeBar from '@/components/TopNoticeBar'
 import EntryPopup from '@/components/EntryPopup'
 import LoginModal from '@/components/auth/LoginModal'
-import Breadcrumb from '@/components/Breadcrumb'
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -24,9 +22,6 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     <>
       <TopNoticeBar />
       <Navigation />
-      <div style={{ paddingTop: 'calc(64px + var(--top-notice-h, 0px))' }}>
-        <Breadcrumb />
-      </div>
       <SideBannerLeft />
       <SideBannerRight />
       <main 
