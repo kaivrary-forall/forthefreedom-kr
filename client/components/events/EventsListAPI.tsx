@@ -1,5 +1,4 @@
 'use client'
-
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
@@ -73,27 +72,28 @@ export default function EventsListAPI() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-xl h-28 animate-pulse" />
-        ))}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-xl h-28 animate-pulse" />
+          ))}
+        </div>
       </div>
     )
   }
 
   if (events.length === 0) {
     return (
-      <div className="text-center py-16 text-gray-500">
-        <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-          <span className="text-2xl">📅</span>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="text-center py-16 text-gray-500">
+          <p className="text-lg">등록된 행사가 없습니다.</p>
         </div>
-        <p className="text-lg">등록된 행사가 없습니다.</p>
       </div>
     )
   }
 
   return (
-    <div>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="space-y-4">
         {events.map((event) => {
           const status = getEventStatus(event.eventDate, event.endDate)
@@ -102,36 +102,34 @@ export default function EventsListAPI() {
             <Link 
               key={event._id} 
               href={`/news/events/${event._id}`}
-              className="block bg-white border rounded-xl p-6 hover:shadow-lg hover:border-primary/30 transition-all"
+              className="block bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg hover:border-primary/30 transition-all"
             >
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex-1">
+              <div className="flex gap-6">
+                <div className="hidden sm:flex w-40 h-28 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 items-center justify-center flex-shrink-0">
+                  <span className="text-3xl">📅</span>
+                </div>
+                
+                <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className={`text-xs px-2 py-1 rounded ${status.color}`}>
+                    <span className={`px-2 py-0.5 text-xs font-medium rounded ${status.color}`}>
                       {status.label}
                     </span>
                     {event.category && (
-                      <span className="bg-primary/10 text-primary text-xs px-2 py-1 rounded">
+                      <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded">
                         {event.category}
                       </span>
                     )}
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">{event.title}</h3>
-                  {event.excerpt && (
-                    <p className="text-sm text-gray-600 line-clamp-1">{event.excerpt}</p>
-                  )}
-                </div>
-                <div className="flex flex-col gap-2 text-sm text-gray-600 md:text-right">
-                  <span className="flex items-center gap-2 md:justify-end">
-                    <span className="text-primary">📅</span>
-                    {formatDate(event.eventDate)}
-                  </span>
-                  {event.eventLocation && (
-                    <span className="flex items-center gap-2 md:justify-end">
-                      <span className="text-primary">📍</span>
-                      {event.eventLocation}
-                    </span>
-                  )}
+                  <h2 className="text-lg font-bold text-gray-900 mb-2 line-clamp-1 hover:text-primary transition-colors">
+                    {event.title}
+                  </h2>
+                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                    {event.excerpt || event.content?.slice(0, 150)}
+                  </p>
+                  <div className="flex items-center gap-4 text-xs text-gray-400">
+                    <span>{formatDate(event.eventDate)}</span>
+                    {event.eventLocation && <span>📍 {event.eventLocation}</span>}
+                  </div>
                 </div>
               </div>
             </Link>
@@ -141,7 +139,7 @@ export default function EventsListAPI() {
 
       {/* 페이지네이션 */}
       {pagination && pagination.pages > 1 && (
-        <div className="flex justify-center items-center gap-4 mt-8">
+        <div className="flex justify-center items-center gap-4 mt-12">
           <button
             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
             disabled={currentPage === 1}
