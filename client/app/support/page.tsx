@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import SupportNoticeModal from '@/components/SupportNoticeModal'
+import SupportTabs from '@/components/support/SupportTabs'
 
 export const metadata: Metadata = {
   title: '후원 안내 | 자유와혁신',
@@ -17,22 +18,10 @@ export const metadata: Metadata = {
 export default function SupportPage() {
   return (
     <div>
-      {/* 후원 안내 팝업 */}
       <SupportNoticeModal />
+      <SupportTabs active="guide" />
       
-      {/* 히어로 */}
-      <section 
-        className="relative h-[50vh] flex items-center justify-center bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/flag-pic.jpg')" }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/20"></div>
-        <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">후원 안내</h1>
-          <p className="text-xl text-gray-200 drop-shadow">자유민주주의 수호를 위한 여러분의 참여</p>
-        </div>
-      </section>
-
-      <main className="relative z-10 bg-white">
+      <main className="bg-white">
         {/* 공식 후원 계좌 */}
         <section className="py-16 bg-white">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -119,28 +108,6 @@ export default function SupportPage() {
                   중앙당후원회 기부 한도는 연간 500만원입니다. (정치자금법 제11조, 1인당 연간 총 후원 한도 2,000만원)
                 </p>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* 관련 링크 */}
-        <section className="py-12 bg-white">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link 
-                href="/support/guide"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 border-2 border-primary text-primary rounded-lg font-semibold hover:bg-primary hover:text-white transition-colors"
-              >
-                <i className="fas fa-book"></i>
-                후원 방법 안내
-              </Link>
-              <Link 
-                href="/support/receipt"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 border-2 border-primary text-primary rounded-lg font-semibold hover:bg-primary hover:text-white transition-colors"
-              >
-                <i className="fas fa-file-alt"></i>
-                영수증 신청
-              </Link>
             </div>
           </div>
         </section>
