@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import ParticipateTabs from '@/components/participate/ParticipateTabs'
 
 export const metadata: Metadata = {
-  title: '자주 묻는 질문 | 자유와혁신',
+  title: '당원가입 Q&A | 자유와혁신',
   description: '자유와혁신 당원가입, 후원, 활동에 관한 자주 묻는 질문과 답변',
 }
 
@@ -36,18 +37,9 @@ const faqs = [
 export default function FAQPage() {
   return (
     <div>
-      {/* 히어로 */}
-      <section 
-        className="relative h-[40vh] flex items-center justify-center bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/night-pic.jpg')" }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/20"></div>
-        <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">자주 묻는 질문</h1>
-        </div>
-      </section>
-
-      <main className="relative z-10 bg-white">
+      <ParticipateTabs active="faq" />
+      
+      <main className="bg-white">
         <section className="py-16">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="space-y-6">
@@ -89,17 +81,6 @@ export default function FAQPage() {
                   이메일 문의
                 </a>
               </div>
-            </div>
-
-            {/* 네비게이션 */}
-            <div className="mt-8 text-center">
-              <Link 
-                href="/participate"
-                className="inline-flex items-center gap-2 text-primary font-semibold hover:underline"
-              >
-                <i className="fas fa-arrow-left"></i>
-                참여하기로 돌아가기
-              </Link>
             </div>
           </div>
         </section>
