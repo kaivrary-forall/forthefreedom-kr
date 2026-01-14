@@ -126,7 +126,7 @@ function Breadcrumb({ pathname, isEnPage }: { pathname: string; isEnPage: boolea
 
   return (
     <div className="bg-gray-100 border-b border-gray-200">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
         <nav className="flex items-center text-sm text-gray-500">
           <Link href={isEnPage ? '/en' : '/'} className="hover:text-gray-700">
             {isEnPage ? 'Home' : '홈'}
