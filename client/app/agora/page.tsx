@@ -44,10 +44,10 @@ export default function AgoraPage() {
       <main className="bg-white">
         <div className="max-w-5xl mx-auto px-4 py-8">
           {/* 선택된 게시판 설명 */}
-          <div className="mb-6 text-center">
-            <p className="text-sm text-gray-500">
+          <div className="mb-6 flex items-center">
+            <span className="text-sm text-gray-400 border-l-2 border-primary pl-3">
               {boardTabs.find(t => t.key === activeBoard)?.description}
-            </p>
+            </span>
           </div>
           
           <AgoraListAPI boardType={activeBoard} />
