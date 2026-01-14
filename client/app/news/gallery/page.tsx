@@ -14,13 +14,12 @@ export const metadata: Metadata = {
 
 export default function GalleryPage() {
   return (
-    <div className="pt-16">
+    <div>
       <NewsTabs active="gallery" />
       <main className="bg-white">
         <NewsListAPI 
-          category="gallery" 
-          title="" 
-          basePath="/news/gallery" 
+          category="gallery"
+          title="갤러리"
         />
       </main>
     </div>

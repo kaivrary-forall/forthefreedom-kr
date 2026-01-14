@@ -14,14 +14,10 @@ export const metadata: Metadata = {
 
 export default function EventsPage() {
   return (
-    <div className="pt-16">
+    <div>
       <NewsTabs active="events" />
       <main className="bg-white">
-        <section className="py-12">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <EventsListAPI />
-          </div>
-        </section>
+        <EventsListAPI />
       </main>
     </div>
   )

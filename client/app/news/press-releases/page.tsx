@@ -14,13 +14,12 @@ export const metadata: Metadata = {
 
 export default function PressReleasesPage() {
   return (
-    <div className="pt-16">
+    <div>
       <NewsTabs active="press-releases" />
       <main className="bg-white">
         <NewsListAPI 
-          category="spokesperson" 
-          title="" 
-          basePath="/news/press-releases" 
+          category="spokesperson"
+          title="성명"
         />
       </main>
     </div>

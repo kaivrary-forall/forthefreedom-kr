@@ -10,20 +10,8 @@ export const metadata: Metadata = {
 export default function NoticeDetailPage() {
   return (
     <div>
-      {/* 히어로 */}
-      <section 
-        className="relative h-[30vh] flex items-center justify-center bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/night-pic.jpg')" }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/20"></div>
-        <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2 drop-shadow-lg">공지사항</h1>
-        </div>
-      </section>
-
-      <main className="relative z-10 bg-white">
-        <NewsTabs active="notices" />
-        
+      <NewsTabs active="notices" />
+      <main className="bg-white">
         <NewsDetailAPI 
           category="notices"
           title="공지사항"

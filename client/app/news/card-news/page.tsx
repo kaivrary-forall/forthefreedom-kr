@@ -14,13 +14,12 @@ export const metadata: Metadata = {
 
 export default function CardNewsPage() {
   return (
-    <div className="pt-16">
+    <div>
       <NewsTabs active="card-news" />
       <main className="bg-white">
         <NewsListAPI 
-          category="card-news" 
-          title="" 
-          basePath="/news/card-news" 
+          category="card-news"
+          title="카드뉴스"
         />
       </main>
     </div>
