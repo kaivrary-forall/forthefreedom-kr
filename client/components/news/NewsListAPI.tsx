@@ -1,5 +1,4 @@
 'use client'
-
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
@@ -36,7 +35,7 @@ interface Pagination {
 interface NewsListAPIProps {
   category: string
   title: string
-  basePath: string // 예: /news/notices
+  basePath?: string
 }
 
 // 카테고리별 API 경로 매핑
@@ -52,22 +51,28 @@ const API_MAP: Record<string, string> = {
   'new-media': '/api/new-media',
 }
 
+// 카테고리별 basePath 매핑
+const BASE_PATH_MAP: Record<string, string> = {
+  'notices': '/news/notices',
+  'activities': '/news/activities',
+  'media-coverage': '/news/media',
+  'card-news': '/news/card-news',
+  'gallery': '/news/gallery',
+  'events': '/news/events',
+  'spokesperson': '/news/press-releases',
+  'policy-committee': '/news/policy-committee',
+  'new-media': '/news/new-media',
+}
+
 // 아이템에서 이미지 URL 추출
 function getImageUrl(item: NewsItem): string | null {
-  // 1. imageUrl이 있으면 사용
   if (item.imageUrl) return item.imageUrl
-  
-  // 2. thumbnailUrl이 있으면 사용
   if (item.thumbnailUrl) return item.thumbnailUrl
   
-  // 3. attachments에서 첫 번째 이미지 URL 추출
   if (item.attachments && item.attachments.length > 0) {
     const att = item.attachments[0]
-    // url 필드가 있으면 우선 사용
     if (att.url) return att.url
-    // path가 http로 시작하면 그대로 사용 (Cloudinary URL)
     if (att.path && att.path.startsWith('http')) return att.path
-    // 로컬 경로면 null (깨진 이미지)
     if (att.path && att.path.startsWith('/uploads')) return null
   }
   
@@ -79,6 +84,8 @@ export default function NewsListAPI({ category, title, basePath }: NewsListAPIPr
   const [pagination, setPagination] = useState<Pagination | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
+
+  const actualBasePath = basePath || BASE_PATH_MAP[category] || `/news/${category}`
 
   useEffect(() => {
     async function loadNews() {
@@ -98,7 +105,6 @@ export default function NewsListAPI({ category, title, basePath }: NewsListAPIPr
         setIsLoading(false)
       }
     }
-
     loadNews()
   }, [category, currentPage])
 
@@ -113,8 +119,7 @@ export default function NewsListAPI({ category, title, basePath }: NewsListAPIPr
 
   if (isLoading) {
     return (
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">{title}</h1>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-4">
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-xl h-32 animate-pulse" />
@@ -126,8 +131,7 @@ export default function NewsListAPI({ category, title, basePath }: NewsListAPIPr
 
   if (news.length === 0) {
     return (
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">{title}</h1>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center py-16 text-gray-500">
           <p className="text-lg">등록된 게시물이 없습니다.</p>
         </div>
@@ -136,9 +140,7 @@ export default function NewsListAPI({ category, title, basePath }: NewsListAPIPr
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">{title}</h1>
-      
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* 뉴스 목록 */}
       <div className="space-y-4">
         {news.map((item) => {
@@ -147,7 +149,7 @@ export default function NewsListAPI({ category, title, basePath }: NewsListAPIPr
           return (
             <Link
               key={item._id}
-              href={`${basePath}/${item._id}`}
+              href={`${actualBasePath}/${item._id}`}
               className="block bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg hover:border-primary/30 transition-all"
             >
               <div className="flex gap-6">
