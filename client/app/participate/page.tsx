@@ -53,19 +53,8 @@ const participationWays = [
 export default function ParticipatePage() {
   return (
     <div>
-      {/* 히어로 */}
-      <section 
-        className="relative h-[50vh] flex items-center justify-center bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/flag-pic.jpg')" }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/20"></div>
-        <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">참여하기</h1>
-          <p className="text-xl text-gray-200 drop-shadow">자유와혁신과 함께하는 다양한 방법</p>
-        </div>
-      </section>
 
-      <main className="relative z-10 bg-white">
+      <main className="bg-white">
         {/* 참여 방법 */}
         <section className="py-16">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
