@@ -1,5 +1,4 @@
 'use client'
-
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -14,6 +13,47 @@ interface FooterData {
   socials: { type: string; url: string; enabled: boolean; order: number }[]
   quickLinks: { label: string; href: string; enabled: boolean; order: number }[]
   bottomLinks: { label: string; href: string; enabled: boolean; order: number }[]
+}
+
+// 경로명 한글 매핑
+const pathNameMap: { [key: string]: string } = {
+  '': '홈',
+  'about': '소개',
+  'policy': '정책',
+  'principles': '강령·당헌·당규',
+  'founding': '창당 스토리',
+  'logo': '로고',
+  'location': '찾아오시는길',
+  'organization': '조직도',
+  'news': '소식',
+  'notices': '공지',
+  'events': '주요일정',
+  'activities': '활동소식',
+  'media': '언론보도',
+  'press-releases': '성명',
+  'card-news': '카드뉴스',
+  'gallery': '갤러리',
+  'personnel': '인사공고',
+  'committees': '직능위원회',
+  'spokesperson': '대변인실',
+  'research': '자유연구원',
+  'justice-guard': '정의수호단',
+  'local-chapters': '시도당·당협',
+  'agora': '아고라',
+  'fain': 'FAIN',
+  'participate': '당원',
+  'join': '당원가입',
+  'faq': 'FAQ',
+  'volunteer': '자유행동',
+  'support': '후원',
+  'receipt': '후원영수증',
+  'report-center': '제보센터',
+  'privacy': '개인정보처리방침',
+  'terms': '이용약관',
+  'disclosure': '정보공개',
+  'mypage': '마이페이지',
+  'admin': '관리자',
+  'en': 'English',
 }
 
 // 소셜 아이콘 컴포넌트
@@ -63,6 +103,54 @@ const defaultData: FooterData = {
   ]
 }
 
+// 브레드크럼 컴포넌트
+function Breadcrumb({ pathname, isEnPage }: { pathname: string; isEnPage: boolean }) {
+  // 홈페이지면 브레드크럼 숨김
+  if (pathname === '/' || pathname === '/en') return null
+  
+  // 관리자 페이지면 브레드크럼 숨김
+  if (pathname?.startsWith('/admin')) return null
+
+  const pathSegments = pathname?.split('/').filter(Boolean) || []
+  
+  // 영어 페이지면 'en' 제거
+  const segments = isEnPage ? pathSegments.slice(1) : pathSegments
+
+  if (segments.length === 0) return null
+
+  const breadcrumbs = segments.map((segment, index) => {
+    const path = '/' + (isEnPage ? 'en/' : '') + segments.slice(0, index + 1).join('/')
+    const name = pathNameMap[segment] || segment
+    return { name, path }
+  })
+
+  return (
+    <div className="bg-gray-100 border-b border-gray-200">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        <nav className="flex items-center text-sm text-gray-500">
+          <Link href={isEnPage ? '/en' : '/'} className="hover:text-gray-700">
+            {isEnPage ? 'Home' : '홈'}
+          </Link>
+          {breadcrumbs.map((crumb, index) => (
+            <span key={crumb.path} className="flex items-center">
+              <svg className="w-4 h-4 mx-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+              {index === breadcrumbs.length - 1 ? (
+                <span className="text-gray-900 font-medium">{crumb.name}</span>
+              ) : (
+                <Link href={crumb.path} className="hover:text-gray-700">
+                  {crumb.name}
+                </Link>
+              )}
+            </span>
+          ))}
+        </nav>
+      </div>
+    </div>
+  )
+}
+
 export default function Footer() {
   const pathname = usePathname()
   const isEnPage = pathname?.startsWith('/en')
@@ -90,98 +178,103 @@ export default function Footer() {
   const isExternalLink = (href: string) => href.startsWith('http')
 
   return (
-    <footer className="bg-gray-900 text-gray-300">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid md:grid-cols-3 gap-8">
-          {/* 로고 및 소개 */}
-          <div>
-            <h3 className="text-xl font-bold text-white mb-4">
-              {isEnPage ? 'Freedom & Innovation' : '자유와혁신'}
-            </h3>
-            <p className="text-sm text-gray-400 mb-4">
-              {footerData.slogan}
-            </p>
-            <div className="flex gap-4">
-              {footerData.socials.map((social, index) => (
-                <a 
-                  key={index}
-                  href={social.url} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="text-gray-400 hover:text-white" 
-                  aria-label={social.type}
-                >
-                  <SocialIcon type={social.type} />
-                </a>
-              ))}
+    <>
+      {/* 브레드크럼 */}
+      <Breadcrumb pathname={pathname || ''} isEnPage={isEnPage || false} />
+      
+      <footer className="bg-gray-900 text-gray-300">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* 로고 및 소개 */}
+            <div>
+              <h3 className="text-xl font-bold text-white mb-4">
+                {isEnPage ? 'Freedom & Innovation' : '자유와혁신'}
+              </h3>
+              <p className="text-sm text-gray-400 mb-4">
+                {footerData.slogan}
+              </p>
+              <div className="flex gap-4">
+                {footerData.socials.map((social, index) => (
+                  <a 
+                    key={index}
+                    href={social.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-gray-400 hover:text-white" 
+                    aria-label={social.type}
+                  >
+                    <SocialIcon type={social.type} />
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* 연락처 */}
+            <div>
+              <h4 className="text-white font-semibold mb-4">{isEnPage ? 'Contact' : '연락처'}</h4>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-start gap-2">
+                  <svg className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                  <div>
+                    <span>{footerData.address}</span>
+                    <div className="text-xs text-gray-500 mt-0.5">
+                      {footerData.addressSub}
+                    </div>
+                  </div>
+                </li>
+                <li className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+                  <span>{footerData.phones.join(' / ')}</span>
+                </li>
+                {footerData.fax && (
+                  <li className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
+                    <span>FAX: {footerData.fax}</span>
+                  </li>
+                )}
+                {footerData.emails.map((email, index) => (
+                  <li key={index} className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                    <a href={`mailto:${email.email}`} className="hover:text-white">{email.email}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* 빠른 링크 */}
+            <div>
+              <h4 className="text-white font-semibold mb-4">{isEnPage ? 'Quick Links' : '빠른 링크'}</h4>
+              <ul className="space-y-2 text-sm">
+                {footerData.quickLinks.map((link, index) => (
+                  <li key={index}>
+                    {isExternalLink(link.href) ? (
+                      <a href={link.href} target="_blank" rel="noopener noreferrer" className="hover:text-white">
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link href={link.href} className="hover:text-white">
+                        {link.label}
+                      </Link>
+                    )}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
 
-          {/* 연락처 */}
-          <div>
-            <h4 className="text-white font-semibold mb-4">{isEnPage ? 'Contact' : '연락처'}</h4>
-            <ul className="space-y-2 text-sm">
-              <li className="flex items-start gap-2">
-                <svg className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                <div>
-                  <span>{footerData.address}</span>
-                  <div className="text-xs text-gray-500 mt-0.5">
-                    {footerData.addressSub}
-                  </div>
-                </div>
-              </li>
-              <li className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-                <span>{footerData.phones.join(' / ')}</span>
-              </li>
-              {footerData.fax && (
-                <li className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
-                  <span>FAX: {footerData.fax}</span>
-                </li>
-              )}
-              {footerData.emails.map((email, index) => (
-                <li key={index} className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-                  <a href={`mailto:${email.email}`} className="hover:text-white">{email.email}</a>
-                </li>
+          {/* 하단 저작권 및 링크 */}
+          <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+            <p>© 2025 {isEnPage ? 'Freedom & Innovation. All rights reserved.' : '자유와혁신. 모든 권리 보유.'}</p>
+            <div className="flex gap-6">
+              {footerData.bottomLinks.map((link, index) => (
+                <Link key={index} href={link.href} className="hover:text-white">
+                  {link.label}
+                </Link>
               ))}
-            </ul>
-          </div>
-
-          {/* 빠른 링크 */}
-          <div>
-            <h4 className="text-white font-semibold mb-4">{isEnPage ? 'Quick Links' : '빠른 링크'}</h4>
-            <ul className="space-y-2 text-sm">
-              {footerData.quickLinks.map((link, index) => (
-                <li key={index}>
-                  {isExternalLink(link.href) ? (
-                    <a href={link.href} target="_blank" rel="noopener noreferrer" className="hover:text-white">
-                      {link.label}
-                    </a>
-                  ) : (
-                    <Link href={link.href} className="hover:text-white">
-                      {link.label}
-                    </Link>
-                  )}
-                </li>
-              ))}
-            </ul>
+            </div>
           </div>
         </div>
-
-        {/* 하단 저작권 및 링크 */}
-        <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-500">
-          <p>© 2025 {isEnPage ? 'Freedom & Innovation. All rights reserved.' : '자유와혁신. 모든 권리 보유.'}</p>
-          <div className="flex gap-6">
-            {footerData.bottomLinks.map((link, index) => (
-              <Link key={index} href={link.href} className="hover:text-white">
-                {link.label}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
-    </footer>
+      </footer>
+    </>
   )
 }
