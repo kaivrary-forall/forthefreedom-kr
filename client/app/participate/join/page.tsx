@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import ParticipateTabs from '@/components/participate/ParticipateTabs'
 
 export const metadata: Metadata = {
   title: '당원가입 안내 | 자유와혁신',
@@ -14,19 +15,9 @@ export const metadata: Metadata = {
 export default function JoinPage() {
   return (
     <div>
-      {/* 히어로 */}
-      <section 
-        className="relative h-[50vh] flex items-center justify-center bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/flag-pic.jpg')" }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/20"></div>
-        <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">당원가입 안내</h1>
-          <p className="text-xl text-gray-200 drop-shadow">자유와혁신의 당원이 되어주세요</p>
-        </div>
-      </section>
-
-      <main className="relative z-10 bg-white">
+      <ParticipateTabs active="join" />
+      
+      <main className="bg-white">
         {/* 온라인 가입 */}
         <section className="py-16 bg-white">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -142,27 +133,6 @@ export default function JoinPage() {
                   <a href="tel:02-2634-2023" className="text-primary ml-2">02-2634-2023</a>
                 </p>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* 네비게이션 */}
-        <section className="py-8 bg-gray-50">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link 
-                href="/participate"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-              >
-                <i className="fas fa-arrow-left"></i>
-                참여하기로 돌아가기
-              </Link>
-              <Link 
-                href="/participate/faq"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 border-2 border-primary text-primary rounded-lg font-semibold hover:bg-primary hover:text-white transition-colors"
-              >
-                자주 묻는 질문
-              </Link>
             </div>
           </div>
         </section>
