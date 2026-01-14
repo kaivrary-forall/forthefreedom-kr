@@ -18,7 +18,7 @@ export default function AboutTabs() {
   ]
 
   return (
-    <div style={{ paddingTop: 'calc(64px + var(--top-notice-h, 0px))' }}>
+    <div>
       {/* 탭 네비게이션 */}
       <div 
         className="sticky z-30 bg-white border-b border-gray-200"
