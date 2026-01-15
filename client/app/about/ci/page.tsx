@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
+import AboutTabs from '@/components/about/AboutTabs'
 
 export const metadata: Metadata = {
   title: 'CI | 자유와혁신',
@@ -14,6 +15,8 @@ export const metadata: Metadata = {
 export default function CIPage() {
   return (
     <div>
+      <AboutTabs active="ci" />
+      
       <main className="relative z-10 bg-white">
         {/* 로고 소개 */}
         <section className="py-16 bg-white">
