@@ -324,7 +324,7 @@ export default function AgoraListAPI({ boardType = 'member' }: AgoraListAPIProps
                             />
                           )}
                           <span className="text-sm text-gray-600">
-                            {post.author.nickname}
+                            @{post.author.nickname}
                           </span>
                         </div>
                       </MentionDropdown>
