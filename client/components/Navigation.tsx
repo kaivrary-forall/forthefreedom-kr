@@ -54,7 +54,7 @@ export default function Navigation() {
     joinParty: '당원가입',
     // 소개
     message: '당대표 인사', foundingStory: '창당 스토리',
-    platformCharterRules: '강령, 당헌, 당규, 정강', ci: 'CI', location: '찾아오시는길',
+    platformCharterRules: '강령, 당헌, 당규, 정강', ci: 'CI', location: '오시는 길',
     // 조직
     orgChart: '조직도', supremeCouncil: '최고위원회', spokesperson: '대변인실',
     research: '자유연구원', justiceGuard: '정의수호단', committees: '직능위원회',
