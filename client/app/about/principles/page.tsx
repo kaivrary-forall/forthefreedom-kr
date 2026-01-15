@@ -6,11 +6,11 @@ import { policyData } from '@/data/policy.ko'
 
 type TabType = 'platform' | 'charter' | 'rules' | 'policy'
 
-const tabs: { id: TabType; name: string; icon: string }[] = [
-  { id: 'platform', name: '강령', icon: 'fa-flag' },
-  { id: 'charter', name: '당헌', icon: 'fa-book' },
-  { id: 'rules', name: '당규', icon: 'fa-gavel' },
-  { id: 'policy', name: '정강', icon: 'fa-scroll' }
+const tabs: { id: TabType; name: string }[] = [
+  { id: 'platform', name: '강령' },
+  { id: 'charter', name: '당헌' },
+  { id: 'rules', name: '당규' },
+  { id: 'policy', name: '정강' }
 ]
 
 // 7대 선언
@@ -50,7 +50,7 @@ export default function PrinciplesPage() {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                <i className={`fas ${tab.icon} mr-2`}></i>{tab.name}
+                {tab.name}
               </button>
             ))}
           </nav>
