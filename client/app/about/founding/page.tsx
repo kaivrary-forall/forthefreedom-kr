@@ -1,180 +1,83 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: '창당 스토리 | 자유와혁신',
-  description: '자유와혁신 창당 스토리. 대한민국의 자유민주주의를 수호하고 부정선거를 척결하기 위해 국민과 함께 걸어온 창당 여정.',
+  description: '자유와혁신 창당 스토리. 자유민주주의 체제 수호를 위해 탄생한 국민의 정당.',
   openGraph: {
     title: '창당 스토리 | 자유와혁신',
     description: '자유와혁신 창당 스토리',
     url: 'https://forthefreedom.kr/about/founding',
-    images: ['/images/night-pic.jpg'],
   },
 }
-
-const timeline = [
-  {
-    date: '2025년 6월 1일',
-    title: '광화문 창당 선포',
-    description: '광화문 이순신 장군 동상 앞에서 황교안 대통령 후보는 대통령 후보직을 내려놓고, 부정선거 척결과 주권 회복, 체제 수호를 위한 정당 창당을 국민 앞에 선포하였습니다.',
-    color: 'bg-primary'
-  },
-  {
-    date: '2025년 6월 6일',
-    title: '중앙당 발기인대회',
-    description: '현충일, 광화문에서 중앙당 발기인대회를 개최하고 창당 선언문을 발표했습니다. 건국정신을 계승하는 새로운 자유우파 정당의 출범을 알리는 역사적인 날이었습니다.',
-    color: 'bg-primary-dark'
-  },
-  {
-    date: '2025년 6월',
-    title: '전국 시도당 발기인대회',
-    description: '서울, 부산, 대구, 인천, 광주, 대전, 울산, 경기, 강원, 충북, 충남, 전북, 전남, 경북, 경남, 제주 등 전국 17개 시도에서 발기인대회를 개최했습니다.',
-    color: 'bg-red-700'
-  },
-  {
-    date: '2025년 7월 12일',
-    title: '중앙당 창당대회',
-    description: '킨텍스에서 중앙당 창당대회를 개최하고 황교안 대표가 초대 당대표로 선출되었습니다. 대한민국의 자유민주주의를 수호하고 혁신적인 미래를 만들어갈 정당이 공식 출범했습니다.',
-    color: 'bg-red-800'
-  }
-]
 
 export default function FoundingPage() {
   return (
     <div>
-      <main className="relative z-10 bg-white">
-        {/* 인트로 */}
-        <section className="py-20 bg-white">
+      <main className="bg-white">
+        <section className="py-16">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-gray-900 mb-6">자유와혁신 창당 스토리</h2>
-              <p className="text-xl text-gray-600 max-w-6xl mx-auto leading-relaxed">
-                대한민국의 자유민주주의를 수호하고 부정선거를 척결하기 위해 국민과 함께 걸어온 우리의 창당 여정을 소개합니다.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* 타임라인 */}
-        <section className="py-12 bg-gray-50">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="relative">
-              {/* 중앙 라인 */}
-              <div className="absolute left-6 md:left-1/2 md:-translate-x-1/2 w-1 bg-primary h-full"></div>
-              
-              <div className="space-y-12">
-                {timeline.map((item, idx) => (
-                  <div key={idx} className="flex items-start">
-                    {/* 원 */}
-                    <div className="flex-shrink-0 mr-6 md:hidden">
-                      <div className={`w-6 h-6 ${item.color} rounded-full border-4 border-white shadow-lg z-10`}></div>
-                    </div>
-                    
-                    {/* 카드 */}
-                    <div className="flex-1 md:w-1/2 md:ml-auto md:pl-8">
-                      <div className={`bg-white p-6 md:p-8 rounded-lg shadow-lg border-l-4 ${item.color.replace('bg-', 'border-')}`}>
-                        <div className="flex items-center mb-3">
-                          <div className={`w-3 h-3 ${item.color} rounded-full mr-3`}></div>
-                          <span className="text-primary font-bold">{item.date}</span>
-                        </div>
-                        <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-3">{item.title}</h3>
-                        <p className="text-gray-700 leading-relaxed">{item.description}</p>
-                      </div>
-                    </div>
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div>
+                <h1 className="text-4xl font-bold text-gray-900 mb-6">창당 스토리</h1>
+                <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+                  대한민국은 현재 미완성된 국정감시와 반국가세력의 준동, 선거 조작 의혹 등으로 위기에 처해 있습니다.
+                </p>
+                <div className="space-y-4 mb-8">
+                  <div className="flex items-start">
+                    <i className="fas fa-exclamation-triangle text-primary mr-3 mt-1"></i>
+                    <span className="text-gray-700">2020년 4.15 총선 이후 거듭된 각종 조작 의혹</span>
                   </div>
-                ))}
+                  <div className="flex items-start">
+                    <i className="fas fa-exclamation-triangle text-primary mr-3 mt-1"></i>
+                    <span className="text-gray-700">좌파 세력과 결탁한 반국가세력의 선거 조작 시도</span>
+                  </div>
+                  <div className="flex items-start">
+                    <i className="fas fa-exclamation-triangle text-primary mr-3 mt-1"></i>
+                    <span className="text-gray-700">자유민주주의 체제의 심각한 위기</span>
+                  </div>
+                </div>
+                <p className="text-lg text-primary font-semibold">
+                  분노한 애국 세력이 이 거악과 체제 전쟁을 막기 위해 자유와혁신을 창당했습니다.
+                </p>
+              </div>
+              <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-2xl p-8 text-center">
+                <div className="w-24 h-24 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+                  <i className="fas fa-flag text-white text-4xl"></i>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">2024년 창당</h3>
+                <p className="text-gray-600">
+                  자유민주주의 체제를 수호하고<br />
+                  혁신적 미래를 선도하는<br />
+                  국민의 정당
+                </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* 마무리 메시지 */}
-        <section className="py-20 bg-white">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <div className="bg-red-50 border-l-8 border-primary p-10 rounded-lg">
-              <h3 className="text-3xl font-bold text-red-800 mb-6">새로운 출발</h3>
-              <p className="text-xl text-gray-700 leading-relaxed mb-6">
-                자유와혁신은 이제 국민의 뜻을 책임 있게 대변할 실천의 정당, 승리의 정당으로 당원 여러분과 함께 앞으로 나아가겠습니다.
-              </p>
-              <p className="text-lg text-primary font-semibold">
-                감사합니다.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* 창당 정신 */}
+        {/* 창당 이념 */}
         <section className="py-16 bg-gray-50">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h3 className="text-3xl font-bold text-gray-900 mb-4">창당 정신</h3>
-            </div>
-            
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="bg-white p-8 rounded-xl shadow-md">
-                <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mb-6">
-                  <i className="fas fa-flag text-white text-2xl"></i>
+            <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">창당 이념</h2>
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="bg-white p-8 rounded-2xl shadow-sm">
+                <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-6">
+                  <i className="fas fa-dove text-white text-2xl"></i>
                 </div>
-                <h4 className="text-xl font-bold text-gray-900 mb-3">자유민주주의 수호</h4>
-                <p className="text-gray-600">
-                  건국 대통령 이승만의 자유 정신을 계승하여 대한민국의 자유민주주의 체제를 수호합니다.
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">자유</h3>
+                <p className="text-gray-600 leading-relaxed">
+                  대한민국 건국 당시, 자유민주주의를 채택하여 세계 자유진영과 함께 한 이승만 대통령의 정신을 계승합니다.
                 </p>
               </div>
-              
-              <div className="bg-white p-8 rounded-xl shadow-md">
-                <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mb-6">
+              <div className="bg-white p-8 rounded-2xl shadow-sm">
+                <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mb-6">
                   <i className="fas fa-rocket text-white text-2xl"></i>
                 </div>
-                <h4 className="text-xl font-bold text-gray-900 mb-3">혁신과 도전</h4>
-                <p className="text-gray-600">
-                  박정희 대통령의 &quot;우리도 할 수 있다&quot; 정신을 이어받아 혁신적인 미래를 만들어갑니다.
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">혁신</h3>
+                <p className="text-gray-600 leading-relaxed">
+                  오늘날 대한민국이 부국강병 반열에 오를 수 있도록 산업화의 토대를 마련한 박정희 대통령의 정신을 계승합니다.
                 </p>
               </div>
-              
-              <div className="bg-white p-8 rounded-xl shadow-md">
-                <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mb-6">
-                  <i className="fas fa-vote-yea text-white text-2xl"></i>
-                </div>
-                <h4 className="text-xl font-bold text-gray-900 mb-3">부정선거 척결</h4>
-                <p className="text-gray-600">
-                  투명하고 공정한 선거 시스템을 구축하여 국민의 주권을 회복합니다.
-                </p>
-              </div>
-              
-              <div className="bg-white p-8 rounded-xl shadow-md">
-                <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mb-6">
-                  <i className="fas fa-users text-white text-2xl"></i>
-                </div>
-                <h4 className="text-xl font-bold text-gray-900 mb-3">청년과 함께</h4>
-                <p className="text-gray-600">
-                  2030 청년들과 자유시민들이 함께 만들어가는 새로운 정치를 실현합니다.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA */}
-        <section className="py-16 bg-primary">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl font-bold text-white mb-6">함께 역사를 만들어갑니다</h2>
-            <p className="text-xl text-red-100 mb-8">
-              자유와혁신과 함께 대한민국의 새로운 미래를 열어가세요
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a 
-                href="https://www.ihappynanum.com/Nanum/api/screen/F7FCRIO2E3"
-                target="_blank" rel="noopener noreferrer"
-                className="px-8 py-3 bg-white text-primary font-bold rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                당원가입
-              </a>
-              <Link 
-                href="/about"
-                className="px-8 py-3 border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-primary transition-colors"
-              >
-                당 소개 보기
-              </Link>
             </div>
           </div>
         </section>
