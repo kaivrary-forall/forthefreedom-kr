@@ -1,17 +1,14 @@
 'use client'
-
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-
 interface MenuItem {
   label: string
   href: string
   icon: React.ReactNode
   children?: { label: string; href: string }[]
 }
-
 const menuItems: MenuItem[] = [
   {
     label: '대시보드',
@@ -95,12 +92,10 @@ const menuItems: MenuItem[] = [
     ),
   },
 ]
-
 export default function AdminSidebar() {
   const pathname = usePathname()
   const { member, logout } = useAuth()
   const [openMenus, setOpenMenus] = useState<string[]>([])
-
   // 초기 로드 시 현재 경로에 해당하는 메뉴 열기
   useEffect(() => {
     menuItems.forEach(item => {
@@ -109,128 +104,126 @@ export default function AdminSidebar() {
       }
     })
   }, [pathname])
-
   const toggleMenu = (href: string) => {
     setOpenMenus(prev => 
       prev.includes(href) ? prev.filter(h => h !== href) : [...prev, href]
     )
   }
-
   const isMenuOpen = (href: string) => openMenus.includes(href)
-
   const isActive = (href: string) => {
     if (href === '/admin') return pathname === '/admin'
     return pathname === href || pathname?.startsWith(href + '/')
   }
-
   return (
-    <aside className="w-64 bg-gray-900 min-h-screen flex flex-col fixed left-0 top-0">
-      {/* 로고 */}
-      <div className="p-6 border-b border-gray-800">
-        <Link href="/admin" className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-lg">F</span>
-          </div>
-          <div>
-            <div className="text-white font-bold">자유와혁신</div>
-            <div className="text-gray-400 text-xs">관리자</div>
-          </div>
-        </Link>
-      </div>
-
-      {/* 메뉴 */}
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        {menuItems.map((item) => (
-          <div key={item.href}>
-            {item.children ? (
-              // 하위 메뉴가 있는 경우: 클릭하면 토글
-              <button
-                onClick={() => toggleMenu(item.href)}
-                className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  isMenuOpen(item.href) || item.children.some(c => isActive(c.href))
-                    ? 'bg-primary text-white'
-                    : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-                }`}
-              >
-                <div className="flex items-center gap-3">
+    <>
+      {/* fixed 사이드바를 위한 placeholder */}
+      <div className="w-64 flex-shrink-0" />
+      
+      <aside className="w-64 bg-gray-900 min-h-screen flex flex-col fixed left-0 top-0">
+        {/* 로고 */}
+        <div className="p-6 border-b border-gray-800">
+          <Link href="/admin" className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-lg">F</span>
+            </div>
+            <div>
+              <div className="text-white font-bold">자유와혁신</div>
+              <div className="text-gray-400 text-xs">관리자</div>
+            </div>
+          </Link>
+        </div>
+        {/* 메뉴 */}
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+          {menuItems.map((item) => (
+            <div key={item.href}>
+              {item.children ? (
+                // 하위 메뉴가 있는 경우: 클릭하면 토글
+                <button
+                  onClick={() => toggleMenu(item.href)}
+                  className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-lg transition-colors ${
+                    isMenuOpen(item.href) || item.children.some(c => isActive(c.href))
+                      ? 'bg-primary text-white'
+                      : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </div>
+                  <svg 
+                    className={`w-4 h-4 transition-transform ${isMenuOpen(item.href) ? 'rotate-180' : ''}`}
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              ) : (
+                // 하위 메뉴 없는 경우: 링크
+                <Link
+                  href={item.href}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                    isActive(item.href)
+                      ? 'bg-primary text-white'
+                      : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                  }`}
+                >
                   {item.icon}
                   <span>{item.label}</span>
+                </Link>
+              )}
+              {item.children && isMenuOpen(item.href) && (
+                <div className="ml-8 mt-1 space-y-1">
+                  {item.children.map((child) => (
+                    <Link
+                      key={child.href}
+                      href={child.href}
+                      className={`block px-4 py-2 rounded-lg text-sm transition-colors ${
+                        pathname === child.href
+                          ? 'bg-gray-800 text-white'
+                          : 'text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      {child.label}
+                    </Link>
+                  ))}
                 </div>
-                <svg 
-                  className={`w-4 h-4 transition-transform ${isMenuOpen(item.href) ? 'rotate-180' : ''}`}
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-            ) : (
-              // 하위 메뉴 없는 경우: 링크
-              <Link
-                href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  isActive(item.href)
-                    ? 'bg-primary text-white'
-                    : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-                }`}
-              >
-                {item.icon}
-                <span>{item.label}</span>
-              </Link>
-            )}
-
-            {item.children && isMenuOpen(item.href) && (
-              <div className="ml-8 mt-1 space-y-1">
-                {item.children.map((child) => (
-                  <Link
-                    key={child.href}
-                    href={child.href}
-                    className={`block px-4 py-2 rounded-lg text-sm transition-colors ${
-                      pathname === child.href
-                        ? 'bg-gray-800 text-white'
-                        : 'text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    {child.label}
-                  </Link>
-                ))}
-              </div>
-            )}
+              )}
+            </div>
+          ))}
+        </nav>
+        {/* 사용자 정보 */}
+        <div className="p-4 border-t border-gray-800">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center">
+              {member?.profileImage ? (
+                <img src={member.profileImage} alt="" className="w-full h-full rounded-full object-cover" />
+              ) : (
+                <span className="text-gray-400">👤</span>
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-white text-sm font-medium truncate">{member?.nickname}</div>
+              <div className="text-gray-400 text-xs truncate">관리자</div>
+            </div>
           </div>
-        ))}
-      </nav>
-
-      {/* 사용자 정보 */}
-      <div className="p-4 border-t border-gray-800">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center">
-            {member?.profileImage ? (
-              <img src={member.profileImage} alt="" className="w-full h-full rounded-full object-cover" />
-            ) : (
-              <span className="text-gray-400">👤</span>
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-white text-sm font-medium truncate">{member?.nickname}</div>
-            <div className="text-gray-400 text-xs truncate">관리자</div>
+          <div className="flex gap-2">
+            <Link
+              href="/"
+              className="flex-1 px-3 py-2 bg-gray-800 text-gray-300 text-sm rounded-lg hover:bg-gray-700 text-center"
+            >
+              사이트 보기
+            </Link>
+            <button
+              onClick={logout}
+              className="flex-1 px-3 py-2 bg-gray-800 text-gray-300 text-sm rounded-lg hover:bg-gray-700"
+            >
+              로그아웃
+            </button>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Link
-            href="/"
-            className="flex-1 px-3 py-2 bg-gray-800 text-gray-300 text-sm rounded-lg hover:bg-gray-700 text-center"
-          >
-            사이트 보기
-          </Link>
-          <button
-            onClick={logout}
-            className="flex-1 px-3 py-2 bg-gray-800 text-gray-300 text-sm rounded-lg hover:bg-gray-700"
-          >
-            로그아웃
-          </button>
-        </div>
-      </div>
-    </aside>
+      </aside>
+    </>
   )
 }
