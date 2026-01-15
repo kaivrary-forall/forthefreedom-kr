@@ -190,7 +190,7 @@ function MentionInput({
     const searchMembers = async () => {
       setIsSearching(true)
       try {
-        const response = await fetch(`${API_URL}/api/members/search?q=${encodeURIComponent(mentionQuery)}&limit=5`)
+        const response = await fetch((`${API_URL}/api/members/search?q=${encodeURIComponent(mentionQuery)}&limit=5`)
         const data = await response.json()
         if (data.success) {
           setSuggestions(data.data)
@@ -626,7 +626,7 @@ export default function AgoraDetailAPI() {
         headers['Authorization'] = `Bearer ${token}`
       }
       
-      const response = await fetch(`/api/agora/${id}`, { headers })
+      const response = await fetch((`/api/agora/${id}`, { headers })
       const data = await response.json()
       
       if (data.success && data.post) {
@@ -674,7 +674,7 @@ export default function AgoraDetailAPI() {
     setIsVoting(true)
     
     try {
-      const response = await fetch(`${API_URL}/api/posts/${id}/${type}`, {
+      const response = await fetch((`${API_URL}/api/posts/${id}/${type}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -711,7 +711,7 @@ export default function AgoraDetailAPI() {
     setVotingCommentId(commentId)
     
     try {
-      const response = await fetch(`${API_URL}/api/posts/${id}/comments/${commentId}/${type}`, {
+      const response = await fetch((`${API_URL}/api/posts/${id}/comments/${commentId}/${type}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -760,7 +760,7 @@ export default function AgoraDetailAPI() {
     setCommentError(null)
 
     try {
-      const response = await fetch(`${API_URL}/api/posts/${id}/comments`, {
+      const response = await fetch((`${API_URL}/api/posts/${id}/comments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -797,7 +797,7 @@ export default function AgoraDetailAPI() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/api/posts/${id}/comments`, {
+      const response = await fetch((`${API_URL}/api/posts/${id}/comments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
