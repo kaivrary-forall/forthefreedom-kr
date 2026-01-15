@@ -59,7 +59,7 @@ export default function PrinciplesPage() {
                           : 'text-gray-600 hover:text-gray-800'
                       }`}
                     >
-                      <i className={`fas ${tab.icon} mr-2`}></i>{tab.name}
+                      {tab.name}
                     </button>
                   ))}
                 </div>
