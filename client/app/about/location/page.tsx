@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
+import AboutTabs from '@/components/about/AboutTabs'
 
 export const metadata: Metadata = {
-  title: '찾아오시는 길 | 자유와혁신',
+  title: '오시는 길 | 자유와혁신',
   description: '자유와혁신 중앙당 위치 안내. 서울 용산구 청파로45길 19, 301호 (복조빌딩)',
   openGraph: {
-    title: '찾아오시는 길 | 자유와혁신',
+    title: '오시는 길 | 자유와혁신',
     description: '자유와혁신 중앙당 위치 안내',
     url: 'https://forthefreedom.kr/about/location',
   },
@@ -14,12 +14,14 @@ export const metadata: Metadata = {
 export default function LocationPage() {
   return (
     <div>
+      <AboutTabs active="location" />
+      
       <main className="relative z-10 bg-white">
         {/* 지도 섹션 */}
         <section className="py-20 bg-gray-50">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-gray-900 mb-6">찾아오시는 길</h2>
+              <h2 className="text-4xl font-bold text-gray-900 mb-6">오시는 길</h2>
               <p className="text-xl text-gray-600 max-w-6xl mx-auto">
                 다양한 교통수단으로 편리하게 방문하실 수 있습니다.
               </p>
@@ -120,31 +122,6 @@ export default function LocationPage() {
                   <p className="text-xs text-gray-500 mt-2">&quot;용산구 청파로45길 19&quot; 안내</p>
                 </div>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA */}
-        <section className="py-16 bg-primary">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl font-bold text-white mb-6">자유와혁신을 방문해주세요</h2>
-            <p className="text-xl text-red-100 mb-8">
-              당원가입, 후원, 자원봉사 등 다양한 참여를 환영합니다
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a 
-                href="https://www.ihappynanum.com/Nanum/api/screen/F7FCRIO2E3"
-                target="_blank" rel="noopener noreferrer"
-                className="px-8 py-3 bg-white text-primary font-bold rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                당원가입
-              </a>
-              <Link 
-                href="/support"
-                className="px-8 py-3 border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-primary transition-colors"
-              >
-                후원하기
-              </Link>
             </div>
           </div>
         </section>
