@@ -3,7 +3,7 @@ import Image from 'next/image'
 
 export const metadata: Metadata = {
   title: 'CI | 자유와혁신',
-  description: '자유와혁신 CI(Corporate Identity). 당 로고, 색상, 사용 가이드라인.',
+  description: '자유와혁신의 정체성과 가치를 담은 심볼과 로고를 소개합니다.',
   openGraph: {
     title: 'CI | 자유와혁신',
     description: '자유와혁신 CI',
@@ -14,86 +14,111 @@ export const metadata: Metadata = {
 export default function CIPage() {
   return (
     <div>
-      <main className="bg-white">
-        <section className="py-16">
+      <main className="relative z-10 bg-white">
+        {/* 로고 소개 */}
+        <section className="py-16 bg-white">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">자유와혁신 CI</h1>
-              <p className="text-lg text-gray-600">
-                자유와혁신의 공식 CI(Corporate Identity)입니다
-              </p>
-            </div>
-
-            {/* 로고 */}
-            <div className="mb-16">
-              <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">로고</h2>
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="bg-white border-2 border-gray-100 rounded-2xl p-8 text-center">
-                  <div className="bg-gray-50 rounded-xl p-8 mb-6">
-                    <Image
-                      src="/images/logo.png"
-                      alt="자유와혁신 로고"
-                      width={200}
-                      height={200}
-                      className="mx-auto"
-                    />
-                  </div>
-                  <h3 className="font-bold text-gray-900 mb-2">기본 로고</h3>
-                  <p className="text-sm text-gray-600">흰색 배경에서 사용</p>
+            <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">심볼 & 로고</h2>
+            
+            <div className="grid md:grid-cols-2 gap-12 mb-16">
+              {/* 기본 로고 */}
+              <div className="bg-gray-50 p-8 rounded-2xl text-center">
+                <div className="bg-white p-8 rounded-xl mb-6 shadow-sm">
+                  <Image 
+                    src="/images/logo.png" 
+                    alt="자유와혁신 기본 로고" 
+                    width={300}
+                    height={128}
+                    className="mx-auto h-32 w-auto object-contain"
+                  />
                 </div>
-                <div className="bg-primary rounded-2xl p-8 text-center">
-                  <div className="bg-white/10 rounded-xl p-8 mb-6">
-                    <Image
-                      src="/images/logo.png"
-                      alt="자유와혁신 로고"
-                      width={200}
-                      height={200}
-                      className="mx-auto"
-                    />
+                <h4 className="text-xl font-bold text-gray-900 mb-3">기본 로고</h4>
+                <p className="text-gray-600">
+                  자유와혁신의 기본 로고입니다. 일반적인 용도에 사용됩니다.
+                </p>
+              </div>
+              
+              {/* 심볼 로고 */}
+              <div className="bg-gray-50 p-8 rounded-2xl text-center">
+                <div className="bg-white p-8 rounded-xl mb-6 shadow-sm">
+                  <Image 
+                    src="/images/logo-symbol.png" 
+                    alt="자유와혁신 심볼 로고" 
+                    width={128}
+                    height={128}
+                    className="mx-auto h-32 w-auto object-contain"
+                  />
+                </div>
+                <h4 className="text-xl font-bold text-gray-900 mb-3">심볼 로고</h4>
+                <p className="text-gray-600">
+                  자유와혁신의 심볼 로고입니다. 공간이 제한된 경우 사용됩니다.
+                </p>
+              </div>
+            </div>
+            
+            {/* 로고 의미 */}
+            <div className="bg-gradient-to-br from-red-50 to-red-100 p-12 rounded-2xl">
+              <h4 className="text-2xl font-bold text-red-900 mb-8 text-center">로고의 상징</h4>
+              <div className="grid md:grid-cols-3 gap-8">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i className="fas fa-fist-raised text-white text-xl"></i>
                   </div>
-                  <h3 className="font-bold text-white mb-2">어두운 배경</h3>
-                  <p className="text-sm text-red-100">어두운 배경에서 사용</p>
+                  <h5 className="text-lg font-bold text-red-900 mb-2">자유</h5>
+                  <p className="text-gray-700">
+                    대한민국의 자유민주주의 수호에 대한 의지를 상징합니다.
+                  </p>
+                </div>
+                
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i className="fas fa-lightbulb text-white text-xl"></i>
+                  </div>
+                  <h5 className="text-lg font-bold text-red-900 mb-2">혁신</h5>
+                  <p className="text-gray-700">
+                    새로운 시대를 향한 혁신과 변화의 의지를 표현합니다.
+                  </p>
+                </div>
+                
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i className="fas fa-heart text-white text-xl"></i>
+                  </div>
+                  <h5 className="text-lg font-bold text-red-900 mb-2">국민</h5>
+                  <p className="text-gray-700">
+                    국민과 함께하는 정당으로서의 정체성을 담고 있습니다.
+                  </p>
                 </div>
               </div>
             </div>
+          </div>
+        </section>
 
-            {/* 색상 */}
-            <div className="mb-16">
-              <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">브랜드 색상</h2>
-              <div className="grid md:grid-cols-3 gap-6">
-                <div className="bg-white border-2 border-gray-100 rounded-2xl p-6 text-center">
-                  <div className="w-24 h-24 bg-primary rounded-full mx-auto mb-4"></div>
-                  <h3 className="font-bold text-gray-900 mb-2">Primary Red</h3>
-                  <p className="text-sm text-gray-600 font-mono">#8B1538</p>
-                </div>
-                <div className="bg-white border-2 border-gray-100 rounded-2xl p-6 text-center">
-                  <div className="w-24 h-24 bg-blue-600 rounded-full mx-auto mb-4"></div>
-                  <h3 className="font-bold text-gray-900 mb-2">Blue</h3>
-                  <p className="text-sm text-gray-600 font-mono">#2563EB</p>
-                </div>
-                <div className="bg-white border-2 border-gray-100 rounded-2xl p-6 text-center">
-                  <div className="w-24 h-24 bg-gray-900 rounded-full mx-auto mb-4"></div>
-                  <h3 className="font-bold text-gray-900 mb-2">Black</h3>
-                  <p className="text-sm text-gray-600 font-mono">#111827</p>
-                </div>
+        {/* 브랜드 컬러 */}
+        <section className="py-16 bg-gray-50">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h3 className="text-2xl font-bold text-center text-gray-900 mb-8">브랜드 컬러</h3>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <div className="text-center">
+                <div className="w-full h-24 bg-primary rounded-xl mb-3"></div>
+                <p className="font-semibold text-gray-900">Primary</p>
+                <p className="text-sm text-gray-500">#A50034</p>
               </div>
-            </div>
-
-            {/* 다운로드 */}
-            <div className="bg-gray-50 rounded-2xl p-8 text-center">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">CI 다운로드</h2>
-              <p className="text-gray-600 mb-6">
-                자유와혁신 CI 파일을 다운로드하실 수 있습니다
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a 
-                  href="/images/logo.png"
-                  download
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition-colors"
-                >
-                  <i className="fas fa-download"></i>
-                  PNG 다운로드
-                </a>
+              <div className="text-center">
+                <div className="w-full h-24 bg-primary-dark rounded-xl mb-3"></div>
+                <p className="font-semibold text-gray-900">Primary Dark</p>
+                <p className="text-sm text-gray-500">#8B002C</p>
+              </div>
+              <div className="text-center">
+                <div className="w-full h-24 bg-red-50 rounded-xl mb-3 border border-gray-200"></div>
+                <p className="font-semibold text-gray-900">Light</p>
+                <p className="text-sm text-gray-500">#FDF2F4</p>
+              </div>
+              <div className="text-center">
+                <div className="w-full h-24 bg-gray-900 rounded-xl mb-3"></div>
+                <p className="font-semibold text-gray-900">Dark</p>
+                <p className="text-sm text-gray-500">#111827</p>
               </div>
             </div>
           </div>
