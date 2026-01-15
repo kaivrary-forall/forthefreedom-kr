@@ -276,24 +276,24 @@ export default function AgoraListAPI({ boardType = 'member' }: AgoraListAPIProps
           <table className="w-full table-fixed">
             <thead className="bg-gray-50 border-b">
               <tr>
-                <th className="px-4 py-1.5 text-center text-sm font-semibold text-gray-900 w-14 hidden sm:table-cell">No.</th>
-                <th className="px-6 py-1.5 text-left text-sm font-semibold text-gray-900">제목</th>
-                <th className="px-4 py-1.5 text-center text-sm font-semibold text-gray-900 w-24 hidden sm:table-cell">
+                <th className="px-2 py-1.5 text-center text-sm font-semibold text-gray-900 w-12 hidden sm:table-cell">No.</th>
+                <th className="px-4 py-1.5 text-left text-sm font-semibold text-gray-900">제목</th>
+                <th className="px-2 py-1.5 text-center text-sm font-semibold text-gray-900 w-28 hidden sm:table-cell whitespace-nowrap">
                   {boardType === 'anonymous' ? 'IP' : '작성자'}
                 </th>
-                <th className="px-4 py-1.5 text-center text-sm font-semibold text-gray-900 w-20">등록일</th>
-                <th className="px-4 py-1.5 text-center text-sm font-semibold text-gray-900 w-14 hidden md:table-cell">조회</th>
-                <th className="px-4 py-1.5 text-center text-sm font-semibold text-gray-900 w-12 hidden md:table-cell">👍</th>
-                <th className="px-4 py-1.5 text-center text-sm font-semibold text-gray-900 w-12 hidden md:table-cell">👎</th>
+                <th className="px-2 py-1.5 text-center text-sm font-semibold text-gray-900 w-24 whitespace-nowrap">등록일</th>
+                <th className="px-2 py-1.5 text-center text-sm font-semibold text-gray-900 w-14 hidden md:table-cell whitespace-nowrap">조회</th>
+                <th className="px-2 py-1.5 text-center text-sm font-semibold text-gray-900 w-12 hidden md:table-cell">👍</th>
+                <th className="px-2 py-1.5 text-center text-sm font-semibold text-gray-900 w-12 hidden md:table-cell">👎</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {posts.map((post, index) => (
                 <tr key={post._id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-1.5 text-center text-sm text-gray-500 hidden sm:table-cell">
+                  <td className="px-2 py-1.5 text-center text-sm text-gray-500 hidden sm:table-cell">
                     {pagination ? pagination.total - ((currentPage - 1) * 30) - index : index + 1}
                   </td>
-                  <td className="px-6 py-1.5 overflow-hidden">
+                  <td className="px-4 py-1.5 overflow-hidden">
                     <Link 
                       href={`/agora/${post._id}`}
                       className="flex items-center gap-2 hover:text-primary transition-colors min-w-0"
@@ -306,7 +306,7 @@ export default function AgoraListAPI({ boardType = 'member' }: AgoraListAPIProps
                       )}
                     </Link>
                   </td>
-                  <td className="px-4 py-1.5 text-center hidden sm:table-cell">
+                  <td className="px-2 py-1.5 text-center hidden sm:table-cell whitespace-nowrap">
                     {boardType === 'anonymous' ? (
                       // 익명 게시판 - IP 표시
                       <span className="text-sm text-gray-500 font-mono">
@@ -315,15 +315,15 @@ export default function AgoraListAPI({ boardType = 'member' }: AgoraListAPIProps
                     ) : post.author ? (
                       // 일반 게시판 - 닉네임 + 드롭다운
                       <MentionDropdown nickname={post.author.nickname}>
-                        <div className="flex items-center justify-center gap-2">
+                        <div className="flex items-center justify-center gap-1">
                           {post.author.profileImage && (
                             <img 
                               src={post.author.profileImage} 
                               alt={post.author.nickname}
-                              className="w-6 h-6 rounded-full object-cover"
+                              className="w-5 h-5 rounded-full object-cover flex-shrink-0"
                             />
                           )}
-                          <span className="text-sm text-gray-600 truncate max-w-[80px]">
+                          <span className="text-sm text-gray-600">
                             {post.author.nickname}
                           </span>
                         </div>
@@ -332,16 +332,16 @@ export default function AgoraListAPI({ boardType = 'member' }: AgoraListAPIProps
                       <span className="text-sm text-gray-400">알 수 없음</span>
                     )}
                   </td>
-                  <td className="px-4 py-1.5 text-center text-sm text-gray-500">
+                  <td className="px-2 py-1.5 text-center text-sm text-gray-500 whitespace-nowrap">
                     {formatDate(post.createdAt)}
                   </td>
-                  <td className="px-4 py-1.5 text-center text-sm text-gray-500 hidden md:table-cell">
+                  <td className="px-2 py-1.5 text-center text-sm text-gray-500 hidden md:table-cell whitespace-nowrap">
                     {post.viewCount}
                   </td>
-                  <td className="px-4 py-1.5 text-center text-sm text-gray-500 hidden md:table-cell">
+                  <td className="px-2 py-1.5 text-center text-sm text-gray-500 hidden md:table-cell">
                     {post.likeCount}
                   </td>
-                  <td className="px-4 py-1.5 text-center text-sm text-gray-500 hidden md:table-cell">
+                  <td className="px-2 py-1.5 text-center text-sm text-gray-500 hidden md:table-cell">
                     {post.dislikeCount}
                   </td>
                 </tr>
