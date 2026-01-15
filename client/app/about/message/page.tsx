@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
+import AboutTabs from '@/components/about/AboutTabs'
 
 export const metadata: Metadata = {
   title: '당대표 인사 | 자유와혁신',
@@ -15,6 +16,8 @@ export const metadata: Metadata = {
 export default function MessagePage() {
   return (
     <div>
+      <AboutTabs active="message" />
+      
       {/* 당 대표 인사말 */}
       <section className="py-12 sm:py-16 lg:py-24 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
