@@ -9,7 +9,7 @@ const tabs = [
   { id: 'founding', name: '창당 스토리', href: '/about/founding' },
   { id: 'principles', name: '강령, 당헌, 당규, 정강', href: '/about/principles' },
   { id: 'ci', name: 'CI', href: '/about/ci' },
-  { id: 'location', name: '찾아오시는길', href: '/about/location' },
+  { id: 'location', name: '오시는 길', href: '/about/location' },
 ]
 
 export default function AboutTabs({ active }: AboutTabsProps) {
