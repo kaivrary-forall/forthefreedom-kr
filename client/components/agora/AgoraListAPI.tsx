@@ -276,6 +276,7 @@ export default function AgoraListAPI({ boardType = 'member' }: AgoraListAPIProps
           <table className="w-full">
             <thead className="bg-gray-50 border-b">
               <tr>
+                <th className="px-4 py-4 text-center text-sm font-semibold text-gray-900 w-16 hidden sm:table-cell">No.</th>
                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">제목</th>
                 <th className="px-4 py-4 text-center text-sm font-semibold text-gray-900 w-28 hidden sm:table-cell">
                   {boardType === 'anonymous' ? 'IP' : '작성자'}
@@ -287,8 +288,11 @@ export default function AgoraListAPI({ boardType = 'member' }: AgoraListAPIProps
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {posts.map((post) => (
+              {posts.map((post, index) => (
                 <tr key={post._id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-4 py-4 text-center text-sm text-gray-500 hidden sm:table-cell">
+                    {pagination ? pagination.total - ((currentPage - 1) * 20) - index : index + 1}
+                  </td>
                   <td className="px-6 py-4">
                     <Link 
                       href={`/agora/${post._id}`}
