@@ -148,7 +148,7 @@ export default function AgoraListAPI({ boardType = 'member' }: AgoraListAPIProps
     async function loadPosts() {
       setIsLoading(true)
       try {
-        const response = await fetch(`/api/agora?page=${currentPage}&limit=20&boardType=${boardType}`)
+        const response = await fetch(`/api/agora?page=${currentPage}&limit=30&boardType=${boardType}`)
         const data = await response.json()
         
         if (data.success) {
@@ -291,7 +291,7 @@ export default function AgoraListAPI({ boardType = 'member' }: AgoraListAPIProps
               {posts.map((post, index) => (
                 <tr key={post._id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 py-1.5 text-center text-sm text-gray-500 hidden sm:table-cell">
-                    {pagination ? pagination.total - ((currentPage - 1) * 20) - index : index + 1}
+                    {pagination ? pagination.total - ((currentPage - 1) * 30) - index : index + 1}
                   </td>
                   <td className="px-6 py-1.5">
                     <Link 
@@ -352,46 +352,72 @@ export default function AgoraListAPI({ boardType = 'member' }: AgoraListAPIProps
       )}
 
       {/* 페이지네이션 */}
-      {pagination && pagination.totalPages > 1 && (
-        <div className="flex justify-center items-center gap-2 mt-8">
+      {pagination && (
+        <div className="flex justify-center items-center gap-1 mt-8">
           <button
             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
             disabled={currentPage === 1}
-            className="px-4 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-1.5 text-sm text-gray-600 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed"
           >
-            ← 이전
+            &lt; 이전
           </button>
           
-          {/* 페이지 번호들 */}
-          <div className="flex gap-1">
-            {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
-              const pageNum = Math.max(1, Math.min(currentPage - 2 + i, pagination.totalPages - 4 + i))
-              if (pageNum < 1 || pageNum > pagination.totalPages) return null
-              return (
+          {/* 페이지 번호들 (최대 10개) */}
+          <div className="flex gap-0">
+            {(() => {
+              const totalPages = pagination.totalPages
+              const maxVisible = 10
+              let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2))
+              let endPage = Math.min(totalPages, startPage + maxVisible - 1)
+              
+              if (endPage - startPage + 1 < maxVisible) {
+                startPage = Math.max(1, endPage - maxVisible + 1)
+              }
+              
+              return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map(pageNum => (
                 <button
                   key={pageNum}
                   onClick={() => setCurrentPage(pageNum)}
-                  className={`w-10 h-10 rounded-lg ${
+                  className={`w-8 h-8 text-sm border border-gray-300 ${
                     currentPage === pageNum
-                      ? 'bg-primary text-white'
-                      : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                      ? 'bg-primary text-white border-primary'
+                      : 'text-gray-700 hover:bg-gray-50'
                   }`}
                 >
                   {pageNum}
                 </button>
-              )
-            })}
+              ))
+            })()}
           </div>
           
           <button
             onClick={() => setCurrentPage(p => Math.min(pagination.totalPages, p + 1))}
             disabled={currentPage === pagination.totalPages}
-            className="px-4 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-1.5 text-sm text-gray-600 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed"
           >
-            다음 →
+            다음 &gt;
           </button>
         </div>
       )}
+
+      {/* 검색창 */}
+      <div className="flex justify-center mt-4">
+        <div className="flex border border-gray-300 rounded overflow-hidden">
+          <select className="px-3 py-2 text-sm border-r border-gray-300 bg-white text-gray-700 outline-none">
+            <option value="title">제목</option>
+            <option value="content">내용</option>
+            <option value="author">작성자</option>
+          </select>
+          <input 
+            type="text" 
+            placeholder="" 
+            className="px-3 py-2 text-sm w-48 outline-none"
+          />
+          <button className="px-4 py-2 bg-white hover:bg-gray-50 border-l border-gray-300">
+            <span className="text-gray-600">🔍</span>
+          </button>
+        </div>
+      </div>
 
       {/* 총 게시글 수 */}
       {pagination && (
