@@ -32,9 +32,8 @@ export default function Navigation() {
     fain: 'FAIN', members: 'Members', support: 'Support', reportCenter: 'Report Center',
     joinParty: 'Join Party',
     // 소개
-    aboutParty: 'About Us', platformCharterRules: 'Platform, Charter, Rules',
-    platform: 'Platform', charter: 'Charter', rules: 'Rules',
-    foundingStory: 'Founding Story', policy: 'Policy', logo: 'Logo', location: 'Location',
+    message: "Chairman's Message", foundingStory: 'Founding Story',
+    platformCharterRules: 'Platform & Charter', ci: 'CI', location: 'Location',
     // 조직
     orgChart: 'Organization', supremeCouncil: 'Supreme Council', spokesperson: 'Spokesperson',
     research: 'Research Institute', justiceGuard: 'Justice Guard', committees: 'Committees',
@@ -54,9 +53,8 @@ export default function Navigation() {
     fain: 'FAIN', members: '당원', support: '후원', reportCenter: '제보센터',
     joinParty: '당원가입',
     // 소개
-    aboutParty: '당소개', platformCharterRules: '강령, 당헌, 당규',
-    platform: '강령', charter: '당헌', rules: '당규',
-    foundingStory: '창당 스토리', policy: '정책', logo: '로고', location: '찾아오시는길',
+    message: '당대표 인사', foundingStory: '창당 스토리',
+    platformCharterRules: '강령, 당헌, 당규, 정강', ci: 'CI', location: '찾아오시는길',
     // 조직
     orgChart: '조직도', supremeCouncil: '최고위원회', spokesperson: '대변인실',
     research: '자유연구원', justiceGuard: '정의수호단', committees: '직능위원회',
@@ -78,15 +76,10 @@ export default function Navigation() {
       label: t.about, 
       href: `${linkPrefix}/about`,
       subMenu: [
-        { label: t.aboutParty, href: `${linkPrefix}/about` },
-        { label: t.platformCharterRules, href: `${linkPrefix}/about/principles`, subItems: [
-          { label: t.platform, href: `${linkPrefix}/about/principles#platform` },
-          { label: t.charter, href: `${linkPrefix}/about/principles#charter` },
-          { label: t.rules, href: `${linkPrefix}/about/principles#rules` },
-        ]},
+        { label: t.message, href: `${linkPrefix}/about/message` },
         { label: t.foundingStory, href: `${linkPrefix}/about/founding` },
-        { label: t.policy, href: `${linkPrefix}/about/policy` },
-        { label: t.logo, href: `${linkPrefix}/about/logo` },
+        { label: t.platformCharterRules, href: `${linkPrefix}/about/principles` },
+        { label: t.ci, href: `${linkPrefix}/about/ci` },
         { label: t.location, href: `${linkPrefix}/about/location` },
       ]
     },
