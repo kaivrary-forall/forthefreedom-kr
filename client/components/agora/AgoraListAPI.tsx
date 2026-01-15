@@ -52,7 +52,7 @@ function MentionDropdown({
         <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[140px] py-1">
           <Link
             href={`/member/${encodeURIComponent(nickname)}`}
-            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+            className="flex items-center gap-2 px-4 py-1.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
             onClick={() => setIsOpen(false)}
           >
             <span>👤</span>
@@ -60,7 +60,7 @@ function MentionDropdown({
           </Link>
           <Link
             href={`/member/${encodeURIComponent(nickname)}/posts`}
-            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+            className="flex items-center gap-2 px-4 py-1.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
             onClick={() => setIsOpen(false)}
           >
             <span>📝</span>
@@ -68,7 +68,7 @@ function MentionDropdown({
           </Link>
           <Link
             href={`/member/${encodeURIComponent(nickname)}/comments`}
-            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+            className="flex items-center gap-2 px-4 py-1.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
             onClick={() => setIsOpen(false)}
           >
             <span>💬</span>
@@ -76,7 +76,7 @@ function MentionDropdown({
           </Link>
           <Link
             href={`/member/${encodeURIComponent(nickname)}/mentions`}
-            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+            className="flex items-center gap-2 px-4 py-1.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
             onClick={() => setIsOpen(false)}
           >
             <span>📢</span>
@@ -240,14 +240,14 @@ export default function AgoraListAPI({ boardType = 'member' }: AgoraListAPIProps
         {isLoggedIn && canWrite() ? (
           <Link
             href={getWriteUrl()}
-            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-medium"
+            className="px-4 py-1.5 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-medium"
           >
             ✏️ 글쓰기
           </Link>
         ) : isLoggedIn ? (
           <button
             disabled
-            className="px-4 py-2 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed font-medium"
+            className="px-4 py-1.5 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed font-medium"
             title={getPermissionMessage()}
           >
             ✏️ {getPermissionMessage()}
@@ -255,7 +255,7 @@ export default function AgoraListAPI({ boardType = 'member' }: AgoraListAPIProps
         ) : (
           <Link
             href={getWriteUrl()}
-            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-medium"
+            className="px-4 py-1.5 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-medium"
           >
             ✏️ 글쓰기
           </Link>
@@ -276,24 +276,24 @@ export default function AgoraListAPI({ boardType = 'member' }: AgoraListAPIProps
           <table className="w-full">
             <thead className="bg-gray-50 border-b">
               <tr>
-                <th className="px-4 py-2 text-center text-sm font-semibold text-gray-900 w-16 hidden sm:table-cell">No.</th>
-                <th className="px-6 py-2 text-left text-sm font-semibold text-gray-900">제목</th>
-                <th className="px-4 py-2 text-center text-sm font-semibold text-gray-900 w-28 hidden sm:table-cell">
+                <th className="px-4 py-1.5 text-center text-sm font-semibold text-gray-900 w-16 hidden sm:table-cell">No.</th>
+                <th className="px-6 py-1.5 text-left text-sm font-semibold text-gray-900">제목</th>
+                <th className="px-4 py-1.5 text-center text-sm font-semibold text-gray-900 w-28 hidden sm:table-cell">
                   {boardType === 'anonymous' ? 'IP' : '작성자'}
                 </th>
-                <th className="px-4 py-2 text-center text-sm font-semibold text-gray-900 w-24">등록일</th>
-                <th className="px-4 py-2 text-center text-sm font-semibold text-gray-900 w-16 hidden md:table-cell">조회</th>
-                <th className="px-4 py-2 text-center text-sm font-semibold text-gray-900 w-16 hidden md:table-cell">👍</th>
-                <th className="px-4 py-2 text-center text-sm font-semibold text-gray-900 w-16 hidden md:table-cell">👎</th>
+                <th className="px-4 py-1.5 text-center text-sm font-semibold text-gray-900 w-24">등록일</th>
+                <th className="px-4 py-1.5 text-center text-sm font-semibold text-gray-900 w-16 hidden md:table-cell">조회</th>
+                <th className="px-4 py-1.5 text-center text-sm font-semibold text-gray-900 w-16 hidden md:table-cell">👍</th>
+                <th className="px-4 py-1.5 text-center text-sm font-semibold text-gray-900 w-16 hidden md:table-cell">👎</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {posts.map((post, index) => (
                 <tr key={post._id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-2 text-center text-sm text-gray-500 hidden sm:table-cell">
+                  <td className="px-4 py-1.5 text-center text-sm text-gray-500 hidden sm:table-cell">
                     {pagination ? pagination.total - ((currentPage - 1) * 20) - index : index + 1}
                   </td>
-                  <td className="px-6 py-2">
+                  <td className="px-6 py-1.5">
                     <Link 
                       href={`/agora/${post._id}`}
                       className="flex items-center gap-2 hover:text-primary transition-colors"
@@ -306,7 +306,7 @@ export default function AgoraListAPI({ boardType = 'member' }: AgoraListAPIProps
                       )}
                     </Link>
                   </td>
-                  <td className="px-4 py-2 text-center hidden sm:table-cell">
+                  <td className="px-4 py-1.5 text-center hidden sm:table-cell">
                     {boardType === 'anonymous' ? (
                       // 익명 게시판 - IP 표시
                       <span className="text-sm text-gray-500 font-mono">
@@ -332,16 +332,16 @@ export default function AgoraListAPI({ boardType = 'member' }: AgoraListAPIProps
                       <span className="text-sm text-gray-400">알 수 없음</span>
                     )}
                   </td>
-                  <td className="px-4 py-2 text-center text-sm text-gray-500">
+                  <td className="px-4 py-1.5 text-center text-sm text-gray-500">
                     {formatDate(post.createdAt)}
                   </td>
-                  <td className="px-4 py-2 text-center text-sm text-gray-500 hidden md:table-cell">
+                  <td className="px-4 py-1.5 text-center text-sm text-gray-500 hidden md:table-cell">
                     {post.viewCount}
                   </td>
-                  <td className="px-4 py-2 text-center text-sm text-gray-500 hidden md:table-cell">
+                  <td className="px-4 py-1.5 text-center text-sm text-gray-500 hidden md:table-cell">
                     {post.likeCount}
                   </td>
-                  <td className="px-4 py-2 text-center text-sm text-gray-500 hidden md:table-cell">
+                  <td className="px-4 py-1.5 text-center text-sm text-gray-500 hidden md:table-cell">
                     {post.dislikeCount}
                   </td>
                 </tr>
@@ -357,7 +357,7 @@ export default function AgoraListAPI({ boardType = 'member' }: AgoraListAPIProps
           <button
             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
             disabled={currentPage === 1}
-            className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             ← 이전
           </button>
@@ -386,7 +386,7 @@ export default function AgoraListAPI({ boardType = 'member' }: AgoraListAPIProps
           <button
             onClick={() => setCurrentPage(p => Math.min(pagination.totalPages, p + 1))}
             disabled={currentPage === pagination.totalPages}
-            className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             다음 →
           </button>
