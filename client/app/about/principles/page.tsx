@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
+import AboutTabs from '@/components/about/AboutTabs'
 import { policyData } from '@/data/policy.ko'
 
 type TabType = 'platform' | 'charter' | 'rules' | 'policy'
@@ -31,31 +31,33 @@ export default function PrinciplesPage() {
 
   return (
     <div>
-      <main className="relative z-10 bg-white">
-        {/* 탭 네비게이션 */}
-        <div 
-          className="sticky z-30 bg-white border-b border-gray-200 transition-[top] duration-300 ease-in-out"
-          style={{ top: 'calc(64px + var(--top-notice-h, 0px))' }}
-        >
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <nav className="flex justify-center space-x-0 overflow-x-auto scrollbar-hide">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`px-6 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
-                    activeTab === tab.id
-                      ? 'border-primary text-primary'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  <i className={`fas ${tab.icon} mr-2`}></i>{tab.name}
-                </button>
-              ))}
-            </nav>
-          </div>
+      <AboutTabs active="principles" />
+      
+      {/* 2차 탭 네비게이션 */}
+      <div 
+        className="sticky z-20 bg-white border-b border-gray-200 transition-[top] duration-300 ease-in-out"
+        style={{ top: 'calc(64px + 41px + var(--top-notice-h, 0px))' }}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <nav className="flex justify-center space-x-0 overflow-x-auto scrollbar-hide">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-6 py-2 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                  activeTab === tab.id
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <i className={`fas ${tab.icon} mr-2`}></i>{tab.name}
+              </button>
+            ))}
+          </nav>
         </div>
+      </div>
 
+      <main className="relative z-10 bg-white">
         {/* 강령 콘텐츠 */}
         {activeTab === 'platform' && (
           <section className="py-12 bg-white">
