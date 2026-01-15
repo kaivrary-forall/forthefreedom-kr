@@ -296,9 +296,9 @@ export default function AgoraListAPI({ boardType = 'member' }: AgoraListAPIProps
                   <td className="px-4 py-1.5 overflow-hidden">
                     <Link 
                       href={`/agora/${post._id}`}
-                      className="flex items-center gap-2 hover:text-primary transition-colors min-w-0"
+                      className="inline-flex items-center gap-1 hover:text-primary transition-colors max-w-full"
                     >
-                      <span className="font-medium text-gray-900 truncate min-w-0 flex-1">
+                      <span className="font-medium text-gray-900 truncate">
                         {post.title}
                       </span>
                       {post.commentCount > 0 && (
