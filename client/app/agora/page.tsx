@@ -21,7 +21,7 @@ export default function AgoraPage() {
         className="sticky z-30 bg-white border-b border-gray-200 transition-[top] duration-300 ease-in-out"
         style={{ top: 'calc(64px + var(--top-notice-h, 0px))' }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 lg:pr-48">
           <nav className="flex justify-center space-x-0 overflow-x-auto scrollbar-hide">
             {boardTabs.map((tab) => (
               <button
@@ -42,7 +42,7 @@ export default function AgoraPage() {
 
       {/* 게시글 목록 */}
       <main className="bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 lg:pr-48 py-8">
           {/* 선택된 게시판 설명 */}
           <div className="mb-6 flex items-center">
             <span className="text-sm text-gray-400 border-l-2 border-primary pl-3">
