@@ -276,21 +276,19 @@ export default function AgoraListAPI({ boardType = 'member' }: AgoraListAPIProps
           <table className="w-full">
             <thead className="bg-gray-50 border-b">
               <tr>
-                <th className="px-4 py-4 text-center text-sm font-semibold text-gray-900 w-16 hidden sm:table-cell">No.</th>
                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">제목</th>
                 <th className="px-4 py-4 text-center text-sm font-semibold text-gray-900 w-28 hidden sm:table-cell">
                   {boardType === 'anonymous' ? 'IP' : '작성자'}
                 </th>
-                <th className="px-4 py-4 text-center text-sm font-semibold text-gray-900 w-20 hidden md:table-cell">조회</th>
-                <th className="px-4 py-4 text-center text-sm font-semibold text-gray-900 w-24">날짜</th>
+                <th className="px-4 py-4 text-center text-sm font-semibold text-gray-900 w-24">등록일</th>
+                <th className="px-4 py-4 text-center text-sm font-semibold text-gray-900 w-16 hidden md:table-cell">조회</th>
+                <th className="px-4 py-4 text-center text-sm font-semibold text-gray-900 w-16 hidden md:table-cell">👍</th>
+                <th className="px-4 py-4 text-center text-sm font-semibold text-gray-900 w-16 hidden md:table-cell">👎</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {posts.map((post, index) => (
+              {posts.map((post) => (
                 <tr key={post._id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-4 text-center text-sm text-gray-500 hidden sm:table-cell">
-                    {pagination ? pagination.total - ((currentPage - 1) * 20) - index : index + 1}
-                  </td>
                   <td className="px-6 py-4">
                     <Link 
                       href={`/agora/${post._id}`}
@@ -330,11 +328,17 @@ export default function AgoraListAPI({ boardType = 'member' }: AgoraListAPIProps
                       <span className="text-sm text-gray-400">알 수 없음</span>
                     )}
                   </td>
+                  <td className="px-4 py-4 text-center text-sm text-gray-500">
+                    {formatDate(post.createdAt)}
+                  </td>
                   <td className="px-4 py-4 text-center text-sm text-gray-500 hidden md:table-cell">
                     {post.viewCount}
                   </td>
-                  <td className="px-4 py-4 text-center text-sm text-gray-500">
-                    {formatDate(post.createdAt)}
+                  <td className="px-4 py-4 text-center text-sm text-gray-500 hidden md:table-cell">
+                    {post.likeCount}
+                  </td>
+                  <td className="px-4 py-4 text-center text-sm text-gray-500 hidden md:table-cell">
+                    {post.dislikeCount}
                   </td>
                 </tr>
               ))}
