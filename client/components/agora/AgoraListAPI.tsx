@@ -225,10 +225,33 @@ export default function AgoraListAPI({ boardType = 'member' }: AgoraListAPIProps
 
   if (isLoading) {
     return (
-      <div className="space-y-3">
-        {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-lg h-20 animate-pulse" />
-        ))}
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <table className="w-full table-fixed">
+          <thead className="bg-gray-50 border-b">
+            <tr>
+              <th className="px-2 py-1.5 text-center text-sm font-semibold text-gray-900 w-12 hidden sm:table-cell">No.</th>
+              <th className="px-4 py-1.5 text-left text-sm font-semibold text-gray-900">제목</th>
+              <th className="px-2 py-1.5 text-center text-sm font-semibold text-gray-900 w-28 hidden sm:table-cell">작성자</th>
+              <th className="px-2 py-1.5 text-center text-sm font-semibold text-gray-900 w-24">등록일</th>
+              <th className="px-2 py-1.5 text-center text-sm font-semibold text-gray-900 w-14 hidden md:table-cell">조회</th>
+              <th className="px-2 py-1.5 text-center text-sm font-semibold text-gray-900 w-12 hidden md:table-cell">👍</th>
+              <th className="px-2 py-1.5 text-center text-sm font-semibold text-gray-900 w-12 hidden md:table-cell">👎</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <tr key={i} className="animate-pulse">
+                <td className="px-2 py-2 hidden sm:table-cell"><div className="h-4 bg-gray-200 rounded w-8 mx-auto"></div></td>
+                <td className="px-4 py-2"><div className="h-4 bg-gray-200 rounded w-3/4"></div></td>
+                <td className="px-2 py-2 hidden sm:table-cell"><div className="h-4 bg-gray-200 rounded w-16 mx-auto"></div></td>
+                <td className="px-2 py-2"><div className="h-4 bg-gray-200 rounded w-14 mx-auto"></div></td>
+                <td className="px-2 py-2 hidden md:table-cell"><div className="h-4 bg-gray-200 rounded w-8 mx-auto"></div></td>
+                <td className="px-2 py-2 hidden md:table-cell"><div className="h-4 bg-gray-200 rounded w-6 mx-auto"></div></td>
+                <td className="px-2 py-2 hidden md:table-cell"><div className="h-4 bg-gray-200 rounded w-6 mx-auto"></div></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     )
   }
