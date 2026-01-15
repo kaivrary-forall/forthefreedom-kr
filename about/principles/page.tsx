@@ -5,10 +5,11 @@ import Link from 'next/link'
 
 type TabType = 'platform' | 'charter' | 'rules'
 
-const tabs: { id: TabType; name: string; icon: string }[] = [
-  { id: 'platform', name: '강령', icon: 'fa-flag' },
-  { id: 'charter', name: '당헌', icon: 'fa-book' },
-  { id: 'rules', name: '당규', icon: 'fa-gavel' }
+const tabs: { id: TabType; name: string }[] = [
+  { id: 'platform', name: '강령' },
+  { id: 'charter', name: '당헌' },
+  { id: 'rules', name: '당규' },
+  { id: 'policy', name: '정강' }
 ]
 
 // 7대 선언
