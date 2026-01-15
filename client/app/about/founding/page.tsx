@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
+import AboutTabs from '@/components/about/AboutTabs'
 
 export const metadata: Metadata = {
   title: '창당 스토리 | 자유와혁신',
@@ -42,6 +42,8 @@ const timeline = [
 export default function FoundingPage() {
   return (
     <div>
+      <AboutTabs active="founding" />
+      
       <main className="relative z-10 bg-white">
         {/* 인트로 */}
         <section className="py-20 bg-white">
