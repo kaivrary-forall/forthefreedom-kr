@@ -336,13 +336,13 @@ export default function AgoraListAPI({ boardType = 'member' }: AgoraListAPIProps
                     {formatDate(post.createdAt)}
                   </td>
                   <td className="px-2 py-1.5 text-center text-sm text-gray-500 hidden md:table-cell whitespace-nowrap">
-                    {post.viewCount}
+                    {post.viewCount ?? 0}
                   </td>
                   <td className="px-2 py-1.5 text-center text-sm text-gray-500 hidden md:table-cell">
-                    {post.likeCount}
+                    {post.likeCount ?? 0}
                   </td>
                   <td className="px-2 py-1.5 text-center text-sm text-gray-500 hidden md:table-cell">
-                    {post.dislikeCount}
+                    {post.dislikeCount ?? 0}
                   </td>
                 </tr>
               ))}
