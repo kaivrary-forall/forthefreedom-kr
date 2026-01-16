@@ -737,11 +737,12 @@ router.post('/me/email/request', authMember, async (req, res) => {
       expiresAt
     });
     // 이메일 발송
-    const result = await sendVerificationCode({
-      toEmail: newEmail,
+     const result = await sendVerificationCode({
+      toEmail: email,
       code,
-      name: member.name
+      name: '회원'
     });
+
     if (!result.success) {
       return res.status(500).json({
         success: false,
