@@ -37,6 +37,7 @@ const optionalAuth = async (req, res, next) => {
   }
   next();
 };
+
 // 이메일 인증 코드 임시 저장소 (메모리)
 const emailVerificationCodes = new Map(); // email -> { code, memberId, expiresAt }
 
@@ -94,6 +95,7 @@ router.post('/register', async (req, res) => {
       birthDate,
       agreements 
     } = req.body;
+
     // 필수 필드 검증
     if (!userId || !password || !nickname || !name || !email || !phone) {
       return res.status(400).json({
@@ -101,6 +103,7 @@ router.post('/register', async (req, res) => {
         message: '필수 정보를 모두 입력해주세요'
       });
     }
+
     // 비밀번호 확인
     if (password !== passwordConfirm) {
       return res.status(400).json({
@@ -108,6 +111,7 @@ router.post('/register', async (req, res) => {
         message: '비밀번호가 일치하지 않습니다'
       });
     }
+
     // 비밀번호 길이 검증
     if (password.length < 8) {
       return res.status(400).json({
@@ -115,6 +119,7 @@ router.post('/register', async (req, res) => {
         message: '비밀번호는 8자 이상이어야 합니다'
       });
     }
+
     // 아이디 형식 검증
     const userIdRegex = /^[a-z0-9_]{4,20}$/;
     if (!userIdRegex.test(userId)) {
@@ -123,6 +128,7 @@ router.post('/register', async (req, res) => {
         message: '아이디는 4~20자의 영문 소문자, 숫자, 밑줄(_)만 사용 가능합니다'
       });
     }
+
     // 이메일 형식 검증
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -131,6 +137,7 @@ router.post('/register', async (req, res) => {
         message: '올바른 이메일 형식이 아닙니다'
       });
     }
+
     // 닉네임 길이 검증
     if (nickname.length < 2 || nickname.length > 20) {
       return res.status(400).json({
@@ -138,6 +145,7 @@ router.post('/register', async (req, res) => {
         message: '닉네임은 2~20자여야 합니다'
       });
     }
+
     // 아이디 중복 확인
     const existingUserId = await Member.findOne({ userId: userId.toLowerCase() });
     if (existingUserId) {
@@ -146,6 +154,7 @@ router.post('/register', async (req, res) => {
         message: '이미 사용 중인 아이디입니다'
       });
     }
+
     // 닉네임 중복 확인
     const existingNickname = await Member.findOne({ nickname });
     if (existingNickname) {
@@ -154,6 +163,7 @@ router.post('/register', async (req, res) => {
         message: '이미 사용 중인 닉네임입니다'
       });
     }
+
     // 필수 동의 확인
     if (!agreements?.terms || !agreements?.privacy) {
       return res.status(400).json({
@@ -161,6 +171,7 @@ router.post('/register', async (req, res) => {
         message: '필수 약관에 동의해주세요'
       });
     }
+
     // 회원 생성
     const member = new Member({
       userId: userId.toLowerCase(),
@@ -182,8 +193,11 @@ router.post('/register', async (req, res) => {
       memberType: 'member', // 일반 회원
       approvedAt: new Date()
     });
+
     await member.save();
+
     console.log('✅ 회원가입 완료:', member.userId, member.nickname);
+
     res.status(201).json({
       success: true,
       message: '회원가입이 완료되었습니다.',
@@ -195,6 +209,7 @@ router.post('/register', async (req, res) => {
         memberType: member.memberType
       }
     });
+
   } catch (error) {
     console.error('회원가입 오류:', error);
     
@@ -219,6 +234,7 @@ router.post('/register', async (req, res) => {
     });
   }
 });
+
 // ===== 아이디 중복 확인 =====
 router.get('/check-userid', async (req, res) => {
   try {
@@ -230,6 +246,7 @@ router.get('/check-userid', async (req, res) => {
         message: '아이디를 입력해주세요'
       });
     }
+
     // 형식 검증
     const userIdRegex = /^[a-z0-9_]{4,20}$/;
     if (!userIdRegex.test(userId.toLowerCase())) {
@@ -239,6 +256,7 @@ router.get('/check-userid', async (req, res) => {
         message: '아이디는 4~20자의 영문 소문자, 숫자, 밑줄(_)만 사용 가능합니다'
       });
     }
+
     const existingMember = await Member.findOne({ userId: userId.toLowerCase() });
     
     res.json({
@@ -246,6 +264,7 @@ router.get('/check-userid', async (req, res) => {
       available: !existingMember,
       message: existingMember ? '이미 사용 중인 아이디입니다' : '사용 가능한 아이디입니다'
     });
+
   } catch (error) {
     console.error('아이디 확인 오류:', error);
     res.status(500).json({
@@ -254,6 +273,7 @@ router.get('/check-userid', async (req, res) => {
     });
   }
 });
+
 // ===== 닉네임 중복 확인 =====
 router.get('/check-nickname', async (req, res) => {
   try {
@@ -265,6 +285,7 @@ router.get('/check-nickname', async (req, res) => {
         message: '닉네임을 입력해주세요'
       });
     }
+
     if (nickname.length < 2 || nickname.length > 20) {
       return res.json({
         success: true,
@@ -272,6 +293,7 @@ router.get('/check-nickname', async (req, res) => {
         message: '닉네임은 2~20자여야 합니다'
       });
     }
+
     const existingMember = await Member.findOne({ nickname });
     
     res.json({
@@ -279,6 +301,7 @@ router.get('/check-nickname', async (req, res) => {
       available: !existingMember,
       message: existingMember ? '이미 사용 중인 닉네임입니다' : '사용 가능한 닉네임입니다'
     });
+
   } catch (error) {
     console.error('닉네임 확인 오류:', error);
     res.status(500).json({
@@ -287,16 +310,19 @@ router.get('/check-nickname', async (req, res) => {
     });
   }
 });
+
 // ===== 로그인 =====
 router.post('/login', async (req, res) => {
   try {
     const { userId, password } = req.body;
+
     if (!userId || !password) {
       return res.status(400).json({
         success: false,
         message: '아이디와 비밀번호를 입력해주세요'
       });
     }
+
     // 🔐 관리자 계정 체크 (슈퍼관리자는 일반 로그인도 가능)
     if (userId.toLowerCase() === ADMIN_CREDENTIALS.username.toLowerCase()) {
       // 관리자 비밀번호 확인
@@ -313,7 +339,9 @@ router.post('/login', async (req, res) => {
           JWT_SECRET,
           { expiresIn: '7d' }
         );
+
         console.log('✅ 관리자 일반 로그인:', userId);
+
         return res.json({
           success: true,
           message: '로그인 성공',
@@ -337,6 +365,7 @@ router.post('/login', async (req, res) => {
         });
       }
     }
+
     // 일반 회원 조회 (비밀번호 포함)
     const member = await Member.findOne({ userId: userId.toLowerCase() }).select('+password');
     
@@ -346,6 +375,7 @@ router.post('/login', async (req, res) => {
         message: '아이디 또는 비밀번호가 올바르지 않습니다'
       });
     }
+
     // 비밀번호 확인
     const isMatch = await member.comparePassword(password);
     if (!isMatch) {
@@ -354,6 +384,7 @@ router.post('/login', async (req, res) => {
         message: '아이디 또는 비밀번호가 올바르지 않습니다'
       });
     }
+
     // 계정 상태 확인
     if (member.status === 'pending') {
       return res.status(403).json({
@@ -362,6 +393,7 @@ router.post('/login', async (req, res) => {
         status: 'pending'
       });
     }
+
     if (member.status === 'suspended') {
       return res.status(403).json({
         success: false,
@@ -369,6 +401,7 @@ router.post('/login', async (req, res) => {
         status: 'suspended'
       });
     }
+
     if (member.status === 'withdrawn') {
       return res.status(403).json({
         success: false,
@@ -376,14 +409,17 @@ router.post('/login', async (req, res) => {
         status: 'withdrawn'
       });
     }
+
     // 로그인 정보 업데이트
     member.lastLoginAt = new Date();
     member.loginCount = (member.loginCount || 0) + 1;
     await member.save();
+
     // 슬롯 조회 (의자에 앉아있는지 확인)
     let adminSlot = null;
     let permissions = [];
     let isAdmin = member.isAdmin === true || member.role === 'admin';
+
     try {
       const slot = await AdminSlot.findOne({ 
         assignedMemberId: member._id,
@@ -397,9 +433,12 @@ router.post('/login', async (req, res) => {
     } catch (slotErr) {
       console.log('슬롯 조회 스킵 (컬렉션 없을 수 있음):', slotErr.message);
     }
+
     // 토큰 생성 (슬롯 정보 포함)
     const token = generateToken(member._id, isAdmin, adminSlot, permissions);
+
     console.log('✅ 로그인:', member.userId, adminSlot ? `(${adminSlot})` : '');
+
     res.json({
       success: true,
       message: '로그인 성공',
@@ -421,6 +460,7 @@ router.post('/login', async (req, res) => {
         }
       }
     });
+
   } catch (error) {
     console.error('로그인 오류:', error);
     res.status(500).json({
@@ -429,6 +469,7 @@ router.post('/login', async (req, res) => {
     });
   }
 });
+
 // ===== 내 정보 조회 =====
 router.get('/me', authMember, async (req, res) => {
   try {
@@ -446,6 +487,7 @@ router.get('/me', authMember, async (req, res) => {
       success: true,
       data: member
     });
+
   } catch (error) {
     console.error('정보 조회 오류:', error);
     res.status(500).json({
@@ -454,10 +496,12 @@ router.get('/me', authMember, async (req, res) => {
     });
   }
 });
+
 // ===== 내 정보 수정 =====
 router.put('/me', authMember, async (req, res) => {
   try {
     const { name, email, phone, address, addressDetail, zipCode, birthDate } = req.body;
+
     // 수정 가능한 필드만 업데이트
     const updateData = {};
     if (name) updateData.name = name;
@@ -467,17 +511,21 @@ router.put('/me', authMember, async (req, res) => {
     if (addressDetail !== undefined) updateData.addressDetail = addressDetail;
     if (zipCode !== undefined) updateData.zipCode = zipCode;
     if (birthDate !== undefined) updateData.birthDate = birthDate;
+
     const member = await Member.findByIdAndUpdate(
       req.member._id,
       updateData,
       { new: true, runValidators: true }
     );
+
     console.log('✅ 정보 수정:', member.userId);
+
     res.json({
       success: true,
       message: '정보가 수정되었습니다',
       data: member
     });
+
   } catch (error) {
     console.error('정보 수정 오류:', error);
     res.status(500).json({
@@ -486,28 +534,33 @@ router.put('/me', authMember, async (req, res) => {
     });
   }
 });
+
 // ===== 비밀번호 변경 =====
 router.put('/me/password', authMember, async (req, res) => {
   try {
     const { currentPassword, newPassword, newPasswordConfirm } = req.body;
+
     if (!currentPassword || !newPassword || !newPasswordConfirm) {
       return res.status(400).json({
         success: false,
         message: '모든 필드를 입력해주세요'
       });
     }
+
     if (newPassword !== newPasswordConfirm) {
       return res.status(400).json({
         success: false,
         message: '새 비밀번호가 일치하지 않습니다'
       });
     }
+
     if (newPassword.length < 8) {
       return res.status(400).json({
         success: false,
         message: '비밀번호는 8자 이상이어야 합니다'
       });
     }
+
     // 현재 비밀번호 확인
     const member = await Member.findById(req.member._id).select('+password');
     const isMatch = await member.comparePassword(currentPassword);
@@ -518,14 +571,18 @@ router.put('/me/password', authMember, async (req, res) => {
         message: '현재 비밀번호가 올바르지 않습니다'
       });
     }
+
     // 비밀번호 변경
     member.password = newPassword;
     await member.save();
+
     console.log('✅ 비밀번호 변경:', member.email);
+
     res.json({
       success: true,
       message: '비밀번호가 변경되었습니다'
     });
+
   } catch (error) {
     console.error('비밀번호 변경 오류:', error);
     res.status(500).json({
@@ -534,16 +591,19 @@ router.put('/me/password', authMember, async (req, res) => {
     });
   }
 });
+
 // ===== 탈퇴 신청 =====
 router.post('/me/withdraw', authMember, async (req, res) => {
   try {
     const { reason, password } = req.body;
+
     if (!password) {
       return res.status(400).json({
         success: false,
         message: '비밀번호를 입력해주세요'
       });
     }
+
     // 비밀번호 확인
     const member = await Member.findById(req.member._id).select('+password');
     const isMatch = await member.comparePassword(password);
@@ -554,6 +614,7 @@ router.post('/me/withdraw', authMember, async (req, res) => {
         message: '비밀번호가 올바르지 않습니다'
       });
     }
+
     // 탈퇴 신청 (실제 탈퇴는 관리자가 처리)
     member.withdrawal = {
       requestedAt: new Date(),
@@ -561,11 +622,14 @@ router.post('/me/withdraw', authMember, async (req, res) => {
     };
     member.status = 'withdrawn';
     await member.save();
+
     console.log('✅ 탈퇴 신청:', member.email);
+
     res.json({
       success: true,
       message: '탈퇴 처리가 완료되었습니다'
     });
+
   } catch (error) {
     console.error('탈퇴 처리 오류:', error);
     res.status(500).json({
@@ -574,20 +638,24 @@ router.post('/me/withdraw', authMember, async (req, res) => {
     });
   }
 });
+
 // ===== 마케팅 동의 변경 =====
 router.put('/me/marketing', authMember, async (req, res) => {
   try {
     const { marketing } = req.body;
+
     const member = await Member.findByIdAndUpdate(
       req.member._id,
       { 'agreements.marketing': !!marketing },
       { new: true }
     );
+
     res.json({
       success: true,
       message: marketing ? '마케팅 수신에 동의하셨습니다' : '마케팅 수신 동의를 철회하셨습니다',
       data: { marketing: member.agreements.marketing }
     });
+
   } catch (error) {
     console.error('마케팅 동의 변경 오류:', error);
     res.status(500).json({
@@ -596,23 +664,27 @@ router.put('/me/marketing', authMember, async (req, res) => {
     });
   }
 });
+
 // ===== 닉네임 변경 =====
 router.put('/me/nickname', authMember, async (req, res) => {
   try {
     const { nickname } = req.body;
     const member = await Member.findById(req.member._id);
+
     if (!nickname) {
       return res.status(400).json({
         success: false,
         message: '닉네임을 입력해주세요'
       });
     }
+
     if (nickname.length < 2 || nickname.length > 20) {
       return res.status(400).json({
         success: false,
         message: '닉네임은 2~20자여야 합니다'
       });
     }
+
     // 현재 닉네임과 같으면 변경 불필요
     if (member.nickname === nickname) {
       return res.status(400).json({
@@ -620,6 +692,7 @@ router.put('/me/nickname', authMember, async (req, res) => {
         message: '현재 닉네임과 동일합니다'
       });
     }
+
     // 중복 확인
     const existingMember = await Member.findOne({ nickname, _id: { $ne: member._id } });
     if (existingMember) {
@@ -628,14 +701,18 @@ router.put('/me/nickname', authMember, async (req, res) => {
         message: '이미 사용 중인 닉네임입니다'
       });
     }
+
     // 무료 변경 횟수 확인 (1회까지 무료)
     const isFreeChange = member.nicknameChangeCount < 1;
+
     // 닉네임 변경
     member.nickname = nickname;
     member.nicknameChangeCount = (member.nicknameChangeCount || 0) + 1;
     member.nicknameChangedAt = new Date();
     await member.save();
+
     console.log('✅ 닉네임 변경:', member.userId, '→', nickname, isFreeChange ? '(무료)' : '(유료)');
+
     res.json({
       success: true,
       message: isFreeChange 
@@ -647,6 +724,7 @@ router.put('/me/nickname', authMember, async (req, res) => {
         remainingFreeChanges: Math.max(0, 1 - member.nicknameChangeCount)
       }
     });
+
   } catch (error) {
     console.error('닉네임 변경 오류:', error);
     res.status(500).json({
@@ -655,10 +733,12 @@ router.put('/me/nickname', authMember, async (req, res) => {
     });
   }
 });
+
 // ===== 닉네임 변경 가능 여부 확인 =====
 router.get('/me/nickname-status', authMember, async (req, res) => {
   try {
     const member = await Member.findById(req.member._id);
+
     res.json({
       success: true,
       data: {
@@ -669,6 +749,7 @@ router.get('/me/nickname-status', authMember, async (req, res) => {
         remainingFreeChanges: Math.max(0, 1 - (member.nicknameChangeCount || 0))
       }
     });
+
   } catch (error) {
     console.error('닉네임 상태 조회 오류:', error);
     res.status(500).json({
@@ -677,17 +758,20 @@ router.get('/me/nickname-status', authMember, async (req, res) => {
     });
   }
 });
+
 // ===== 이메일 변경 - 인증 코드 요청 =====
 router.post('/me/email/request', authMember, async (req, res) => {
   try {
     const { newEmail } = req.body;
     const memberId = req.member._id;
+
     if (!newEmail) {
       return res.status(400).json({
         success: false,
         message: '새 이메일 주소를 입력해주세요.'
       });
     }
+
     // 이메일 형식 검증
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(newEmail)) {
@@ -696,6 +780,7 @@ router.post('/me/email/request', authMember, async (req, res) => {
         message: '올바른 이메일 형식이 아닙니다.'
       });
     }
+
     // 현재 회원 정보 조회
     const member = await Member.findById(memberId);
     if (!member) {
@@ -704,6 +789,7 @@ router.post('/me/email/request', authMember, async (req, res) => {
         message: '회원 정보를 찾을 수 없습니다.'
       });
     }
+
     // 현재 이메일과 같은지 확인
     if (member.email === newEmail) {
       return res.status(400).json({
@@ -711,6 +797,7 @@ router.post('/me/email/request', authMember, async (req, res) => {
         message: '현재 사용 중인 이메일과 동일합니다.'
       });
     }
+
     // 다른 회원이 사용 중인지 확인
     const existingMember = await Member.findOne({ email: newEmail, _id: { $ne: memberId } });
     if (existingMember) {
@@ -719,6 +806,7 @@ router.post('/me/email/request', authMember, async (req, res) => {
         message: '이미 사용 중인 이메일입니다.'
       });
     }
+
     // 발송 횟수 제한 체크 (하루 5회)
     const limitCheck = checkEmailRequestLimit(memberId.toString());
     if (!limitCheck.allowed) {
@@ -727,20 +815,23 @@ router.post('/me/email/request', authMember, async (req, res) => {
         message: '오늘 인증 코드 발송 횟수(5회)를 초과했습니다. 내일 다시 시도해주세요.'
       });
     }
+
     // 6자리 인증 코드 생성
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = Date.now() + 10 * 60 * 1000; // 10분 후 만료
+
     // 인증 코드 저장
     emailVerificationCodes.set(newEmail, {
       code,
       memberId: memberId.toString(),
       expiresAt
     });
+
     // 이메일 발송
-     const result = await sendVerificationCode({
-      toEmail: email,
+    const result = await sendVerificationCode({
+      toEmail: newEmail,
       code,
-      name: '회원'
+      name: member.name
     });
 
     if (!result.success) {
@@ -749,6 +840,7 @@ router.post('/me/email/request', authMember, async (req, res) => {
         message: '인증 코드 발송에 실패했습니다.'
       });
     }
+
     // 발송 횟수 증가
     incrementEmailRequestCount(memberId.toString());
 
@@ -756,6 +848,7 @@ router.post('/me/email/request', authMember, async (req, res) => {
       success: true,
       message: `인증 코드 발송 완료.\n(오늘 남은 횟수: ${limitCheck.remaining - 1}회)`
     });
+
   } catch (error) {
     console.error('이메일 인증 요청 오류:', error);
     res.status(500).json({
@@ -764,17 +857,20 @@ router.post('/me/email/request', authMember, async (req, res) => {
     });
   }
 });
+
 // ===== 이메일 변경 - 인증 코드 확인 =====
 router.post('/me/email/verify', authMember, async (req, res) => {
   try {
     const { newEmail, code } = req.body;
     const memberId = req.member._id;
+
     if (!newEmail || !code) {
       return res.status(400).json({
         success: false,
         message: '이메일과 인증 코드를 입력해주세요.'
       });
     }
+
     // 저장된 인증 코드 확인
     const stored = emailVerificationCodes.get(newEmail);
     
@@ -784,6 +880,7 @@ router.post('/me/email/verify', authMember, async (req, res) => {
         message: '인증 코드가 존재하지 않습니다. 다시 요청해주세요.'
       });
     }
+
     // 만료 확인
     if (Date.now() > stored.expiresAt) {
       emailVerificationCodes.delete(newEmail);
@@ -792,6 +889,7 @@ router.post('/me/email/verify', authMember, async (req, res) => {
         message: '인증 코드가 만료되었습니다. 다시 요청해주세요.'
       });
     }
+
     // 회원 ID 일치 확인
     if (stored.memberId !== memberId.toString()) {
       return res.status(400).json({
@@ -799,6 +897,7 @@ router.post('/me/email/verify', authMember, async (req, res) => {
         message: '잘못된 인증 요청입니다.'
       });
     }
+
     // 코드 일치 확인
     if (stored.code !== code) {
       return res.status(400).json({
@@ -806,19 +905,23 @@ router.post('/me/email/verify', authMember, async (req, res) => {
         message: '인증 코드가 일치하지 않습니다.'
       });
     }
+
     // 이메일 업데이트
     const member = await Member.findByIdAndUpdate(
       memberId,
       { email: newEmail },
       { new: true }
     );
+
     // 인증 코드 삭제
     emailVerificationCodes.delete(newEmail);
+
     res.json({
       success: true,
       message: '이메일이 변경되었습니다.',
       email: member.email
     });
+
   } catch (error) {
     console.error('이메일 인증 확인 오류:', error);
     res.status(500).json({
@@ -827,6 +930,7 @@ router.post('/me/email/verify', authMember, async (req, res) => {
     });
   }
 });
+
 // ===== 프로필 조회 (memberId로) =====
 router.get('/profile/:memberId', optionalAuth, async (req, res) => {
   try {
@@ -890,6 +994,7 @@ router.get('/profile/:memberId', optionalAuth, async (req, res) => {
     res.status(500).json({ success: false, message: '프로필을 불러올 수 없습니다' });
   }
 });
+
 // ===== 팔로우/언팔로우 =====
 router.post('/:memberId/follow', authMember, async (req, res) => {
   try {
@@ -935,6 +1040,7 @@ router.post('/:memberId/follow', authMember, async (req, res) => {
     res.status(500).json({ success: false, message: '팔로우 처리에 실패했습니다' });
   }
 });
+
 // ===== 자기소개 업데이트 =====
 router.put('/profile/bio', authMember, async (req, res) => {
   try {
@@ -1411,9 +1517,15 @@ router.post('/register/send-email-code', async (req, res) => {
       expiresAt: Date.now() + 5 * 60 * 1000
     });
 
-    // 이메일 발송
-    const sent = await sendVerificationCode(email, code);
-    if (!sent) {
+    // 이메일 발송 (객체로 전달)
+    const result = await sendVerificationCode({
+      toEmail: email,
+      code,
+      name: '회원'
+    });
+
+    if (!result.success) {
+      console.error('❌ 이메일 발송 실패:', result.error);
       return res.status(500).json({
         success: false,
         message: '인증 코드 발송에 실패했습니다.'
